@@ -1,0 +1,7 @@
+﻿##### 配置文件版本，子文件及文件夹放靠前目录,父目录版本改变后会更新整个子目录得内容
+config/data/database_config.db=v1.3
+data/_defealt/矢量库/_defealt.geodatabase=v1.3
+version.txt=v1.3
+data=v1.0
+config=v1.0
+tessdata=v1.0

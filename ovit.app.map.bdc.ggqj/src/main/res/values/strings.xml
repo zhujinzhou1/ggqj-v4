@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_c">MAP-BDCQJDC</string>
+    <string name="app_n">光谷权籍4.0</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+</resources>

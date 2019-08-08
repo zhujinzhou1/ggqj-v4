@@ -1,0 +1,9 @@
+include ':ovit.app.map.bdc.ggqj'
+
+include ':ovit.app'
+include ':ovit.app.map'
+
+project(':ovit.app').projectDir = new File("../ovit.app_v4.0", 'ovit.app')
+project(':ovit.app.map').projectDir = new File("../ovit.app.map_v4.0", 'ovit.app.map')
+
+

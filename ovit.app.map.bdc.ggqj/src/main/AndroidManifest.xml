@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ovit.app.map.bdc.ggqj">
+    <uses-sdk tools:overrideLibrary="com.ovit,android.support.v7.appcompat,android.support.graphics.drawable,android.support.compat,android.support.v4,android.support.coreutils,android.support.mediacompat,android.support.coreui,android.support.fragment,android.support.constraint,android.support.design,android.support.v7.recyclerview,com.esri.arcgis.android,me.leolin.shortcutbadger,android.support.multidex,android.support.multidex.instrumentation"/>
+
+    <!--<application-->
+        <!--android:name="com.ovit.app.map.bdc.qjdc.App"-->
+        <!--android:allowBackup="true"-->
+        <!--android:icon="@mipmap/app_ic_launcher"-->
+        <!--android:label="@string/app_n"-->
+        <!--android:theme="@style/Theme.AppCompat.Light.NoActionBar"-->
+        <!--tools:replace="icon,label,theme"-->
+        <!--&gt;-->
+
+        <!--<activity-->
+            <!--android:name="com.ovit.app.authentication.SplashScreenActivity"-->
+            <!--android:screenOrientation="portrait">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+    <!--</application>-->
+    <application
+        android:name="com.ovit.app.map.bdc.ggqj.App"
+        android:allowBackup="true"
+        android:icon="@mipmap/app_ic_launcher"
+        android:label="@string/app_n"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        tools:replace="android:label">
+
+        <!-- http://aijiawang-126-com.iteye.com/blog/2259734 -->
+        <!-- attempt to write a readonly database -->
+        <!-- android:persistent="true" -->
+
+
+        <!-- 解决android 7.0系统权限问题 -->
+        <!--
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.ovit.app.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+        -->
+
+
+        <activity
+        android:name="com.ovit.app.map.MapActivity"
+        android:configChanges="keyboardHidden|orientation|screenSize"
+        android:windowSoftInputMode="adjustNothing" />
+
+
+
+        <activity
+            android:name="com.ovit.app.authentication.SplashScreenActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.ovit.app.activity.CaptureActivity" />
+
+        <activity
+            android:name="com.ovit.app.authentication.LoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.ovit.app.ui.framework.MainTabActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.ovit.app.ui.framework.AiActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name="com.ovit.app.setting.SettingActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.setting.PersonalCenterActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.setting.SettingLoctionActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.setting.ContactsByOrgActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.setting.ContactsByFirstLetterActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.authentication.PasswordModfiyActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.ui.framework.TabTaskActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.ui.framework.SelectPictureActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.ui.framework.NewsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.im.activity.MessageActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.im.activity.MessageIMActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.im.activity.MessageModifyGroupActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.im.activity.MessageViewUserActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.ui.framework.DownloadActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.ui.ai.component.AiCheckListActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/Theme.CustomDialog" />
+        <activity
+            android:name="com.ovit.app.setting.SettingUserHeadPortraitActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.ovit.app.im.activity.MessageIM_RecordActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize" />
+        <!-- 注册该插件 -->
+        <receiver android:name="com.ovit.app.widget.DeskIconWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ovit.app.widget.deskIconWidget" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/app_widget_deskicon" />
+        </receiver>
+
+        <!-- 注册广播 -->
+        <receiver android:name="com.ovit.app.service.BootBroadcastReceiver">
+            <intent-filter>
+
+                <!-- 开机广播 -->
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+
+                <!-- 屏幕解锁广播 -->
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+            <intent-filter>
+
+                <!-- 网络状态发生改变广播 -->
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <intent-filter>
+
+                <!-- 自定义广播 -->
+                <action android:name="com.ovit.msflr.service.BootBroadcastReceiver" />
+            </intent-filter>
+            <intent-filter>
+
+                <!-- 自定义广播 服务开启服务 -->
+                <action android:name="com.ovit.msflr.service.BootBroadcastReceiver.SERVER_START" />
+            </intent-filter>
+            <intent-filter>
+
+                <!-- 自定义广播 服务停止服务 -->
+                <action android:name="com.ovit.msflr.service.BootBroadcastReceiver.SERVER_STOP" />
+            </intent-filter>
+            <intent-filter>
+
+                <!-- 自定义广播  服务器状态改变广播 -->
+                <action android:name="com.ovit.msflr.service.BootBroadcastReceiver.SERVERSTATE_CHANGE" />
+            </intent-filter>
+            <intent-filter>
+
+                <!-- 自定义广播 消息服务 -->
+                <action android:name="com.ovit.msflr.service.BootBroadcastReceiver.IM_Message" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.ovit.app.service.AppService"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/app_ic_launcher"
+            android:label="@string/app_n"
+            android:persistent="true">
+            <intent-filter android:priority="1000">
+                <action android:name="com.ovit.app.service.AppService" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

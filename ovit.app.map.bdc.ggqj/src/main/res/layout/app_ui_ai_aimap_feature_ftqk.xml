@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/ll_gyr_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/app_split_small">
+
+        <!--  分摊情况基本信息  -->
+        <TextView
+            style="@style/Theme.App.Ai.AiTextView.Desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/app_split_small"
+            android:text="基本信息" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_first"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分摊来源名称"
+                android:textColor="@color/app_fore_requed" />
+
+            <EditText
+                android:id="@+id/et_ftly_name"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分摊来源编号" />
+
+            <EditText
+                android:id="@+id/et_ftly_id"
+                style="@style/Theme.App.Ai.AiTextView.Desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/app_fore_requed"
+                android:text="分摊去向名称"/>
+
+            <EditText
+                android:id="@+id/et_ftqx_name"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分摊去向编号" />
+
+            <EditText
+                android:id="@+id/et_ftqx_id"
+                style="@style/Theme.App.Ai.AiEditText.Desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分摊方式" />
+
+            <EditText
+                android:id="@+id/et_ftfs"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分摊建筑面积" />
+
+            <EditText
+                android:id="@+id/et_ftjzmj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分摊系数" />
+
+            <EditText
+                android:id="@+id/et_ftxs"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_last"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="分摊土地面积" />
+
+            <EditText
+                android:id="@+id/et_fttdmj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

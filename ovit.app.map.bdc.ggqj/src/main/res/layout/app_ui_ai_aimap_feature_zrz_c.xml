@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/ll_zrz_c_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="@dimen/app_split_small">
+
+        <!--  层基本信息  -->
+        <TextView
+            style="@style/Theme.App.Ai.AiTextView.Desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/app_split_small"
+            android:text="层基本信息" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_first"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="层号"
+                android:textColor="@color/app_fore_requed" />
+
+            <EditText
+                android:id="@+id/et_ch"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="自然幢号" />
+
+            <EditText
+                android:id="@+id/et_zrzh"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="要素代码" />
+
+            <EditText
+                android:id="@+id/et_ysdm"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="实际层" />
+
+            <EditText
+                android:id="@+id/et_sjc"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="名义层" />
+
+            <EditText
+                android:id="@+id/et_myc"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="层建筑面积" />
+
+            <EditText
+                android:id="@+id/et_cjzmj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="层套内建筑面积" />
+
+            <EditText
+                android:id="@+id/et_ctnjzmj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/app_item_center"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/Theme.App.Ai.AiTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="层阳台面积" />
+
+        <EditText
+            android:id="@+id/et_cytmj"
+            style="@style/Theme.App.Ai.AiEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent"
+            android:gravity="right"
+            android:hint="／"
+            android:text="" />
+    </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="层共有建筑面积" />
+
+            <EditText
+                android:id="@+id/et_cgyjzmj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="层分摊建筑面积" />
+
+            <EditText
+                android:id="@+id/et_cftjzmj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="层半墙面积" />
+
+            <EditText
+                android:id="@+id/et_bqmj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="层高" />
+
+            <EditText
+                android:id="@+id/et_cg"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="水平投影面积" />
+
+            <EditText
+                android:id="@+id/et_sptymj"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+        <!--  附件材料  -->
+        <TextView
+            style="@style/Theme.App.Ai.AiTextView.Desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/app_split_small"
+            android:text="附件材料" />
+
+        <!--  备注  -->
+        <TextView
+            style="@style/Theme.App.Ai.AiTextView.Desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/app_split_small"
+            android:text="备注" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_single"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/et_bz"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:gravity="right"
+                android:hint="／"
+                android:text="" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

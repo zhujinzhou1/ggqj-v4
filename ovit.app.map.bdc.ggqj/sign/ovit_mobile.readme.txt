@@ -1,0 +1,60 @@
+﻿Alias:	ovitmobile
+Password:	www.51bsi.com   --》 ovitmobile
+Confirm:	www.51bsi.com    --》 ovitmobile
+Validity:	1000
+FirstName:ovit
+unit:	国土应用部
+Organization:	武汉光谷信息技术股份有限公司
+city:	武汉
+province:	湖北
+Country:	CN-zh
+
+cmd 查询
+keytool -list -v -alias mobile -keystore G:\ovit\
+ 
+证书条目dname的修改：  
+keytool -selfcert -alias AndroidDebugKey -keypass android -keystore debug.keystore -storepass android -dname "CN=ovit, OU=国土应用部, O=武汉光谷信息技术股
+
+份有限公司, L=武汉, ST=湖北, C=CN-zh"
+
+更改证书别名
+keytool -changealias -v -alias AndroidDebugKey -destalias ovit -keystore debug.keystore -storepass android
+
+
+证书条目口令的修改： 
+keytool -keypasswd -alias ovit -keypass android -new ovitoffice  -keystore debug.keystore -storepass android
+
+ 
+keystore口令的修改： 
+keytool -storepasswd -keystore debug.keystore -storepass android -new  ovitoffice
+
+
+别名: mobile
+创建日期: 2015-9-18
+条目类型: PrivateKeyEntry
+证书链长度: 1
+证书[1]:
+所有者: CN=ovit, OU=国土应用部, O=武汉光谷信息技术股份有限公司, L=武汉, ST=湖北,
+ C=CN-zh
+发布者: CN=ovit, OU=国土应用部, O=武汉光谷信息技术股份有限公司, L=武汉, ST=湖北,
+ C=CN-zh
+序列号: 18e9a149
+有效期开始日期: Fri Sep 18 11:32:52 CST 2015, 截止日期: Sun Aug 25 11:32:52 CST
+2115
+证书指纹:
+         MD5: F4:16:B3:F7:FE:E8:7F:A5:95:23:97:EE:53:F7:A5:CF
+         SHA1: FA:04:91:EC:5B:8B:CC:33:AB:3B:5C:36:64:92:84:C5:55:73:31:BA
+         SHA256: EA:64:0E:18:1E:36:32:8D:61:4C:8F:4A:A6:AF:EA:CE:B3:39:F8:72:B7:
+FB:7F:30:7C:5A:CC:56:41:B4:15:75
+         签名算法名称: SHA256withRSA
+         版本: 3
+
+扩展:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 1A 95 AA F3 ED A3 E8 F6   1F 4F 81 70 95 1D C9 28  .........O.p...(
+0010: 83 04 C5 1D                                        ....
+]
+]

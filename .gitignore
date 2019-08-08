@@ -1,0 +1,11 @@
+*.iml
+.gradle
+.idea
+local.properties
+build
+.svn
+gen
+gradle
+gradlew
+gradlew.bat
+release
