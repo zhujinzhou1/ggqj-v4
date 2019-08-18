@@ -44,6 +44,7 @@ import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZD;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZRZ;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
+import com.ovit.app.map.custom.shape.GpkgUtil;
 import com.ovit.app.map.model.MapProject;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.DialogBuilder;
@@ -264,7 +265,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.ll_data_backup).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                String gpkgPath= FileUtils.getAppDirAndMK(mapInstance.getpath_root())+"defult.gpkg";
+                GpkgUtil.readGpkg(gpkgPath, mapInstance.getLayer(FeatureHelper.TABLE_NAME_ZD), 10, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        return null;
+                    }
+                });
             }
         });
 
