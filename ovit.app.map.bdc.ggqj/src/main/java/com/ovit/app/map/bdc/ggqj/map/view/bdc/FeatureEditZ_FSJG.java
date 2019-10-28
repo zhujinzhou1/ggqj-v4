@@ -1,5 +1,6 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -121,6 +122,31 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
                     public void onClick(View v) {
                         View ft_view = view.findViewById(R.id.ll_ft_content);
                         FeatureEditFTQK.addFt(mapInstance,feature,ft_view);
+                    }
+                });
+                // 宗地分摊
+                v_feature.findViewById(R.id.add_ft_zd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                     final AiDialog aiDialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz, "添加宗地分摊");
+                        aiDialog.addContentView("确定要设置该附属结构为宗地分摊吗？");
+                        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Feature new_feature_ft = mapInstance.getTable("FTQK").createFeature();
+                                fv.addFtqk(mapInstance,new_feature_ft,feature);
+                                MapHelper.saveFeature(new_feature_ft, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        ToastMessage.Send("新增一条宗地分摊成功！");
+                                        return null;
+                                    }
+                                });
+
+                            }
+                        });
+
+
                     }
                 });
 

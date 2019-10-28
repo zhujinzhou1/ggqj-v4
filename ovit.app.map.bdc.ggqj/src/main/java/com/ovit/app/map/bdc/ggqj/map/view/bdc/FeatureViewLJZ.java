@@ -31,6 +31,7 @@ import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.Callback;
+import com.ovit.app.util.ImageUtil;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.StringUtil;
 
@@ -99,7 +100,7 @@ public class FeatureViewLJZ extends FeatureView {
                     public void onClick(View v) {
                         final AiDialog aiDialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz, "提取自然幢");
                         aiDialog.addContentView("确定要提取选中的逻辑幢图形合并后，创建自然幢么？", "该操作不会对现有的逻辑幢进行修改，提取自然幢成功后进行关联。")
-                                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         List<Geometry> gs = MapHelper.geometry_get(fs);
@@ -108,23 +109,24 @@ public class FeatureViewLJZ extends FeatureView {
                                         if (g instanceof Polygon) {
                                             int ps = ((Polygon) g).getParts().size();
                                             if (ps == 0) {
-                                                aiDialog.setContentView("合并后的图型是空的！").setFooterView("取消", null, null);
+                                                aiDialog.setContentView("合并后的图型是空的！").setFooterView(AiDialog.CENCEL, null, null);
                                                 return;
                                             } else if (ps == 1) {
                                                 aiDialog.setContentView("合并后的图型是一整块，确定要继续提取么？", "接下来将提取成逻辑幢，并关联。");
                                             } else if (ps > 1) {
                                                 aiDialog.setContentView("合并后的图型并非是一整块，确定要继续提取么？", "合并后的图层可能存在多个圈，根据实际情况选择。");
                                             }
-                                            Bitmap bitmap = new MapImage(100, 100).setColor(Color.BLACK).setSw(1).draw(gs).setColor(Color.RED).setSw(2).draw(g).getValue();
-                                            aiDialog.addContentView(aiDialog.getView(bitmap)).setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                            final Bitmap bitmap = new MapImage(100, 100).setColor(Color.BLACK).setSw(1).draw(gs).setColor(Color.RED).setSw(2).draw(g).getValue();
+                                            aiDialog.addContentView(aiDialog.getView(bitmap)).setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
 
-                                                    Feature f = mapInstance.getTable("ZRZ").createFeature();
+                                                    Feature f = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ).createFeature();
                                                     f.setGeometry(g);
-                                                    f.getAttributes().put("ZCS",getMaxLc(fs));
+                                                    f.getAttributes().put("ZCS",getMaxLc(fs,"ZCS"));
                                                     f.getAttributes().put("FWJG",getZrzJc(fs));
                                                     FeatureViewZRZ.CreateFeature(mapInstance, (Feature) null, f, null);
+                                                    ImageUtil.recycle(bitmap);
                                                     dialog.dismiss();
                                                 }
                                             });
@@ -225,13 +227,13 @@ public class FeatureViewLJZ extends FeatureView {
     }
 
     // 获取最大楼层
-    private String getMaxLc(List<Feature> featuresLjz) {
+    private String getMaxLc(List<Feature> featuresLjz,String attr) {
         if (featuresLjz == null && featuresLjz.size() == 0) {
             return "1";
         }
         int maxLc = 1;
         for (Feature featureLjz : featuresLjz) {
-            int zcs = (int) featureLjz.getAttributes().get("ZCS");
+            int zcs = FeatureHelper.Get(featureLjz,attr,1);
             maxLc = zcs > maxLc ? zcs : maxLc;
         }
         return maxLc+"";

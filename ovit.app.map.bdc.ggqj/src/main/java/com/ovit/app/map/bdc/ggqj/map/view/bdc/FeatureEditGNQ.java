@@ -106,7 +106,7 @@ public class FeatureEditGNQ extends FeatureEdit {
                             AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "添加分摊")
                                     .addContentView("请选择分摊范围：")
                                     .addContentView(adapter)
-                                    .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                    .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                           if(map_sel!=null && map_sel.size()>0){

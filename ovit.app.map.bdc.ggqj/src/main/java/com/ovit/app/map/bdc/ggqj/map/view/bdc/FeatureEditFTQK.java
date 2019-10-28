@@ -159,18 +159,18 @@ public class FeatureEditFTQK extends FeatureEdit
     }
 
     //添加分摊情况时先进行初始信息绑定 20180802
-    private static void initAddFt(final Feature feature_ft,final Feature feature_source)
+    public static void initAddFt(final Feature feature_ft,final Feature feature_source)
     {
         if(feature_source!=null&&feature_ft!=null)
         {
             switch(feature_source.getFeatureTable().getTableName())
             {
                 case "FTQK":{
-                    FeatureHelper.Set(feature_ft,"ORID_PATH",FeatureHelper.Get(feature_source,"ORID_PATH"));
-                    FeatureHelper.Set(feature_ft,"FTLY_NAME",FeatureHelper.Get(feature_source,"FTLY_NAME"));
-                    FeatureHelper.Set(feature_ft,"FTLY_ID",FeatureHelper.Get(feature_source,"FTLY_ID"));
-                    FeatureHelper.Set(feature_ft,"FTTDMJ",FeatureHelper.Get(feature_source,"FTTDMJ"));
-                    break;
+                        FeatureHelper.Set(feature_ft,"ORID_PATH",FeatureHelper.Get(feature_source,"ORID_PATH"));
+                        FeatureHelper.Set(feature_ft,"FTLY_NAME",FeatureHelper.Get(feature_source,"FTLY_NAME"));
+                        FeatureHelper.Set(feature_ft,"FTLY_ID",FeatureHelper.Get(feature_source,"FTLY_ID"));
+                        FeatureHelper.Set(feature_ft,"FTTDMJ",FeatureHelper.Get(feature_source,"FTTDMJ"));
+                        break;
                 }
                 case "Z_FSJG":{
                     FeatureHelper.Set(feature_ft,"ORID_PATH",FeatureHelper.Get(feature_source,"ORID"));
@@ -190,7 +190,7 @@ public class FeatureEditFTQK extends FeatureEdit
     }
 
     //添加分摊情况后进行信息绑定 20180804
-    private static void initAfterAddFt(Feature feature_ft,Feature feature_qx)
+    public static void initAfterAddFt(Feature feature_ft,Feature feature_qx)
     {
         if(feature_ft!=null && feature_qx!=null)
         {

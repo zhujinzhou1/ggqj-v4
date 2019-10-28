@@ -51,7 +51,6 @@ public class FeatureViewZ_FSJG extends FeatureView {
             zid = zrzh;
             FeatureHelper.Set(feature, "ID", id);
         }
-
         String zz = "";
         // id有效
         if(id.length()==28) {
@@ -535,7 +534,12 @@ public class FeatureViewZ_FSJG extends FeatureView {
                     }
                 });
     }
-    // 智能识别幢附属结构
+
+    /**
+     * 智能识别幢附属结构，通过标注生成附属结构。
+     *
+     * @param callback
+     */
     public void initFeatureZ_fsjg(AiRunnable callback) {
         FeaturePojo featurePojo = new FeaturePojo(feature, "BZ");
         List<String> lcs = featurePojo.getLc();
@@ -553,4 +557,9 @@ public class FeatureViewZ_FSJG extends FeatureView {
         AiRunnable.Ok(callback,fs_h);
     }
 
+    public static void addFtqk(MapInstance mapInstance,Feature new_feature_ft,Feature feature) {
+\        FeatureEditFTQK.initAddFt(new_feature_ft,feature);
+        FeatureEditFTQK.initAfterAddFt(new_feature_ft,feature);
+        mapInstance.featureView.fillFeature(new_feature_ft);
+    }
 }
