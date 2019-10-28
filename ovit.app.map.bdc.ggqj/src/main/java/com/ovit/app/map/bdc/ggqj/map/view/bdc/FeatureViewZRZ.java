@@ -350,7 +350,6 @@ public class FeatureViewZRZ extends FeatureView {
         fv.set(f);
         return fv;
     }
-
     public static FeatureViewZRZ From(MapInstance mapInstance) {
         FeatureViewZRZ fv = new FeatureViewZRZ();
         fv.set(mapInstance).set(mapInstance.getTable("ZRZ"));
