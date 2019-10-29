@@ -558,7 +558,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
     }
 
     public static void addFtqk(MapInstance mapInstance,Feature new_feature_ft,Feature feature) {
-\        FeatureEditFTQK.initAddFt(new_feature_ft,feature);
+        FeatureEditFTQK.initAddFt(new_feature_ft,feature);
         FeatureEditFTQK.initAfterAddFt(new_feature_ft,feature);
         mapInstance.featureView.fillFeature(new_feature_ft);
     }
