@@ -58,6 +58,8 @@ dependencies {
     implementation project(':ovit.app.map')
     implementation 'com.android.support:multidex:1.0.1'
     implementation files('libs/jxl.jar')
+    implementation files('libs/gdal.jar')
+
 }
 
 allprojects {

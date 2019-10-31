@@ -83,7 +83,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         this.mapInstance = mapInstance;
     }
 
-
     public View getView_Project() {
         CBXT_PROJECT pro_cur = project.getCurrent();
         LinearLayout tool_view = (LinearLayout) LayoutInflater.from(activity).inflate(
@@ -234,7 +233,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.ll_tool_sb_cjy).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                BTCient.connectClick(activity, 1,null );
                 BTClient.Search();
             }
         });
@@ -249,7 +247,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.ll_tool_sb_qzy).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                BTCient.connectClick(activity, 1,null );
                 show_qzy_items();
             }
         });
@@ -375,8 +372,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             @Override
                                             public void run() {
                                                 try {
-                                                        DxfAdapter dxf=new DxfAdapter();
-                                                        dxf = new DxfAdapter();
+                                                        DxfAdapter  dxf = new DxfAdapter();
                                                         Envelope extent = FeatureEdit.GetTable(mapInstance, "ZD", "宗地").getExtent();
                                                         dxf.create(dxfpath, null, SpatialReference.create(2362));
                                                         final DxfAdapter finalDxf = dxf;
@@ -449,15 +445,17 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                         }).start();
                                 }
                             }).show();
-                    ;
-
-                    return null;
+                         return null;
                 }
             });
         }
 
     }
-    // 导入不动产单元
+
+    /**
+     * 导入不动产单元
+     * @param mapInstance
+     */
     private void input_bdcdy(final MapInstance mapInstance) {
         final String funcdesc = "该功能将逐步导入不动产单元！";
         License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
@@ -483,7 +481,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     }
                 });
             }
-
 
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -560,9 +557,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                 @Override
                                                 public void exec() {
                                                     final Map<String, String> map = xlsData.get(postion);
-                                                    String qlrzjh = AiUtil.GetValue(map.get("ZJH"), "");
-                                                    String qlrxm = AiUtil.GetValue(map.get("XM"), "");
-                                                    String bdcdyh = AiUtil.GetValue(map.get("XM"), "");
                                                     Feature feature = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
                                                     mapInstance.fillFeature(feature);
                                                     for (Field field : feature.getFeatureTable().getFields()) {
@@ -616,13 +610,17 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
-    // 不动产单元 智能挂接
+    /**
+     * 不动产单元与不动产进行挂接
+     * @param mapInstance
+     */
     private void zngj_bdcdy(final MapInstance mapInstance) {
         final String funcdesc = "该功能将逐步完成不动产产单元与不动产挂接！";
 
         License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
             final AiDialog aidialog = AiDialog.get(mapInstance.activity);
-            void setMessage(final String message){
+
+            void setMessage(final String message) {
                 if (StringUtil.IsNotEmpty(message)) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
@@ -633,11 +631,12 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     });
                 }
             }
-            void addMessage(final String title,final String  mssage){
+
+            void addMessage(final String title, final String mssage) {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        aidialog.addContentView(title,mssage);
+                        aidialog.addContentView(title, mssage);
                     }
                 });
             }
@@ -645,7 +644,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "不动产单元正在智能关联...")
-                        .setContentView("注意：属于不可逆操作，如果您已经输出过成果，请注意备份谨慎处理！",funcdesc)
+                        .setContentView("注意：属于不可逆操作，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
                         .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
@@ -662,32 +661,34 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     public void onClick(DialogInterface dialog, int which) {
                                                         dialog.dismiss();
                                                     }
-                                                },null,null,"完成",null);
+                                                }, null, null, "完成", null);
                                             }
                                         });
                                         return null;
                                     }
+
                                     @Override
                                     public <T_> T_ no(final T_ t_, Object... objects) {
                                         activity.runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                aidialog.addContentView("处理数据失败！",t_+"");
-                                                aidialog.setFooterView(null,"关闭",null);
+                                                aidialog.addContentView("处理数据失败！", t_ + "");
+                                                aidialog.setFooterView(null, "关闭", null);
                                             }
                                         });
-                                        return  null;
+                                        return null;
                                     }
+
                                     @Override
                                     public <T_> T_ error(final T_ t_, Object... objects) {
                                         activity.runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                aidialog.addContentView("处理数据异常！",t_+"");
-                                                aidialog.setFooterView(null,"关闭",null);
+                                                aidialog.addContentView("处理数据异常！", t_ + "");
+                                                aidialog.setFooterView(null, "关闭", null);
                                             }
                                         });
-                                        return  null;
+                                        return null;
                                     }
                                 };
                                 aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
@@ -698,8 +699,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                         try {
                                             {
 
-                                                final List<Feature> fs_bdcdy=new ArrayList<>();
-                                                final List<Feature> fs_upt=new ArrayList<>();
+                                                final List<Feature> fs_bdcdy = new ArrayList<>();
+                                                final List<Feature> fs_upt = new ArrayList<>();
                                                 MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureHelper.TABLE_NAME_QLRXX, FeatureHelper.LAYER_NAME_QLRXX), "", -1, fs_bdcdy, new AiRunnable() {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
@@ -707,41 +708,41 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                         new AiForEach<Feature>(fs_bdcdy, new AiRunnable() {
                                                             @Override
                                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                MapHelper.saveFeature(fs_upt,null);
-                                                                AiRunnable.Ok(callback,null);
+                                                                MapHelper.saveFeature(fs_upt, null);
+                                                                AiRunnable.Ok(callback, null);
                                                                 return null;
                                                             }
-                                                        }){
+                                                        }) {
                                                             @Override
                                                             public void exec() {
                                                                 // 2 根据不动产单元查找不动产
                                                                 final Feature f_bdc = fs_bdcdy.get(postion);
-                                                                String orid = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_ORID,"");
-                                                                String oridPath = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_ORID_PATH,"");
-                                                                if (TextUtils.isEmpty(orid)){
+                                                                String orid = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_ORID, "");
+                                                                String oridPath = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+                                                                if (TextUtils.isEmpty(orid)) {
                                                                     // TODO 2.1 不动产单元orid 为null 或 “”
-                                                                    AiRunnable.Ok(getNext(),null);
-                                                                }else if (TextUtils.isEmpty(oridPath)){
+                                                                    AiRunnable.Ok(getNext(), null);
+                                                                } else if (TextUtils.isEmpty(oridPath)) {
                                                                     // TODO 2.2 查找不动产单元并关联
-                                                                    final FeatureViewQLR fvBdc= (FeatureViewQLR) mapInstance.newFeatureView(f_bdc);
-                                                                    fvBdc.queryBdc(new AiRunnable(){
+                                                                    final FeatureViewQLR fvBdc = (FeatureViewQLR) mapInstance.newFeatureView(f_bdc);
+                                                                    fvBdc.queryBdc(new AiRunnable() {
                                                                         @Override
                                                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                            if (t_!=null&&t_ instanceof Feature){
-                                                                                Feature f= (Feature) t_;
-                                                                                fvBdc.fillFeature(f_bdc,f);
+                                                                            if (t_ != null && t_ instanceof Feature) {
+                                                                                Feature f = (Feature) t_;
+                                                                                fvBdc.fillFeature(f_bdc, f);
                                                                                 fs_upt.add(f_bdc);
                                                                                 fs_upt.add(f);
                                                                             }
-                                                                            AiRunnable.Ok(getNext(),null);
+                                                                            AiRunnable.Ok(getNext(), null);
                                                                             return null;
                                                                         }
                                                                     });
                                                                     // TODO 2.2.1 不动产单元orid_path 为 null 或 “”，没有与不动产关联
-                                                                }else {
+                                                                } else {
                                                                     // TODO 2.3 不动产单元 orid_path 不为空
                                                                     // TODO 2.3.1 不动产单元 orid_path 不为空,没有查找到对应的不动产
-                                                                    AiRunnable.Ok(getNext(),null);
+                                                                    AiRunnable.Ok(getNext(), null);
                                                                 }
 
                                                             }
@@ -752,8 +753,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                 });
 
                                             }
-                                        }catch (Exception e){
-                                            Log.d(TAG,"不动产单元智能挂接失败！"+e.getMessage());
+                                        } catch (Exception e) {
+                                            Log.d(TAG, "不动产单元智能挂接失败！" + e.getMessage());
                                         }
                                     }
                                 }).start();
@@ -777,14 +778,10 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     dialog.dismiss();
                 }
             });
-
-
-
            // 连接设备
             view.findViewById(R.id.ll_lj).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    BTCient.connectClick(activity, 1,null );
                     BTClient.Search();
                 }
             });
@@ -796,9 +793,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                          @Override
                          public <T_> T_ ok(T_ t_, Object... objects) {
                              String path  = (String)t_;
-//                             ToastMessage.Send(activity,"已经选择路径："+path);
-//                             File file = new File(path);
-//                             file.length()
                              try {
                                  String str_zb = FileUtils.readFile(path)+"";
                                  String[] lines = str_zb.split("\n");
@@ -844,42 +838,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                  return  null;
                                                              }
                                                          });
-//                                                         return  null;
-//                                                     }
-//                                                 });
-//                                         FeatureLayer layer = MapHelper.getLayer(map,"KZD");
-//                                         final   List<Feature> fs = new ArrayList<Feature>();
-//                                         String sel_zbx =  AiUtil.GetValue( spn_zbx.getSelectedItem(),"");
-//                                         sel_zbx = StringUtil.substr(sel_zbx,sel_zbx.indexOf("[")+1,sel_zbx.indexOf("]"));
-//                                         int wkid = AiUtil.GetValue(sel_zbx,map.getSpatialReference().getWkid());
-//                                         for(String []l :ls){
-//                                             String name = l[0];
-//                                             double x = AiUtil.GetValue(l[2],0d);
-//                                             double y = AiUtil.GetValue(l[1],0d);
-//                                             double z = AiUtil.GetValue(l[3],0d);
-//                                             String bz =l[4];
-//                                             if(x>0&&y>0){
-//                                                 Feature f =   layer.getFeatureTable().createFeature();
-//                                                 f.getAttributes().put("MC",name);
-//                                                 f.getAttributes().put("XZB",x);
-//                                                 f.getAttributes().put("YZB",y);
-//                                                 f.getAttributes().put("ZZB",z);
-//                                                 f.getAttributes().put("BZ",bz);
 //
-////                                         2000 114E  4547
-////                                            xian80 37  2361
-////                                         xian80 111E 2382
-//                                                 f.setGeometry(new Point(x,y, SpatialReference.create(wkid)));
-//                                                 fs.add(f);
-//                                             }
-//                                         }
-//                                         MapHelper.saveFeature(fs, new AiRunnable(activity ) {
-//                                             @Override
-//                                             public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                 MapHelper.selectAddCenterFeature(map,fs);
-//                                                 ToastMessage.Send(activity,"导入成功"+fs.size()+"个点");
-//                                                 return null;
-//                                             }
 //                                         });
                                      }
                                  });
@@ -894,7 +853,12 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             });
     }
 
-
+    /**
+     * 导入控制点
+     * @param zbx   投影坐标系
+     * @param ls    数据集，1、y、x、z 例 ：1,3339131.752,573089.173,74.307,
+     * @param callback
+     */
     public void inputCld(String zbx, List<String []> ls , final AiRunnable callback){
         FeatureLayer layer = MapHelper.getLayer(map,"KZD");
         final   List<Feature> fs = new ArrayList<Feature>();
@@ -914,10 +878,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 f.getAttributes().put("YZB",y);
                 f.getAttributes().put("ZZB",z);
                 f.getAttributes().put("BZ",bz);
-
-//                                         2000 114E  4547
-//                                            xian80 37  2361
-//                                         xian80 111E 2382
                 f.setGeometry(new Point(x,y, SpatialReference.create(wkid)));
                 fs.add(f);
             }
@@ -933,264 +893,20 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
     }
 
+    /**
+     * 项目管理
+     * @return
+     */
     public View getView_ProjectList() {
         return MapProject.ListView(mapInstance);
-//        List<CBXT_PROJECT> projects = project.getList();
-//        CBXT_PROJECT project_sel = project.getSelected();
-////        loadProjects();
-//        LinearLayout v = (LinearLayout) LayoutInflater.from(activity).inflate(
-//                R.layout.app_ui_ai_aimap_project_list, null);
-//        final TextView tv_pro_name = (TextView) v.findViewById(R.id.tv_pro_name);
-//        final TextView tv_pro_id = (TextView) v.findViewById(R.id.tv_pro_id);
-//        final View v_pro_change = v.findViewById(R.id.v_pro_change);
-//        tv_pro_name.setText(project.getSelected().XMMC);
-//        tv_pro_id.setText(project_sel.XMBM);
-//        v_pro_change.setVisibility(isCurrent(project_sel)?View.GONE:View.VISIBLE);
-//        v_pro_change.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // 在此切换项目
-//                changeProject();
-//            }
-//        });
-//
-//
-//        final QuickAdapter<CBXT_PROJECT> adapter = new QuickAdapter<CBXT_PROJECT>(activity, R.layout.app_ui_ai_aimap_project_list_item, projects) {
-//            @Override
-//            protected void convert(final BaseAdapterHelper helper, final CBXT_PROJECT item) {
-//                helper.setText(R.id.tv_name, item.XMMC);
-//                helper.setText(R.id.tv_desc, item.XMBM);
-//                helper.setVisible(R.id.iv_pro_selcet,isCurrent(item));
-//                helper.getView().setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        project.setSelected(item);
-////                        project_sel = item;
-//                        tv_pro_name.setText(item.XMMC);
-//                        tv_pro_id.setText(item.XMBM);
-//                        v_pro_change.setVisibility(isCurrent(item)?View.GONE:View.VISIBLE);
-//                    }
-//                });
-//            }
-//        };
-//        ((ListView) v.findViewById(R.id.lv_pro_list)).setAdapter(adapter);
-//
-//
-//
-//
-//        // 添加项目
-//        v.findViewById(R.id.v_pro_add).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                editProject(null, new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        adapter.notifyDataSetChanged();
-//                        return null;
-//                    }
-//                });
-//
-//            }
-//        });
-//
-//
-//        // 编辑项目
-//        v.findViewById(R.id.v_pro_view).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                final CBXT_PROJECT item = project.getSelected();
-//                editProject(item, new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        adapter.notifyDataSetChanged();
-//                        tv_pro_name.setText(item.XMMC);
-//                        tv_pro_id.setText(item.XMBM);
-//                        return null;
-//                    }
-//                });
-//            }
-//        });
-//        return v;
     }
-
-//    public void editProject(CBXT_PROJECT pro_edit ,final AiRunnable callback){
-//        try {
-//            LinearLayout v_d = (LinearLayout) LayoutInflater.from(activity).inflate(
-//                    R.layout.app_ui_ai_aimap_project_list_item_detail, null);
-//            final EditText et_name = (EditText) v_d.findViewById(R.id.et_name);
-//            final EditText et_id = (EditText) v_d.findViewById(R.id.et_id);
-//            final Dialog dialog = new AlertDialog.Builder(activity).setView(v_d).create();
-//
-//            final Spinner spn_zbx = (Spinner) v_d.findViewById(R.id.spn_zbx);
-//            String resname = AiUtil.GetValue(view.getContentDescription(), "map_zbx");
-//            final CharSequence[] strings = activity.getResources().getTextArray(ResourceUtil.getResourceId(activity, resname, "array"));
-//            final ArrayAdapter adapter = new ArrayAdapter(activity, R.layout.app_ui_ai_aimap_feature_spn_item, strings);
-//            spn_zbx.setAdapter(adapter);
-////            Map<String,String > map_zbx = FeatureEdit.getDicMap(activity,"map_zbx");
-//
-//
-//            String tilte = "编辑项目";
-//            if (pro_edit == null) {
-//                pro_edit = MapProject.Create("","","");
-//                tilte = "添加项目";
-//                v_d.findViewById(R.id.btn_del).setVisibility(View.GONE);
-//            } else {
-//                v_d.findViewById(R.id.btn_del).setVisibility(View.VISIBLE);
-//                et_name.setText(pro_edit.XMMC);
-//                et_id.setText(pro_edit.XMBM);
-//                for (int i =0;i<strings.length;i++){
-//                    if(strings.toString().startsWith("["+pro_edit.WKID+"]")){
-//                        spn_zbx.setSelection(i);
-//                        break;
-//                    }
-//                }
-//            }
-//            ((TextView) v_d.findViewById(R.id.tv_title)).setText(tilte);
-//            final CBXT_PROJECT pro_edit_ = pro_edit;
-//            v_d.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
-//                                                                    @Override
-//                                                                    public void onClick(View v) {
-//                                                                        dialog.dismiss();
-//                                                                        if (callback != null) {
-//                                                                            callback.no(null);
-//                                                                        }
-//                                                                    }
-//                                                                }
-//            );
-//            v_d.findViewById(R.id.btn_del).setOnClickListener(new View.OnClickListener() {
-//                                                                  @Override
-//                                                                  public void onClick(View v) {
-//                                                                      DBManager.Sync.delete(pro_edit_);
-//                                                                      project.getList();
-//                                                                      dialog.dismiss();
-//                                                                      if (callback != null) {
-//                                                                          callback.ok(null);
-//                                                                      }
-//                                                                  }
-//                                                              }
-//            );
-//            v_d.findViewById(R.id.btn_save).setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    try {
-//                        et_name.setError(null);
-//                        et_id.setError(null);
-//                        String id = (et_id.getText() + "").trim();
-//                        String name = (et_name.getText()+"").trim();
-//                        String wkid_ = StringUtil.substr(spn_zbx.getSelectedItem()+"","[","]");
-//                        int wkid = AiUtil.GetValue(wkid_,0);
-//                        boolean vaild = true;
-//                        if (StringUtil.IsEmpty(id)) {
-//                            et_id.setError("请填写" + et_id.getHint() + "!");
-//                            vaild = false;
-//                        }
-//                        if (StringUtil.IsEmpty(name)) {
-//                            et_name.setError("请填写" + et_name.getHint() + "!");
-//                            vaild = false;
-//                        }
-//                        if (MapProject.Get(name)!=null) {
-//                            et_name.setError("该项目已经存在！");
-//                            vaild = false;
-//                        }
-//                        if (vaild) {
-//                            pro_edit_.ID = id;
-//                            pro_edit_.XMBM = id;
-//                            pro_edit_.NAME = name;
-//                            pro_edit_.XMMC = name;
-//                            pro_edit_.WKID = wkid>0?(wkid+""):"";
-//
-//                            MapProject.Save(pro_edit_);
-//                            if (callback != null) {
-//                                callback.ok(pro_edit_);
-//                            }
-//                            dialog.dismiss();
-//                        }
-//                    } catch (Exception es) {
-//                        Log.e(TAG, "项目添加失败", es);
-//                        if (callback != null) {
-//                            callback.error(es);
-//                        }
-//                    }
-//
-//                }
-//            });
-//
-//            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//            dialog.setCanceledOnTouchOutside(true);
-//            dialog.show();
-//        }catch (Exception es){
-//            Log.e(TAG, "editProject: ", es);
-//        }
-//    }
-//
-//    public CBXT_PROJECT newProject() {
-//        String pro_name = GsonUtil.GetValue(aiMap.JsonData, "XMMC", "");
-//        String pro_id = GsonUtil.GetValue(aiMap.JsonData, "XMBM", "");
-//        return newProject(pro_id, pro_name);
-//    }
-//
-//    public CBXT_PROJECT newProject(String id, String name) {
-//        CBXT_PROJECT project = new CBXT_PROJECT();
-//        project.ID = id;
-//        project.NAME = name;
-//        project.XMBM = id;
-//        project.XMMC = name;
-//        project.STAFF_ID = GsonUtil.GetValue(aiMap.JsonData, "STAFF_ID", "");
-//        project.SERVICE_ALIANAME = GsonUtil.GetValue(aiMap.JsonData, "SERVICE_ALIANAME", "");
-//        project.SERVICE_URL = GsonUtil.GetValue(aiMap.JsonData, "SERVICE_URL", "");
-//        return project;
-//    }
-
-//    public CBXT_PROJECT getProject() {
-//        if(project_current==null) {
-//            String pro_name = GsonUtil.GetValue(aiMap.JsonData, "XMMC", "");
-//            project_current = getProject(pro_name);
-//            if (project_current == null) {
-//                project_current = newProject();
-//            }
-//        }
-//        return project_current ;
-//    }
-
-//    public CBXT_PROJECT getProject(String xmmc) {
-//        CBXT_PROJECT pro = DBManager.Sync.queryOne(CBXT_PROJECT.class, "XMMC", new String[]{xmmc});
-//        return pro;
-//    }
-//    public void loadProjects(){
-//        if(project_current==null){
-//            project_current = getProject();
-//        }
-//        projects.clear();
-//        projects.addAll(DBManager.Sync.query(CBXT_PROJECT.class));
-//        if (project_sel == null) {
-//            if (projects.size() > 0) {
-//                project_sel = projects.get(0);
-//            } else {
-//                project_sel = getProject();
-//            }
-//        }
-//    }
-//    public boolean isCurrent(CBXT_PROJECT project){
-//        return (MapProject.get().XMMC + "").equals(project.XMMC);
-//    }
-//    public void changeProject(){
-//       CBXT_PROJECT project_sel =   MapProject.getSelected();
-//        AppConfig.set("_DefProjectItemId", project_sel.ID);
-//        JsonElement jsondata  = GsonUtil.Extend(aiMap.JsonData, GsonUtil.fromJson(project_sel)) ;
-//        AiMap aimap =(AiMap) AiCore.Load(aiMap.JsonTemplet);
-//        aimap.activity = aiMap.activity;
-//        aimap.parentView = aiMap.parentView;
-//        aimap.Data = jsondata;
-//        aiMap.destroy();
-//        aimap.Build();
-//    }
     public String  getName(){
         return project.getCurrent().NAME;
     }
+
     public String  getId(){
         return project.getCurrent().ID;
     }
-
     // 智能处理
     public  static void Zlcl(final MapInstance mapInstance) {
         final String funcdesc = "该功能将逐一对项目中所有宗地进行处理："
@@ -1308,7 +1024,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
-
     // 成果输出
     public  static void Cgsc(final MapInstance mapinstance, final boolean isReload) {
         final String funcdesc = "该功能将逐一对项目中所有不动产单元"+(isReload?"重新":"")+"生成word成果。";
@@ -1427,7 +1142,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
     }
     // 数据检查
-    public  static void Sjjc (final MapInstance mapinstance){
+    public  void Sjjc (final MapInstance mapinstance){
         final String funcdesc = "该功能将逐一对项目中所有宗地的代码进行更新。";
         License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
             @Override
@@ -1532,7 +1247,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
     }
 
     // 智能检测宗地代码
-    public static void ZnjcUpdateZd(final MapInstance mapInstance, final String djzq, final Feature f_zd, final AiRunnable callback) {
+    public  void ZnjcUpdateZd(final MapInstance mapInstance, final String djzq, final Feature f_zd, final AiRunnable callback) {
         String zddm_zd = (String) f_zd.getAttributes().get("ZDDM");
         final List<Feature> update_fs = new ArrayList<>();
         if (djzq.equals(zddm_zd.substring(0,12))){
@@ -1687,8 +1402,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     public void run() {
                                                          try {
                                                              FeatureTable table_zd = MapHelper.getLayer(map, "ZD").getFeatureTable();
-//                                                             FeatureTable table_ljz = MapHelper.getLayer(map, "LJZ").getFeatureTable();
-                                                             FeatureTable table_zrz = MapHelper.getLayer(map, "ZRZ").getFeatureTable();
+                                                             FeatureTable table_ljz = MapHelper.getLayer(map, "LJZ").getFeatureTable();
+//                                                             FeatureTable table_zrz = MapHelper.getLayer(map, "ZRZ").getFeatureTable();
                                                              FeatureTable table_z_fsjg = MapHelper.getLayer(map, "Z_FSJG").getFeatureTable();
 
                                                              FeatureTable table_cld = MapHelper.getLayer(map, "KZD").getFeatureTable();
@@ -1717,8 +1432,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
                                                                      if(readZd(table_zd,fs,map_fs,f,wkid)){
                                                                          continue;  }
-//                                                                     if(readLjz(table_ljz,fs,map_fs,f,wkid)){ continue;  }
-                                                                     if(readZrz(table_zrz,fs,map_fs,f,wkid)){ continue;  }
+                                                                     if(readLjz(table_ljz,fs,map_fs,f,wkid)){ continue;  }
+//                                                                     if(readZrz(table_zrz,fs,map_fs,f,wkid)){ continue;  }
                                                                      if(readZrzFSJG(table_z_fsjg,fs,map_fs,f,wkid)){ continue;  }
                                                                      if(readCLD(table_cld,fs,map_fs,f,wkid)){ continue;  }
                                                                      if(readDw(table_dzdw,table_xzdw,table_mzdw,fs,map_fs,f,wkid)){ continue;  }
@@ -1920,7 +1635,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         }
         return false;
     }
-
     public boolean readZrz(FeatureTable table ,List<Feature> fs, Map<String ,Integer> map_fs,DxfFeature f,int wkid) {
 
         String name = "幢";
@@ -2053,7 +1767,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 //        }
         return false;
     }
-
     public boolean readLjz(FeatureTable table ,List<Feature> fs, Map<String ,Integer> map_fs,DxfFeature f,int wkid) {
 
         String name = "逻辑幢";
@@ -2130,7 +1843,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         }
         return false;
     }
-
     public boolean readZrzFSJG(FeatureTable table ,List<Feature> fs, Map<String ,Integer> map_fs,DxfFeature f,int wkid) {
 
         String name = "幢附属";
