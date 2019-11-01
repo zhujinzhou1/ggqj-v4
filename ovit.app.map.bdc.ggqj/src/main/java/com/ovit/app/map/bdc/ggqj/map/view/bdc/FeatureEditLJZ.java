@@ -10,25 +10,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
-import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.ovit.R;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
-import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
-import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
-import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
-import com.ovit.app.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,13 +275,14 @@ public class FeatureEditLJZ extends FeatureEdit {
         addAction("幢附属", R.mipmap.app_map_layer_h_pc, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fsjg_init(FeatureEditLJZ.MAP_LAYER_Z_FSJG);
+                fv.init_fsjg("z_fsjg_lx",FeatureEditLJZ.MAP_LAYER_Z_FSJG );
+
             }
         });
         addAction("户附属", R.mipmap.app_map_layer_h_pc, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fsjg_init(FeatureEditLJZ.MAP_LAYER_H_FSJG);
+                fv.init_fsjg("h_fsjg_lx",FeatureEditLJZ.MAP_LAYER_H_FSJG );
             }
         });
     }
@@ -469,26 +463,25 @@ public class FeatureEditLJZ extends FeatureEdit {
             ToastMessage.Send(activity, "画户失败", es);
         }
     }
+
     // 绘制附属结构
-    private void fsjg_init(final String mapType) {
+    private void fsjg_init(final String resname, final AiRunnable callback) {
         String desc = "该操作主要是绘制幢附属结构到指定楼层！";
         final Map<String, Object> map = new LinkedHashMap<>();
-        final AiDialog aidialog = AiDialog.get(mapInstance.activity);
-        map.put("szc", 1 + "");
-        aidialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
-                .addContentView(aidialog.getEditView("请输入附属结构所在的楼层", map, "szc"))
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        aidialog.dismiss();
-                        String szc = map.get("szc") + "";
-                        if (FeatureEditLJZ.MAP_LAYER_Z_FSJG.equalsIgnoreCase(mapType)) {
-                            fv.draw_z_fsjg(feature, "附属", szc, null);
-                        } else if (FeatureEditLJZ.MAP_LAYER_H_FSJG.equalsIgnoreCase(mapType)) {
-                            fv.draw_h_fsjg(feature, "阳台", szc, null);
-                        }
-                    }
-                });
+        final Map<String, String> dataconfig = new LinkedHashMap<>();
+        final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
+        final String szc = "SZC";
+        map.put(szc, "1");
+        aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
+        aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
+        aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
+                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc));
+        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AiRunnable.Ok(callback, aiDialog, map, dataconfig);
+            }
+        });
     }
 
 //    //  获取最大的编号   LJZH 只有20 ，42068100100100000001

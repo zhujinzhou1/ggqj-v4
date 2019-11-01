@@ -21,7 +21,6 @@ import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.MapImage;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.pojo.FeaturePojo;
-import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
@@ -30,14 +29,15 @@ import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
-import com.ovit.app.util.Callback;
 import com.ovit.app.util.ImageUtil;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZ_FSJG.CreateFeatureHollow;
 
@@ -123,8 +123,8 @@ public class FeatureViewLJZ extends FeatureView {
 
                                                     Feature f = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ).createFeature();
                                                     f.setGeometry(g);
-                                                    f.getAttributes().put("ZCS",getMaxLc(fs,"ZCS"));
-                                                    f.getAttributes().put("FWJG",getZrzJc(fs));
+                                                    f.getAttributes().put("ZCS", getMaxFloor(fs,"ZCS"));
+                                                    f.getAttributes().put("FWJG", getZrzStructure(fs));
                                                     FeatureViewZRZ.CreateFeature(mapInstance, (Feature) null, f, null);
                                                     ImageUtil.recycle(bitmap);
                                                     dialog.dismiss();
@@ -224,33 +224,6 @@ public class FeatureViewLJZ extends FeatureView {
             }
         }
         return groupname;
-    }
-
-    // 获取最大楼层
-    private String getMaxLc(List<Feature> featuresLjz,String attr) {
-        if (featuresLjz == null && featuresLjz.size() == 0) {
-            return "1";
-        }
-        int maxLc = 1;
-        for (Feature featureLjz : featuresLjz) {
-            int zcs = FeatureHelper.Get(featureLjz,attr,1);
-            maxLc = zcs > maxLc ? zcs : maxLc;
-        }
-        return maxLc+"";
-    }
-
-    // 获取房屋结构
-    private String getZrzJc(List<Feature> featuresLjz) {
-        if (featuresLjz == null && featuresLjz.size() == 0) {
-            return "";
-        }
-        String yt=FeatureHelper.Get(featuresLjz.get(0),"FWJG1","");
-        for (Feature featureLjz : featuresLjz) {
-            if (!yt.equals(FeatureHelper.Get(featureLjz,"FWJG1",""))){
-                return "4";
-            }
-        }
-        return yt;
     }
 
     // 列表项，点击加载自然幢
@@ -778,6 +751,75 @@ public class FeatureViewLJZ extends FeatureView {
             fs_h.add(f_h);
         }
         AiRunnable.Ok(callback,fs_h);
+    }
+
+    public void init_fsjg(String fsjg_lx, final String tableName) {
+        setFsjgAttribute(fsjg_lx, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog dialog = (AiDialog) t_;
+                dialog.dismiss();
+                final Map<String, Object> map = (Map<String, Object>) objects[0];
+                final Map<String, String> dataconfig = (Map<String, String>) objects[1];
+                final FeatureView featureView = (FeatureView) mapInstance.newFeatureView(tableName);
+                featureView.fsjg_init(new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        if (t_ instanceof Feature) {
+                            final Feature f_t = (Feature) t_;
+                            String szc = map.get("SZC") + "";
+                            final List<Integer> nubs = StringUtil.GetNumbers(szc);
+                            final ArrayList<Feature> features_save = new ArrayList<>();
+                            for (int nub : nubs) {
+                                Feature f;
+                                if (nubs.indexOf(nub) == 0) {
+                                    f = f_t;
+                                } else {
+                                    f = mapInstance.getTable(tableName).createFeature();
+                                }
+                                f.setGeometry(f_t.getGeometry());
+                                f.getAttributes().put("LC", nub + "");
+                                f.getAttributes().put("TYPE", dataconfig.get("TYPE"));
+                                f.getAttributes().put("FHMC", dataconfig.get("FHMC"));
+                                featureView.hsmj(f, mapInstance);
+                                fv.fillFeature(f, feature);
+                                features_save.add(f);
+                            }
+                            MapHelper.saveFeature(features_save, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    mapInstance.viewFeature(f_t);
+                                    return null;
+                                }
+                            });
+                        }
+                        return null;
+                    }
+                });
+                return null;
+            }
+        });
+
+    }
+
+
+    private void setFsjgAttribute(final String resname, final AiRunnable callback) {
+        String desc = "该操作主要是绘制幢附属结构到指定楼层！";
+        final Map<String, Object> map = new LinkedHashMap<>();
+        final Map<String, String> dataconfig = new LinkedHashMap<>();
+        final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
+        final String szc = "SZC";
+        map.put(szc, "1");
+        aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
+        aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
+        aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
+                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc));
+        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AiRunnable.Ok(callback, aiDialog, map, dataconfig);
+            }
+        });
     }
 
 }

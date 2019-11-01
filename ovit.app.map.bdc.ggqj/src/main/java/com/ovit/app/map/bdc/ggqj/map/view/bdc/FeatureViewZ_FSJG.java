@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.view.View;
 
+import com.esri.arcgisruntime.data.ArcGISFeatureTable;
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Geometry;
@@ -562,4 +563,44 @@ public class FeatureViewZ_FSJG extends FeatureView {
         FeatureEditFTQK.initAfterAddFt(new_feature_ft,feature);
         mapInstance.featureView.fillFeature(new_feature_ft);
     }
+
+    public void fsjg_init(final AiRunnable callback) {
+        final Feature z_fsjg = getFeatureTable().createFeature();
+        mapInstance.command_draw(z_fsjg, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                mapInstance.newFeatureView(feature).fillFeatureAddSave(z_fsjg, callback);
+                return null;
+            }
+        });
+
+    }
+
+    public FeatureTable getFeatureTable() {
+        return mapInstance.getTable("Z_FSJG");
+    }
+    @Override
+    public void hsmj(Feature feature, MapInstance mapInstance) {
+        String fhmc = FeatureHelper.Get(feature,"FHMC","");
+        double type  = FeatureHelper.Get(feature,"TYPE",0d);
+        Geometry g = feature.getGeometry();
+        double area = 0;
+        double hsmj = 0;
+        if(g!=null) {
+            area = MapHelper.getArea(mapInstance,g);
+            if(area>0){
+                hsmj = type * area;
+            }
+        }
+        if (fhmc.contains("门廊")){
+            // feature.getAttributes().put("MC",(type==0?"":(type==1?"双柱门廊，多柱门廊":"单柱门廊，凹槽式门廊")));
+            FeatureHelper.Set(feature,"MC",fhmc+"");
+        }else{
+            FeatureHelper.Set(feature,"MC",fhmc+""+(type==0?"":(type==1?"（全）":"（半）")));
+        }
+        FeatureHelper.Set(feature,"MJ", AiUtil.Scale(area,2));
+        FeatureHelper.Set(feature,"HSMJ",AiUtil.Scale(hsmj,2));
+
+    }
+
 }

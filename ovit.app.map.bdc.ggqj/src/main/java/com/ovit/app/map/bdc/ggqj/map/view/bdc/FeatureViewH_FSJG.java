@@ -1,11 +1,14 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.text.TextUtils;
 import android.view.View;
 
 import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.data.FeatureTable;
+import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.ovit.R;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
@@ -13,12 +16,15 @@ import com.ovit.app.map.bdc.ggqj.map.pojo.FeaturePojo;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
+import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewH.GetTable;
 
@@ -35,52 +41,36 @@ public class FeatureViewH_FSJG extends FeatureView {
 
         iconDash=  new DashPathEffect(new float[]{4, 4}, 0);// 虚线
     }
-    public void fillFeature(Feature feature, Feature feature_h){
-        super.fillFeature(feature,feature_h);
+    public void fillFeature(Feature feature, Feature feature_h) {
+        super.fillFeature(feature, feature_h);
         String id = FeatureHelper.Get(feature, "ID", "");
-        String hid = FeatureHelper.Get(feature,"HID","");
-        int lc = FeatureHelper.Get(feature,"LC",1);
-        if(feature_h!=null) {
+        String hid = FeatureHelper.Get(feature, "HID", "");
+        int lc = FeatureHelper.Get(feature, "LC", 1);
+        if (feature_h != null) {
             String hid_ = FeatureHelper.Get(feature_h, "HID", "");
             id = hid_ + StringUtil.substr(id, hid_.length());
             hid = hid_;
             FeatureHelper.Set(feature, "ID", id);
-            lc = FeatureHelper.Get(feature_h,"SZC",lc);
+            lc = FeatureHelper.Get(feature_h, "SZC", lc);
         }
         String hh = "";
         // id有效
-        if(id.length()==32) {
+        if (id.length() == 32) {
             hid = StringUtil.substr(id, 0, id.length() - 4);
-            FeatureHelper.Set(feature,"HID", hid);
+            FeatureHelper.Set(feature, "HID", hid);
         }
         // hid 有效
-        if(hid.length()==28){
+        if (hid.length() == 28) {
             hh = StringUtil.substr_last(hid, 4);
-            FeatureHelper.Set(feature,"HH", hh);
+            FeatureHelper.Set(feature, "HH", hh);
         }
-        FeatureHelper.Set(feature,"LC", lc);
+        FeatureHelper.Set(feature, "LC", lc);
     }
 
         @Override
         public String addActionBus(String groupname) {
             int count = mapInstance.getSelFeatureCount();
             // 根据画宗地推荐
-//
-//        mapInstance.addAction(groupname, "画户", R.mipmap.app_map_h, new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                String zrzh = FeatureHelper.Get(feature, "ZRZH", "");
-//                draw_h(zrzh, "1", null);
-//            }
-//        });
-//
-//        if (count > 0) {
-//            mapInstance.addAction(groupname, "画飘窗", R.mipmap.app_icon_layer_ljz, new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    draw_h_fsjg(feature, "飘窗");
-//                }
-//            });
 //            mapInstance.addAction(groupname, "画阳台", R.mipmap.app_map_h, new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
@@ -206,5 +196,46 @@ public class FeatureViewH_FSJG extends FeatureView {
                 return null;
             }
         });
+    }
+    public FeatureTable getFeatureTable(){
+        return mapInstance.getTable("H_FSJG");
+    }
+
+    public void fsjg_init(final AiRunnable callback) {
+        final Feature h_fsjg = getFeatureTable().createFeature();
+        mapInstance.command_draw(h_fsjg, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                mapInstance.newFeatureView(feature).fillFeatureAddSave(h_fsjg, callback);
+                return null;
+            }
+        });
+
+    }
+
+    @Override
+    public void hsmj(Feature feature, MapInstance mapInstance) {
+        String fhmc = AiUtil.GetValue(feature.getAttributes().get("FHMC"),"");
+        double type  = AiUtil.GetValue(feature.getAttributes().get("TYPE"),0d);
+        Geometry g = feature.getGeometry();
+        double area = 0;
+        double hsmj = 0;
+        if(g!=null) {
+            area = MapHelper.getArea(mapInstance,g);
+            if(area>0){
+                hsmj = type * area;
+            }
+        }
+        if (fhmc.contains("门廊")){
+            feature.getAttributes().put("MC",fhmc+"");
+        }else if (fhmc.contains("阳台")){
+            feature.getAttributes().put("MC",(type==0?"":(type==1?"封闭":"未封闭"))+fhmc);
+        }else if (fhmc.contains("凹槽")){
+            feature.getAttributes().put("MC",(type==0?"":(type==1?"（全）":""))+fhmc);
+        }else{
+            feature.getAttributes().put("MC",fhmc+""+(type==0?"":(type==1?"（全）":"（半）")));
+        }
+        feature.getAttributes().put("MJ", AiUtil.Scale(area,2));
+        feature.getAttributes().put("HSMJ", AiUtil.Scale(hsmj,2));
     }
 }

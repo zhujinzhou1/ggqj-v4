@@ -193,8 +193,6 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
         addMenu("分摊情况", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 setMenuItem(R.id.ll_ft);
                 View ft_view = view.findViewById(R.id.ll_ft_content);
                 FeatureEditFTQK.load_ft(mapInstance, feature, ft_view);
@@ -218,7 +216,7 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
     }
 
     public void hsmj(){
-        hsmj(feature,mapInstance);
+        fv.hsmj(feature,mapInstance);
         fillView(v_content,feature,"MC");
         fillView(v_content,feature,"MJ");
         fillView(v_content,feature,"HSMJ");

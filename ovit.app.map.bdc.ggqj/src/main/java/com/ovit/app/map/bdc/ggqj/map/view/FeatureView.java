@@ -693,12 +693,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     }
     public void draw_h_fsjg(Feature featureLjz,String type,String lc, final AiRunnable callback) {
         try {
-            FeatureLayer layer = MapHelper.getLayer(map, "H_FSJG", "户附属结构");
-            Feature f = layer.getFeatureTable().createFeature();
-            f.getAttributes().put("MC",type);
-            f.getAttributes().put("TYPE", type);
-            f.getAttributes().put("FHMC", type);
-            FeatureEditH_FSJG.CreateFeatureToLjz(mapInstance,featureLjz,f,lc,callback);
+//            FeatureEditH_FSJG.CreateFeatureToLjz(mapInstance,featureLjz,f,lc,callback);
         } catch (Exception es) {
             ToastMessage.Send(activity, "绘制"+type+"失败", es);
         }
@@ -808,6 +803,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
              AiRunnable.Ok(callback, getDjzq(), getXmbm());
          }
     }
+
 
     //数据结构 用于支撑loadJzds 20180705
     private class struc_loadJzds
@@ -1337,5 +1333,9 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
 
         return ll_view;
     }
+    public void  fsjg_init (AiRunnable callback){}
+    public void hsmj(Feature f, MapInstance mapInstance) {
+    }
+
 
 }

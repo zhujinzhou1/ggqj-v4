@@ -177,7 +177,7 @@ public class FeatureEditH_FSJG extends FeatureEdit {
     }
     // endregion
     public void hsmj(){
-        hsmj(feature,mapInstance);
+        fv.hsmj(feature,mapInstance);
         fillView(v_content,feature,"MC");
         fillView(v_content,feature,"MJ");
         fillView(v_content,feature,"HSMJ");
@@ -504,24 +504,6 @@ public class FeatureEditH_FSJG extends FeatureEdit {
 //            });
     }
 
-    public static void CreateFeatureToLjz(final MapInstance mapInstance, final Feature featureLjz, final Feature feature, final String lc, final AiRunnable callback) {
-
-        mapInstance.command_draw(feature, new AiRunnable(callback) {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                mapInstance.fillFeature(feature, featureLjz);
-                feature.getAttributes().put("LC", lc + "");
-                mapInstance.newFeatureView(feature).fillFeatureAddSave(feature, new AiRunnable(callback) {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        mapInstance.viewFeature(feature);
-                        return null;
-                    }
-                });
-                return null;
-            }
-        });
-    }
     public static void copylc(final MapInstance mapInstance, final Feature featureH_fsjg, final String lc, final AiRunnable callback) {
         final Map<String, Object> map = new LinkedHashMap<>();
         final int lc_f = AiUtil.GetValue(lc, 1);

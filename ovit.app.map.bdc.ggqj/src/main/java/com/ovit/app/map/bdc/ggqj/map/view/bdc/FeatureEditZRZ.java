@@ -92,18 +92,6 @@ public class FeatureEditZRZ extends FeatureEdit {
                 String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), "材料");
                 old_zrzh = AiUtil.GetValue(feature.getAttributes().get("ZRZH"), "");
 
-//                String zh=FeatureHelper.Get(feature,"ZH","");
-//                String imgMode = AppConfig.get(AppConfig.APP_BDCQJDC_PHSZ_ZRZ_FWZP_MODE, AppConfig.PHSZ_FWZP_MORE);
-//                if (imgMode.equals(AppConfig.PHSZ_FWZP_SOLA)) {
-//                    if (!TextUtils.isEmpty(zh)) {
-//                        String file = zh+ "幢.jpg";
-//                        civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/")).setFileName(file);
-//                    } else {
-//                        civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
-//                    }
-//                } else {
-//                    civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
-//                }
                 civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
                 ((TextView) v_feature.findViewById(R.id.et_zcs)).setText(AiUtil.GetValue(FeatureHelper.Get(feature, "ZCS"), "1", "#.##"));
                 if (AppConfig.PHSZ_DSDXC_OPEN.equals(AppConfig.get(AppConfig.APP_BDCQJDC_PHSZ_DSDXC, AppConfig.PHSZ_DSDXC_CLOSE))) {
