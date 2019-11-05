@@ -1,7 +1,6 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
 import android.content.DialogInterface;
-import android.icu.text.DecimalFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import jxl.write.Boolean;
 
 /**
  * Created by 此生无分起相思 on 2018/8/2.
@@ -238,16 +235,16 @@ public class FeatureEditFTQK extends FeatureEdit
     }
 
     //选择分摊去向 20191104
-    private static void selectFTQXToZD(final MapInstance mapInstance, final Feature feature_z_fsjg, final AiRunnable callback)
+    private static void selectFTQXToZD(final MapInstance mapInstance, final Feature feature_zd, final AiRunnable callback)
     {
         final List<Feature> selected_feature_list = new ArrayList<>();
-        AiDialog dialog = FeatureViewFTQK.getSelectFTQX_FSJG_View(mapInstance,feature_z_fsjg,selected_feature_list);
+        AiDialog dialog = FeatureViewFTQK.getSelectFTQX_FSJG_View(mapInstance, feature_zd,selected_feature_list);
         if(dialog!=null)
         {
             dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    completeAddFt(mapInstance, selected_feature_list, feature_z_fsjg, new AiRunnable(callback) {
+                    completeAddFt2ZD(mapInstance, selected_feature_list, feature_zd, new AiRunnable(callback) {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
                             if((java.lang.Boolean) t_){
@@ -313,6 +310,42 @@ public class FeatureEditFTQK extends FeatureEdit
                     }
                 });
 
+            }catch(Exception es){
+                AiRunnable.Ok(callback,false,false);
+                Log.e(TAG,"处理添加分摊去向后续逻辑失败！"+es);
+            }
+        }
+
+    }
+
+    private static void completeAddFt2ZD(final MapInstance mapInstance, final List<Feature> selected_feature_list, final Feature feature_zd, final AiRunnable callback)
+    {
+        if(selected_feature_list.size()==0)
+        {
+            ToastMessage.Send("未选择任何内容!");
+        }
+
+        else
+        {  //若用户选择了分摊去向 则自动创建新的分摊记录
+            ToastMessage.Send("将新建"+selected_feature_list.size()+"条分摊记录");
+            try{
+                final List<Feature> need_to_save = new ArrayList<>();
+                for(Feature feature:selected_feature_list)
+                {
+                    Feature new_feature_ft = mapInstance.getTable("FTQK").createFeature();
+//                    initAddFt(new_feature_ft,feature);
+                    FeatureHelper.Set(new_feature_ft,"ORID_PATH",FeatureHelper.Get(feature,"ORID"));
+                    FeatureHelper.Set(new_feature_ft,"FTLY_NAME",FeatureHelper.Get(feature,"MC"));
+                    FeatureHelper.Set(new_feature_ft,"FTLY_ID",FeatureHelper.Get(feature,"ORID"));
+                    FeatureHelper.Set(new_feature_ft,"FTJZMJ",FeatureHelper.Get(feature,"HSMJ"));
+                    FeatureHelper.Set(new_feature_ft,"FTXS","0");
+
+                    FeatureHelper.Set(new_feature_ft,"FTQX_NAME",FeatureHelper.Get(feature_zd,"ORID"));
+                    FeatureHelper.Set(new_feature_ft,"FTQX_ID",FeatureHelper.Get(feature_zd,"ORID"));
+                    mapInstance.featureView.fillFeature(new_feature_ft);
+                    need_to_save.add(new_feature_ft);
+                }
+                MapHelper.saveFeature(need_to_save,callback);
             }catch(Exception es){
                 AiRunnable.Ok(callback,false,false);
                 Log.e(TAG,"处理添加分摊去向后续逻辑失败！"+es);
@@ -475,8 +508,8 @@ public class FeatureEditFTQK extends FeatureEdit
             selectFTQXToZD(mapInstance, feature_bdc, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
-//                    ((ViewGroup)ft_view).removeAllViews();
-                    load_ft(mapInstance,feature_bdc,ft_view);
+                    ((ViewGroup)ft_view).removeAllViews();
+//                    load_ft(mapInstance,feature_bdc,ft_view);
                     return null;
                 }
             });

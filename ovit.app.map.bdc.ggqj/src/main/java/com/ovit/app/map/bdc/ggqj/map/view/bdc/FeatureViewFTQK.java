@@ -290,7 +290,7 @@ public class FeatureViewFTQK extends FeatureView {
     }
 
     //获得添加分摊列表的视图 幢附属结构 20191104
-    public static AiDialog getSelectFTQX_FSJG_View(final MapInstance mapInstance,final Feature feature_bdc,final List<Feature> selected_feature_list)
+    public static AiDialog getSelectFTQX_FSJG_View(final MapInstance mapInstance, final Feature feature_zd, final List<Feature> selected_feature_list)
     {
         final AiDialog dialog = AiDialog.get(mapInstance.activity);
 
@@ -305,8 +305,8 @@ public class FeatureViewFTQK extends FeatureView {
             params.height = (int)(display.getHeight()*0.8);
             dialogWindow.setAttributes(params);
 
-            dialog.setContentView(getSelectFtViewToFsjg(mapInstance,feature_bdc,selected_feature_list));
-            dialog.setHeaderView("请选择分摊去向");
+            dialog.setContentView(getSelectFtViewToFsjg(mapInstance, feature_zd,selected_feature_list));
+            dialog.setHeaderView("请选择宗地分摊");
 
             return dialog;
         }catch(Exception es){

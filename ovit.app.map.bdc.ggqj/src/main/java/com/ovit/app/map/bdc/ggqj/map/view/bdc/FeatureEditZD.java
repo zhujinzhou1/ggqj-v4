@@ -520,16 +520,17 @@ public class FeatureEditZD extends FeatureEdit {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         // 加载界面
+                        dialog.dismiss();
                         View ft_view = view.findViewById(R.id.ll_ft_content);
                         FeatureEditFTQK.addFtToZD(mapInstance,feature,ft_view);
-                        fv.create_zdft(feature, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                mapInstance.viewFeature((Feature) t_);
-                                dialog.dismiss();
-                                return null;
-                            }
-                        });
+//                        fv.create_zdft(feature, new AiRunnable() {
+//                            @Override
+//                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                mapInstance.viewFeature((Feature) t_);
+//                                dialog.dismiss();
+//                                return null;
+//                            }
+//                        });
                     }
                 }).show();
 
@@ -813,11 +814,29 @@ public class FeatureEditZD extends FeatureEdit {
                 fv.update_Area( new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        fillView(v_feature, feature, "ZDMJ");
-                        fillView(v_feature, feature, "JZMJ");
-                        fillView(v_feature, feature, "JZZDMJ");
-                        ToastMessage.Send(activity, "自动计算面积完成！");
-                        dialog.dismiss();
+                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_FTQK), "FTQX_ID='"+fv.getOrid()+"'", new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                               List<Feature> fs= (ArrayList<Feature>) t_;
+                                if (FeatureHelper.isExistElement(fs)) {
+                                    double ftmj=0.0;
+                                    for (Feature f : fs) {
+                                        ftmj+=FeatureHelper.Get(f,"FTJZMJ",0.0);
+                                    }
+                                    Double jzmj = FeatureHelper.Get(feature, "JZMJ", 0.0);
+                                    double ftxs= ftmj/(jzmj- ftmj);
+                                    FeatureHelper.Set(feature, FeatureViewZD.TABLE_ATTR_FTXS_ZD,ftxs);
+                                    fillView(v_feature, feature, FeatureViewZD.TABLE_ATTR_FTXS_ZD);
+                                }
+                                fillView(v_feature, feature, "ZDMJ");
+                                fillView(v_feature, feature, "JZMJ");
+                                fillView(v_feature, feature, "JZZDMJ");
+                                ToastMessage.Send(activity, "自动计算面积完成！");
+                                dialog.dismiss();
+
+                                return null;
+                            }
+                        });
                         return null;
                     }
                 });

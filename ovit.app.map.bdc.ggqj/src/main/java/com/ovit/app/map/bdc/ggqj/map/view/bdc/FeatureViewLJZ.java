@@ -779,7 +779,9 @@ public class FeatureViewLJZ extends FeatureView {
                                 }
                                 f.setGeometry(f_t.getGeometry());
                                 f.getAttributes().put("LC", nub + "");
-                                f.getAttributes().put("TYPE", dataconfig.get("TYPE"));
+                                String dataconfigType=dataconfig.get("TYPE");
+                                String type=dataconfigType.substring(dataconfigType.indexOf("[")+1,dataconfigType.indexOf("[")+2);
+                                f.getAttributes().put("TYPE",type );
                                 f.getAttributes().put("FHMC", dataconfig.get("FHMC"));
                                 featureView.hsmj(f, mapInstance);
                                 fv.fillFeature(f, feature);
@@ -810,6 +812,7 @@ public class FeatureViewLJZ extends FeatureView {
         final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
         final String szc = "SZC";
         map.put(szc, "1");
+        dataconfig.put("TYPE","1");
         aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
         aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
         aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
