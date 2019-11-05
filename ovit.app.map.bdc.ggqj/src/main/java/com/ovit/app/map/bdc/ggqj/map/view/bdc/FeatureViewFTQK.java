@@ -1,23 +1,14 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
-import android.graphics.Color;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
-import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
@@ -25,16 +16,11 @@ import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
-import com.ovit.app.map.custom.LayerConfig;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.dialog.AiDialog;
-import com.ovit.app.ui.dialog.AiProgress;
-import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.StringUtil;
-
-import org.xbill.DNS.NULLRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -303,5 +289,75 @@ public class FeatureViewFTQK extends FeatureView {
         }
     }
 
+    //获得添加分摊列表的视图 幢附属结构 20191104
+    public static AiDialog getSelectFTQX_FSJG_View(final MapInstance mapInstance,final Feature feature_bdc,final List<Feature> selected_feature_list)
+    {
+        final AiDialog dialog = AiDialog.get(mapInstance.activity);
+
+        try{
+            dialog.get().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM); //使EditText可以使用软键盘
+
+            //根据屏幕分辨率将dialog设置为固定大小
+            Display display = mapInstance.activity.getWindowManager().getDefaultDisplay();
+            Window dialogWindow = dialog.get().getWindow();
+            WindowManager.LayoutParams params = dialogWindow.getAttributes();
+            params.width = (int)(display.getWidth()*0.9);
+            params.height = (int)(display.getHeight()*0.8);
+            dialogWindow.setAttributes(params);
+
+            dialog.setContentView(getSelectFtViewToFsjg(mapInstance,feature_bdc,selected_feature_list));
+            dialog.setHeaderView("请选择分摊去向");
+
+            return dialog;
+        }catch(Exception es){
+            Log.e(TAG,"获得不动产列表失败！"+es);
+            dialog.dismiss();
+            return null;
+        }
+    }
+    //获得限定范围内的可选择分摊去向视图 （选择范围为对应的逻辑幢下） 20180802
+    public static View getSelectFtViewToFsjg(final MapInstance mapInstance, final Feature feature_zd, final List<Feature> selected_feature_list)
+    {
+        try{
+            final int listItemRes = com.ovit.app.map.R.layout.app_ui_ai_aimap_feature_item;
+            final ViewGroup ll_view = (ViewGroup) LayoutInflater.from(mapInstance.activity).inflate(listItemRes, null);
+            final ViewGroup ll_list_item = (ViewGroup) ll_view.findViewById(com.ovit.R.id.ll_list_item);
+            if(ll_view.getChildCount()>0)
+            {
+                ll_view.getChildAt(0).setVisibility(View.GONE); //隐藏第一个默认view以优化UI（后期如有需要也可重写该view为面板增添其他功能）
+            }
+
+            final List<Feature> features_bdc = new ArrayList<>();
+
+            final QuickAdapter<Feature> adapter = new QuickAdapter<Feature>(mapInstance.activity,listItemRes,features_bdc)
+            {
+                @Override
+                protected void convert(BaseAdapterHelper helper, final Feature item) {
+                    // 已经分摊 不能选择
+                    initSelectList(mapInstance, helper, item, 1, selected_feature_list);
+                    //展开户
+                    final ViewGroup ll_list_item = helper.getView(R.id.ll_list_item);
+                    ll_list_item.setVisibility(View.GONE);
+                }
+            };
+
+            ll_list_item.setTag(adapter);
+            adapter.adpter(ll_list_item);
+            FeatureViewZD fv = (FeatureViewZD) mapInstance.newFeatureView(feature_zd);
+            fv.queryChildFeature("Z_FSJG", fv.getOrid(), "", "LC", "asc", features_bdc, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    adapter.notifyDataSetChanged();
+                    return null;
+                }
+            });
+
+            return ll_view;
+        }catch (Exception es){
+            Log.e(TAG,"生成分摊去向选择列表失败!"+es);
+            return null;
+        }
+
+    }
 
 }

@@ -503,8 +503,38 @@ public class FeatureEditZD extends FeatureEdit {
                 init_bdcdy();
             }
         });
+        addAction("宗地分摊", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addFtqk();
+            }
+        });
         tabQlr();
     }
+
+    private void addFtqk() {
+
+        AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "宗地分摊设定")
+                .addContentView("确定要设定宗地分摊吗?", "该操作将根据宗地选着分摊计算分摊系数！")
+                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int which) {
+                        // 加载界面
+                        View ft_view = view.findViewById(R.id.ll_ft_content);
+                        FeatureEditFTQK.addFtToZD(mapInstance,feature,ft_view);
+                        fv.create_zdft(feature, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                mapInstance.viewFeature((Feature) t_);
+                                dialog.dismiss();
+                                return null;
+                            }
+                        });
+                    }
+                }).show();
+
+    }
+
     // 保存数据
     @Override
     public void update(final AiRunnable callback) {

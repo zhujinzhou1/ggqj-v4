@@ -237,6 +237,45 @@ public class FeatureEditFTQK extends FeatureEdit
 
     }
 
+    //选择分摊去向 20191104
+    private static void selectFTQXToZD(final MapInstance mapInstance, final Feature feature_z_fsjg, final AiRunnable callback)
+    {
+        final List<Feature> selected_feature_list = new ArrayList<>();
+        AiDialog dialog = FeatureViewFTQK.getSelectFTQX_FSJG_View(mapInstance,feature_z_fsjg,selected_feature_list);
+        if(dialog!=null)
+        {
+            dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    completeAddFt(mapInstance, selected_feature_list, feature_z_fsjg, new AiRunnable(callback) {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            if((java.lang.Boolean) t_){
+                                AiRunnable.Ok(callback,true,true);
+                            }else{
+                                AiRunnable.Ok(callback,false,false);
+                            }
+                            return null;
+                        }
+                    });
+                    dialog.dismiss();
+                }
+            }, null, null, "取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Log.i(TAG, "用户取消选择分摊去向！");
+                    dialog.dismiss();
+                }
+            });
+
+        }else{
+            AiRunnable.Ok(callback,false,false);
+            ToastMessage.Send("获得不动产列表失败!");
+        }
+
+    }
+
+
     //在这里完成添加分摊去向后的后续逻辑 20180805
     private static void completeAddFt(final MapInstance mapInstance,final List<Feature> selected_feature_list, final Feature feature_z_fsjg,final AiRunnable callback)
     {
@@ -420,6 +459,23 @@ public class FeatureEditFTQK extends FeatureEdit
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     ((ViewGroup)ft_view).removeAllViews();
+                    load_ft(mapInstance,feature_bdc,ft_view);
+                    return null;
+                }
+            });
+        } catch (Exception es) {
+            ToastMessage.Send("初始化添加分摊失败!", es);
+        }
+    }
+
+    //外部接口 添加分摊 以宗地为导向
+    public static void addFtToZD(final MapInstance mapInstance, final Feature feature_bdc, final View ft_view)
+    {
+        try {
+            selectFTQXToZD(mapInstance, feature_bdc, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+//                    ((ViewGroup)ft_view).removeAllViews();
                     load_ft(mapInstance,feature_bdc,ft_view);
                     return null;
                 }

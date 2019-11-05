@@ -3,6 +3,7 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.esri.arcgisruntime.data.ArcGISFeatureTable;
@@ -344,6 +345,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
         final String zrzh =FeatureHelper.Get(f_ljz,"ZRZH", "");
         final int szc = FeatureHelper.Get(f_ljz,"SZC",1);
         final int zcs = FeatureHelper.Get(f_ljz,"ZCS",1);
+        final String oridLjz =FeatureHelper.Get(f_ljz,"ORID", "");
 
         if( StringUtil.IsNotEmpty(ljzh)) {
             final List<Feature> features_zfsjg = new ArrayList<Feature>();
@@ -356,6 +358,13 @@ public class FeatureViewZ_FSJG extends FeatureView {
                     double area_jzmj = FeatureHelper.Get(f_ljz,"SCJZMJ", 0d);
                     int count = 0;
                     for (Feature f : features_zfsjg) {
+                        String orid = FeatureHelper.GetOrid(FeatureHelper.Get(f, "ORID_PATH", ""), "LJZ");
+                        if (StringUtil.IsNotEmpty(oridLjz)&&(TextUtils.isEmpty(orid)||oridLjz.equals(orid))){
+                            // 幢附属结构 orid 为空或者 或者包含 oridLjz
+                            String path = FeatureHelper.Get(f_ljz, "ORID_PATH", "") + "/" + FeatureHelper.Get(f_ljz, "ORID", "");
+                            FeatureHelper.Set(f, "ORID_PATH", path);
+                        }
+
                         final String h_id =FeatureHelper.Get(f,"ID", "");
                         final String h_ljzh =FeatureHelper.Get(f,"LJZH", "");
                         final String h_zrzh =FeatureHelper.Get(f,"ZRZH", "");
