@@ -523,6 +523,7 @@ public class FeatureEditZD extends FeatureEdit {
                         dialog.dismiss();
                         View ft_view = view.findViewById(R.id.ll_ft_content);
                         FeatureEditFTQK.addFtToZD(mapInstance,feature,ft_view);
+
 //                        fv.create_zdft(feature, new AiRunnable() {
 //                            @Override
 //                            public <T_> T_ ok(T_ t_, Object... objects) {
