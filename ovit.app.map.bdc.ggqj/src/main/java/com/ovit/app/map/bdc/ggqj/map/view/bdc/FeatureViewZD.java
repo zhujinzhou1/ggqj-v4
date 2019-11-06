@@ -1,6 +1,5 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
-import android.app.ListFragment;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -43,8 +42,6 @@ import com.ovit.app.map.MapImage;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_badong;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_badong;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -402,8 +399,32 @@ public class FeatureViewZD extends FeatureView {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 if (fs_h.size()>0){
-                                    //逻辑幢已经生成了户
-                                    AiRunnable.Ok(getNext(), t_, t_);
+                                    //逻辑幢已经生成了户 ,户识别附属结构
+                                    new AiForEach<Feature>(fs_h, that.getNext()) {
+                                        @Override
+                                        public void exec() {
+                                            final Feature featureH= this.getValue();
+                                            FeatureViewH featureViewH =(FeatureViewH) mapInstance.newFeatureView(featureH);
+                                            final AiForEach<Feature> that_h=this;
+                                            Log.i(TAG, "户识别户附属结构==="+featureH.getAttributes().get("ID")+"===="+this.postion);
+                                            {
+                                                featureViewH.identyH_FSJG(featureH, false,new AiRunnable() {
+                                                    //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                        FeatureEditH.IdentyH_Area(mapInstance,featureH, new AiRunnable() {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                AiRunnable.Ok(that_h.getNext(), t_, t_);
+                                                                return null;
+                                                            }
+                                                        });
+                                                        return null;
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }.start();
                                 }else {
                                     //逻辑幢还没有生成户
                                     FeatureViewH.InitFeatureAll(mapInstance, featureLjz, new AiRunnable() {
@@ -419,7 +440,7 @@ public class FeatureViewZD extends FeatureView {
                                                     final AiForEach<Feature> that_h=this;
                                                     Log.i(TAG, "户识别户附属结构==="+featureH.getAttributes().get("ID")+"===="+this.postion);
                                                     {
-                                                        featureViewH.identyH_FSJG(false,new AiRunnable() {
+                                                        featureViewH.identyH_FSJG(featureH, false,new AiRunnable() {
                                                             //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
                                                             @Override
                                                             public <T_> T_ ok(T_ t_, Object... objects) {

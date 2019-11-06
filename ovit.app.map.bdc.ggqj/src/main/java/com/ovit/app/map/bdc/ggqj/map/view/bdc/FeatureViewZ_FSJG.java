@@ -14,6 +14,7 @@ import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
+import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.pojo.FeaturePojo;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -612,4 +613,8 @@ public class FeatureViewZ_FSJG extends FeatureView {
 
     }
 
+    @Override
+    public void listAdapterConvert(BaseAdapterHelper helper, Feature item, int deep) {
+        super.listAdapterConvert(helper, item, deep);
+    }
 }

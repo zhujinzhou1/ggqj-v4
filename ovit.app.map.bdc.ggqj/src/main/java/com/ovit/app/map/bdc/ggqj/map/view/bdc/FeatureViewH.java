@@ -69,8 +69,8 @@ public class FeatureViewH extends FeatureView {
         FeatureHelper.Set(feature,"HH", hh);
 
         String mph = FeatureHelper.Get(feature_ljz, "MPH", "");
-        mph = StringUtil.getTextReplace(mph,"一二三四五六七八九","123456789");
-        mph=  StringUtil.getTextOnlyIn(mph,"1234567890");
+//        mph = StringUtil.getTextReplace(mph,"一二三四五六七八九","123456789");
+//        mph=  StringUtil.getTextOnlyIn(mph,"1234567890");
         mph += mph.length()>0?"-":"";
 //        mph += String.format("%02d", lc);
         mph += lc;
@@ -86,7 +86,7 @@ public class FeatureViewH extends FeatureView {
         FeatureHelper.Set(feature,"YCJZMJ", area);
         FeatureHelper.Set(feature,"FWJG",FeatureHelper.Get(feature_ljz,"FWJG","4"),true,false);//4[B][混]混合结构
 
-        FeatureHelper.Set(feature,"CQLY", "自建",true,false);// 自建
+        FeatureHelper.Set(feature,"CQLY", "自建",true, false);// 自建
         FeatureHelper.Set(feature,"FWLX", "1",true,false); //[1]住宅
         FeatureHelper.Set(feature,"FWXZ", "99",true,false); // [99]其它
         FeatureHelper.Set(feature,"ZT", "自用",true,false); // // 自用
@@ -500,10 +500,10 @@ public class FeatureViewH extends FeatureView {
     }
     // 默认识别保存
     public void identyH_FSJG(final AiRunnable callback){
-        identyH_FSJG(true,callback);
+        identyH_FSJG(feature, true,callback);
     }
     // 识别显示结果返回
-    public void identyH_FSJG(final boolean isShow ,final AiRunnable callback) {
+    public void identyH_FSJG(Feature f_h, final boolean isShow, final AiRunnable callback) {
         final List<Feature> fs_h_fsjg = new ArrayList<>();
         identyH_FSJG(fs_h_fsjg, new AiRunnable(callback) {
             @Override

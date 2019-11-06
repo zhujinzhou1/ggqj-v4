@@ -644,7 +644,7 @@ public class FeatureViewLJZ extends FeatureView {
                 Feature f_h=getValue();
                 FeatureViewH fv = (FeatureViewH) mapInstance.newFeatureView(f_h);
                 Log.i(TAG, "户识别户附属结构: "+FeatureHelper.Get(f_h,"ORID","")+"===="+this.postion);
-                fv.identyH_FSJG(false,getNext());
+                fv.identyH_FSJG(f_h, false,getNext());
         }
         }.start();
 
@@ -780,7 +780,7 @@ public class FeatureViewLJZ extends FeatureView {
                                 f.setGeometry(f_t.getGeometry());
                                 f.getAttributes().put("LC", nub + "");
                                 String dataconfigType=dataconfig.get("TYPE");
-                                String type=dataconfigType.substring(dataconfigType.indexOf("[")+1,dataconfigType.indexOf("[")+2);
+                                String type=dataconfigType.substring(dataconfigType.indexOf("[")+1,dataconfigType.indexOf("]"));
                                 f.getAttributes().put("TYPE",type );
                                 f.getAttributes().put("FHMC", dataconfig.get("FHMC"));
                                 featureView.hsmj(f, mapInstance);
