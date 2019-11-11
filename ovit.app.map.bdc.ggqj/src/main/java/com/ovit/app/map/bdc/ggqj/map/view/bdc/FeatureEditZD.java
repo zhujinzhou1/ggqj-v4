@@ -493,13 +493,6 @@ public class FeatureEditZD extends FeatureEdit {
         addAction("不动产单元", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                fv.identyZrz(false,new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        init_bdcdy();
-//                        return null;
-//                    }
-//                });
                 init_bdcdy();
             }
         });

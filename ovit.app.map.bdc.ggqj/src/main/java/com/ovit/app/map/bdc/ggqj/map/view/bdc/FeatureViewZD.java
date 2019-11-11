@@ -1801,10 +1801,30 @@ public class FeatureViewZD extends FeatureView {
                             feature_new_qlr.getAttributes().put("BDCQZH", FeatureHelper.Get(feature, "TDZH"));
 
                             final String bdcdyh = getZddm() + "F99990001";
-                            fv.queryChildFeature("ZRZ", feature, fs, new AiRunnable() {
-                                @Override
-                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                    mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
+//                            fv.queryChildFeature("ZRZ", feature, fs, new AiRunnable() {
+//                                @Override
+//                                public <T_> T_ ok(T_ t_, Object... objects) {
+//                                    mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
+//                                    feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
+//                                    fs_upt.add(feature_new_qlr);
+//                                    for (Feature f : fs) {
+//                                        f.getAttributes().put("BDCDYH", bdcdyh);
+//                                        fs_upt.add(f);
+//                                    }
+//                                    capyAttachments(feature, feature_new_qlr);// 拷贝附件材料
+//                                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
+//                                        @Override
+//                                        public <T_> T_ ok(T_ t_, Object... objects) {
+//                                            AiRunnable.Ok(callback, feature_new_qlr);
+//                                            return null;
+//                                        }
+//                                    });
+//                                    return null;
+//                                }
+//
+//                            });
+
+                            mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
                                     feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
                                     fs_upt.add(feature_new_qlr);
                                     for (Feature f : fs) {
@@ -1819,15 +1839,11 @@ public class FeatureViewZD extends FeatureView {
                                             return null;
                                         }
                                     });
-                                    return null;
-                                }
-
-                            });
                         } else if (fs_zrz.size() == 1) {
                             // 单幢
                             Feature f_zrz = fs_zrz.get(0);
                             String bdcdyh = f_zrz.getAttributes().get("ZRZH") + "0001";
-                            mapInstance.newFeatureView().fillFeature(feature_new_qlr, f_zrz); // 与不动产单元与自然幢 关联
+                            mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature); // 与不动产单元与宗地关联
                             feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
                             fs_upt.add(feature_new_qlr);
                             fs_upt.add(f_zrz);
