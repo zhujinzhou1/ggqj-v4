@@ -327,8 +327,8 @@ public class FeatureEditZRZ extends FeatureEdit {
     }
     // endregion
     //region 属性页
-View view_bdcdy;
-    private void load_bdcdy() {
+    View view_bdcdy;
+    public void load_bdcdy() {
         if (view_bdcdy == null) {
             ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
             bdcdy_view.setTag(null); //强制重新生成adapter

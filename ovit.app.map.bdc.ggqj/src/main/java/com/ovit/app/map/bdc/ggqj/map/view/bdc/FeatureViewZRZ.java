@@ -3,8 +3,6 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
-import android.speech.tts.TextToSpeech;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,21 +13,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
-import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
-import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
-import com.ovit.app.core.License;
-import com.ovit.app.map.MapImage;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
@@ -42,14 +35,10 @@ import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.AppConfig;
-import com.ovit.app.util.ConvertUtil;
 import com.ovit.app.util.FileUtils;
-import com.ovit.app.util.ImageUtil;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
-import com.ovit.app.util.gdal.cad.DxfAdapter;
-import com.ovit.app.util.gdal.shp.ShpAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -239,14 +228,12 @@ public class FeatureViewZRZ extends FeatureView {
             feature.getAttributes().put("SCJZMJ", scjzmj);
         }
 
-
         if (isF99990001) {
             FeatureHelper.Set(feature, "BDCDYH", zddm + "F99990001");
         } else {
             FeatureHelper.Set(feature, "BDCDYH", zrzh + "0000");
         }
         if (StringUtil.IsNotEmpty(zh) && StringUtil.IsEmpty(AiUtil.GetValue(feature.getAttributes().get("JZWMC"), ""))) {
-//            feature.getAttributes().put("JZWMC",  "幢" + zh);
             FeatureHelper.Set(feature, "JZWMC", AiUtil.GetValue(zh, 1) + "");
         }
         if (StringUtil.IsEmpty(AiUtil.GetValue(feature.getAttributes().get("FWJG"), ""))) {
@@ -713,7 +700,6 @@ public class FeatureViewZRZ extends FeatureView {
         if (fs_hAndFs != null && fs_hAndFs.size() > 0) {
             for (Feature f : fs_hAndFs) {
                 // 户
-//            scjzmj_count += AiUtil.GetValue(f.getAttributes().get("SCJZMJ"), AiUtil.GetValue(f.getAttributes().get("YCJZMJ"), 0d));
                 scjzmj_count += FeatureHelper.Get(f, "SCJZMJ", FeatureHelper.Get(f, "YCJZMJ", 0d));
                 // 幢的附属
                 scjzmj_count += FeatureHelper.Get(f, "HSMJ", 0d);
@@ -1080,8 +1066,8 @@ public class FeatureViewZRZ extends FeatureView {
     //endregion 楼盘表
     //region 输出成果
 
-    public static void CreateDOCX(final MapInstance mapInstance, final Feature featureBdcdy, final boolean isRelaod, final AiRunnable callback) {
-        final String bdcdyh = FeatureEditQLR.GetBdcdyh(featureBdcdy);
+    public static void CreateDOCX(final MapInstance mapInstance, final Feature f_bdc, final boolean isRelaod, final AiRunnable callback) {
+        final String bdcdyh = FeatureEditQLR.GetBdcdyh(f_bdc);
         String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
         if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
             AiRunnable.Ok(callback, file_dcb_doc);
@@ -1101,13 +1087,14 @@ public class FeatureViewZRZ extends FeatureView {
                             final Map<String, Feature> map_jzx = new HashMap<>();
                             final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
 
-                            LoadAll(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
+                            LoadAll(mapInstance, bdcdyh, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    CreateDOCX(mapInstance, featureBdcdy, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
+                                    CreateDOCX(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                             // 数据归集
+                                            OutputData(mapInstance, f_bdc,f_zd,fs_jzd,fs_jzx,fs_zrz,fs_z_fsjg,fs_h,fs_h_fsjg);
                                             AiRunnable.Ok(callback, t_, objects);
                                             return null;
                                         }
@@ -1227,7 +1214,7 @@ public class FeatureViewZRZ extends FeatureView {
                         // 附件材料
                         FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd);
 
-                        final String templet = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产地籍调查表.docx";
+                        final String templet = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产权籍调查表.docx";
                         final String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
                         String file_zd_zip = FeatureEditBDC.GetPath_ZD_zip(mapInstance, f_zd);
                         if (FileUtils.exsit(templet)) {
@@ -1263,27 +1250,11 @@ public class FeatureViewZRZ extends FeatureView {
         try {
             MapHelper.selectAddCenterFeature(mapInstance.map, f_zd);
             String bdcdyh = FeatureHelper.Get(f_bdc, "BDCDYH", "");
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
-            // 导出shp 文件
-            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "宗地" + ".shp";
-            ShapeUtil.writeShp(shpfile_zd, f_zd);
-            final String shpfile_jzd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址点" + ".shp";
-            ShapeUtil.writeShp(shpfile_jzd, fs_jzd);
-            final String shpfile_jzx = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址线" + ".shp";
-            ShapeUtil.writeShp(shpfile_jzx, fs_jzx);
-            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "自然幢" + ".shp";
-            ShapeUtil.writeShp(shpfile_zrz, fs_zrz);
-            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户" + ".shp";
-            ShapeUtil.writeShp(shpfile_h, fs_h);
-            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "幢附属结构" + ".shp";
-            ShapeUtil.writeShp(shpfile_zfsjg, fs_z_fsjg);
-            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户附属结构" + ".shp";
-            ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
             final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "分层分户图.dxf"; //20180709
 //            new DxfFcfwh_zrz(mapInstance).set(dxf_fcfht).set(f_bdc, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-//            new DxfFcfcfht_hb(mapInstance).set(dxf_fcfht).set(bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
 
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);

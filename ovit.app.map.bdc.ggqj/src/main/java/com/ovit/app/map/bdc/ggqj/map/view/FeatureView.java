@@ -640,8 +640,9 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
 
 
     public void draw_zd(AiRunnable callback) {
-
-        FeatureViewZD.CreateFeature(mapInstance, callback);
+       FeatureViewZD fv = (FeatureViewZD) mapInstance.newFeatureView(FeatureHelper.LAYER_NAME_ZD);
+        fv.createFeature(callback);
+//        FeatureViewZD.CreateFeature(mapInstance, callback);
 
     }
 

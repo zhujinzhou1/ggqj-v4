@@ -394,7 +394,7 @@ public class FeatureEditH extends FeatureEdit {
         loadhftqk();
     }
     View view_bdcdy;
-    private void load_bdcdy() {
+    public void load_bdcdy() {
         if (view_bdcdy == null) {
             ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
             bdcdy_view.setTag(null); //强制重新生成adapter
@@ -1262,7 +1262,7 @@ public class FeatureEditH extends FeatureEdit {
                         // 附件材料
                         FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd);
 
-                        final String templet = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产地籍调查表.docx";
+                        final String templet = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产权籍调查表.docx";
                         final String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
                         String file_zd_zip = FeatureEditBDC.GetPath_ZD_zip(mapInstance, f_zd);
                         if (FileUtils.exsit(templet)) {
@@ -1295,7 +1295,6 @@ public class FeatureEditH extends FeatureEdit {
                                   final List<Feature> fs_ftqk,
                                   final Feature f_h,
                                   final List<Feature> fs_c_all) {
-//        final LinkedHashMap<Feature, List<Feature>> fs_c_all
         try {
             String bdcdyh=FeatureHelper.Get(feature_bdc,"BDCDYH","");
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
@@ -1306,7 +1305,6 @@ public class FeatureEditH extends FeatureEdit {
                 final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfht_neimeng(mapInstance).set(dxf_fcfht).set(feature_bdc,f_h ,f_zd, fs_zrz, fs_c_all).write().save();
             }
-
 
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);

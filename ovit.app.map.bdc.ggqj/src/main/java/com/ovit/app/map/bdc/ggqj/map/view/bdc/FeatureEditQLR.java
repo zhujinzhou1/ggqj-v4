@@ -199,7 +199,8 @@ public class FeatureEditQLR extends FeatureEdit {
                 FeatureHelper.Set(f, "QLRZJH", FeatureHelper.Get(feature, "ZJH", ""));
                 FeatureHelper.Set(f, "QLRTXDZ", FeatureHelper.Get(feature, "DZ", ""));
                 FeatureHelper.Set(f, "QLRDH", FeatureHelper.Get(feature, "DH", ""));
-                FeatureViewZD.CreateFeature(mapInstance, f, null);
+//                FeatureViewZD.CreateFeature(mapInstance, f, null);
+                new FeatureViewZD().createFeature(f, null);
             }
         });
 

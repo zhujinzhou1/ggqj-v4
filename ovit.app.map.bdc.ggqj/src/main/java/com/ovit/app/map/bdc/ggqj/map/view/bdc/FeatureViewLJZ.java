@@ -53,6 +53,7 @@ public class FeatureViewLJZ extends FeatureView {
         iconColor = Color.rgb(169, 0, 230);
     }
 
+    @Override
     public void fillFeature(Feature feature, Feature feature_zrz) {
         super.fillFeature(feature, feature_zrz);
         String ljzh = FeatureHelper.Get(feature, "LJZH", "");
@@ -62,7 +63,7 @@ public class FeatureViewLJZ extends FeatureView {
             FeatureHelper.Set(feature, "BDCDYH", FeatureHelper.Get(feature_zrz, "BDCDYH", ""));
             FeatureHelper.Set(feature, "ZCS", FeatureHelper.Get(feature_zrz, "ZCS", "1"));
         }
-        FeatureHelper.Set(feature, "MPH",  FeatureHelper.Get(feature, "MPH", getMph(ljzh))); //  门牌号
+        FeatureHelper.Set(feature, "MPH", FeatureHelper.Get(feature, "MPH", getMph(ljzh))); //  门牌号
         FeatureHelper.Set(feature, "FWJG1", FeatureHelper.Get(feature_zrz, "FWJG", "4"), true, false);// [4][B][混]混合结构
         FeatureHelper.Set(feature, "FWYT1", FeatureHelper.Get(feature_zrz, "FWYT", "10"), true, false);// [10]住宅
         FeatureHelper.Set(feature, "MPH", FeatureHelper.Get(feature_zrz, "JZWMC", "1"), true, false);
@@ -76,11 +77,9 @@ public class FeatureViewLJZ extends FeatureView {
     public String addActionBus(String groupname) {
         int count = mapInstance.getSelFeatureCount();
         // 推荐
-
         mapInstance.addAction(groupname, "画逻辑幢", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                String zrzh = FeatureHelper.Get(feature, "ZRZH", "");
                 draw_ljz(mapInstance.getOrid_Parent(feature), "1", null);
             }
         });
@@ -123,7 +122,7 @@ public class FeatureViewLJZ extends FeatureView {
 
                                                     Feature f = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ).createFeature();
                                                     f.setGeometry(g);
-                                                    f.getAttributes().put("ZCS", getMaxFloor(fs,"ZCS"));
+                                                    f.getAttributes().put("ZCS", getMaxFloor(fs, "ZCS"));
                                                     f.getAttributes().put("FWJG", getZrzStructure(fs));
                                                     FeatureViewZRZ.CreateFeature(mapInstance, (Feature) null, f, null);
                                                     ImageUtil.recycle(bitmap);
@@ -240,26 +239,15 @@ public class FeatureViewLJZ extends FeatureView {
                 boolean flag = ll_list_item.getVisibility() == View.VISIBLE;
                 if (!flag) {
                     final List<Feature> fs = new ArrayList<>();
-//                    loadCs(fs, new AiRunnable() {
-//                        @Override
-//                        public <T_> T_ ok(T_ t_, Object... objects) {
-//                            List<Feature> fs_p = new ArrayList<>();
-//                            fs_p.add(item);
-//                            FeatureViewC fv_ =    FeatureViewC.From(mapInstance);
-//                            fv_.feature_p = item;
-//                            fv_.buildListView(ll_list_item,fs_p,fs,deep+1);
-//                            return  null;
-//                        }
-//                    });
-                    queryChildFeature("H", item, fs, new AiRunnable() {
+                    queryChildFeature(FeatureHelper.TABLE_NAME_H, item, fs, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            queryChildFeature("Z_FSJG", item, fs, new AiRunnable() {
+                            queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG, item, fs, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    com.ovit.app.map.view.FeatureView fv_c = mapInstance.newFeatureView("H");
-                                    fv_c.fs_ref.add(item);
-                                    fv_c.buildListView(ll_list_item, fs, deep + 1);
+                                    com.ovit.app.map.view.FeatureView fv_h = mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_H);
+                                    fv_h.fs_ref.add(item);
+                                    fv_h.buildListView(ll_list_item, fs, deep + 1);
                                     return null;
                                 }
                             });
@@ -273,15 +261,16 @@ public class FeatureViewLJZ extends FeatureView {
     }
 
     public static FeatureTable GetTable(MapInstance mapInstance) {
-        return MapHelper.getLayer(mapInstance.map, "LJZ", "逻辑幢").getFeatureTable();
+        return MapHelper.getLayer(mapInstance.map, FeatureHelper.TABLE_NAME_LJZ).getFeatureTable();
     }
+
     //  获取最大的编号
     public void getMaxLjzh(String zrzh, final AiRunnable callback) {
-        if (FeatureHelper.isZRZHValid(zrzh)){
-            String id=StringUtil.substr(zrzh,FeatureHelper.FEATURE_DJZQDM_LENG);
+        if (FeatureHelper.isZRZHValid(zrzh)) {
+            String id = StringUtil.substr(zrzh, FeatureHelper.FEATURE_DJZQDM_LENG);
             MapHelper.QueryMax(table, StringUtil.WhereByIsEmpty(id) + "LJZH like '" + id + "__'", "LJZH", id.length(), 0, id + "00", callback);
-        }else {
-            AiRunnable.Ok(callback,null,"00","00");
+        } else {
+            AiRunnable.Ok(callback, null, "00", "00");
         }
     }
 
@@ -294,6 +283,7 @@ public class FeatureViewLJZ extends FeatureView {
         }
         return StringUtil.substr(zddm, 0, 12) + "F000";
     }
+
     // 新的逻辑幢号
     public void newLjzh(String zrzh, final AiRunnable callback) {
         getMaxLjzh(zrzh, new AiRunnable(callback) {
@@ -331,6 +321,7 @@ public class FeatureViewLJZ extends FeatureView {
     public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, final AiRunnable callback) {
         CreateFeature(mapInstance, f_p, null, callback);
     }
+
     public static void CreateFeature(final MapInstance mapInstance, String orid, final Feature feature, final AiRunnable callback) {
         // 去查宗地
         FeatureViewZRZ.From(mapInstance).load(orid, new AiRunnable() {
@@ -342,6 +333,7 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+
     //    绘制逻辑幢
     public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, Feature f, final AiRunnable callback) {
 
@@ -402,8 +394,9 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+
     // 查询所有逻辑幢，识别户和幢附属
-    public static void LaodAllLJZ_IdentyHAndZFSJG (final  MapInstance mapInstance,final AiRunnable callback) {
+    public static void LaodAllLJZ_IdentyHAndZFSJG(final MapInstance mapInstance, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
         MapHelper.Query(GetTable(mapInstance), "", -1, fs, new AiRunnable(callback) {
             // 递归调用，直到全部完成
@@ -420,12 +413,13 @@ public class FeatureViewLJZ extends FeatureView {
                     AiRunnable.Ok(identy_callback, index);
                 }
             }
+
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 identy(fs, 0, new AiRunnable(callback) {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        AiRunnable.Ok(callback, fs,fs.size());
+                        AiRunnable.Ok(callback, fs, fs.size());
                         return null;
                     }
                 });
@@ -433,6 +427,7 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+
     public void update_Area(Feature feature, final List<Feature> f_hs, List<Feature> f_z_fsjgs, List<Feature> f_h_fsjgs, final AiRunnable callback) {
         String id = FeatureHelper.Get(feature, "ZRZH", "");
         int zcs = FeatureHelper.Get(feature, "ZCS", 1);
@@ -551,13 +546,14 @@ public class FeatureViewLJZ extends FeatureView {
     }
 
     public void identyH(List<Feature> fs_h, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("H"), feature.getGeometry(),-1, fs_h, callback);
+        MapHelper.Query(mapInstance.getTable("H"), feature.getGeometry(), -1, fs_h, callback);
     }
 
     // 默认识别保存
     public void identyH(final AiRunnable callback) {
         identyH(true, callback);
     }
+
     // 识别显示结果返回
     public void identyH(final boolean isShow, final AiRunnable callback) {
         final List<Feature> fs_h = new ArrayList<>();
@@ -578,7 +574,7 @@ public class FeatureViewLJZ extends FeatureView {
                             MapHelper.saveFeature(fs_h, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    AiRunnable.Ok(callback,fs_h);
+                                    AiRunnable.Ok(callback, fs_h);
                                     dialog.dismiss();
                                     return null;
                                 }
@@ -591,7 +587,7 @@ public class FeatureViewLJZ extends FeatureView {
                     MapHelper.saveFeature(fs_h, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            AiRunnable.Ok(callback,fs_h);
+                            AiRunnable.Ok(callback, fs_h);
                             return null;
                         }
                     });
@@ -603,12 +599,14 @@ public class FeatureViewLJZ extends FeatureView {
     }
 
     public void identyZ_Fsjg(List<Feature> features_zrz, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("Z_FSJG"), feature.getGeometry(),0.1, features_zrz, callback);
+        MapHelper.Query(mapInstance.getTable("Z_FSJG"), feature.getGeometry(), 0.1, features_zrz, callback);
     }
+
     // 默认识别保存
     public void identyZ_Fsjg(final AiRunnable callback) {
         identyZ_Fsjg(false, callback);
     }
+
     // 识别显示结果返回
     public void identyZ_Fsjg(final boolean isShow, final AiRunnable callback) {
         final List<Feature> fs_z_fsjg = new ArrayList<>();
@@ -636,16 +634,17 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+
     // 识别显示结果返回
     public void identyH_Fsjg(List<Feature> featuresH, final AiRunnable callback) {
         new AiForEach<Feature>(featuresH, callback) {
             @Override
             public void exec() {
-                Feature f_h=getValue();
+                Feature f_h = getValue();
                 FeatureViewH fv = (FeatureViewH) mapInstance.newFeatureView(f_h);
-                Log.i(TAG, "户识别户附属结构: "+FeatureHelper.Get(f_h,"ORID","")+"===="+this.postion);
-                fv.identyH_FSJG(f_h, false,getNext());
-        }
+                Log.i(TAG, "户识别户附属结构: " + FeatureHelper.Get(f_h, "ORID", "") + "====" + this.postion);
+                fv.identyH_FSJG(f_h, false, getNext());
+            }
         }.start();
 
     }
@@ -658,19 +657,21 @@ public class FeatureViewLJZ extends FeatureView {
         String where = " SJC > '" + (szc - 1) + "'  and  SJC < '" + (szc + zcs) + "' ";
         queryChildFeature("ZRZ_C", orid_zrzh, "", "CH", "", fs, callback);
     }
+
     // 快速绘制户
     public void h_init(final AiRunnable callback) {
-        FeatureViewH.InitFeatureAll(mapInstance,feature,new AiRunnable() {
+        FeatureViewH.InitFeatureAll(mapInstance, feature, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                AiRunnable.Ok(callback,t_,objects);
+                AiRunnable.Ok(callback, t_, objects);
                 return null;
             }
         });
     }
+
     // 生成层
     public void draw_tj(Feature feature, AiRunnable callback) {
-        String type= "天井";
+        String type = "天井";
         FeatureLayer layer = MapHelper.getLayer(map, "Z_FSJG", "幢附属结构");
         final Feature f = layer.getFeatureTable().createFeature();
         f.getAttributes().put("LC", "1");
@@ -678,22 +679,26 @@ public class FeatureViewLJZ extends FeatureView {
         f.getAttributes().put("TYPE", "1");
         f.getAttributes().put("FHMC", type);
         mapInstance.fillFeature(f);
-       CreateFeatureHollow(mapInstance, feature, f, "1", callback);
+        CreateFeatureHollow(mapInstance, feature, f, "1", callback);
     }
-    public static void IdentyLJZ_HAndZFSJG(final MapInstance mapInstance,final Feature f_ljz, final AiRunnable callback) {
-        String ljzh  = FeatureHelper.Get(f_ljz,"ZRZH","");
-        if(StringUtil.IsEmpty(ljzh)){ AiRunnable.Ok(callback,ljzh);return;}
-        FeatureEditH.IdentyLJZ_H(mapInstance,f_ljz,new AiRunnable(callback){
+
+    public static void IdentyLJZ_HAndZFSJG(final MapInstance mapInstance, final Feature f_ljz, final AiRunnable callback) {
+        String ljzh = FeatureHelper.Get(f_ljz, "ZRZH", "");
+        if (StringUtil.IsEmpty(ljzh)) {
+            AiRunnable.Ok(callback, ljzh);
+            return;
+        }
+        FeatureEditH.IdentyLJZ_H(mapInstance, f_ljz, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                FeatureViewZ_FSJG.IdentyLJZ_FSJG(mapInstance,f_ljz, callback);
+                FeatureViewZ_FSJG.IdentyLJZ_FSJG(mapInstance, f_ljz, callback);
                 return null;
             }
         });
     }
 
     public void featureConversionToZfsjg(final AiRunnable callback) {
-        String type= "沿廊";
+        String type = "沿廊";
         FeatureLayer layer = MapHelper.getLayer(map, "Z_FSJG", "幢附属结构");
         final Feature f = layer.getFeatureTable().createFeature();
         //   f.getAttributes().put("ZID", AiUtil.GetValue(feature.getAttributes().get("ZRZH"), ""));
@@ -707,7 +712,7 @@ public class FeatureViewLJZ extends FeatureView {
         MapHelper.saveFeature(Arrays.asList(new Feature[]{f}), Arrays.asList(feature), new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                AiRunnable.Ok(callback,f,objects);
+                AiRunnable.Ok(callback, f, objects);
                 return null;
             }
         });
@@ -716,7 +721,7 @@ public class FeatureViewLJZ extends FeatureView {
     public void featureConversionToHfsjg(final AiRunnable callback) {
         String type = "阳台";
         FeatureLayer layer = MapHelper.getLayer(map, "H_FSJG", "户附属结构");
-        final  Feature f = layer.getFeatureTable().createFeature();
+        final Feature f = layer.getFeatureTable().createFeature();
 //                                f.getAttributes().put("HID",AiUtil.GetValue(featureH.getAttributes().get("ID"),""));
 //                                f.getAttributes().put("HH",AiUtil.GetValue(featureH.getAttributes().get("HH"),""));
 //                                f.getAttributes().put("LC",AiUtil.GetValue(featureH.getAttributes().get("CH"),""));
@@ -728,7 +733,7 @@ public class FeatureViewLJZ extends FeatureView {
         MapHelper.saveFeature(Arrays.asList(new Feature[]{f}), Arrays.asList(feature), new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                AiRunnable.Ok(callback,f,objects);
+                AiRunnable.Ok(callback, f, objects);
                 return null;
             }
         });
@@ -738,19 +743,19 @@ public class FeatureViewLJZ extends FeatureView {
     public void InitFeatureLjz(final AiRunnable callback) {
         FeaturePojo featurePojo = new FeaturePojo(feature, "BZ");
         List<String> lcs = featurePojo.getLc();
-        List<Feature> fs_h=new ArrayList<>();
+        List<Feature> fs_h = new ArrayList<>();
         for (String lc : lcs) {
             Feature f_h = mapInstance.getTable("H").createFeature();
             f_h.setGeometry(feature.getGeometry());
-            FeatureHelper.Set(f_h,"SZC",lc);
-            FeatureHelper.Set(f_h,"LJZH",featurePojo.getLjzh());
-            FeatureHelper.Set(f_h,"ZRZH",featurePojo.getZrzh());
-            FeatureHelper.Set(f_h,"HH",featurePojo.getHh());
-            FeatureHelper.Set(f_h,"MPH",featurePojo.getZrzh()+"-"+featurePojo.getLjzh()+"-"+lc+featurePojo.getHh());
-            mapInstance.fillFeature(f_h,feature);
+            FeatureHelper.Set(f_h, "SZC", lc);
+            FeatureHelper.Set(f_h, "LJZH", featurePojo.getLjzh());
+            FeatureHelper.Set(f_h, "ZRZH", featurePojo.getZrzh());
+            FeatureHelper.Set(f_h, "HH", featurePojo.getHh());
+            FeatureHelper.Set(f_h, "MPH", featurePojo.getZrzh() + "-" + featurePojo.getLjzh() + "-" + lc + featurePojo.getHh());
+            mapInstance.fillFeature(f_h, feature);
             fs_h.add(f_h);
         }
-        AiRunnable.Ok(callback,fs_h);
+        AiRunnable.Ok(callback, fs_h);
     }
 
     public void init_fsjg(String fsjg_lx, final String tableName) {
@@ -779,9 +784,9 @@ public class FeatureViewLJZ extends FeatureView {
                                 }
                                 f.setGeometry(f_t.getGeometry());
                                 f.getAttributes().put("LC", nub + "");
-                                String dataconfigType=dataconfig.get("TYPE");
-                                String type=dataconfigType.substring(dataconfigType.indexOf("[")+1,dataconfigType.indexOf("]"));
-                                f.getAttributes().put("TYPE",type );
+                                String dataconfigType = dataconfig.get("TYPE");
+                                String type = dataconfigType.substring(dataconfigType.indexOf("[") + 1, dataconfigType.indexOf("]"));
+                                f.getAttributes().put("TYPE", type);
                                 f.getAttributes().put("FHMC", dataconfig.get("FHMC"));
                                 featureView.hsmj(f, mapInstance);
                                 fv.fillFeature(f, feature);
@@ -812,7 +817,7 @@ public class FeatureViewLJZ extends FeatureView {
         final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
         final String szc = "SZC";
         map.put(szc, "1");
-        dataconfig.put("TYPE","1");
+        dataconfig.put("TYPE", "1");
         aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
         aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
         aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)

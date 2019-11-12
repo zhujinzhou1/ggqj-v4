@@ -31,17 +31,18 @@ import java.util.Map;
  */
 
 public class FeatureEditLJZ extends FeatureEdit {
+
     final static String TAG = "FeatureEditLJZ";
     private static final String MAP_LAYER_Z_FSJG = "Z_FSJG";
     private static final String MAP_LAYER_H_FSJG = "H_FSJG";
-
-
     ///region 属性
     FeatureViewLJZ fv;
 
     TextView et_dscs;
     TextView et_dxcs;
     TextView et_zcs;
+    View view_h;
+    View view_ftqk;
     ///endregion
 
     public FeatureEditLJZ() {
@@ -53,6 +54,7 @@ public class FeatureEditLJZ extends FeatureEdit {
     }
 
     ///region  重写父类方法
+    @Override
     public void onCreate() {
         super.onCreate();
         // 使用 fv
@@ -67,23 +69,6 @@ public class FeatureEditLJZ extends FeatureEdit {
         super.init();
         // 菜单
         menus = new int[]{R.id.ll_info, R.id.ll_hinfo, R.id.ll_ft};
-    }
-
-    class TextWatcher implements android.text.TextWatcher {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-
-        }
     }
 
     // 显示数据
@@ -232,7 +217,6 @@ public class FeatureEditLJZ extends FeatureEdit {
         }
     }
 
-
     @Override
     public void build_opt() {
         super.build_opt();
@@ -275,14 +259,14 @@ public class FeatureEditLJZ extends FeatureEdit {
         addAction("幢附属", R.mipmap.app_map_layer_h_pc, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fv.init_fsjg("z_fsjg_lx",FeatureEditLJZ.MAP_LAYER_Z_FSJG );
+                fv.init_fsjg("z_fsjg_lx", FeatureEditLJZ.MAP_LAYER_Z_FSJG);
 
             }
         });
         addAction("户附属", R.mipmap.app_map_layer_h_pc, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fv.init_fsjg("h_fsjg_lx",FeatureEditLJZ.MAP_LAYER_H_FSJG );
+                fv.init_fsjg("h_fsjg_lx", FeatureEditLJZ.MAP_LAYER_H_FSJG);
             }
         });
     }
@@ -392,8 +376,6 @@ public class FeatureEditLJZ extends FeatureEdit {
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         Feature f_zfsjg = (Feature) t_;
                         mapInstance.viewFeature(f_zfsjg);
-//                        mapInstance.tool.map_opt_per();
-//                        mapInstance.tool.map_opt_showfeature("map_opt_showfeature","幢附属结构",f_zfsjg);
                         return null;
                     }
                 });
@@ -419,8 +401,6 @@ public class FeatureEditLJZ extends FeatureEdit {
         }, "取消", null).show();
     }
 
-    View view_h;
-
     // 分户信息
     private void load_hinfo(boolean relaod) {
         if (relaod) {
@@ -434,8 +414,6 @@ public class FeatureEditLJZ extends FeatureEdit {
             view_h.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         }
     }
-
-    View view_ftqk;
 
     // 分摊情况
     private void load_ftqk() {
@@ -735,5 +713,21 @@ public class FeatureEditLJZ extends FeatureEdit {
 //        });
 //    }
 
+    class TextWatcher implements android.text.TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    }
 
 }

@@ -1835,14 +1835,10 @@ public class FeatureEditBDC extends FeatureEdit {
             map_.put("H.BDCXZQ", bdcxzq);
             map_.put("H.HH", 0+StringUtil.substr_last(bdcdyh,3));
         }
-        Double tnmj =Double.parseDouble ((String) map_.get("H.SCJZMJ"));
 
-        Double ftxs=0d;
-        try {
-            ftxs= Double.parseDouble((String) map_.get("ZD."+FeatureViewZD.TABLE_ATTR_FTXS_ZD));
-        }catch (Exception e){
-            ToastMessage.Send("请填写分摊系数！");
-        }
+        Double tnmj =Double.parseDouble ((String) map_.get("H.SCJZMJ"));
+        Double ftxs= Double.parseDouble( AiUtil.GetValue(map_.get("ZD."+FeatureViewZD.TABLE_ATTR_FTXS_ZD),"0"));
+
         double ftmj = tnmj*ftxs;
         double jzmj=tnmj+ftmj;
         map_.put("H.SCJZMJ", String.format("%.2f",jzmj));

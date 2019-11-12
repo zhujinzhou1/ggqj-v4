@@ -46,7 +46,7 @@ import java.util.List;
  */
 
 public class FeatureViewQLR extends FeatureView {
-
+    @Override
     public void fillFeature(Feature feature){
         super.fillFeature(feature);
         String id = FeatureHelper.Get(feature, "QLRBM", "");
@@ -58,13 +58,12 @@ public class FeatureViewQLR extends FeatureView {
 
     @Override
     public void listAdapterConvert(BaseAdapterHelper helper, final Feature item, final int deep) {
-
+        super.listAdapterConvert(helper, item, deep);
         final ViewGroup ll_list_item = helper.getView(R.id.ll_list_item);
         helper.setImageResource(com.ovit.R.id.v_icon, com.ovit.app.map.bdc.ggqj.R.mipmap.app_map_layer_qlrxx);
-        helper.setText(com.ovit.R.id.tv_groupname,fv.getLayerName()+getOrid_Path());
-        helper.setText(com.ovit.R.id.tv_desc,FeatureHelper.Get(item,"BDCDYH",""));
-        helper.setText(com.ovit.R.id.tv_name,FeatureHelper.Get(item,"XM","无")+"[持证人]");
-        super.listAdapterConvert(helper, item, deep);
+        helper.setText(R.id.tv_groupname,fv.getLayerName()+getOrid_Path());
+        helper.setText(R.id.tv_desc,FeatureHelper.Get(item,"BDCDYH",""));
+        helper.setText(R.id.tv_name,FeatureHelper.Get(item,"XM","无")+"[持证人]");
         helper.getView(R.id.ll_head).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
