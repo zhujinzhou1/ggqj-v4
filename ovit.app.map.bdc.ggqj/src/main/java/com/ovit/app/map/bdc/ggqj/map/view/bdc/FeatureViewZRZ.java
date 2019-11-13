@@ -57,6 +57,7 @@ import static com.ovit.app.map.view.FeatureEdit.GetTable;
 
 public class FeatureViewZRZ extends FeatureView {
     final static String TAG = "FeatureViewZRZ";
+
     // region 重写父类方法
     @Override
     public void onCreate() {
@@ -269,7 +270,7 @@ public class FeatureViewZRZ extends FeatureView {
         MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(zrzh) + " ZRZH like '%'" + zrzh + "%' ", callback);
     }
 
-//    public void update_Area(Feature feature, List<Feature> f_hs, List<Feature> f_z_fsjgs) {
+    //    public void update_Area(Feature feature, List<Feature> f_hs, List<Feature> f_z_fsjgs) {
 //        String id = FeatureHelper.Get(feature, "ZRZH", "");
 //        int zcs = FeatureHelper.Get(feature, "ZCS", 1);
 //        Geometry g = feature.getGeometry();
@@ -337,6 +338,7 @@ public class FeatureViewZRZ extends FeatureView {
         fv.set(f);
         return fv;
     }
+
     public static FeatureViewZRZ From(MapInstance mapInstance) {
         FeatureViewZRZ fv = new FeatureViewZRZ();
         fv.set(mapInstance).set(mapInstance.getTable("ZRZ"));
@@ -511,7 +513,7 @@ public class FeatureViewZRZ extends FeatureView {
     }
 
     public void identyLjz(List<Feature> features_zrz, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("LJZ"), GeometryEngine.buffer( feature.getGeometry(),-0.5), features_zrz, callback);
+        MapHelper.Query(mapInstance.getTable("LJZ"), GeometryEngine.buffer(feature.getGeometry(), -0.5), features_zrz, callback);
     }
 
     // 默认识别保存
@@ -557,13 +559,14 @@ public class FeatureViewZRZ extends FeatureView {
             }
         });
     }
+
     // 自然幢识别逻辑幢
     private void indentyLjzToZrz(final List<Feature> featuresZRZ, AiRunnable callback) {
         new AiForEach<Feature>(featuresZRZ, callback) {
             public void exec() {
                 final Feature featureZrz = getValue();
                 FeatureViewZRZ fvZrz = (FeatureViewZRZ) mapInstance.newFeatureView(featureZrz);
-                final AiForEach<Feature> that=this;
+                final AiForEach<Feature> that = this;
                 fvZrz.identyLjz(false, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(final T_ t_, Object... objects) {
@@ -571,8 +574,8 @@ public class FeatureViewZRZ extends FeatureView {
 //                        featuresZRZ.get(postion).getAttributes().put("ZCS", getMaxLc(featuresLjz)); // 更新自然幢楼层
 //                        featureZrz.getAttributes().put("FWJG", getZrzJc(featuresLjz)); // 更新自然幢结构
 //                        featuresZRZ.get(postion).getAttributes().put("JGRQ", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("JGRQ"),"")); // 更新自然幢竣工日期
-                        featureZrz.getAttributes().put("JZWJBYT", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("FWYT1"),"")); // 更新自然幢用途
-                        Log.i(TAG, "自然幢识别逻辑幢==="+postion);
+                        featureZrz.getAttributes().put("JZWJBYT", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("FWYT1"), "")); // 更新自然幢用途
+                        Log.i(TAG, "自然幢识别逻辑幢===" + postion);
 //                        initAllFeatureHToLjz(featuresLjz, that.getNext());
                         return null;
                     }
@@ -585,7 +588,7 @@ public class FeatureViewZRZ extends FeatureView {
         double area_jzmj = 0;
         double area_jzzdmj = 0;
         String zddm = FeatureHelper.Get(f_zrz, "ZDDM", "");
-        String ljzhPrefix=StringUtil.substr_last(zddm,7)+"F"+FeatureHelper.Get(f_zrz,"ZH","");
+        String ljzhPrefix = StringUtil.substr_last(zddm, 7) + "F" + FeatureHelper.Get(f_zrz, "ZH", "");
         String zrzh = FeatureHelper.Get(f_zrz, "ZRZH", "");
         List<Feature> features_update = new ArrayList<>();
         int maxZH = 0;
@@ -594,7 +597,7 @@ public class FeatureViewZRZ extends FeatureView {
             final String ljz_ljzh = FeatureHelper.Get(f, "LJZH", "");
             if (ljz_ljzh.startsWith(ljzhPrefix) && ljz_ljzh.length() == FeatureHelper.FEATURE_LJZ_LJZH_LENG) {
                 // 逻辑幢号
-                int zh = AiUtil.GetValue(StringUtil.substr_last(ljz_ljzh,2), 0);
+                int zh = AiUtil.GetValue(StringUtil.substr_last(ljz_ljzh, 2), 0);
                 if (maxZH < zh) {
                     maxZH = zh;
                 }
@@ -608,7 +611,7 @@ public class FeatureViewZRZ extends FeatureView {
             for (Feature updateFeature : features_update) {
                 maxZH++;
                 String newZH = String.format("%02d", maxZH);
-                FeatureHelper.Set(updateFeature, "LJZH", ljzhPrefix+newZH);
+                FeatureHelper.Set(updateFeature, "LJZH", ljzhPrefix + newZH);
             }
         }
         // 来更新逻辑幢其他字段内容
@@ -1094,7 +1097,7 @@ public class FeatureViewZRZ extends FeatureView {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                             // 数据归集
-                                            OutputData(mapInstance, f_bdc,f_zd,fs_jzd,fs_jzx,fs_zrz,fs_z_fsjg,fs_h,fs_h_fsjg);
+                                            OutputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
                                             AiRunnable.Ok(callback, t_, objects);
                                             return null;
                                         }

@@ -576,7 +576,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     final AiDialog aidialog = AiDialog.get(mapInstance.activity);
                     aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理")
-                            .setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！",funcdesc)
+                            .setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
                             .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -590,28 +590,28 @@ public class FeatureEditBDC extends FeatureEdit {
                                                 public void onClick(DialogInterface dialog, int which) {
                                                     dialog.dismiss();
                                                 }
-                                            },null,null,"完成",null);
+                                            }, null, null, "完成", null);
                                             return null;
                                         }
 
                                         @Override
                                         public <T_> T_ no(T_ t_, Object... objects) {
                                             aidialog.addContentView("处理数据失败！");
-                                            aidialog.setFooterView(null,"关闭",null);
-                                            return  null;
+                                            aidialog.setFooterView(null, "关闭", null);
+                                            return null;
                                         }
 
                                         @Override
                                         public <T_> T_ error(T_ t_, Object... objects) {
                                             aidialog.addContentView("处理数据异常！");
-                                            aidialog.setFooterView(null,"关闭",null);
-                                            return  null;
+                                            aidialog.setFooterView(null, "关闭", null);
+                                            return null;
                                         }
                                     };
                                     // 设置不可中断
                                     aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                    aidialog.setContentView("开始处理数据"+"ZDDM="+FeatureHelper.Get(feature,"ZDDM",""));
-                                    aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+"查找所有的逻辑幢，并合成自然幢");
+                                    aidialog.setContentView("开始处理数据" + "ZDDM=" + FeatureHelper.Get(feature, "ZDDM", ""));
+                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "查找所有的逻辑幢，并合成自然幢");
                                     Log.d(TAG, "智能处理:查找所有的逻辑幢，并合成自然幢");
                                     // 查询宗地范围内的逻辑幢
                                     final FeatureViewZD fv_zd = (FeatureViewZD) mapInstance.newFeatureView(feature);
@@ -620,51 +620,51 @@ public class FeatureEditBDC extends FeatureEdit {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                             // 通过逻辑幢合成自然幢
-                                            aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查询到"+featuresLJZ.size()+"个逻辑幢。");
-                                            aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 通过逻辑幢合成自然幢。");
+                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查询到" + featuresLJZ.size() + "个逻辑幢。");
+                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 通过逻辑幢合成自然幢。");
                                             final List<Feature> featuresZRZ = new ArrayList<>();
                                             creatZrzToLjzUnion(featuresLJZ, featuresZRZ, new AiRunnable() {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                                     ToastMessage.Send("通过逻辑幢合成自然幢");
-                                                    aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 已合成"+featuresZRZ.size()+"自然幢。");
-                                                    aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 宗地识别自然幢");
-                                                        // zd 识别自然幢;
-                                                        fv_zd.identyZd_Zrz(mapInstance, feature, featuresZRZ, new AiRunnable() {
-                                                            @Override
-                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                // 自然幢识别逻辑幢
-                                                                ToastMessage.Send("zd 识别自然幢");
-                                                                indentyLjzToZrz(featuresZRZ,new AiRunnable() {
-                                                                    @Override
-                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                        // 自然幢生成层
-                                                                        ToastMessage.Send("自然幢识别逻辑幢完成");
-                                                                        creatCToZrz(featuresZRZ, new AiRunnable() {
-                                                                            @Override
-                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                                // 通过宗地生成不动产单元
-                                                                                ToastMessage.Send("层生成完成");
-                                                                                createBdcdyToZd(feature, new AiRunnable() {
-                                                                                    @Override
-                                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                                        ToastMessage.Send("宗地生成权利人，不动产单元成功。");
-                                                                                        AiRunnable.Ok(callback,t_,objects);
+                                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已合成" + featuresZRZ.size() + "自然幢。");
+                                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 宗地识别自然幢");
+                                                    // zd 识别自然幢;
+                                                    fv_zd.identyZd_Zrz(mapInstance, feature, featuresZRZ, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            // 自然幢识别逻辑幢
+                                                            ToastMessage.Send("zd 识别自然幢");
+                                                            indentyLjzToZrz(featuresZRZ, new AiRunnable() {
+                                                                @Override
+                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                    // 自然幢生成层
+                                                                    ToastMessage.Send("自然幢识别逻辑幢完成");
+                                                                    creatCToZrz(featuresZRZ, new AiRunnable() {
+                                                                        @Override
+                                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                            // 通过宗地生成不动产单元
+                                                                            ToastMessage.Send("层生成完成");
+                                                                            createBdcdyToZd(feature, new AiRunnable() {
+                                                                                @Override
+                                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                    ToastMessage.Send("宗地生成权利人，不动产单元成功。");
+                                                                                    AiRunnable.Ok(callback, t_, objects);
 //                                                                                        aidialog.dismiss();
-                                                                                        // 输出成果
+                                                                                    // 输出成果
 //                                                                                         OutputAllBdcdyResultsToZD(feature,null);
-                                                                                        return null;
-                                                                                    }
-                                                                                });
-                                                                                return null;
-                                                                            }
-                                                                        });
-                                                                        return null;
-                                                                    }
-                                                                });
-                                                                return null;
-                                                            }
-                                                        });
+                                                                                    return null;
+                                                                                }
+                                                                            });
+                                                                            return null;
+                                                                        }
+                                                                    });
+                                                                    return null;
+                                                                }
+                                                            });
+                                                            return null;
+                                                        }
+                                                    });
                                                     return null;
                                                 }
                                             });
@@ -691,11 +691,11 @@ public class FeatureEditBDC extends FeatureEdit {
             MapHelper.Query(table, where, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
-                    List<Feature> featuresBdcdy=(List<Feature>) t_;
-                    new AiForEach<Feature>(featuresBdcdy,callback){
+                    List<Feature> featuresBdcdy = (List<Feature>) t_;
+                    new AiForEach<Feature>(featuresBdcdy, callback) {
                         @Override
                         public void exec() {
-                            CreateDOCX_(mapInstance, getValue(),getNext());
+                            CreateDOCX_(mapInstance, getValue(), getNext());
                         }
                     }.start();
 
@@ -712,7 +712,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 new AiForEach<Feature>(featuresZRZ, callback) {
                     @Override
                     public void exec() {
-                        FeatureEditC.InitFeatureAll(mapInstance, getValue(),getNext());
+                        FeatureEditC.InitFeatureAll(mapInstance, getValue(), getNext());
                     }
                 }.start();
                 return null;
@@ -768,7 +768,7 @@ public class FeatureEditBDC extends FeatureEdit {
             public void exec() {
                 final Feature featureZrz = getValue();
                 FeatureViewZRZ fvZrz = (FeatureViewZRZ) mapInstance.newFeatureView(featureZrz);
-                final AiForEach<Feature> that=this;
+                final AiForEach<Feature> that = this;
                 fvZrz.identyLjz(false, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(final T_ t_, Object... objects) {
@@ -776,8 +776,8 @@ public class FeatureEditBDC extends FeatureEdit {
 //                        featuresZRZ.get(postion).getAttributes().put("ZCS", getMaxLc(featuresLjz)); // 更新自然幢楼层
                         featureZrz.getAttributes().put("FWJG", getZrzJc(featuresLjz)); // 更新自然幢结构
 //                        featuresZRZ.get(postion).getAttributes().put("JGRQ", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("JGRQ"),"")); // 更新自然幢竣工日期
-                        featureZrz.getAttributes().put("JZWJBYT", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("FWYT1"),"")); // 更新自然幢用途
-                        Log.i(TAG, "自然幢识别逻辑幢==="+postion);
+                        featureZrz.getAttributes().put("JZWJBYT", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("FWYT1"), "")); // 更新自然幢用途
+                        Log.i(TAG, "自然幢识别逻辑幢===" + postion);
                         initAllFeatureHToLjz(featuresLjz, that.getNext());
                         return null;
                     }
@@ -787,16 +787,16 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     private String getZrzJc(List<Feature> featuresLjz) {
-        if(featuresLjz.size()==1){
-            return FeatureHelper.Get(featuresLjz.get(0),"FWYT1","");
+        if (featuresLjz.size() == 1) {
+            return FeatureHelper.Get(featuresLjz.get(0), "FWYT1", "");
         }
-        String yt="";
+        String yt = "";
         for (Feature featureLjz : featuresLjz) {
-                if (StringUtil.IsEmpty(yt)){
-                yt=FeatureHelper.Get(featureLjz,"FWYT1","");
-                }else if (!yt.equals(FeatureHelper.Get(featureLjz,"FWYT1",""))){
-                   return "4";
-                }
+            if (StringUtil.IsEmpty(yt)) {
+                yt = FeatureHelper.Get(featureLjz, "FWYT1", "");
+            } else if (!yt.equals(FeatureHelper.Get(featureLjz, "FWYT1", ""))) {
+                return "4";
+            }
         }
         return yt;
     }
@@ -817,9 +817,9 @@ public class FeatureEditBDC extends FeatureEdit {
         new AiForEach<Feature>(featuresLjz, callback) {
             @Override
             public void exec() {
-                Log.d(TAG, "逻辑幢快速生成户==="+this.postion);
+                Log.d(TAG, "逻辑幢快速生成户===" + this.postion);
                 final Feature featureLjz = this.getValue();
-                final AiForEach<Feature> that=this;
+                final AiForEach<Feature> that = this;
                 // 逻辑幢识别幢附属结构
                 FeatureViewZ_FSJG.IdentyLJZ_FSJG(mapInstance, featureLjz, new AiRunnable() {
                     @Override
@@ -832,19 +832,19 @@ public class FeatureEditBDC extends FeatureEdit {
                                 new AiForEach<Feature>(featuresH, that.getNext()) {
                                     @Override
                                     public void exec() {
-                                        final Feature featureH= this.getValue();
-                                        final AiForEach<Feature> that_h=this;
-                                        Log.i(TAG, "户识别户附属结构==="+featureH.getAttributes().get("ID")+"===="+this.postion);
+                                        final Feature featureH = this.getValue();
+                                        final AiForEach<Feature> that_h = this;
+                                        Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
                                         {
-                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
+                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance, featureH, new AiRunnable() {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                                    FeatureEditH.IdentyH_Area(mapInstance,featureH, new AiRunnable() {
+                                                    FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                                             fillView(v_content, feature, "YCJZMJ");
                                                             fillView(v_content, feature, "SCJZMJ");
-                                                            ToastMessage .Send(activity, "识别户附属结构识别完成！");
+                                                            ToastMessage.Send(activity, "识别户附属结构识别完成！");
                                                             AiRunnable.Ok(that_h.getNext(), t_, t_);
                                                             return null;
                                                         }
@@ -866,7 +866,7 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     private void creatZrzToLjzUnion(List<Feature> featuresLJZ, final List<Feature> featuresZRZ, final AiRunnable callback) {
-        if (featuresLJZ.size() >0) {
+        if (featuresLJZ.size() > 0) {
             List<Geometry> gs = MapHelper.geometry_get(featuresLJZ);
             Geometry g = GeometryEngine.union(gs);
             if (g instanceof Polygon) {
@@ -941,21 +941,23 @@ public class FeatureEditBDC extends FeatureEdit {
             );
         }
     }
-    public  static void CreateDOCX_(final MapInstance mapInstance, final Feature featureBdcdy, final AiRunnable callback) {
-        String last_orid= FeatureHelper.GetLastOrid(featureBdcdy);
-        if (!TextUtils.isEmpty(last_orid)&&last_orid.contains(FeatureConstants.ZD_ORID_PREFIX)){
+
+    public static void CreateDOCX_(final MapInstance mapInstance, final Feature featureBdcdy, final AiRunnable callback) {
+        String last_orid = FeatureHelper.GetLastOrid(featureBdcdy);
+        if (!TextUtils.isEmpty(last_orid) && last_orid.contains(FeatureConstants.ZD_ORID_PREFIX)) {
             FeatureEditZD.CreateDOCX(mapInstance, featureBdcdy, true, callback);
-        }else if (last_orid.contains(FeatureConstants.ZRZ_ORID_PREFIX)){
+        } else if (last_orid.contains(FeatureConstants.ZRZ_ORID_PREFIX)) {
             FeatureViewZRZ.CreateDOCX(mapInstance, featureBdcdy, true, callback);
-        }else if (last_orid.contains(FeatureConstants.C_ORID_PREFIX)){
+        } else if (last_orid.contains(FeatureConstants.C_ORID_PREFIX)) {
             FeatureEditC.CreateDOCX(mapInstance, featureBdcdy, true, callback);
-        }else if (last_orid.contains(FeatureConstants.H_ORID_PREFIX)){
-            Log.i(TAG,"H_ORID_PREFIX"+last_orid);
+        } else if (last_orid.contains(FeatureConstants.H_ORID_PREFIX)) {
+            Log.i(TAG, "H_ORID_PREFIX" + last_orid);
             FeatureEditH.CreateDOCX(mapInstance, featureBdcdy, true, callback);
-        }else {
-            AiRunnable.Ok(callback,featureBdcdy);
+        } else {
+            AiRunnable.Ok(callback, featureBdcdy);
         }
     }
+
     // 报表,把现有资料进行归纳
     public static void CreateDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_zd,
                                   final List<Feature> fs_jzd,
@@ -1065,23 +1067,24 @@ public class FeatureEditBDC extends FeatureEdit {
             }
         });
     }
+
     // 查询所有自然幢，识别户和幢附属
     public static void LaodALLBDC_CreateDOCX(final MapInstance mapInstance, final boolean isReload, final AiRunnable callback) {
-            FeatureTable table = mapInstance.getTable("QLRXX");
-            final List<Feature> fs=new ArrayList<>();
-             MapHelper.Query(table, "",-1,fs, new AiRunnable() {
-                @Override
-                public <T_> T_ ok(T_ t_, Object... objects) {
-                    new AiForEach<Feature>(fs,callback){
-                        @Override
-                        public void exec() {
-                            CreateDOCX_(mapInstance, getValue(),getNext());
-                        }
-                    }.start();
+        FeatureTable table = mapInstance.getTable("QLRXX");
+        final List<Feature> fs = new ArrayList<>();
+        MapHelper.Query(table, "", -1, fs, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                new AiForEach<Feature>(fs, callback) {
+                    @Override
+                    public void exec() {
+                        CreateDOCX_(mapInstance, getValue(), getNext());
+                    }
+                }.start();
 
-                    return null;
-                }
-            });
+                return null;
+            }
+        });
 
     }
 
@@ -1200,10 +1203,12 @@ public class FeatureEditBDC extends FeatureEdit {
         map_sys.put("DATE", date);
         GetReplecData(map_, "SYS", map_sys);
     }
+
     // 设置不动产单元的内容
     public static void Put_data_bdcdy(MapInstance mapInstance, Map<String, Object> map_, Feature featureBdc) {
-        GetReplecData(mapInstance.activity, map_, featureBdc,"","ZJZL","XB","");
+        GetReplecData(mapInstance.activity, map_, featureBdc, "", "ZJZL", "XB", "");
     }
+
     // 设置宗地的内容
     public static void Put_data_zd(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd) {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -1363,13 +1368,13 @@ public class FeatureEditBDC extends FeatureEdit {
 //        GetReplecData(mapInstance.activity, map_, "list.jzx", f_jzxs, "");
 //    }
 
-    public static void Put_data_jzqz(Map<String, Object> map_, List<Feature> f_jzd,List<Map<String,Object>> fs_jzqz) {
+    public static void Put_data_jzqz(Map<String, Object> map_, List<Feature> f_jzd, List<Map<String, Object>> fs_jzqz) {
 
         // 界址签字数，只留一条
-        List<Map<String,Object>> f_jzqzs = new ArrayList<Map<String,Object>>();
+        List<Map<String, Object>> f_jzqzs = new ArrayList<Map<String, Object>>();
         f_jzqzs.addAll(fs_jzqz);
-        if(f_jzqzs.size()<1){
-            Map<String,Object > f_jzqz_def = new LinkedHashMap<>();
+        if (f_jzqzs.size() < 1) {
+            Map<String, Object> f_jzqz_def = new LinkedHashMap<>();
             f_jzqz_def.put("JZQZ.JZXQDH", "");
             f_jzqz_def.put("JZQZ.JZXZJDH", "");
             f_jzqz_def.put("JZQZ.JZXZDH", "");
@@ -1413,9 +1418,9 @@ public class FeatureEditBDC extends FeatureEdit {
 
     }
 
-    public static void Put_data_jzdx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, String zddm, List<Feature> f_jzds, List<Feature> f_jzxs, Map<String,Feature> map_jzx) {
+    public static void Put_data_jzdx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, String zddm, List<Feature> f_jzds, List<Feature> f_jzxs, Map<String, Feature> map_jzx) {
         List<Feature> fs_jzd = new ArrayList<>(f_jzds);
-        map_.put("ZD.JZDS",f_jzds.size());
+        map_.put("ZD.JZDS", f_jzds.size());
         if (fs_jzd.size() > 0) {
             // 界址点首位相连
             Feature f_jzd_ = GetTable(mapInstance, "JZD").createFeature();
@@ -1433,23 +1438,23 @@ public class FeatureEditBDC extends FeatureEdit {
 
         // 设置界址点数据，添加在指定值域打勾
         List<Map<String, Object>> maps_jzd = new ArrayList<>();
-        int i =0;
+        int i = 0;
         for (Feature f_jzd : fs_jzd) {
             int j = (i + 1 < f_jzds.size()) ? i + 1 : 0;
             Feature f_jzd2 = fs_jzd.get(j);
-            Feature f_jzx = FeatureEditJZX.Get(map_jzx ,f_jzd,f_jzd2);
-            String jzx_zdzhdm = FeatureHelper.Get(f_jzx,"ZDZHDM", "");
+            Feature f_jzx = FeatureEditJZX.Get(map_jzx, f_jzd, f_jzd2);
+            String jzx_zdzhdm = FeatureHelper.Get(f_jzx, "ZDZHDM", "");
 
             Map<String, Object> v = GetReplecData(mapInstance.activity, new LinkedHashMap<String, Object>(), f_jzd, "", "JBLX", "JZXLB", "JZXWZ");
-            v.put("JZX.JZXSM",""); // 防止  JZX.JZXSM  为空
+            v.put("JZX.JZXSM", ""); // 防止  JZX.JZXSM  为空
             v = GetReplecData(mapInstance.activity, v, f_jzx, "", "JBLX", "JZXLB", "JZXWZ");
 
 //
-            if(AiUtil.GetValue(AppConfig.get("APP_ZD_JZD_FSSYJM"),true)&&!TextUtils.isEmpty(FeatureHelper.Get(f_jzd,"JZDH",""))){
-                if(i == f_jzds.size()){
-                    v.put("JZD.JZDH","J1");
-                }else {
-                    v.put("JZD.JZDH", "J" + (i+1));
+            if (AiUtil.GetValue(AppConfig.get("APP_ZD_JZD_FSSYJM"), true) && !TextUtils.isEmpty(FeatureHelper.Get(f_jzd, "JZDH", ""))) {
+                if (i == f_jzds.size()) {
+                    v.put("JZD.JZDH", "J1");
+                } else {
+                    v.put("JZD.JZDH", "J" + (i + 1));
                 }
             }
 
@@ -1463,7 +1468,7 @@ public class FeatureEditBDC extends FeatureEdit {
             MoveToEnd(v, "JZD.JBLXFF", "JZD.JBLX");
 
 //            String jzxlb = AiUtil.GetValue(v.get("JZX.JZXLBFF"), v.get("JZD.JZXLBFF")+"");
-            String jzxlb = AiUtil.GetValue(v.get("JZD.JZXLBFF"), v.get("JZD.JZXLBFF")+"");
+            String jzxlb = AiUtil.GetValue(v.get("JZD.JZXLBFF"), v.get("JZD.JZXLBFF") + "");
             v.put("JZD.JZXLBFFDL", jzxlb.equals("道路") ? "√" : "");
             v.put("JZD.JZXLBFFGQ", jzxlb.equals("沟渠") ? "√" : "");
             v.put("JZD.JZXLBFFWQ", jzxlb.equals("围墙") ? "√" : "");
@@ -1476,11 +1481,11 @@ public class FeatureEditBDC extends FeatureEdit {
             v.put("JZD.JZXLBFFFY", jzxlb.equals("飞檐") ? "√" : "");
             v.put("JZD.JZXLBFFPL", jzxlb.equals("飘楼") ? "√" : "");
             v.put("JZD.JZXLBFFYZ", jzxlb.equals("阳台") ? "√" : "");
-            v.put("JZD.JZXLBFFQT", Arrays.asList(new String[]{"道路", "沟渠", "围墙", "围栏", "田埂", "墙壁","中心线","两点连线","滴水线","飞檐","飘楼","阳台"}).contains(jzxlb) ? "" : jzxlb);
+            v.put("JZD.JZXLBFFQT", Arrays.asList(new String[]{"道路", "沟渠", "围墙", "围栏", "田埂", "墙壁", "中心线", "两点连线", "滴水线", "飞檐", "飘楼", "阳台"}).contains(jzxlb) ? "" : jzxlb);
             MoveToEnd(v, "JZD.JZXLBFF", "JZD.JZXLB");
 
 //            String jzxwz = AiUtil.GetValue(v.get("JZX.JZXWZFF"), v.get("JZD.JZXWZFF")+"");
-            String jzxwz = AiUtil.GetValue(v.get("JZD.JZXWZFF"), v.get("JZD.JZXWZFF")+"");
+            String jzxwz = AiUtil.GetValue(v.get("JZD.JZXWZFF"), v.get("JZD.JZXWZFF") + "");
 
 //            if(!TextUtils.isEmpty(jzx_zdzhdm)&&!jzx_zdzhdm.startsWith(zddm)) {
 //                // 相邻宗地 对调内外
@@ -1493,10 +1498,10 @@ public class FeatureEditBDC extends FeatureEdit {
             v.put("JZD.JZXWZFFN", jzxwz.equals("内") ? "√" : "");
             v.put("JZD.JZXWZFFZ", jzxwz.equals("中") ? "√" : "");
             v.put("JZD.JZXWZFFW", jzxwz.equals("外") ? "√" : "");
-            v. put("JZD.FFXZBZ",f_jzd.getAttributes().get("XZBZ")==null?"":f_jzd.getAttributes().get("XZBZ")+"");
-            v. put("JZD.FFYZBZ",f_jzd.getAttributes().get("YZBZ")==null?"":f_jzd.getAttributes().get("YZBZ")+"");
-            if(f_jzd.getGeometry()==null){
-                v.put("JZX.JZXCD","");
+            v.put("JZD.FFXZBZ", f_jzd.getAttributes().get("XZBZ") == null ? "" : f_jzd.getAttributes().get("XZBZ") + "");
+            v.put("JZD.FFYZBZ", f_jzd.getAttributes().get("YZBZ") == null ? "" : f_jzd.getAttributes().get("YZBZ") + "");
+            if (f_jzd.getGeometry() == null) {
+                v.put("JZX.JZXCD", "");
             }
             MoveToEnd(v, "JZD.JZXWZFF", "JZD.JZXWZ");
             maps_jzd.add(v);
@@ -1521,7 +1526,7 @@ public class FeatureEditBDC extends FeatureEdit {
         }
         // 设置界址线
         GetReplecData(mapInstance.activity, map_, "list.jzx", f_jzxs, "");
-        map_.put("ZD.JZXS",fs_jzx.size());
+        map_.put("ZD.JZXS", fs_jzx.size());
 
     }
 
@@ -1611,8 +1616,9 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
         map_.put("list.zrz", maps_zrz);
     }
+
     //设置自然幢
-    public static void Put_data_zrz_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h,Feature featureBdc,String last_orid) {
+    public static void Put_data_zrz_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, Feature featureBdc, String last_orid) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
         final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "自然幢");
         FileUtils.deleteFile(file_zrzs);
@@ -1626,7 +1632,7 @@ public class FeatureEditBDC extends FeatureEdit {
         List<String> hzjgrq = new ArrayList<>();
         for (Feature zrz : fs_zrzs) {
             // 幢基本信息  找到与不动产关联的幢
-            if (!last_orid.equals(FeatureHelper.Get(zrz, "ORID", ""))){
+            if (!last_orid.equals(FeatureHelper.Get(zrz, "ORID", ""))) {
                 continue;
             }
 
@@ -1670,7 +1676,8 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
         map_.put("list.zrz", maps_zrz);
     }
-    public static void Put_data_h_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h,Feature featureBdc,String last_orid) {
+
+    public static void Put_data_h_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, Feature featureBdc, String last_orid) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
         final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "自然幢");
         FileUtils.deleteFile(file_zrzs);
@@ -1684,7 +1691,7 @@ public class FeatureEditBDC extends FeatureEdit {
         List<String> hzjgrq = new ArrayList<>();
         for (Feature zrz : fs_zrzs) {
             // 幢基本信息  找到与不动产关联的幢
-            if (!last_orid.equals(FeatureHelper.Get(zrz, "ORID", ""))){
+            if (!last_orid.equals(FeatureHelper.Get(zrz, "ORID", ""))) {
                 continue;
             }
             String z_zrzh = AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), "");
@@ -1820,7 +1827,7 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void Put_data_h(MapInstance mapInstance, Map<String, Object> map_, Feature h) {
         String bdcdyh = (String) map_.get("QLRXX.BDCDYH");
         GetReplecData(mapInstance.activity, map_, h, "", "YT:fwyt", "GHYT:fwyt", "CB:fwcb", "FWLX", "FWJG", "FWXZ", "QLRZJZL:zjzl", "ZT:fwzt");
-        if (FeatureHelper.isBDCDYHValid(bdcdyh)){
+        if (FeatureHelper.isBDCDYHValid(bdcdyh)) {
             String bdchh = StringUtil.substr_last(bdcdyh, 4);
             String bdczh = StringUtil.substr_last(bdcdyh, 5, 4);
             String bdczdh = StringUtil.substr_last(bdcdyh, 7, 9);
@@ -1833,17 +1840,17 @@ public class FeatureEditBDC extends FeatureEdit {
             map_.put("H.BDCDJZQ", bdcdjzq);
             map_.put("H.BDCDJQ", bdcdjq);
             map_.put("H.BDCXZQ", bdcxzq);
-            map_.put("H.HH", 0+StringUtil.substr_last(bdcdyh,3));
+            map_.put("H.HH", 0 + StringUtil.substr_last(bdcdyh, 3));
         }
 
-        Double tnmj =Double.parseDouble ((String) map_.get("H.SCJZMJ"));
-        Double ftxs= Double.parseDouble( AiUtil.GetValue(map_.get("ZD."+FeatureViewZD.TABLE_ATTR_FTXS_ZD),"0"));
+        Double tnmj = Double.parseDouble((String) map_.get("H.SCJZMJ"));
+        Double ftxs = Double.parseDouble(AiUtil.GetValue(map_.get("ZD." + FeatureViewZD.TABLE_ATTR_FTXS_ZD), "0"));
 
-        double ftmj = tnmj*ftxs;
-        double jzmj=tnmj+ftmj;
-        map_.put("H.SCJZMJ", String.format("%.2f",jzmj));
-        map_.put("H.SCFTJZMJ",String.format("%.2f",ftmj) );
-        map_.put("H.TNMJ", String.format("%.2f",tnmj));
+        double ftmj = tnmj * ftxs;
+        double jzmj = tnmj + ftmj;
+        map_.put("H.SCJZMJ", String.format("%.2f", jzmj));
+        map_.put("H.SCFTJZMJ", String.format("%.2f", ftmj));
+        map_.put("H.TNMJ", String.format("%.2f", tnmj));
 
     }
 
@@ -2460,14 +2467,14 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     public static void OutputDataZD(final MapInstance mapInstance,
-                                  final String bdcdyh,
-                                  final Feature f_zd,
-                                  final List<Feature> fs_jzd,
-                                  final List<Feature> fs_jzx,
-                                  final List<Feature> fs_zrz,
-                                  final List<Feature> fs_z_fsjg,
-                                  final List<Feature> fs_h,
-                                  final List<Feature> fs_h_fsjg) {
+                                    final String bdcdyh,
+                                    final Feature f_zd,
+                                    final List<Feature> fs_jzd,
+                                    final List<Feature> fs_jzx,
+                                    final List<Feature> fs_zrz,
+                                    final List<Feature> fs_z_fsjg,
+                                    final List<Feature> fs_h,
+                                    final List<Feature> fs_h_fsjg) {
         try {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
@@ -2494,6 +2501,7 @@ public class FeatureEditBDC extends FeatureEdit {
             Log.e(TAG, "导出数据失败", es);
         }
     }
+
     //  分享
     public void shareDialog(final Activity activity) {
         LoadZD(mapInstance, id, new AiRunnable() {
@@ -2871,11 +2879,11 @@ public class FeatureEditBDC extends FeatureEdit {
 
     //  通过zrz获取层
     public static void LoadAllCAndFsToZRZ(final MapInstance mapInstance
-            , final List<Feature>  fs_zrz
+            , final List<Feature> fs_zrz
             , final LinkedHashMap<Feature, List<Feature>> features_c
             , final AiRunnable callback) {
 
-        new AiForEach<Feature>(fs_zrz,callback){
+        new AiForEach<Feature>(fs_zrz, callback) {
             @Override
             public void exec() {
                 final Feature f_zrz = fs_zrz.get(postion);
@@ -2896,7 +2904,7 @@ public class FeatureEditBDC extends FeatureEdit {
                                 for (Map.Entry<String, List<Feature>> zrz_c : zrz_c_s) {
                                     features_c.put(mapC.get(Integer.parseInt(zrz_c.getKey())), zrz_c.getValue());
                                 }
-                                AiRunnable.Ok(getNext(), t_,objects);
+                                AiRunnable.Ok(getNext(), t_, objects);
                                 return null;
                             }
                         });
@@ -2939,15 +2947,15 @@ public class FeatureEditBDC extends FeatureEdit {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         final Feature f_c = (Feature) t_;
-                                final ArrayList<Map.Entry<String, List<Feature>>> zrz_c_s = new ArrayList<>();
-                                FeatureEditC.Load_FsAndH_GroupbyC_Sort(mapInstance, f_zrz, zrz_c_s, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        for (Map.Entry<String, List<Feature>> zrz_c : zrz_c_s) {
-                                            if ((zrz_c.getKey()).equals(FeatureHelper.Get(f_c, "SJC", ""))) {
-                                                features_c.put(f_c, zrz_c.getValue());
-                                            }
-                                        }
+                        final ArrayList<Map.Entry<String, List<Feature>>> zrz_c_s = new ArrayList<>();
+                        FeatureEditC.Load_FsAndH_GroupbyC_Sort(mapInstance, f_zrz, zrz_c_s, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                for (Map.Entry<String, List<Feature>> zrz_c : zrz_c_s) {
+                                    if ((zrz_c.getKey()).equals(FeatureHelper.Get(f_c, "SJC", ""))) {
+                                        features_c.put(f_c, zrz_c.getValue());
+                                    }
+                                }
                                 AiRunnable.Ok(callback, features_c, features_c);
                                 return null;
                             }
@@ -2956,7 +2964,6 @@ public class FeatureEditBDC extends FeatureEdit {
                     }
                 });
     }
-
 
 
 }
