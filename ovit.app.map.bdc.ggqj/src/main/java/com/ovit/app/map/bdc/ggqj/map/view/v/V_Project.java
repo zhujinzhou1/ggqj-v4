@@ -123,7 +123,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 License.vaildfunc(activity, fundesc, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-
                         output_lqsj(mapInstance);
                         return null;
                     }
@@ -138,7 +137,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 License.vaildfunc(activity, fundesc, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        input_bdcdy(mapInstance);
+                        output_excels();
                         return null;
                     }
                 });
@@ -613,6 +612,206 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
+
+    private void output_excels() {
+        final AiDialog dialog =   AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_zd_fw, "导入Excel数据");
+
+        final Map<String ,String> dataconfig  = new HashMap<>();
+        dialog.addContentView(dialog.getSelectView("图层","map_tc",dataconfig,"tc"));
+
+        dialog.addContentViewMenu(Arrays.asList(
+                new Object[]{R.mipmap.app_icon_shp, "导入Mdb文件", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ToastMessage.Send("功能正在建设中...");
+                    }
+                }},
+                new Object[]{R.mipmap.app_icon_cad, "导入Excel文件", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FileUtils.showChooser(activity, new AiRunnable() {
+                            void setMessage(final String message){
+                                if (StringUtil.IsNotEmpty(message)) {
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ToastMessage.Send(message);
+                                            dialog.setContentView(message);
+                                        }
+                                    });
+                                }
+                            }
+                            void addMessage(final String title,final String  mssage){
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.addContentView(title,mssage);
+                                    }
+                                });
+                            }
+                            void setComplete(final int icon,final String text,final  boolean cancelable){
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.setCancelable(cancelable);
+                                        dialog.setFooterView(dialog.getStateView(icon,text));
+                                        addMessage(text,"");
+
+                                    }
+                                });
+                            }
+                            void save(final Map<String,Integer> map_fs ,List<Feature> features ,final boolean isComplete){
+                                final List<Feature> fs = new ArrayList<>(features);
+                                features.clear();
+                                String messge_ = "";
+//                                for (String key:map_fs.keySet()){ messge_+="["+key+"："+map_fs.get(key)+"]"; }
+                                final String messge = messge_;
+                                MapHelper.saveFeature(fs, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        addMessage("",AiUtil.GetValue(new Date(),AiUtil.F_TIME)+"导入" + fs.size() + "个图形成功:"+messge+"...");
+                                        if(isComplete) setComplete(R.mipmap.app_icon_ok_f,"导入" + messge + "成功！",true);
+                                        return null;
+                                    }
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        addMessage("导入失败:",((Exception) t_).getMessage());
+                                        if(isComplete)  setComplete(R.mipmap.app_icon_error_smaller,"导入失败",true);
+                                        return null;
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                String message = "";
+                                // TODO... 根据excel 模板生成 生成入库成果
+                                final String filePath = (String) t_;
+                                String tc =  AiUtil.GetValue(dataconfig.get("tc"),"");
+                                final String sel_tc = StringUtil.substr(tc,tc.indexOf("[")+1,tc.indexOf("]"));
+
+                                if (filePath.toLowerCase().endsWith(".xls")) {
+                                    dialog.setCancelable(false)
+                                            .setFooterView(dialog.getProgressView("正在导入数据..."))
+                                            .setContentView("正在读取Excel内容导入中，所耗时间取决于文件大小，请耐心等待...");
+
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                final List<Feature> features_upt=new ArrayList<>();
+                                                final  List<Map<String, String>> xlsData = Excel.getXlsMap(filePath,sel_tc,0);
+                                                new AiForEach<Map<String, String>>(xlsData, new AiRunnable() {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                        save(null,features_upt,true);
+                                                        return null;
+                                                    }
+                                                }){
+                                                    @Override
+                                                    public void exec() {
+                                                        final Map<String, String> map = xlsData.get(postion);
+                                                        String where="";
+                                                        if (FeatureHelper.TABLE_NAME_QLRXX.equals(sel_tc)){
+                                                            String qlrzjh=AiUtil.GetValue(map.get("ZJH"), "");
+                                                            String qlrdm=AiUtil.GetValue(map.get("QLRDM"), "");
+                                                            String qlrxm=AiUtil.GetValue(map.get("XM"), "");
+
+                                                            if (TextUtils.isEmpty(qlrzjh)&&TextUtils.isEmpty(qlrdm)){
+                                                                where="0=1";
+                                                            }else if (StringUtil.IsNotEmpty(qlrzjh)&&StringUtil.IsNotEmpty(qlrdm)){
+                                                                where="ZJH='"+qlrzjh+"' and QLRDM='"+qlrdm+"'";
+                                                            }else if (StringUtil.IsNotEmpty(qlrzjh)){
+                                                                where="ZJH='"+qlrzjh+"'";
+                                                            }else {
+                                                                where="QLRDM='"+qlrdm+"'";
+                                                            }
+                                                            where="XM='"+qlrxm+"'"+" and "+where;
+                                                        }else if (FeatureHelper.TABLE_NAME_ZD.equals(sel_tc)){
+                                                            String zddm=AiUtil.GetValue(map.get("ZDDM"), "");
+                                                            if (TextUtils.isEmpty(zddm)){
+                                                                where="0=1";
+                                                            }else {
+                                                                where="ZDDM='"+zddm+"'";
+                                                            }
+                                                        }
+                                                        MapHelper.QueryOne(getMapInstance().getTable(sel_tc), where, new AiRunnable() {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                Feature feature = null;
+                                                                if (objects == null || objects.length == 0 || ((ArrayList) objects[0]).size() == 0) {
+                                                                    if (FeatureHelper.TABLE_NAME_QLRXX.equals(sel_tc)) {
+                                                                        feature = getMapInstance().getTable(sel_tc).createFeature();
+                                                                    }
+                                                                } else {
+                                                                    feature = (Feature) objects[0];
+                                                                }
+                                                                if (feature != null) {
+                                                                    for (Field field : feature.getFeatureTable().getFields()) {
+                                                                        if (field.isEditable()) {
+                                                                            String key = field.getName();
+                                                                            String value_ = map.get(key);
+                                                                            try {
+                                                                                if (StringUtil.IsNotEmpty(value_)) {
+                                                                                    Field filed = feature.getFeatureTable().getField(key);
+                                                                                    Field.Type type = filed.getFieldType();
+                                                                                    if (type.equals(Field.Type.TEXT)) {
+                                                                                        feature.getAttributes().put(key, value_);
+                                                                                    } else if (type.equals(Field.Type.DOUBLE)) {
+                                                                                        feature.getAttributes().put(key, AiUtil.GetValue(value_, 0d));
+                                                                                    } else if (type.equals(Field.Type.FLOAT)) {
+                                                                                        feature.getAttributes().put(key, AiUtil.GetValue(value_, 0f));
+                                                                                    } else if (type.equals(Field.Type.SHORT)) {
+                                                                                        feature.getAttributes().put(key, Short.valueOf(AiUtil.GetValue(value_, (short) 0) + ""));
+                                                                                    } else if (type.equals(Field.Type.DATE)) {
+                                                                                        GregorianCalendar gregorianCalendar = new GregorianCalendar();
+                                                                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                                                                                        final Date parse = sdf.parse(value_);
+                                                                                        gregorianCalendar.setTime(parse);
+                                                                                        feature.getAttributes().put(key, gregorianCalendar);
+                                                                                    } else if (type.equals(Field.Type.INTEGER)) {
+                                                                                        feature.getAttributes().put(key, AiUtil.GetValue(value_, 0));
+                                                                                    } else {
+                                                                                        feature.getAttributes().put(key, value_);
+                                                                                    }
+                                                                                }
+                                                                            } catch (Exception es) {
+                                                                                Log.e(TAG, "不支持更新的属性[" + key + ":" + value_ + "]", es);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    features_upt.add(feature);
+                                                                }
+                                                                AiRunnable.Ok(getNext(), t_);
+                                                                return null;
+                                                            }
+                                                        });
+                                                    }
+                                                }.start();
+
+                                            } catch (Exception es) {
+                                                setMessage("读取文件失败："+es.getMessage());
+                                                setComplete(R.mipmap.app_icon_error_smaller,"读取文件失败",true);
+                                            }
+                                        }
+                                    }).start();
+                                }
+
+
+                                return null;
+                            }
+                        });
+                    }
+                }}))
+                .addContentView("导入Excel数据：",
+                        "1、支持的Excel文件时数据为.xls文件",
+                        "2、dxf文件为二权标准成果文件dwg转换的dxf文件",
+                        "3、文件中对应的实体编码会导入到相应的图层"
+                ).show();
+
+    }
+
+
 
     /**
      * 不动产单元与不动产进行挂接
@@ -1818,7 +2017,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 //        141400	破	破坏房屋
 
         String stdm = f.getExtendeds(0);
-        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && stdms.contains(stdm)) {
+        boolean flag = isEmptyStdm(f,stdm,stdms);
+        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag) {
             // 幢
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
