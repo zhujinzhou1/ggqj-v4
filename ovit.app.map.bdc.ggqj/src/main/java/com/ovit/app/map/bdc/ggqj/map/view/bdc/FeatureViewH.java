@@ -47,8 +47,6 @@ public class FeatureViewH extends FeatureView {
         if(feature_ljz!=null) {
             FeatureHelper.Set(feature,"LJZH", FeatureHelper.Get(feature_ljz,"LJZH",""));
             zrzh = FeatureHelper.Get(feature_ljz, "ZRZH", "");
-//            id = zrzh + StringUtil.substr(id, zrzh.length());
-//            FeatureHelper.Set(feature, "ID", id);
         }
         FeatureHelper.Set(feature, "ZRZH", zrzh);
         String zddm = StringUtil.substr_last(zrzh, 0, FeatureHelper.FEATURE_ZD_ZDDM_LENG);
@@ -69,10 +67,7 @@ public class FeatureViewH extends FeatureView {
         FeatureHelper.Set(feature,"HH", hh);
 
         String mph = FeatureHelper.Get(feature_ljz, "MPH", "");
-//        mph = StringUtil.getTextReplace(mph,"一二三四五六七八九","123456789");
-//        mph=  StringUtil.getTextOnlyIn(mph,"1234567890");
         mph += mph.length()>0?"-":"";
-//        mph += String.format("%02d", lc);
         mph += lc;
         mph += String.format("%02d", hh);
 

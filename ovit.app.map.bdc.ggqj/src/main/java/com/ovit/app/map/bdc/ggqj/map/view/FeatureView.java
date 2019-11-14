@@ -261,6 +261,14 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public  String getZddm() {
         return FeatureHelper.Get(feature,"ZDDM","");
     }
+
+    public String getZddm(Feature f) {
+        if (f.getAttributes().containsKey("ZDDM")) {
+            return FeatureHelper.Get(f, "ZDDM", "");
+        } else {
+            return "";
+        }
+    }
     public  String getZrzh() {
         return FeatureHelper.Get(feature,"ZRZH","");
     }
@@ -1237,7 +1245,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
 
     //通用方法 填充可选择的不动产列表 20180730
     public static void initSelectList(final MapInstance mapInstance, final BaseAdapterHelper helper, final Feature item, final int deep, final List<Feature> selected_feature_list)
-    {
+       {
         helper.getView().findViewById(com.ovit.R.id.iv_detial).setVisibility(View.GONE);
         helper.getView().findViewById(com.ovit.R.id.cb_select).setVisibility(View.VISIBLE);
 

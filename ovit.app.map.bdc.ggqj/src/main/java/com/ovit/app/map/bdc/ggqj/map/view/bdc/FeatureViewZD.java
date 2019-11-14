@@ -1045,13 +1045,14 @@ public class FeatureViewZD extends FeatureView {
                     List<Feature> fs_zrz = null;
                     if (selected_feature_list.size() > 0) {
                         for (Feature f : selected_feature_list) {
-                            if ("ZRZ".equals(f.getFeatureTable().getTableName())) {
+                            String tableName=f.getFeatureTable().getTableName();
+                            if (FeatureHelper.TABLE_NAME_ZRZ.equals(tableName)){
                                 if (fs_zrz == null) {
                                     fs_zrz = new ArrayList<>();
                                 }
                                 fs_zrz.add(f);
 
-                            } else if ("ZRZ_C".equals(f.getFeatureTable().getTableName())) {
+                            } else if (FeatureHelper.TABLE_NAME_ZRZ_C.equals(tableName)) {
                                 // 宗地与层设定不动产单元，只能与某一层设定
                                 if (selected_feature_list.size() > 1) {
                                     ToastMessage.Send("设定不动产单元失败，不能与多层设定一个不动产单元，请重新选择。");
@@ -1062,7 +1063,7 @@ public class FeatureViewZD extends FeatureView {
                                 dialog.dismiss();
                                 return;
 
-                            } else if ("H".equals(f.getFeatureTable().getTableName())) {
+                            } else if (FeatureHelper.TABLE_NAME_H.equals(tableName)) {
                                 // 宗地与户设定不动产单元，只能与某一户（套）设定
                                 if (selected_feature_list.size() > 1) {
                                     ToastMessage.Send("设定不动产单元失败，不能与多户设定一个不动产单元，请重新选择。");

@@ -489,18 +489,18 @@ public class FeatureEditZD extends FeatureEdit {
             }
         });
         // 设定不动产单元
-//        addAction("不动产单元", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                createNewBDCDY();
-//            }
-//        });
-        addAction("不动产单元", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
+        addAction("不动产单元", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                init_bdcdy();
+                createNewBDCDY();
             }
         });
+//        addAction("不动产单元", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                init_bdcdy();
+//            }
+//        });
         addAction("宗地分摊", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -744,7 +744,7 @@ public class FeatureEditZD extends FeatureEdit {
                 }
             });
         } catch (Exception es) {
-            ToastMessage.Send(activity, "画自然幢失败", es);
+            ToastMessage.Send(activity, "设定不动产单元失败", es);
         }
     }
 

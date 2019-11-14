@@ -344,7 +344,7 @@ public class FeatureViewFTQK extends FeatureView {
             ll_list_item.setTag(adapter);
             adapter.adpter(ll_list_item);
             FeatureViewZD fv = (FeatureViewZD) mapInstance.newFeatureView(feature_zd);
-            fv.queryChildFeature("Z_FSJG", fv.getOrid(), "", "LC", "asc", features_bdc, new AiRunnable() {
+            fv.queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG, fv.getOrid(), "", "LC", "asc", features_bdc, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     adapter.notifyDataSetChanged();

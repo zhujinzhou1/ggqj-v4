@@ -365,7 +365,6 @@ public class FeatureViewZ_FSJG extends FeatureView {
                             String path = FeatureHelper.Get(f_ljz, "ORID_PATH", "") + "/" + FeatureHelper.Get(f_ljz, "ORID", "");
                             FeatureHelper.Set(f, "ORID_PATH", path);
                         }
-
                         final String h_id =FeatureHelper.Get(f,"ID", "");
                         final String h_ljzh =FeatureHelper.Get(f,"LJZH", "");
                         final String h_zrzh =FeatureHelper.Get(f,"ZRZH", "");
@@ -395,11 +394,11 @@ public class FeatureViewZ_FSJG extends FeatureView {
                     // 更新其他属性
                     for (Feature f : features_zfsjg) {
 
-                        final int h_lc =FeatureHelper.Get(f,"LC", 1);
-                        final String h_ljzh =FeatureHelper.Get(f,"LJZH", "");
-                        double f_hsmj =  FeatureHelper.Get(f,"HSMJ", 0d);
+                        final int f_lc = FeatureHelper.Get(f, "LC", 1);
+                        final String f_ljzh = FeatureHelper.Get(f, "LJZH", "");
+                        double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
                         // 楼层区间 正确、本逻辑幢的
-                        if(szc <=h_lc && h_lc< szc+zcs && h_ljzh.equals(ljzh)) {
+                        if (szc <= f_lc && f_lc < szc + zcs && (f_ljzh.equals(ljzh) || TextUtils.isEmpty(f_ljzh))) {
 
                             double area_item = MapHelper.getArea(mapInstance, f.getGeometry());
                             double area_scjzmj = FeatureHelper.Get(f, "SCJZMJ", 0d);

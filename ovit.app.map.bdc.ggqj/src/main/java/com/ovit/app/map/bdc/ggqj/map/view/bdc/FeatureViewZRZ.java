@@ -1,5 +1,6 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -516,12 +517,19 @@ public class FeatureViewZRZ extends FeatureView {
         MapHelper.Query(mapInstance.getTable("LJZ"), GeometryEngine.buffer(feature.getGeometry(), -0.5), features_zrz, callback);
     }
 
-    // 默认识别保存
+    /**
+     * 自然幢根据范围识别逻辑幢,默认弹出提示框。
+     * @param callback 识别完成回调。
+     */
     public void identyLjz(final AiRunnable callback) {
         identyLjz(true, callback);
     }
 
-    // 识别显示结果返回
+    /**
+     * 自然幢根据范围识别逻辑幢。
+     * @param isShow 参数传入true 显示提示框，传入false 不显示。
+     * @param callback 识别完成回调。
+     */
     public void identyLjz(final boolean isShow, final AiRunnable callback) {
         final List<Feature> fs_ljz = new ArrayList<>();
         identyLjz(fs_ljz, new AiRunnable(callback) {
@@ -533,7 +541,7 @@ public class FeatureViewZRZ extends FeatureView {
                     QuickAdapter<Feature> adapter = fv_.getListAdapter(fs_ljz, 0);
                     AiDialog dialog = AiDialog.get(mapInstance.activity, adapter);
                     dialog.setHeaderView(R.mipmap.app_map_layer_zrz, "识别到" + fs_ljz.size() + "个逻辑幢");
-                    dialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    dialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             fv_.fillFeature(fs_ljz, feature);  // orid
@@ -588,18 +596,19 @@ public class FeatureViewZRZ extends FeatureView {
         double area_jzmj = 0;
         double area_jzzdmj = 0;
         String zddm = FeatureHelper.Get(f_zrz, "ZDDM", "");
-        String ljzhPrefix = StringUtil.substr_last(zddm, 7) + "F" + FeatureHelper.Get(f_zrz, "ZH", "");
+        int zh=AiUtil.GetValue(FeatureHelper.Get(f_zrz, "ZH", ""), 0);
+        String ljzhPrefix = StringUtil.substr_last(zddm, FeatureHelper.FEATURE_ZD_ZDDM_F_LENG) + "F" + FeatureHelper.Get(f_zrz, "ZH", "");
         String zrzh = FeatureHelper.Get(f_zrz, "ZRZH", "");
         List<Feature> features_update = new ArrayList<>();
-        int maxZH = 0;
+        int maxLJZH = 0;
         double zrz_area = MapHelper.getArea(mapInstance, f_zrz.getGeometry());
         for (Feature f : fs_ljz) {
             final String ljz_ljzh = FeatureHelper.Get(f, "LJZH", "");
             if (ljz_ljzh.startsWith(ljzhPrefix) && ljz_ljzh.length() == FeatureHelper.FEATURE_LJZ_LJZH_LENG) {
                 // 逻辑幢号
-                int zh = AiUtil.GetValue(StringUtil.substr_last(ljz_ljzh, 2), 0);
-                if (maxZH < zh) {
-                    maxZH = zh;
+                int ljzh = AiUtil.GetValue(StringUtil.substr_last(ljz_ljzh, 2), 0);
+                if (maxLJZH < ljzh) {
+                    maxLJZH = ljzh;
                 }
             } else {
                 // 逻辑幢号幢号无效需要自己编
@@ -609,15 +618,17 @@ public class FeatureViewZRZ extends FeatureView {
         // 专门来更新逻辑幢号
         if (features_update.size() > 0) {
             for (Feature updateFeature : features_update) {
-                maxZH++;
-                String newZH = String.format("%02d", maxZH);
+                maxLJZH++;
+                String newZH = String.format("%02d", maxLJZH);
                 FeatureHelper.Set(updateFeature, "LJZH", ljzhPrefix + newZH);
             }
         }
         // 来更新逻辑幢其他字段内容
         for (Feature f : fs_ljz) {
+            int ljzh = AiUtil.GetValue(StringUtil.substr_last(FeatureHelper.Get(f,"LJZH",""), 2), 0);
             FeatureHelper.Set(f, "ZDDM", zddm);
             FeatureHelper.Set(f, "ZRZH", zrzh);
+            FeatureHelper.Set(f, "MPH", zh+"-"+ljzh);
             double z_zcs = AiUtil.GetValue(f.getAttributes().get("ZCS"), 1d);
             double z_area = MapHelper.getArea(mapInstance, f.getGeometry());
             double z_scjzmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
