@@ -39,6 +39,7 @@ import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditH;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditQLR;
+import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditZD;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewQLR;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZD;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZRZ;
@@ -228,6 +229,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
 
+        //图形修复
+        tool_view.findViewById(R.id.v_cggl_txxf ).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                txxf(mapInstance,true);
+            }
+        });
 
         // 测距仪
         tool_view.findViewById(R.id.ll_tool_sb_cjy).setOnClickListener(new View.OnClickListener() {
@@ -281,6 +289,60 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
         return tool_view;
     }
+
+    // 图形修复
+    private void txxf(final MapInstance mapInstance, final boolean isReload) {
+        final String funcdesc = "该功能将逐一对项目中宗地，自然幢图形"+(isReload?"重新":"")+"进行修整。";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "修整图形")
+                        .setContentView("注意：属于不可逆操作，如果您已经修整过图形，请注意备份谨慎处理！",funcdesc)
+                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成。");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return null;
+                                    }
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据失败！");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return  null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据异常！");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return  null;
+                                    }
+                                };
+                                // 设置不可中断
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                FeatureViewZD.LaodAllZD_IdentyZrz(mapInstance, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.setContentView("开始修整图形");
+                                        aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查找所有宗地，并生修整图形");
+                                        sjcl(mapInstance,callback);
+                                        return null;
+                                    }
+                                });
+                            }
+                        }).show();
+                return null;
+            }
+        });
+    }
+
+
 
     // 生成两权数据
     private void output_lqsj(final MapInstance mapInstance) {
@@ -452,6 +514,93 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         }
 
     }
+
+
+    /**
+     * 图形修复
+     * @param mapInstance
+     * @param callback
+     */
+    public  static void sjcl(final MapInstance mapInstance, final AiRunnable callback){
+        FeatureTable featureTableZD = FeatureEditZD.GetTable(mapInstance,FeatureHelper.TABLE_NAME_ZD,FeatureHelper.LAYER_NAME_ZD);
+        final List<Feature> fs_zd=new ArrayList<>();
+        final List<Feature> fs_all=new ArrayList<>();
+        MapHelper.Query(featureTableZD, "", MapHelper.QUERY_FEATURE_MAX_RESULTS, fs_zd, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                new AiForEach<Feature>(fs_zd, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        fs_all.addAll(fs_zd);
+                        MapHelper.saveFeature(fs_all,callback);
+                        return null;
+                    }
+                }){
+                    @Override
+                    public void exec() {
+                        final Feature f_zd = fs_zd.get(postion);
+                        String where="ZDDM='"+FeatureEditZD.GetID(f_zd)+"'";
+                        final List<Feature> fs_zrz=new ArrayList<>();
+//                        // 通过范围去查询
+//                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ), f_zd.getGeometry(), -0.015, fs_zrz, new AiRunnable() {
+//                            @Override
+//                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                fs_all.addAll(fs_zrz);
+//                                for (int i = 0; i < fs_zrz.size(); i++) {
+//                                    Feature f_zrz = fs_zrz.get(i);
+//                                    for (int j=i+1; j < fs_zrz.size(); j++){
+//                                        Feature f_zrz_next = fs_zrz.get(j);
+//                                        Geometry g = MapHelper.geometry_trim(f_zrz.getGeometry(), f_zrz_next.getGeometry());
+//                                        f_zrz.setGeometry(g);
+//                                        Geometry g_next = MapHelper.geometry_trim( f_zrz_next.getGeometry(),f_zrz.getGeometry());
+//                                        f_zrz_next.setGeometry(g_next);
+//                                    }
+//                                }
+//
+//                                // 宗地 与 自然幢 加点
+//                                for (int i = 0; i < fs_zrz.size(); i++) {
+//                                    Geometry geometry = MapHelper.geometry_trim(f_zd.getGeometry(), fs_zrz.get(i).getGeometry());
+//                                    f_zd.setGeometry(geometry);
+//                                }
+//                                AiRunnable.Ok(getNext (),null);
+//                                return null;
+//                            }
+//                        });
+
+                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ), where, MapHelper.QUERY_FEATURE_MAX_RESULTS, fs_zrz, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                Geometry f_zd_g=f_zd.getGeometry();
+                                fs_all.addAll(fs_zrz);
+                                for (int i = 0; i < fs_zrz.size(); i++) {
+                                    Feature f_zrz = fs_zrz.get(i);
+                                    for (int j=i+1; j < fs_zrz.size(); j++){
+                                        Feature f_zrz_next = fs_zrz.get(j);
+                                        Geometry g = MapHelper.geometry_trim(f_zrz.getGeometry(), f_zrz_next.getGeometry());
+                                        f_zrz.setGeometry(g);
+                                        Geometry g_next = MapHelper.geometry_trim( f_zrz_next.getGeometry(),f_zrz.getGeometry());
+                                        f_zrz_next.setGeometry(g_next);
+                                    }
+                                }
+
+                                // 宗地 与 自然幢 加点
+                                for (int i = 0; i < fs_zrz.size(); i++) {
+                                    Geometry geometry = MapHelper.geometry_trim(f_zd.getGeometry(), fs_zrz.get(i).getGeometry());
+                                    f_zd.setGeometry(geometry);
+                                }
+                                AiRunnable.Ok(getNext (),null);
+                                return null;
+                            }
+                        });
+                    }
+                }.start();
+                return null;
+            }
+        });
+    }
+
+
+
 
     /**
      * 导入不动产单元
