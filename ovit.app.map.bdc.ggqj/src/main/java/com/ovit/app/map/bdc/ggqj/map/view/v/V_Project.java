@@ -237,6 +237,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
 
+        //生成台帐
+        tool_view.findViewById(R.id.v_cggl_sctz).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Sctz(mapInstance,true);
+            }
+        });
+
         // 测距仪
         tool_view.findViewById(R.id.ll_tool_sb_cjy).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -342,6 +350,69 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
     }
 
+    //生成台帐
+    private void Sctz(final com.ovit.app.map.model.MapInstance mapInstance, final boolean isReload) {
+        final String funcdesc = "该功能将逐一对项目中每宗地资料"+(isReload?"重新":"")+"进行整理。";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "整理资料")
+                        .setContentView("注意：属于不可逆操作，如果您已经整理过成果，请注意备份谨慎处理！",funcdesc)
+                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成。");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return null;
+                                    }
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据失败！");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return  null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据异常！");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return  null;
+                                    }
+                                };
+                                // 设置不可中断
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据");
+                                aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查找所有不动产单元，并生成资料");
+                                {
+                                    final List<Feature> fs_zd=new ArrayList<>();
+
+                                    MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_FEATURE_MAX_RESULTS, fs_zd, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+
+                                            String xmmc = GsonUtil.GetValue(aiMap.JsonData,"XMMC","");
+                                            String xmbm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
+                                            final String filePath =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) +xmbm+xmmc+".xls";
+                                            final String filePath_enshi =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) +xmbm+xmmc+"_恩施"+".xls";
+                                            Excel.CreateStandingBook_JingShang(mapInstance,"总台账",filePath,fs_zd);
+                                            Excel.CreateStandingBook_EnShi(mapInstance,"总台账_恩施",filePath_enshi,fs_zd);
+
+                                            AiRunnable.Ok(callback,null);
+                                            return null;
+                                        }
+                                    });
+                                }
+                            }
+                        }).show();
+                return null;
+            }
+        });
+    }
 
 
     // 生成两权数据
