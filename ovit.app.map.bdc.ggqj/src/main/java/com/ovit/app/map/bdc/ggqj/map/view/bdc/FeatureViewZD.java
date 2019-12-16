@@ -1171,6 +1171,20 @@ public class FeatureViewZD extends FeatureView {
                                 return null;
                             }
                         });
+                    }else {
+                        final String bdcdyh = getZddm() + "W00000000";
+                        feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
+                        fs_upt.add(feature_new_qlr);
+                        capyAttachments(feature, feature_new_qlr);
+
+                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                AiRunnable.Ok(callback, feature_new_qlr);
+                                return null;
+                            }
+                        });
+
                     }
                     return null;
                 }

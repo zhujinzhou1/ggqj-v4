@@ -156,7 +156,7 @@ public class FeatureEditZRZ extends FeatureEdit {
                     public void onClick(View v) {
                         ToastMessage.Send(activity, "请选择宗地！");
                         Layer layer = MapHelper.getLayer(map, "ZD");
-                        mapInstance.setSelectLayer(layer, feature, false);
+                        mapInstance.setSelectLayer(layer, null, false);
                     }
                 });
 

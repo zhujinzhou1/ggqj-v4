@@ -47,6 +47,7 @@ import com.ovit.app.map.bdc.ggqj.map.view.v.V_Project;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
 import com.ovit.app.ui.ai.component.AiMap;
+import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.ItemRunnable;
@@ -102,12 +103,9 @@ public class MapInstance extends com.ovit.app.map.model.MapInstance {
         return fv ;
     }
 
-    public Feature getBindZDFeature() {
-        return bindZDFeature;
-    }
-    public void setSelectLayer(Layer layer, Feature bindZDFeature, boolean isAutoSwitchView) {
+    public void setSelectLayer(Layer layer, AiRunnable callback, boolean isAutoSwitchView) {
         m_selectLayer = layer;
-        this.bindZDFeature=bindZDFeature;
+        mapInstance.setBindCallback(callback);
         if (features_sel != null && !features_sel.isEmpty()) {
             ListUtil.Filter(features_sel, new ItemRunnable<Feature>() {
                 @Override

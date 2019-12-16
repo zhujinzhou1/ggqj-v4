@@ -955,13 +955,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                 where="ZDDM='"+zddm+"'";
                                                             }
                                                         }
-                                                        MapHelper.QueryOne(getMapInstance().getTable(sel_tc), where, new AiRunnable() {
+                                                        MapHelper.QueryOne(mapInstance.getTable(sel_tc), where, new AiRunnable() {
                                                             @Override
                                                             public <T_> T_ ok(T_ t_, Object... objects) {
                                                                 Feature feature = null;
                                                                 if (objects == null || objects.length == 0 || ((ArrayList) objects[0]).size() == 0) {
                                                                     if (FeatureHelper.TABLE_NAME_QLRXX.equals(sel_tc)) {
-                                                                        feature = getMapInstance().getTable(sel_tc).createFeature();
+//                                                                        feature = getMapInstance().getTable(sel_tc).createFeature();
+                                                                        feature = mapInstance.getTable(sel_tc).createFeature();
                                                                     }
                                                                 } else {
                                                                     feature = (Feature) objects[0];

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
+import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
@@ -23,6 +24,7 @@ import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
 import com.ovit.app.ui.dialog.AiDialog;
+import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.ui.view.CView;
 import com.ovit.app.util.AiForEach;
@@ -75,7 +77,7 @@ public class FeatureEditQLR extends FeatureEdit {
         // 菜单
         //menus = new int[]{R.id.ll_info, R.id.ll_item};
         Log.i(TAG, "init FeatureEditQLR!");
-        menus = new int[]{R.id.ll_info, R.id.ll_qlr};
+        menus = new int[]{R.id.ll_info, R.id.ll_bdc, R.id.ll_qlr};
     }
 
     // 显示数据
@@ -203,6 +205,49 @@ public class FeatureEditQLR extends FeatureEdit {
                 new FeatureViewZD().createFeature(f, null);
             }
         });
+        addAction("新增附属宗地", R.mipmap.app_map_layer_zd, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastMessage.Send(activity, "请选择宗地！");
+                Layer layer = MapHelper.getLayer(map, "ZD");
+                mapInstance.setSelectLayer(layer, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        final Feature f = (Feature) t_;
+                        if (f != null && FeatureHelper.LAYER_NAME_ZD.equals(mapInstance.getLayerName(f))) {
+                            // 不动产单元 与 宗地 关联
+                            DialogBuilder.confirm(activity, "绑定宗地", "宗地是否关联该不动产单元？", null, "确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(final DialogInterface dialog, int which) {
+                                    String orid_path = FeatureHelper.Get(feature, "ORID_PATH", "");
+                                    orid_path += "/" + mapInstance.getOrid(f);
+                                    FeatureHelper.Set(feature, "ORID_PATH", orid_path);// 与不动产单元与宗地关联
+                                    MapHelper.saveFeature(feature, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            dialog.dismiss();
+                                            ToastMessage.Send("新增附属宗地成功。");
+                                            mapInstance.setBindCallback(null);
+                                            return null;
+                                        }
+                                    });
+                                }
+                            }, "放弃", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    mapInstance.setBindCallback(null);
+                                }
+                            }, "继续", null).create().show();
+                        }
+
+
+                        return null;
+                    }
+                }, false);
+            }
+        });
+
 
         //添加菜单
         addMenu("基本信息", new View.OnClickListener() {
@@ -213,15 +258,14 @@ public class FeatureEditQLR extends FeatureEdit {
             }
         });
 
-//        addMenu("权利", new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Log.i(TAG, "load all gyr of qlr");
-//                setMenuItem(R.id.ll_gyr);
-//                View gyr_view = view.findViewById(R.id.ll_gyr);
-//                FeatureEditGYR.loadAllGYR(mapInstance, feature, gyr_view);
-//            }
-//        });
+        addMenu("不动产", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "load all gyr of qlr");
+                setMenuItem(R.id.ll_bdc);
+                load_bdc();
+            }
+        });
 
         addMenu("权利人", new View.OnClickListener() {
             @Override
@@ -276,6 +320,35 @@ public class FeatureEditQLR extends FeatureEdit {
         view_qlr = null;
         load_qlr();
     }
+
+
+    View view_bdc;
+
+    private void load_bdc() {
+        if (view_bdc == null) {
+            ViewGroup ll_bdc_list = (ViewGroup) view.findViewById(R.id.ll_bdc_list);
+            ll_bdc_list.setTag(null);//强制重新生成adapter
+            List<String> orids = FeatureHelper.GetOrids(feature, FeatureHelper.TABLE_NAME_ZD);
+            if (orids != null && orids.size() > 0) {
+                String where = "";
+                for (String orid : orids) {
+                    if (orids.indexOf(orid) == 0) {
+                        where += "orid = '" + orid + "'";
+                    } else {
+                        where += " OR orid='" + orid + "'";
+                    }
+                }
+                mapInstance.newFeatureView(FeatureConstants.ZD_TABLE_NAME).buildListView(ll_bdc_list, where);
+                view_bdc = ll_bdc_list;
+            }
+        }
+    }
+
+    private void reload_bdc() {
+        view_bdc = null;
+        load_qlr();
+    }
+
 
     // 新建权利人：
     private void update_gyrxx(final AiRunnable callback) {
@@ -408,6 +481,7 @@ public class FeatureEditQLR extends FeatureEdit {
             AiRunnable.Ok(callback, new ArrayList<Feature>(), new ArrayList<Feature>());
         }
     }
+
     public static void getAllBdcdy(final MapInstance mapInstance, final AiRunnable callback) {
         try {
             FeatureTable table_qlr = mapInstance.getTable("QLRXX");
@@ -463,7 +537,7 @@ public class FeatureEditQLR extends FeatureEdit {
 
     }
 
-//    //获得权利人名下所有的不动产 20180814 TODO 获取不动产单元下的定着物
+    //    //获得权利人名下所有的不动产 20180814 TODO 获取不动产单元下的定着物
 //    public static void getAllBdcByQLR(final MapInstance mapInstance, final Feature feature_qlr, final AiRunnable callback) {
 //        final List<Feature> features_bdc = new ArrayList<>();
 //
@@ -531,7 +605,8 @@ public class FeatureEditQLR extends FeatureEdit {
                 }) {
                     public void exec() {
                         new AiForEach<String>(orid_list, getNext()) {
-                           final FeatureTable table = search_table_list.get(postion); // TODO 权利人业务要变成不动产单元
+                            final FeatureTable table = search_table_list.get(postion); // TODO 权利人业务要变成不动产单元
+
                             public void exec() {
                                 String orid = orid_list.get(postion);
 //                                String tableName = orid.substring(orid.lastIndexOf("[") + 1, orid.lastIndexOf("]"));
@@ -1499,8 +1574,6 @@ public class FeatureEditQLR extends FeatureEdit {
         }
 
     }
-
-
 
 
     //权利人绑定宗地 (不持久化 不级联)20180815

@@ -39,7 +39,7 @@ public class ToolManager extends com.ovit.app.map.tool.ToolManager {
     public  static  MapInstance getMapInstance(AiMap aimap){
         return (MapInstance) aimap.getInstance();
     }
-    //region 提供静态接入，主要用与提供AiCommand调用
+    //region 提供静态接入，主要用与提供AiCommand调用Map_Opt_wz
 
     public static boolean Map_Opt_xzq(AiMap aimap, AiCommand command) {
         if (getMapInstance(aimap).tool != null) {
