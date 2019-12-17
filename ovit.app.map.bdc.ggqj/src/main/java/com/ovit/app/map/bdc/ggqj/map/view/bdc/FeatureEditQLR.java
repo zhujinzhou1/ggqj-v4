@@ -125,10 +125,6 @@ public class FeatureEditQLR extends FeatureEdit {
                     }
                 });
 
-//                CustomImagesView civ_sfz = (CustomImagesView) v_feature.findViewById(R.id.civ_sfz);
-//                filename = AiUtil.GetValue(civ_sfz.getContentDescription(), "材料");
-//                civ_sfz.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/"));
-
                 CustomImagesView civ_hkb = (CustomImagesView) v_feature.findViewById(R.id.civ_hkb);
                 filename = AiUtil.GetValue(civ_hkb.getContentDescription(), "材料");
                 String s = getpath_root();
@@ -144,8 +140,8 @@ public class FeatureEditQLR extends FeatureEdit {
                 civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
 
                 //TODO 加载不动产单元下面的不动产
-                final ViewGroup bdc_view_group = (ViewGroup) v_feature.findViewById(R.id.ll_bdc);
-                bdc_view_group.removeAllViews();
+//                final ViewGroup bdc_view_group = (ViewGroup) v_feature.findViewById(R.id.ll_bdc);
+//                bdc_view_group.removeAllViews();
 //                getAllBdcByQLR(mapInstance, feature, new AiRunnable() {
 //                    @Override
 //                    public <T_> T_ ok(T_ t_, Object... objects) {
@@ -153,13 +149,13 @@ public class FeatureEditQLR extends FeatureEdit {
 //                        return null;
 //                    }
 //                });
-                getAllBdcByBDCDY(mapInstance, feature, new AiRunnable() {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        bdc_view_group.addView(FeatureViewQLR.buildBdcViewByList(mapInstance, (List<Feature>) t_, true, 0));
-                        return null;
-                    }
-                });
+//                getAllBdcByBDCDY(mapInstance, feature, new AiRunnable() {
+//                    @Override
+//                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                        bdc_view_group.addView(FeatureViewQLR.buildBdcViewByList(mapInstance, (List<Feature>) t_, true, 0));
+//                        return null;
+//                    }
+//                });
             }
         } catch (Exception es) {
             Log.e(TAG, "build: 构建失败", es);
@@ -191,20 +187,20 @@ public class FeatureEditQLR extends FeatureEdit {
             }
         });
 
-        addAction("画宗地", R.mipmap.app_map_layer_zd, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Feature f = GetTable(mapInstance, "ZD", "宗地").createFeature();
-                FeatureHelper.Set(f, "QLRXM", FeatureHelper.Get(feature, "XM", ""));
-                FeatureHelper.Set(f, "QLRDM", FeatureHelper.Get(feature, "QLRDM", ""));
-                FeatureHelper.Set(f, "QLRZJZL", FeatureHelper.Get(feature, "ZJZL", ""));
-                FeatureHelper.Set(f, "QLRZJH", FeatureHelper.Get(feature, "ZJH", ""));
-                FeatureHelper.Set(f, "QLRTXDZ", FeatureHelper.Get(feature, "DZ", ""));
-                FeatureHelper.Set(f, "QLRDH", FeatureHelper.Get(feature, "DH", ""));
-//                FeatureViewZD.CreateFeature(mapInstance, f, null);
-                new FeatureViewZD().createFeature(f, null);
-            }
-        });
+//        addAction("画宗地", R.mipmap.app_map_layer_zd, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Feature f = GetTable(mapInstance, "ZD", "宗地").createFeature();
+//                FeatureHelper.Set(f, "QLRXM", FeatureHelper.Get(feature, "XM", ""));
+//                FeatureHelper.Set(f, "QLRDM", FeatureHelper.Get(feature, "QLRDM", ""));
+//                FeatureHelper.Set(f, "QLRZJZL", FeatureHelper.Get(feature, "ZJZL", ""));
+//                FeatureHelper.Set(f, "QLRZJH", FeatureHelper.Get(feature, "ZJH", ""));
+//                FeatureHelper.Set(f, "QLRTXDZ", FeatureHelper.Get(feature, "DZ", ""));
+//                FeatureHelper.Set(f, "QLRDH", FeatureHelper.Get(feature, "DH", ""));
+////                FeatureViewZD.CreateFeature(mapInstance, f, null);
+//                new FeatureViewZD().createFeature(f, null);
+//            }
+//        });
         addAction("新增附属宗地", R.mipmap.app_map_layer_zd, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -320,7 +316,6 @@ public class FeatureEditQLR extends FeatureEdit {
         view_qlr = null;
         load_qlr();
     }
-
 
     View view_bdc;
 

@@ -3,6 +3,7 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -48,6 +49,8 @@ import com.ovit.app.map.custom.LayerConfig;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.map.model.FwPc;
 import com.ovit.app.ui.dialog.AiDialog;
+import com.ovit.app.ui.dialog.DialogBuilder;
+import com.ovit.app.ui.dialog.ProgressDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
@@ -60,6 +63,7 @@ import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ImageUtil;
 import com.ovit.app.util.ListUtil;
+import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.cad.DxfHelper;
 
@@ -67,8 +71,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.ovit.app.map.view.FeatureEdit.GetTable;
 
 /**
  * Created by Lichun on 2018/1/24.
@@ -1045,8 +1052,8 @@ public class FeatureViewZD extends FeatureView {
                     List<Feature> fs_zrz = null;
                     if (selected_feature_list.size() > 0) {
                         for (Feature f : selected_feature_list) {
-                            String tableName=f.getFeatureTable().getTableName();
-                            if (FeatureHelper.TABLE_NAME_ZRZ.equals(tableName)){
+                            String tableName = f.getFeatureTable().getTableName();
+                            if (FeatureHelper.TABLE_NAME_ZRZ.equals(tableName)) {
                                 if (fs_zrz == null) {
                                     fs_zrz = new ArrayList<>();
                                 }
@@ -1171,7 +1178,7 @@ public class FeatureViewZD extends FeatureView {
                                 return null;
                             }
                         });
-                    }else {
+                    } else {
                         final String bdcdyh = getZddm() + "W00000000";
                         feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
                         fs_upt.add(feature_new_qlr);
@@ -1227,10 +1234,11 @@ public class FeatureViewZD extends FeatureView {
         });
     }
 
-    public void createFeature( final AiRunnable callback) {
+    public void createFeature(final AiRunnable callback) {
         createFeature(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD).createFeature(), callback);
     }
-    public  void createFeature( final Feature feature, final AiRunnable callback) {
+
+    public void createFeature(final Feature feature, final AiRunnable callback) {
         final List<Feature> fs_update = new ArrayList<>();
         final FeatureViewZD fv = From(mapInstance, feature);
         // 绘图
@@ -1958,6 +1966,247 @@ public class FeatureViewZD extends FeatureView {
 
         return ll_view;
     }
+    public void dy(Feature f,MapInstance mapInstance,boolean isRelaod) {
+        final ProgressDialog progressDialog = DialogBuilder.loadingDialog(mapInstance.activity,
+                "加载中...");
+        progressDialog.show();
+        progressDialog.setCancelable(false);
 
+        createDOCX(mapInstance, f, isRelaod, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                progressDialog.dismiss();
+                FileUtils.openFile(activity, t_ + "", true);
+                return null;
+            }
 
+            @Override
+            public <T_> T_ no(T_ t_, Object... objects) {
+                progressDialog.dismiss();
+                return super.no(t_, objects);
+            }
+
+            @Override
+            public <T_> T_ error(T_ t_, Object... objects) {
+                progressDialog.dismiss();
+                return super.error(t_, objects);
+            }
+        });
+    }
+
+    // 生成资料
+    public void createDOCX(final MapInstance mapInstance, final Feature featureBdcdy, final boolean isRelaod, final AiRunnable callback) {
+        final String bdcdyh = FeatureEditQLR.GetBdcdyh(featureBdcdy);
+        String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
+        if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
+            AiRunnable.Ok(callback, file_dcb_doc);
+        } else {
+            final List<Feature> fs_zd = new ArrayList<>();
+            loadZd(mapInstance, featureBdcdy, fs_zd, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    final Feature f_zd = (Feature) t_;
+                    final List<Feature> fs_zrz = new ArrayList<Feature>();
+                    final List<Feature> fs_ljz = new ArrayList<Feature>();
+                    final List<Feature> fs_c = new ArrayList<Feature>();
+                    final List<Feature> fs_z_fsjg = new ArrayList<Feature>();
+                    final List<Feature> fs_h = new ArrayList<Feature>();
+                    final List<Feature> fs_h_fsjg = new ArrayList<Feature>();
+                    final List<Feature> fs_jzd = new ArrayList<Feature>();
+                    final List<Feature> fs_jzx = new ArrayList<Feature>();
+                    final Map<String, Feature> map_jzx = new HashMap<>();
+                    final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
+
+                    List<String> orids = FeatureHelper.GetOrids(featureBdcdy, FeatureHelper.TABLE_NAME_ZD);
+                    String where = "";
+                    if (orids != null && orids.size() > 0) {
+                        for (String orid : orids) {
+                            if (orids.indexOf(orid) == 0) {
+                                where += " ORID_PATH like '%" + orid + "%' ";
+                            } else {
+                                where += " OR ORID_PATH like '%" + orid + "%' ";
+                            }
+                        }
+                    }
+
+                    loadAll(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, where, new AiRunnable() {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            createDOCX(mapInstance, bdcdyh, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    FeatureEditZD.OutputData(mapInstance, bdcdyh, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
+                                    AiRunnable.Ok(callback, t_, objects);
+                                    return null;
+                                }
+                            });
+                            return null;
+                        }
+                    });
+                    return null;
+                }
+            });
+        }
+    }
+
+    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_zd, final List<Feature> fs_zd,
+                            final List<Feature> fs_jzd, final List<Feature> fs_jzx, final Map<String, Feature> map_jzx,
+                            final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, List<Feature> fs_ljz
+            , List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
+
+        {
+            String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
+            if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
+                Log.i(TAG, "生成资料: 已经存在跳过");
+                AiRunnable.Ok(callback, file_dcb_doc);
+            } else {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                            Map<String, Object> map_ = new LinkedHashMap<>();
+                            //  设置系统参数
+                            FeatureEditBDC.Put_data_sys(map_);
+                            //  设置宗地参数
+                            FeatureEditBDC.Put_data_zd(mapInstance, map_, bdcdyh, f_zd);
+                            // 界址签字
+                            FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
+                            // 界址点
+                            FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
+                            // 设置界址线
+                            FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
+                            // 自然幢
+                            FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h);
+                            // 在全局放所有户
+                            FeatureEditBDC.Put_data_hs(mapInstance, map_, fs_h);
+                            // 在全局放一个户
+//                            FeatureEditBDC.Put_data_h(mapInstance, map_, fs_h);
+                            // 在全局放一个幢
+                            FeatureEditBDC.Put_data_zrz(mapInstance, map_, fs_zrz);
+                            // 在全局放一所以的户
+                            // 宗地草图
+                            FeatureEditBDC.Put_data_zdct(mapInstance, map_, f_zd);
+                            // 附件材料
+                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd);
+                            put_data_zd(map_, fs_zd);
+
+                            final String templet = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产权籍调查表.docx";
+                            final String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
+                            String file_zd_zip = FeatureEditBDC.GetPath_ZD_zip(mapInstance, f_zd);
+                            if (FileUtils.exsit(templet)) {
+                                ReportUtils.exportWord(templet, file_dcb_doc, map_);
+                                FileUtils.deleteFile(file_zd_zip);
+                                Log.i(TAG, "生成资料: 生成完成");
+                                AiRunnable.U_Ok(mapInstance.activity, callback, file_dcb_doc);
+                            } else {
+                                ToastMessage.Send("《不动产权籍调查表》模板文件不存在！");
+                                AiRunnable.U_No(mapInstance.activity, callback, null);
+                            }
+                        } catch (Exception es) {
+                            Log.i(TAG, "生成资料: 生成失败");
+                            ToastMessage.Send("生成《不动产权籍调查表》失败", es);
+                            AiRunnable.U_No(mapInstance.activity, callback, null);
+                        }
+                    }
+                }).start();
+            }
+        }
+
+    }
+
+    private void put_data_zd(Map<String, Object> map_, List<Feature> fs_zd) {
+        if (fs_zd.size() > 1) {
+            double zdmj = 0.0d;
+            double jzmj = 0.0d;
+            double jzzdmj = 0.0d;
+            for (Feature feature : fs_zd) {
+                zdmj += FeatureHelper.Get(feature, "ZDMJ", 0.00d);
+                jzzdmj += FeatureHelper.Get(feature, "JZZDMJ", 0.00d);
+                jzmj += FeatureHelper.Get(feature, "JZMJ", 0.00d);
+            }
+            map_.put("ZD.ZDMJ", zdmj);
+            map_.put("ZD.JZMJ", jzmj);
+            map_.put("ZD.JZZDMJ", jzzdmj);
+        }
+    }
+
+    private void loadAll(final MapInstance mapInstance, final String bdcdyh, final Feature featureBdcdy
+            , Feature f_zd, List<Feature> fs_zd, List<Feature> fs_jzd, List<Feature> fs_jzx
+            , Map<String, Feature> map_jzx, List<Map<String, Object>> fs_jzqz
+            , final List<Feature> fs_zrz, final List<Feature> fs_ljz, List<Feature> fs_c
+            , final List<Feature> fs_z_fsjg, final List<Feature> fs_h
+            , final List<Feature> fs_h_fsjg, final String where, final AiRunnable callback) {
+        FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                MapHelper.Query(GetTable(mapInstance, "ZRZ"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        MapHelper.Query(GetTable(mapInstance, "LJZ"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                MapHelper.Query(GetTable(mapInstance, "H"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        MapHelper.Query(GetTable(mapInstance, "Z_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                MapHelper.Query(GetTable(mapInstance, "H_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h_fsjg, new AiRunnable() {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                        MapHelper.Query(GetTable(mapInstance, "ZRZ_C"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "LC", "asc", -1, fs_zrz_c, callback);
+                                                        AiRunnable.Ok(callback, t_, objects);
+                                                        return null;
+                                                    }
+                                                });
+                                                return null;
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                });
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                });
+                return null;
+            }
+        });
+    }
+
+    private void loadZd(MapInstance mapInstance, Feature f_bdcdy, final List<Feature> fs, final AiRunnable callback) {
+
+        List<String> orids = FeatureHelper.GetOrids(f_bdcdy, FeatureHelper.TABLE_NAME_ZD);
+        final String bdcdyh = FeatureHelper.Get(f_bdcdy, "BDCDYH", "");
+        if (orids != null && orids.size() > 0) {
+            String where = "";
+            for (String orid : orids) {
+                if (orids.indexOf(orid) == 0) {
+                    where += "orid = '" + orid + "'";
+                } else {
+                    where += " OR orid='" + orid + "'";
+                }
+            }
+
+            queryFeature(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD), where, fs, new AiRunnable(callback) {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    Feature f_zz = null;
+                    for (Feature f : fs) {
+                        String zddm = FeatureHelper.Get(f, "ZDDM", "");
+                        if (StringUtil.IsNotEmpty(zddm) && bdcdyh.contains(zddm)) {
+                            f_zz = f;
+                            break;
+                        }
+                    }
+                    AiRunnable.Ok(callback, f_zz, objects);
+                    return null;
+                }
+            });
+
+        }
+    }
 }
