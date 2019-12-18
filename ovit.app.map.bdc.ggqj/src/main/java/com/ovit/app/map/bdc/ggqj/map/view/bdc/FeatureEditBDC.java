@@ -945,7 +945,7 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void CreateDOCX_(final MapInstance mapInstance, final Feature featureBdcdy, final AiRunnable callback) {
         String last_orid = FeatureHelper.GetLastOrid(featureBdcdy);
         if (!TextUtils.isEmpty(last_orid) && last_orid.contains(FeatureConstants.ZD_ORID_PREFIX)) {
-            new FeatureViewZD().dy(featureBdcdy, mapInstance,true);
+            new FeatureViewZD().dy(featureBdcdy, mapInstance, true);
 //            FeatureEditZD.CreateDOCX(mapInstance, featureBdcdy, true, callback);
         } else if (last_orid.contains(FeatureConstants.ZRZ_ORID_PREFIX)) {
             FeatureViewZRZ.CreateDOCX(mapInstance, featureBdcdy, true, callback);
