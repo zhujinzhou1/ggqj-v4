@@ -492,7 +492,18 @@ public class FeatureViewQLR extends FeatureView {
             // 不动产单元无效
             AiRunnable.Ok(callback,null);
         }
-
-
     }
+    public static String GetBdcdyhFromFeature(List<Feature> fs) {
+        if (fs == null || fs.size() == 0) {
+            return "";
+        }
+        Feature f = fs.get(0);
+        if (fs.size() > 1) {
+            return FeatureHelper.Get(f, "ZDDM", "") + FeatureHelper.FEATURE_F99990001;
+        } else {
+            return FeatureHelper.Get(f, "ZRZH", "") + FeatureHelper.FEATURE_0001;
+        }
+    }
+
+
 }

@@ -476,18 +476,18 @@ public class FeatureEditZD extends FeatureEdit {
 //                load_hjxx();
 //            }
 //        });
-        addAction("画幢", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                update(new AiRunnable() {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        drawZRZ();
-                        return null;
-                    }
-                });
-            }
-        });
+//        addAction("画幢", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                update(new AiRunnable() {
+//                    @Override
+//                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                        drawZRZ();
+//                        return null;
+//                    }
+//                });
+//            }
+//        });
 //        // 设定不动产单元
 //        addAction("不动产单元", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
 //            @Override

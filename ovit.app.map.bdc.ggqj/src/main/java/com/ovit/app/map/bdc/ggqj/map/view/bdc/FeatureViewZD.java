@@ -2,7 +2,9 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -322,7 +324,6 @@ public class FeatureViewZD extends FeatureView {
             }
         });
     }
-
 
     public void identyZrz(List<Feature> features_zrz, final AiRunnable callback) {
         MapHelper.Query(mapInstance.getTable("ZRZ"), feature.getGeometry(), features_zrz, callback);
@@ -1109,90 +1110,39 @@ public class FeatureViewZD extends FeatureView {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     String id = t_ + "";
+                    String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs);
                     final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
                     //关联权利人和宗地
                     mapInstance.featureView.fillFeature(feature_new_qlr);
-                    if (fs_zrz.size() > 1) {
-                        // 多幢属同一权利人 与宗地设定不动产单元号
-                        feature_new_qlr.getAttributes().put("QLRDM", id);
-                        feature_new_qlr.getAttributes().put("YHZGX", "户主");
-                        feature_new_qlr.getAttributes().put("XM", FeatureHelper.Get(feature, "QLRXM"));
-                        feature_new_qlr.getAttributes().put("ZJH", FeatureHelper.Get(feature, "QLRZJH"));
-                        feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature, "QLRZJZL"));
-                        feature_new_qlr.getAttributes().put("DZ", FeatureHelper.Get(feature, "QLRTXDZ"));
-                        feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature, "QLRDH"));
-                        feature_new_qlr.getAttributes().put("BDCQZH", FeatureHelper.Get(feature, "TDZH"));
+                    feature_new_qlr.getAttributes().put("QLRDM", id);
+                    feature_new_qlr.getAttributes().put("YHZGX", "户主");
+                    feature_new_qlr.getAttributes().put("XM", FeatureHelper.Get(feature, "QLRXM"));
+                    feature_new_qlr.getAttributes().put("ZJH", FeatureHelper.Get(feature, "QLRZJH"));
+                    feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature, "QLRZJZL"));
+                    feature_new_qlr.getAttributes().put("DZ", FeatureHelper.Get(feature, "QLRTXDZ"));
+                    feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature, "QLRDH"));
+                    feature_new_qlr.getAttributes().put("BDCQZH", FeatureHelper.Get(feature, "TDZH"));
+                    mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
+                    feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
+                    capyAttachments(feature, feature_new_qlr);// 拷贝附件材料
 
-                        final String bdcdyh = getZddm() + "F99990001";
-//                            fv.queryChildFeature("ZRZ", feature, fs, new AiRunnable() {
-//                                @Override
-//                                public <T_> T_ ok(T_ t_, Object... objects) {
-//                                    mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
-//                                    feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
-//                                    fs_upt.add(feature_new_qlr);
-//                                    for (Feature f : fs) {
-//                                        f.getAttributes().put("BDCDYH", bdcdyh);
-//                                        fs_upt.add(f);
-//                                    }
-//                                    capyAttachments(feature, feature_new_qlr);// 拷贝附件材料
-//                                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
-//                                        @Override
-//                                        public <T_> T_ ok(T_ t_, Object... objects) {
-//                                            AiRunnable.Ok(callback, feature_new_qlr);
-//                                            return null;
-//                                        }
-//                                    });
-//                                    return null;
-//                                }
-//
-//                            });
-
-                        mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
-                        feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
-                        fs_upt.add(feature_new_qlr);
-                        for (Feature f : fs) {
-                            f.getAttributes().put("BDCDYH", bdcdyh);
-                            fs_upt.add(f);
+                    if (fs.size()>0){
+                        for (Feature f_zrz : fs) {
+                            FeatureHelper.Set(f_zrz,"BDCDYH",bdcdyh);
                         }
-                        capyAttachments(feature, feature_new_qlr);// 拷贝附件材料
-                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                AiRunnable.Ok(callback, feature_new_qlr);
-                                return null;
-                            }
-                        });
-                    } else if (fs_zrz.size() == 1) {
-                        // 单幢
-                        Feature f_zrz = fs_zrz.get(0);
-                        String bdcdyh = f_zrz.getAttributes().get("ZRZH") + "0001";
-                        mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature); // 与不动产单元与宗地关联
-                        feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
-                        fs_upt.add(feature_new_qlr);
-                        fs_upt.add(f_zrz);
-                        capyAttachments(feature, feature_new_qlr);
-                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                AiRunnable.Ok(callback, feature_new_qlr);
-                                return null;
-                            }
-                        });
-                    } else {
-                        final String bdcdyh = getZddm() + "W00000000";
-                        feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
-                        fs_upt.add(feature_new_qlr);
-                        capyAttachments(feature, feature_new_qlr);
-
-                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                AiRunnable.Ok(callback, feature_new_qlr);
-                                return null;
-                            }
-                        });
-
                     }
+
+                    fs_upt.addAll(fs);
+                    fs_upt.add(feature_new_qlr);
+
+                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            AiRunnable.Ok(callback, feature_new_qlr);
+                            return null;
+                        }
+                    });
+
                     return null;
                 }
             });
