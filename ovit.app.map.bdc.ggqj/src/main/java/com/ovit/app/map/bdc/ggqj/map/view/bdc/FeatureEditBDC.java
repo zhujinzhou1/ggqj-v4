@@ -7,9 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,7 +18,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -697,7 +694,7 @@ public class FeatureEditBDC extends FeatureEdit {
                     new AiForEach<Feature>(featuresBdcdy, callback) {
                         @Override
                         public void exec() {
-                            CreateDOCX_(mapInstance, getValue(), getNext());
+                            CreateDOCXForFeatureBdc(mapInstance, getValue(), getNext());
                         }
                     }.start();
 
@@ -944,7 +941,7 @@ public class FeatureEditBDC extends FeatureEdit {
         }
     }
 
-    public static void CreateDOCX_(final MapInstance mapInstance, final Feature featureBdcdy, final AiRunnable callback) {
+    public static void CreateDOCXForFeatureBdc(final MapInstance mapInstance, final Feature featureBdcdy, final AiRunnable callback) {
         String last_orid = FeatureHelper.GetLastOrid(featureBdcdy);
         if (!TextUtils.isEmpty(last_orid) && last_orid.contains(FeatureConstants.ZD_ORID_PREFIX)) {
             new FeatureViewZD().dy(featureBdcdy, mapInstance, true);
@@ -1081,7 +1078,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 new AiForEach<Feature>(fs, callback) {
                     @Override
                     public void exec() {
-                        CreateDOCX_(mapInstance, getValue(), getNext());
+                        CreateDOCXForFeatureBdc(mapInstance, getValue(), getNext());
                     }
                 }.start();
 

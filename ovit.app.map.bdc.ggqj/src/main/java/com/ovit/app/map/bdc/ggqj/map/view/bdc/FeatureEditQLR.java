@@ -1,14 +1,12 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
 import android.content.DialogInterface;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -19,7 +17,6 @@ import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
-import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
@@ -183,7 +180,7 @@ public class FeatureEditQLR extends FeatureEdit {
         addAction("生成资料", R.mipmap.app_icon_excel_blue, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FeatureEditBDC.CreateDOCX_(mapInstance, feature, null);
+                FeatureEditBDC.CreateDOCXForFeatureBdc(mapInstance, feature, null);
             }
         });
 
@@ -532,7 +529,7 @@ public class FeatureEditQLR extends FeatureEdit {
 
     }
 
-    //    //获得权利人名下所有的不动产 20180814 TODO 获取不动产单元下的定着物
+//    //获得权利人名下所有的不动产 20180814 TODO 获取不动产单元下的定着物
 //    public static void getAllBdcByQLR(final MapInstance mapInstance, final Feature feature_qlr, final AiRunnable callback) {
 //        final List<Feature> features_bdc = new ArrayList<>();
 //
