@@ -259,21 +259,13 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     }
 
     public  String getZddm() {
-        return FeatureHelper.Get(feature,"ZDDM","");
-    }
-
-    public String getZddm(Feature f) {
-        if (f.getAttributes().containsKey("ZDDM")) {
-            return FeatureHelper.Get(f, "ZDDM", "");
-        } else {
-            return "";
-        }
+        return FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_ZDDM,"");
     }
     public  String getZrzh() {
-        return FeatureHelper.Get(feature,"ZRZH","");
+        return FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_ZRZH,"");
     }
     public  String getLjzh() {
-        return FeatureHelper.Get(feature,"LJZH","");
+        return FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_LJZH,"");
     }
     public  String getMph(String ljzh) {
         String mph="1-1";
@@ -289,7 +281,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
          return mph;
     }
     public  String getBdcdyh() {
-        return FeatureHelper.Get(feature,"BDCDYH","");
+        return FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_BDCDYH,"");
     }
 
     // 详情

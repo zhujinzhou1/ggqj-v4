@@ -2,10 +2,7 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -842,6 +839,9 @@ public class FeatureViewZD extends FeatureView {
     public void loadByZddm(String zddm, AiRunnable callback) {
         MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(zddm) + " ZDDM like '%" + zddm + "%' ", callback);
     }
+    public void loadByOrid(String orid, AiRunnable callback) {
+        MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(orid) + " ORID like '%" + orid + "%' ", callback);
+    }
 
     // 加载权利人
     public void loadQlrByZd(AiRunnable callback) {
@@ -1102,57 +1102,83 @@ public class FeatureViewZD extends FeatureView {
 
     // 通过宗地与自然幢设定不动产单元
     public void newBdcdyToZrz(final List<Feature> fs_zrz, final AiRunnable callback) {
-        final List<Feature> fs = new ArrayList<>();
         final List<Feature> fs_upt = new ArrayList<>();
         try {
-            final String pid = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "", "XMBM", "xmbm");
-            FeatureEditQLR.NewID(mapInstance, pid, "", new AiRunnable() {
+            FeatureEditQLR.CreateFeature(mapInstance, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
-                    String id = t_ + "";
-                    String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs);
-                    final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
-                    //关联权利人和宗地
-                    mapInstance.featureView.fillFeature(feature_new_qlr);
-                    feature_new_qlr.getAttributes().put("QLRDM", id);
-                    feature_new_qlr.getAttributes().put("YHZGX", "户主");
-                    feature_new_qlr.getAttributes().put("XM", FeatureHelper.Get(feature, "QLRXM"));
-                    feature_new_qlr.getAttributes().put("ZJH", FeatureHelper.Get(feature, "QLRZJH"));
-                    feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature, "QLRZJZL"));
-                    feature_new_qlr.getAttributes().put("DZ", FeatureHelper.Get(feature, "QLRTXDZ"));
-                    feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature, "QLRDH"));
-                    feature_new_qlr.getAttributes().put("BDCQZH", FeatureHelper.Get(feature, "TDZH"));
-                    mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
-                    feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
-                    capyAttachments(feature, feature_new_qlr);// 拷贝附件材料
+                    final Feature featureBdcdy= (Feature) t_;
+                    String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs_zrz,getZddm());
+                    fillFeatureBdcdy(featureBdcdy, feature);
 
-                    if (fs.size()>0){
-                        for (Feature f_zrz : fs) {
-                            FeatureHelper.Set(f_zrz,"BDCDYH",bdcdyh);
-                        }
-                    }
+                    featureBdcdy.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                    //TODO 拷贝附件材料需要谨慎处理附件数据建议放到不动产单元
+                    capyAttachments(feature, featureBdcdy);// 拷贝附件材料
 
-                    fs_upt.addAll(fs);
-                    fs_upt.add(feature_new_qlr);
+                    FeatureHelper.Set(fs_zrz,FeatureHelper.TABLE_ATTR_BDCDYH,bdcdyh);
+                    fs_upt.addAll(fs_zrz);
+                    fs_upt.add(featureBdcdy);
 
                     MapHelper.saveFeature(fs_upt, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            AiRunnable.Ok(callback, feature_new_qlr);
+                            AiRunnable.Ok(callback, featureBdcdy);
                             return null;
                         }
                     });
-
                     return null;
                 }
             });
+
+
+//            FeatureEditQLR.NewID(mapInstance, pid, "", new AiRunnable() {
+//                @Override
+//                public <T_> T_ ok(T_ t_, Object... objects) {
+//                    String id = t_ + "";
+//                    String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs);
+//                    final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
+//                    //关联权利人和宗地
+//                   fv.fillFeature(feature_new_qlr);
+//
+//
+//                    feature_new_qlr.getAttributes().put("QLRDM", id);
+//                    feature_new_qlr.getAttributes().put("YHZGX", "户主");
+//                    feature_new_qlr.getAttributes().put("XM", FeatureHelper.Get(feature, "QLRXM"));
+//                    feature_new_qlr.getAttributes().put("ZJH", FeatureHelper.Get(feature, "QLRZJH"));
+//                    feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature, "QLRZJZL"));
+//                    feature_new_qlr.getAttributes().put("DZ", FeatureHelper.Get(feature, "QLRTXDZ"));
+//                    feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature, "QLRDH"));
+//                    feature_new_qlr.getAttributes().put("BDCQZH", FeatureHelper.Get(feature, "TDZH"));
+//                    mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
+//                    feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
+//                    capyAttachments(feature, feature_new_qlr);// 拷贝附件材料
+//
+//                    if (fs.size()>0){
+//                        for (Feature f_zrz : fs) {
+//                            FeatureHelper.Set(f_zrz,"BDCDYH",bdcdyh);
+//                        }
+//                    }
+//
+//                    fs_upt.addAll(fs);
+//                    fs_upt.add(feature_new_qlr);
+//
+//                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
+//                        @Override
+//                        public <T_> T_ ok(T_ t_, Object... objects) {
+//                            AiRunnable.Ok(callback, feature_new_qlr);
+//                            return null;
+//                        }
+//                    });
+//
+//                    return null;
+//                }
+//            });
         } catch (Exception es) {
             Log.e(TAG, "通过与自然幢设定不动产单元!" + es);
         }
     }
 
-    public void create_bdcdy(Feature feature, final AiRunnable callback) {
-//        fv_zrz.queryChildFeature("LJZ", item, fs, new AiRunnable() {
+    public void createBdcdy(Feature feature, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
         fv.queryChildFeature(FeatureConstants.ZRZ_TABLE_NAME, feature, fs, new AiRunnable() {
             @Override
@@ -2156,7 +2182,22 @@ public class FeatureViewZD extends FeatureView {
                     return null;
                 }
             });
-
         }
+    }
+
+    /**
+     * 填充不动产单元属性
+     * @param featureBdcdy 不动产单元
+     * @param featureZd 宗地
+     */
+    public void fillFeatureBdcdy(Feature featureBdcdy,Feature featureZd) {
+        featureBdcdy.getAttributes().put("YHZGX", "户主");
+        featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(featureZd, "QLRXM"));
+        featureBdcdy.getAttributes().put("ZJH", FeatureHelper.Get(featureZd, "QLRZJH"));
+        featureBdcdy.getAttributes().put("ZJZL", FeatureHelper.Get(featureZd, "QLRZJZL"));
+        featureBdcdy.getAttributes().put("DZ", FeatureHelper.Get(featureZd, "QLRTXDZ"));
+        featureBdcdy.getAttributes().put("DH", FeatureHelper.Get(featureZd, "QLRDH"));
+        featureBdcdy.getAttributes().put("BDCQZH", FeatureHelper.Get(featureZd, "TDZH"));
+        fillFeature(featureBdcdy, featureZd);
     }
 }

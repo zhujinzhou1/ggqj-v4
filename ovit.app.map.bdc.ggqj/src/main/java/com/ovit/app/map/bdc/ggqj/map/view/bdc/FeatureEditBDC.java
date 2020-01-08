@@ -278,26 +278,6 @@ public class FeatureEditBDC extends FeatureEdit {
 
     public static void LoadJZX(MapInstance mapInstance, Feature f_zd, List<Feature> fs_jzd, List<Feature> fs_jzx, AiRunnable callback) {
         FeatureView.LoadJzdx(mapInstance, f_zd, fs_jzd, fs_jzx, callback);
-//        MapHelper.Query(layer_jzx.getFeatureTable(), " ZDZHDM = '" + zddm + "' ", 0, f_jzx, new AiRunnable(callback) {
-//            @Override
-//            public <T_> T_ ok(T_ t_, Object... objects) {
-//                Collections.sort(f_jzx, new Comparator<Feature>() {
-//                    @Override
-//                    public int compare(Feature o1, Feature o2) {
-//                        String jzdh1 = AiUtil.GetValue(o1.getAttributes().get("JZXQDH"), "").replace("J", "");
-//                        String jzdh2 = AiUtil.GetValue(o2.getAttributes().get("JZXQDH"), "").replace("J", "");
-//                        try {
-//                            Integer i1 = Integer.parseInt(jzdh1);
-//                            Integer i2 = Integer.parseInt(jzdh2);
-//                            return i1.compareTo(i2);
-//                        } catch (Exception es) {
-//                        }
-//                        return jzdh1.compareTo(jzdh2);
-//                    }
-//                });
-//                return super.ok(t_, objects);
-//            }
-//        });
     }
 
     public static void LoadZRZ(MapInstance mapInstance, String bdcdyh, List<Feature> fs_zrz, AiRunnable callback) {

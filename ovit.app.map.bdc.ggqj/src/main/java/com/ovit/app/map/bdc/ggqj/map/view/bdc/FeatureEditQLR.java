@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
-import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
@@ -21,7 +20,6 @@ import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
 import com.ovit.app.ui.dialog.AiDialog;
-import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.ui.view.CView;
 import com.ovit.app.util.AiForEach;
@@ -153,6 +151,47 @@ public class FeatureEditQLR extends FeatureEdit {
 //                        return null;
 //                    }
 //                });
+
+                //新增附属宗地
+                v_feature.findViewById(R.id.tv_add_fszd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fv.addFszd(new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                reload_bdc();
+                                return null;
+                            }
+                        });
+
+                    }
+                });
+
+                //清除附属宗地
+                v_feature.findViewById(R.id.tv_clear_fszd).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fv.clearFszd(new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                String oridPath = (String) t_;
+                                if (StringUtil.IsNotEmpty(oridPath)) {
+                                    FeatureHelper.Set(feature, "ORID_PATH", oridPath);
+                                    MapHelper.saveFeature(feature, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            reload_bdc();
+                                            return null;
+                                        }
+                                    });
+                                }
+                                return null;
+                            }
+                        });
+
+                    }
+                });
+
             }
         } catch (Exception es) {
             Log.e(TAG, "build: 构建失败", es);
@@ -198,49 +237,6 @@ public class FeatureEditQLR extends FeatureEdit {
 //                new FeatureViewZD().createFeature(f, null);
 //            }
 //        });
-        addAction("新增附属宗地", R.mipmap.app_map_layer_zd, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ToastMessage.Send(activity, "请选择宗地！");
-                Layer layer = MapHelper.getLayer(map, "ZD");
-                mapInstance.setSelectLayer(layer, new AiRunnable() {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        final Feature f = (Feature) t_;
-                        if (f != null && FeatureHelper.LAYER_NAME_ZD.equals(mapInstance.getLayerName(f))) {
-                            // 不动产单元 与 宗地 关联
-                            DialogBuilder.confirm(activity, "绑定宗地", "宗地是否关联该不动产单元？", null, "确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(final DialogInterface dialog, int which) {
-                                    String orid_path = FeatureHelper.Get(feature, "ORID_PATH", "");
-                                    orid_path += "/" + mapInstance.getOrid(f);
-                                    FeatureHelper.Set(feature, "ORID_PATH", orid_path);// 与不动产单元与宗地关联
-                                    MapHelper.saveFeature(feature, new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            dialog.dismiss();
-                                            ToastMessage.Send("新增附属宗地成功。");
-                                            mapInstance.setBindCallback(null);
-                                            return null;
-                                        }
-                                    });
-                                }
-                            }, "放弃", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                    mapInstance.setBindCallback(null);
-                                }
-                            }, "继续", null).create().show();
-                        }
-
-
-                        return null;
-                    }
-                }, false);
-            }
-        });
-
 
         //添加菜单
         addMenu("基本信息", new View.OnClickListener() {
@@ -288,7 +284,7 @@ public class FeatureEditQLR extends FeatureEdit {
             super.update(new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
-                    update_gyrxx(callback);
+                    fv.update_gyrxx(callback);
                     return null;
                 }
             });
@@ -330,7 +326,8 @@ public class FeatureEditQLR extends FeatureEdit {
                         where += " OR orid='" + orid + "'";
                     }
                 }
-                mapInstance.newFeatureView(FeatureConstants.ZD_TABLE_NAME).buildListView(ll_bdc_list, where);
+                String tableName = FeatureHelper.getTableNameForOrid(orids.get(0));
+                mapInstance.newFeatureView(tableName).buildListView(ll_bdc_list, where);
                 view_bdc = ll_bdc_list;
             }
         }
@@ -338,71 +335,7 @@ public class FeatureEditQLR extends FeatureEdit {
 
     private void reload_bdc() {
         view_bdc = null;
-        load_qlr();
-    }
-
-
-    // 新建权利人：
-    private void update_gyrxx(final AiRunnable callback) {
-        final String qlrxm = AiUtil.GetValue(feature.getAttributes().get("XM"), "");
-        final String qlrzjh = AiUtil.GetValue(feature.getAttributes().get("ZJH"), "");
-        final List<Feature> fs_gyrxx = new ArrayList<>();
-
-        // 权利人姓名，证件号未发生变化时。。。
-        if (old_qlrzjh.equals(qlrzjh) && old_qlrxm.equals(qlrxm)) {
-            AiRunnable.Ok(callback, null);
-            return;
-        }
-        // 发生变化时
-        fv.queryChildFeature(FeatureConstants.GYRXX_TABLE_NAME, feature, fs_gyrxx, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                // 1 不动产单元没有与权利人绑定，
-                if (fs_gyrxx.size() == 0) {
-                    String xm = FeatureHelper.Get(feature, "XM", "");
-                    String where = "ZJH = '" + qlrzjh + "'";
-                    MapHelper.QueryOne(MapHelper.getTable(map, FeatureConstants.GYRXX_TABLE_NAME), where, new AiRunnable() {
-                        @Override
-                        public <T_> T_ ok(T_ t_, Object... objects) {
-                            if (t_ == null) {
-                                // 2 该权利人不存在时新建权利人 新建权利人
-                                createNewQlrByBdc(mapInstance, feature, callback);
-                            } else {
-                                // 3 权利人存在
-                                Feature f_gyrxx = (Feature) t_;
-                                if (StringUtil.IsNotEmpty(qlrxm) && qlrxm.equals(FeatureHelper.Get(f_gyrxx, "XM", ""))) {
-                                    //权利人存在 关联 宗地与权利人关联
-                                    FeatureHelper.Set(f_gyrxx
-                                            , "ORID_PATH"
-                                            , FeatureHelper.Get(f_gyrxx, "ORID_PATH", "")
-                                                    + FeatureHelper.Get(feature, "ORID", "") + "/");
-                                    MapHelper.saveFeature(f_gyrxx, new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            AiRunnable.Ok(callback, null);
-                                            return null;
-                                        }
-                                    });
-
-                                } else {
-                                    // 不动产单元 权利人与查询到的权利人姓名不一致
-                                    mapInstance.viewFeature(f_gyrxx);
-                                    ToastMessage.Send("保存数据失败，权利人名字或证件号有误请检查");
-                                    return null;
-                                }
-                            }
-                            return null;
-                        }
-                    });
-
-                } else {
-                    // 不动产单元 有权利人时候
-                    //TODO ... 姓名与证件号
-                    AiRunnable.Ok(callback, null);
-                }
-                return null;
-            }
-        });
+        load_bdc();
     }
 
     public static void createNewQlrByBdc(final MapInstance mapInstance, final Feature feature_bdc, final AiRunnable callback) {
@@ -793,8 +726,8 @@ public class FeatureEditQLR extends FeatureEdit {
                 mapInstance.newFeatureView(feature).fillFeatureAddSave(feature, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        mapInstance.viewFeature(feature);
-                        AiRunnable.Ok(callback, true, true);
+//                        mapInstance.viewFeature(feature);
+                        AiRunnable.Ok(callback, feature, true);
                         return null;
                     }
                 });

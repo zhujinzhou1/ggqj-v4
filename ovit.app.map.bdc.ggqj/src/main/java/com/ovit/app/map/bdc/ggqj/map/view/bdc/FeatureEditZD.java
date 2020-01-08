@@ -47,7 +47,6 @@ import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ImageUtil;
-import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.ResourceUtil;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.cad.DxfHelper;
@@ -140,7 +139,6 @@ public class FeatureEditZD extends FeatureEdit {
                 feature.getAttributes().put("ZDMJ", area);
             }
             feature.getAttributes().put("GLBLC", "1:" + scale);
-
             mapInstance.fillFeature(feature);
             old_bdcdyh = FeatureHelper.Get(feature, "BDCDYH", "");
             old_zddm = FeatureHelper.Get(feature, "ZDDM", "");
@@ -498,7 +496,7 @@ public class FeatureEditZD extends FeatureEdit {
         addAction("设定不动产单元", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                init_bdcdy();
+                initBdcdy();
             }
         });
         addAction("宗地分摊", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
@@ -563,25 +561,48 @@ public class FeatureEditZD extends FeatureEdit {
     }
 
     //不动产单元
-    private void init_bdcdy() {
-        AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定")
-                .addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该宗地上所有定着物共同设定一个不动产单元！")
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                        // 加载界面
-                        fv.create_bdcdy(feature, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                mapInstance.viewFeature((Feature) t_);
-                                dialog.dismiss();
-                                return null;
-                            }
-                        });
-                    }
-                }).show();
+    private void initBdcdy() {
+        fv.checkcBdcdy(feature, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+                if (t_!=null){
+                    //可以设定不动产单元
+                    aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该宗地上所有定着物共同设定一个不动产单元！");
+                    aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int which) {
+                            // 加载界面
+                            fv.createBdcdy(feature, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    final Feature featureBdcdy = (Feature) t_;
+                                    FeatureViewQLR featureViewQLR = (FeatureViewQLR) mapInstance.newFeatureView(featureBdcdy);
+                                    featureViewQLR.update_gyrxx(new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            mapInstance.viewFeature(featureBdcdy);
+                                            dialog.dismiss();
+                                            return null;
+                                        }
+                                    });
 
+                                    return null;
+                                }
+                            });
+                        }
+                    }).show();
+
+                }else {
+                    aiDialog.addContentView("不能设定不动产单元", (String) objects[0]+"已经设定了不动产单元！");
+                    aiDialog.setFooterView("取消", "确定",null).show();
+                }
+
+                return null;
+            }
+        });
     }
+
 
     private void update_zddm(final AiRunnable callback) {
         final String bdcdyh = AiUtil.GetValue(feature.getAttributes().get("BDCDYH"), "");

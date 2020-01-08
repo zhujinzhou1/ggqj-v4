@@ -571,12 +571,12 @@ public class FeatureViewH extends FeatureView {
     public void identyFtqk( final AiRunnable callback) {
 
     }
-    public void create_h_bdcfy(Feature f_h, final AiRunnable callback) {
+    public void create_h_bdcdy(Feature f_h, final AiRunnable callback) {
         if (TextUtils.isEmpty(FeatureHelper.Get(f_h,"ZRZH",""))||TextUtils.isEmpty(FeatureHelper.Get(f_h,"LJZH",""))){
             ToastMessage.Send("缺少幢信息，请检查！");
             return;
         }
-        final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
+        final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
         mapInstance.featureView.fillFeature(feature_new_qlr,f_h);
         feature_new_qlr.getAttributes().put("BDCDYH",f_h.getAttributes().get("ID"));
         MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {

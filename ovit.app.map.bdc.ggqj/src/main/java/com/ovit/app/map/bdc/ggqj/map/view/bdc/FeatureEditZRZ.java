@@ -1,8 +1,6 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -10,43 +8,28 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
-import com.esri.arcgisruntime.geometry.Geometry;
-import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
-import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
-import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
-import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
-import com.ovit.app.map.custom.shape.ShapeUtil;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
 import com.ovit.app.ui.dialog.AiDialog;
-import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
+import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.AppConfig;
 import com.ovit.app.util.FileUtils;
-import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
-import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -258,29 +241,58 @@ public class FeatureEditZRZ extends FeatureEdit {
         addAction("设定不动产", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                init_bdcdy();
+                initBdcdy();
             }
         });
 
     }
     //自然幢设定不动产单元
-    private void init_bdcdy() {
-        AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定")
-                .addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该自然幢共同设定一个不动产单元！")
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                        // 加载界面
-                        fv.create_zrz_bdcfy(feature, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                mapInstance.viewFeature((Feature) t_);
-                                dialog.dismiss();
-                                return null;
-                            }
-                        });
-                    }
-                }).show();
+    private void initBdcdy() {
+        fv.checkcBdcdy(feature, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                     AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+                 if (t_!=null){
+                     //可以设定不动产单元
+                     aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该自然幢共同设定一个不动产单元！");
+                     aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                 @Override
+                                 public void onClick(final DialogInterface dialog, int which) {
+                                     // 加载界面
+                                     fv.create_zrz_bdcfy(feature, new AiRunnable() {
+                                         @Override
+                                         public <T_> T_ ok(T_ t_, Object... objects) {
+                                             mapInstance.viewFeature((Feature) t_);
+                                             dialog.dismiss();
+                                             return null;
+                                         }
+                                     });
+                                 }
+                             }).show();
+
+                 }else {
+                     aiDialog.addContentView("不能设定不动产单元", (String) objects[0]+"已经设定了不动产单元！");
+                     aiDialog.setFooterView("取消", "确定",null).show();
+                 }
+
+                return null;
+            }
+        });
+
+
+
+        fv.findFeature("ZD", orid, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                if (t_!=null && t_ instanceof Feature){
+
+                }else {
+                    // 宗地没有设定不动产单元
+                }
+                return null;
+            }
+        });
+
     }
 
     // 保存数据

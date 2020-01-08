@@ -141,23 +141,6 @@ public class FeatureEditH extends FeatureEdit {
                                 return null;
                             }
                         });
-//                        FeatureEditH_FSJG.IdentyH_FSJG(mapInstance,feature, new AiRunnable() {
-//                            @Override
-//                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                IdentyH_Area(mapInstance,feature, new AiRunnable() {
-//                                    @Override
-//                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                        fillView(v_content, feature, "YCJZMJ");
-//                                        fillView(v_content, feature, "SCJZMJ");
-//                                        loadhfsjg();
-//                                        ToastMessage.Send(activity, "识别完成！");
-//                                        return null;
-//                                    }
-//                                });
-//                                return null;
-//
-//                            }
-//                        });
                     }
                 });
                 v_feature.findViewById(R.id.tv_sbft).setOnClickListener(new View.OnClickListener() {
@@ -244,28 +227,44 @@ public class FeatureEditH extends FeatureEdit {
         addAction("设定不动产", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                init_bdcdy();
+                initBdcdy();
             }
         });
     }
 
-    private void init_bdcdy() {
-        AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定")
-                .addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该户共同设定一个不动产单元！")
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                        // 加载界面
-                        fv.create_h_bdcfy(feature, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                mapInstance.viewFeature((Feature) t_);
-                                dialog.dismiss();
-                                return null;
-                            }
-                        });
-                    }
-                }).show();
+    private void initBdcdy() {
+
+        fv.checkcBdcdy(feature, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+                if (t_!=null){
+                    //可以设定不动产单元
+                    aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该户共同设定一个不动产单元！");
+                    aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int which) {
+                            // 加载界面
+                            fv.create_h_bdcdy(feature, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    mapInstance.viewFeature((Feature) t_);
+                                    dialog.dismiss();
+                                    return null;
+                                }
+                            });
+                        }
+                    }).show();
+
+                }else {
+                    aiDialog.addContentView("不能设定不动产单元", (String) objects[0]+"已经设定了不动产单元！");
+                    aiDialog.setFooterView("取消", "确定",null).show();
+                }
+
+                return null;
+            }
+        });
+
 
     }
 
