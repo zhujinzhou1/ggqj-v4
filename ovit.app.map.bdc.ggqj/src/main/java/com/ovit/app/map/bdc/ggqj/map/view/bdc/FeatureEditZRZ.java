@@ -248,50 +248,43 @@ public class FeatureEditZRZ extends FeatureEdit {
     }
     //自然幢设定不动产单元
     private void initBdcdy() {
-        fv.checkcBdcdy(feature, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                     AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
-                 if (t_!=null){
-                     //可以设定不动产单元
-                     aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该自然幢共同设定一个不动产单元！");
-                     aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                                 @Override
-                                 public void onClick(final DialogInterface dialog, int which) {
-                                     // 加载界面
-                                     fv.create_zrz_bdcfy(feature, new AiRunnable() {
-                                         @Override
-                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                             mapInstance.viewFeature((Feature) t_);
-                                             dialog.dismiss();
-                                             return null;
-                                         }
-                                     });
-                                 }
-                             }).show();
+        final AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+        String oridPath = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
 
-                 }else {
-                     aiDialog.addContentView("不能设定不动产单元", (String) objects[0]+"已经设定了不动产单元！");
-                     aiDialog.setFooterView("取消", "确定",null).show();
-                 }
+        if (StringUtil.IsNotEmpty(oridPath)||!oridPath.contains(FeatureHelper.TABLE_NAME_ZD)) {
+            fv.checkcBdcdy(feature, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    if (t_ != null) {
+                        //可以设定不动产单元
+                        aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该自然幢共同设定一个不动产单元！");
+                        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, int which) {
+                                // 加载界面
+                                fv.create_zrz_bdcfy(feature, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        mapInstance.viewFeature((Feature) t_);
+                                        dialog.dismiss();
+                                        return null;
+                                    }
+                                });
+                            }
+                        }).show();
 
-                return null;
-            }
-        });
+                    } else {
+                        aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
+                        aiDialog.setFooterView("取消", "确定", null).show();
+                    }
 
-
-
-        fv.findFeature("ZD", orid, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                if (t_!=null && t_ instanceof Feature){
-
-                }else {
-                    // 宗地没有设定不动产单元
+                    return null;
                 }
-                return null;
-            }
-        });
+            });
+        } else {
+            aiDialog.addContentView("不能设定不动产单元", "自然幢没有与宗地关联，请识别自然幢！");
+            aiDialog.setFooterView("取消", "确定", null).show();
+        }
 
     }
 

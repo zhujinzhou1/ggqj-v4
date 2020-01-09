@@ -233,38 +233,42 @@ public class FeatureEditH extends FeatureEdit {
     }
 
     private void initBdcdy() {
-
-        fv.checkcBdcdy(feature, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
-                if (t_!=null){
-                    //可以设定不动产单元
-                    aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该户共同设定一个不动产单元！");
-                    aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(final DialogInterface dialog, int which) {
-                            // 加载界面
-                            fv.create_h_bdcdy(feature, new AiRunnable() {
-                                @Override
-                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                    mapInstance.viewFeature((Feature) t_);
-                                    dialog.dismiss();
-                                    return null;
-                                }
-                            });
-                        }
-                    }).show();
-
-                }else {
-                    aiDialog.addContentView("不能设定不动产单元", (String) objects[0]+"已经设定了不动产单元！");
-                    aiDialog.setFooterView("取消", "确定",null).show();
+        final AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+        String oridPath = fv.getOrid_Path();
+        if (StringUtil.IsNotEmpty(oridPath) || !oridPath.contains(FeatureHelper.TABLE_NAME_ZD)) {
+            // 图形已经关联成功
+            fv.checkcBdcdy(feature, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    if (t_ != null) {
+                        //可以设定不动产单元
+                        aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该户共同设定一个不动产单元！");
+                        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, int which) {
+                                // 加载界面
+                                fv.create_h_bdcdy(feature, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        mapInstance.viewFeature((Feature) t_);
+                                        dialog.dismiss();
+                                        return null;
+                                    }
+                                });
+                            }
+                        }).show();
+                    } else {
+                        aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
+                        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
+                    }
+                    return null;
                 }
-
-                return null;
-            }
-        });
-
+            });
+            // 需要识别
+        } else {
+            aiDialog.addContentView("不能设定不动产单元", "户没有与宗地关联，请智能识别户！");
+            aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
+        }
 
     }
 

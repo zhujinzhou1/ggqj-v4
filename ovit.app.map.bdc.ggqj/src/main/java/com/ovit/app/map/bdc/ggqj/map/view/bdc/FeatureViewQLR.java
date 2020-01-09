@@ -565,8 +565,7 @@ public class FeatureViewQLR extends FeatureView {
             feature_new_qlr.getAttributes().put("CSRQ", FeatureHelper.Get(feature_bdc, "CSRQ"));
             feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature_bdc, "DH"));
             feature_new_qlr.getAttributes().put("TDZH", FeatureHelper.Get(feature_bdc, "BDCQZH"));
-            feature_new_qlr.getAttributes().put("ORID_PATH", FeatureHelper.Get(feature_bdc, "ORID") + "/"); //权利人关联不动产
-            mapInstance.featureView.fillFeature(feature_new_qlr, feature_bdc);
+            feature_new_qlr.getAttributes().put("ORID_PATH", FeatureHelper.Get(feature_bdc, "ORID") + "/"); //权利人关联不动产单元
 
             //拷贝资料
             String f_zd_path = mapInstance.getpath_feature(feature_bdc); //     不动产d单元
@@ -587,7 +586,7 @@ public class FeatureViewQLR extends FeatureView {
             MapHelper.saveFeature(feature_new_qlr, callback);
 
         } catch (Exception es) {
-            Log.e(TAG, "通过宗地创建新权利人失败!" + es);
+            Log.e(TAG, "通过不动产单元创建新权利人失败!" + es);
             AiRunnable.Ok(callback, false, false);
         }
     }
@@ -596,6 +595,10 @@ public class FeatureViewQLR extends FeatureView {
         MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ", callback);
     }
 
+    /**
+     * 新增附属宗地
+     * @param callback
+     */
     public void addFszd(final AiRunnable callback) {
         ToastMessage.Send(activity, "请谨慎选择附属宗地！");
         Layer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_ZD);
@@ -637,6 +640,10 @@ public class FeatureViewQLR extends FeatureView {
         }, false);
     }
 
+    /**
+     * 清除附属宗地
+     * @param callback
+     */
     public void clearFszd(final AiRunnable callback) {
 
         DialogBuilder.confirm(activity, "清除附属宗地", "确定清除该宗地的附属宗地？", null, "确定", new DialogInterface.OnClickListener() {

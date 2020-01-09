@@ -227,7 +227,7 @@ public class FeatureViewZRZ extends FeatureView {
         }
         if (0d == FeatureHelper.Get(feature, "SCJZMJ", 0d)) {
             double scjzmj = area * AiUtil.GetValue(feature.getAttributes().get("ZCS"), 1);
-            feature.getAttributes().put("SCJZMJ", scjzmj);
+            feature.getAttributes().put("SCJZMJ", scjzmj+"");
         }
 
         if (isF99990001) {
@@ -1060,18 +1060,31 @@ public class FeatureViewZRZ extends FeatureView {
         gv_list.setAdapter(adpter);
     }
 
-    public void create_zrz_bdcfy(Feature f_zrz, final AiRunnable callback) {
-        if (TextUtils.isEmpty(FeatureHelper.Get(f_zrz, "ZDDM", ""))) {
+    public void create_zrz_bdcfy(final Feature f_zrz, final AiRunnable callback) {
+        if (TextUtils.isEmpty(FeatureHelper.Get(f_zrz, FeatureHelper.TABLE_ATTR_ZDDM, ""))) {
             ToastMessage.Send("缺少宗地信息，请检查！");
             return;
         }
-        final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
-        mapInstance.featureView.fillFeature(feature_new_qlr, f_zrz);
-        feature_new_qlr.getAttributes().put("BDCDYH", f_zrz.getAttributes().get("ZRZH") + "0001");
-        MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
+        FeatureEditQLR.CreateFeature(mapInstance, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                AiRunnable.Ok(callback, feature_new_qlr, t_);
+                final Feature featureBdcdy = (Feature) t_;
+                String oridPath = FeatureHelper.Get(f_zrz, FeatureHelper.TABLE_ATTR_ORID_PATH, "")
+                        + FeatureHelper.SEPARATORS_BASE + FeatureHelper.Get(f_zrz, FeatureHelper.TABLE_ATTR_ORID, "");
+                String bdcdyh = f_zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_ZRZH) + FeatureHelper.FEATURE_0001;
+                FeatureHelper.Set(f_zrz, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                FeatureHelper.Set(featureBdcdy, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                FeatureHelper.Set(featureBdcdy, FeatureHelper.TABLE_ATTR_ORID_PATH, oridPath);
+                List<Feature> updateFeatures = new ArrayList<>();
+                updateFeatures.add(f_zrz);
+                updateFeatures.add(featureBdcdy);
+                MapHelper.saveFeature(updateFeatures, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        AiRunnable.Ok(callback, featureBdcdy, t_);
+                        return null;
+                    }
+                });
                 return null;
             }
         });

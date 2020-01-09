@@ -571,18 +571,31 @@ public class FeatureViewH extends FeatureView {
     public void identyFtqk( final AiRunnable callback) {
 
     }
-    public void create_h_bdcdy(Feature f_h, final AiRunnable callback) {
-        if (TextUtils.isEmpty(FeatureHelper.Get(f_h,"ZRZH",""))||TextUtils.isEmpty(FeatureHelper.Get(f_h,"LJZH",""))){
+    public void create_h_bdcdy(final Feature f_h, final AiRunnable callback) {
+        if (TextUtils.isEmpty(FeatureHelper.Get(f_h, "ZRZH", "")) || TextUtils.isEmpty(FeatureHelper.Get(f_h, "LJZH", ""))) {
             ToastMessage.Send("缺少幢信息，请检查！");
             return;
         }
-        final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
-        mapInstance.featureView.fillFeature(feature_new_qlr,f_h);
-        feature_new_qlr.getAttributes().put("BDCDYH",f_h.getAttributes().get("ID"));
-        MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
+        FeatureEditQLR.CreateFeature(mapInstance, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                AiRunnable.Ok(callback,feature_new_qlr,t_);
+                final Feature featureBdcdy = (Feature) t_;
+                String oridPath = FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID_PATH, "")
+                        + FeatureHelper.SEPARATORS_BASE + FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID, "");
+                String bdcdyh = FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ID, "");
+                FeatureHelper.Set(f_h, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                FeatureHelper.Set(featureBdcdy, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                FeatureHelper.Set(featureBdcdy, FeatureHelper.TABLE_ATTR_ORID_PATH, oridPath);
+                List<Feature> updateFeatures = new ArrayList<>();
+                updateFeatures.add(f_h);
+                updateFeatures.add(featureBdcdy);
+                MapHelper.saveFeature(updateFeatures, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        AiRunnable.Ok(callback, featureBdcdy, t_);
+                        return null;
+                    }
+                });
                 return null;
             }
         });
