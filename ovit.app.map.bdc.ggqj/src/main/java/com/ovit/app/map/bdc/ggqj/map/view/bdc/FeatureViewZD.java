@@ -2040,7 +2040,7 @@ public class FeatureViewZD extends FeatureView {
                     @Override
                     public void run() {
                         try {
-                            String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                            String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                             Map<String, Object> map_ = new LinkedHashMap<>();
                             //  设置系统参数
                             FeatureEditBDC.Put_data_sys(map_);

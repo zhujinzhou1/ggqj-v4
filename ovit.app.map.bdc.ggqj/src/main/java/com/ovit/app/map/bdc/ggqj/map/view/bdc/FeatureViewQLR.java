@@ -633,8 +633,6 @@ public class FeatureViewQLR extends FeatureView {
                         }
                     }, "继续", null).create().show();
                 }
-
-
                 return null;
             }
         }, false);

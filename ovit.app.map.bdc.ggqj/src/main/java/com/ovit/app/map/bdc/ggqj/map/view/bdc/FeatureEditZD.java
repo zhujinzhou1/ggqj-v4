@@ -84,7 +84,7 @@ public class FeatureEditZD extends FeatureEdit {
     private EditText et_zddm;
     private EditText et_ybzddm;
     private EditText et_bdcdyh;
-    private Switch sh_dzsfty;
+//    private Switch sh_dzsfty;
     private Spinner spn_qllx;
 
     private String old_bdcdyh;
@@ -152,11 +152,10 @@ public class FeatureEditZD extends FeatureEdit {
             et_zddm = (EditText) v_feature.findViewById(R.id.et_zddm);
             et_ybzddm = (EditText) v_feature.findViewById(R.id.et_ybzddm);
             et_bdcdyh = (EditText) v_feature.findViewById(R.id.et_bdcdyh);
-            sh_dzsfty = (Switch) v_feature.findViewById(R.id.sh_dzsfty);// 多幢属同一权利人
+//            sh_dzsfty = (Switch) v_feature.findViewById(R.id.sh_dzsfty);// 多幢属同一权利人
+//            sh_dzsfty.setChecked(bdcdyh.endsWith("99990001"));
             spn_qllx = (Spinner) v_feature.findViewById(R.id.spn_qllx);
             final String bdcdyh = AiUtil.GetValue(et_bdcdyh.getText(), "");
-            sh_dzsfty.setChecked(bdcdyh.endsWith("99990001"));
-
             et_bdcdyh.setEnabled(false);
             et_zddm.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -179,12 +178,12 @@ public class FeatureEditZD extends FeatureEdit {
                 }
             });
 
-            sh_dzsfty.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    et_bdcdyh.setText(et_zddm.getText() + "F" + (sh_dzsfty.isChecked() ? "99990001" : "00000000"));
-                }
-            });
+//            sh_dzsfty.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                @Override
+//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                    et_bdcdyh.setText(et_zddm.getText() + "F" + (sh_dzsfty.isChecked() ? "99990001" : "00000000"));
+//                }
+//            });
             String qllx = AiUtil.GetValue(feature.getAttributes().get("QLLX"), "6");
             for (int i = 0; i < spn_qllx.getAdapter().getCount(); i++) {
                 String v = spn_qllx.getAdapter().getItem(i) + "";
@@ -969,7 +968,7 @@ public class FeatureEditZD extends FeatureEdit {
         map_tzm_zddm.put(fv.getTzm(), fv.getZddm());
         et_ybzddm.setText(new_zddm);
         setValue(feature, "PRO_ZDDM_F", StringUtil.substr_last(id, 7));
-        et_bdcdyh.setText(et_zddm.getText() + "F" + (sh_dzsfty.isChecked() ? "99990001" : "00000000"));
+//        et_bdcdyh.setText(et_zddm.getText() + "F" + (sh_dzsfty.isChecked() ? "99990001" : "00000000"));
         String resname = "qlxz_j";
         if (et_zddm.getText().toString().contains("G")) {
             resname = "qlxz_g";

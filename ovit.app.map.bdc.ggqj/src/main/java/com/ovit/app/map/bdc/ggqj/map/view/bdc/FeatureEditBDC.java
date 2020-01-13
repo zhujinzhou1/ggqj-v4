@@ -260,7 +260,7 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     public static String GetPath_BDC_doc(MapInstance mapInstance, String bdcdyh) {
-        return FileUtils.getAppDirAndMK(GetPath(mapInstance, bdcdyh) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
+        return FileUtils.getAppDirAndMK(GetPath(mapInstance, bdcdyh) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
     }
 
     public static void LoadZD(MapInstance mapInstance, String bdcdyh, final AiRunnable callback) {
@@ -1823,8 +1823,14 @@ public class FeatureEditBDC extends FeatureEdit {
             map_.put("H.HH", 0 + StringUtil.substr_last(bdcdyh, 3));
         }
 
-        Double tnmj = Double.parseDouble((String) map_.get("H.SCJZMJ"));
-        Double ftxs = Double.parseDouble(AiUtil.GetValue(map_.get("ZD." + FeatureViewZD.TABLE_ATTR_FTXS_ZD), "0"));
+        Double tnmj = 0d;
+        Double ftxs=0d;
+        try {
+          Double.parseDouble((String) map_.get("H.SCJZMJ"));
+         ftxs = Double.parseDouble(AiUtil.GetValue(map_.get("ZD." + FeatureViewZD.TABLE_ATTR_FTXS_ZD), "0"));
+        }catch (Exception e){
+
+        }
 
         double ftmj = tnmj * ftxs;
         double jzmj = tnmj + ftmj;
