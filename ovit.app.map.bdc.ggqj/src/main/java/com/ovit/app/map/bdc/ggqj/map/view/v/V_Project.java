@@ -121,14 +121,19 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.ll_output_cad_esdj).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fundesc = "生成两权数据！";
-                License.vaildfunc(activity, fundesc, new AiRunnable() {
+                final String fundesc = "生成两权数据！";
+                FeatureHelper.vaildfunc(mapInstance, fundesc,true, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        output_lqsj(mapInstance);
+                        Geometry g=null;
+                        if (t_!=null && t_ instanceof Geometry){
+                            g= (Geometry) t_;
+                        }
+                        output_lqsj(mapInstance,g);
                         return null;
                     }
                 });
+
             }
         });
         // 导入权利人
@@ -417,7 +422,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
 
     // 生成两权数据
-    private void output_lqsj(final MapInstance mapInstance) {
+    private void output_lqsj(final MapInstance mapInstance, final Geometry licenseGeometry) {
         {
             final String funcdesc = "该功能将逐生成完整的dxf成果！";
 
@@ -516,14 +521,25 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                                         try {
+                                                             if (licenseGeometry!=null && FeatureHelper.isExistElement(fs)){
+                                                                 int index = fs.size()/2;
+                                                                 Feature feature = fs.get(index);
+                                                                 if (!MapHelper.geometry_contains(licenseGeometry,feature.getGeometry())){
+                                                                     addMessage("", "处理图形超出授权范围，请联系当地经销商。");
+                                                                     AiRunnable.Error(callback, "");
+                                                                     return null;
+                                                                 }
+                                                              }
+
                                                             addMessage("", "读取到" + fs.size() + "条宗地数据，正在输出成果...");
                                                             List<Feature> features = new ArrayList<Feature>();
+
                                                             finalDxf.write(mapInstance, fs); //
                                                             fs.clear();
                                                             addMessage("", "宗地导出成功！");
                                                         } catch (Exception e) {
                                                             e.printStackTrace();
-                                                            AiRunnable.Error(callback, null);
+                                                            AiRunnable.Error(callback, "宗地导出失败！");
                                                         }
                                                         MapHelper.Query(FeatureEdit.GetTable(mapInstance, "ZRZ", "自然幢"), "", -1, fs, new AiRunnable() {
                                                             @Override
@@ -1419,7 +1435,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "幢。");
                                                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，重新生成宗地草图、房产图");
                                                                 Log.d(TAG, "智能处理:查找所有宗地，重新生成宗地草图、房产图");
-                                                                FeatureViewZD.LaodAllZD_CreateCTAddFCT(mapInstance, new AiRunnable(callback) {
+                                                                FeatureViewZD.LaodAllZDCreateCTAddFCT(mapInstance, new AiRunnable(callback) {
                                                                     @Override
                                                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                                                         aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗。");

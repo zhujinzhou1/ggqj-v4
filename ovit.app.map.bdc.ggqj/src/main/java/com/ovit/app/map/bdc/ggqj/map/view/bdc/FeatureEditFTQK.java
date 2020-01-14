@@ -34,16 +34,22 @@ import java.util.Map;
  * Created by 此生无分起相思 on 2018/8/2.
  */
 
-public class FeatureEditFTQK extends FeatureEdit
-{
+public class FeatureEditFTQK extends FeatureEdit {
+    //region 常量
     final static String TAG = "FeatureEditFTQK";
+    ///endregion
 
+    //region 字段
+    ///endregion
+
+    //region 构造函数
     public FeatureEditFTQK(){ super();}
     public FeatureEditFTQK(MapInstance mapInstance, Feature feature) {
         super(mapInstance, feature);
     }
+    ///endregion
 
-    //region  重写父类方法
+    //region 重写函数和回调
     // 初始化
     @Override
     public void init()
@@ -80,6 +86,19 @@ public class FeatureEditFTQK extends FeatureEdit
         Log.i(TAG,"build ftqk opt");
         super.build_opt();
     }
+    ///endregion
+
+    //region 公有函数
+    ///endregion
+
+    //region 私有函数
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
+    //region  重写父类方法
+
 
     //辅助函数 获得子层级的layer name 20180802
     private static String getChildLayerName(Feature feature)
@@ -241,16 +260,16 @@ public class FeatureEditFTQK extends FeatureEdit
         AiDialog dialog = FeatureViewFTQK.getSelectFTQX_FSJG_View(mapInstance, feature_zd,selected_feature_list);
         if(dialog!=null)
         {
-            dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+            dialog.setFooterView(AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     completeAddFt2ZD(mapInstance, selected_feature_list, feature_zd, new AiRunnable(callback) {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            if((java.lang.Boolean) t_){
-                                AiRunnable.Ok(callback,true,true);
+                            if (t_ != null && t_ instanceof List) {
+                                AiRunnable.Ok(callback, true, objects);
                             }else{
-                                AiRunnable.Ok(callback,false,false);
+                                AiRunnable.Ok(callback,false,objects);
                             }
                             return null;
                         }
@@ -271,7 +290,6 @@ public class FeatureEditFTQK extends FeatureEdit
         }
 
     }
-
 
     //在这里完成添加分摊去向后的后续逻辑 20180805
     private static void completeAddFt(final MapInstance mapInstance,final List<Feature> selected_feature_list, final Feature feature_z_fsjg,final AiRunnable callback)
@@ -323,9 +341,7 @@ public class FeatureEditFTQK extends FeatureEdit
         if(selected_feature_list.size()==0)
         {
             ToastMessage.Send("未选择任何内容!");
-        }
-
-        else
+        } else
         {  //若用户选择了分摊去向 则自动创建新的分摊记录
             ToastMessage.Send("将新建"+selected_feature_list.size()+"条分摊记录");
             try{
@@ -347,7 +363,7 @@ public class FeatureEditFTQK extends FeatureEdit
                 }
                 MapHelper.saveFeature(need_to_save,callback);
             }catch(Exception es){
-                AiRunnable.Ok(callback,false,false);
+                AiRunnable.Ok(callback,null,null);
                 Log.e(TAG,"处理添加分摊去向后续逻辑失败！"+es);
             }
         }
@@ -509,7 +525,6 @@ public class FeatureEditFTQK extends FeatureEdit
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     ((ViewGroup)ft_view).removeAllViews();
-//                    load_ft(mapInstance,feature_bdc,ft_view);
                     return null;
                 }
             });

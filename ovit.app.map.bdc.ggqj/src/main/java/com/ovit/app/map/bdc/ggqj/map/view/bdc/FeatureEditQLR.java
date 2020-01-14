@@ -20,6 +20,8 @@ import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
 import com.ovit.app.ui.dialog.AiDialog;
+import com.ovit.app.ui.dialog.DialogBuilder;
+import com.ovit.app.ui.dialog.ProgressDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.ui.view.CView;
 import com.ovit.app.util.AiForEach;
@@ -219,24 +221,9 @@ public class FeatureEditQLR extends FeatureEdit {
         addAction("生成资料", R.mipmap.app_icon_excel_blue, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FeatureEditBDC.CreateDOCXForFeatureBdc(mapInstance, feature, null);
+                dy(feature,mapInstance,true);
             }
         });
-
-//        addAction("画宗地", R.mipmap.app_map_layer_zd, new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Feature f = GetTable(mapInstance, "ZD", "宗地").createFeature();
-//                FeatureHelper.Set(f, "QLRXM", FeatureHelper.Get(feature, "XM", ""));
-//                FeatureHelper.Set(f, "QLRDM", FeatureHelper.Get(feature, "QLRDM", ""));
-//                FeatureHelper.Set(f, "QLRZJZL", FeatureHelper.Get(feature, "ZJZL", ""));
-//                FeatureHelper.Set(f, "QLRZJH", FeatureHelper.Get(feature, "ZJH", ""));
-//                FeatureHelper.Set(f, "QLRTXDZ", FeatureHelper.Get(feature, "DZ", ""));
-//                FeatureHelper.Set(f, "QLRDH", FeatureHelper.Get(feature, "DH", ""));
-////                FeatureViewZD.CreateFeature(mapInstance, f, null);
-//                new FeatureViewZD().createFeature(f, null);
-//            }
-//        });
 
         //添加菜单
         addMenu("基本信息", new View.OnClickListener() {
@@ -1809,4 +1796,32 @@ public class FeatureEditQLR extends FeatureEdit {
     public static String GetBdcdyh(Feature featureBdc) {
         return FeatureHelper.Get(featureBdc, "BDCDYH", "");
     }
+
+    public void dy(Feature f, final MapInstance mapInstance, boolean isRelaod) {
+
+        final ProgressDialog progressDialog = DialogBuilder.loadingDialog(mapInstance.activity,
+                "加载中...");
+        progressDialog.show();
+        progressDialog.setCancelable(false);
+        FeatureEditBDC.CreateDOCXForFeatureBdc(mapInstance, feature, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                progressDialog.dismiss();
+                FileUtils.openFile(mapInstance.activity, t_ + "", true);
+                return null;
+            }
+            @Override
+            public <T_> T_ no(T_ t_, Object... objects) {
+                progressDialog.dismiss();
+                return super.no(t_, objects);
+            }
+
+            @Override
+            public <T_> T_ error(T_ t_, Object... objects) {
+                progressDialog.dismiss();
+                return super.error(t_, objects);
+            }
+        });
+    }
+
 }

@@ -924,15 +924,14 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void CreateDOCXForFeatureBdc(final MapInstance mapInstance, final Feature featureBdcdy, final AiRunnable callback) {
         String last_orid = FeatureHelper.GetLastOrid(featureBdcdy);
         if (!TextUtils.isEmpty(last_orid) && last_orid.contains(FeatureConstants.ZD_ORID_PREFIX)) {
-            new FeatureViewZD().dy(featureBdcdy, mapInstance, true);
-//            FeatureEditZD.CreateDOCX(mapInstance, featureBdcdy, true, callback);
+            new FeatureViewZD().createDOCX(mapInstance, featureBdcdy, true, callback);
         } else if (last_orid.contains(FeatureConstants.ZRZ_ORID_PREFIX)) {
             FeatureViewZRZ.CreateDOCX(mapInstance, featureBdcdy, true, callback);
         } else if (last_orid.contains(FeatureConstants.C_ORID_PREFIX)) {
             FeatureEditC.CreateDOCX(mapInstance, featureBdcdy, true, callback);
         } else if (last_orid.contains(FeatureConstants.H_ORID_PREFIX)) {
             Log.i(TAG, "H_ORID_PREFIX" + last_orid);
-            FeatureEditH.CreateDOCX(mapInstance, featureBdcdy, true, callback);
+            new FeatureViewH().createDOCX(mapInstance, featureBdcdy, true, callback);
         } else {
             AiRunnable.Ok(callback, featureBdcdy);
         }
@@ -983,7 +982,7 @@ public class FeatureEditBDC extends FeatureEdit {
                         // 附件材料
                         Put_data_fjcl(mapInstance, map_, f_zd);
 
-                        final String templet = FileUtils.getAppDirAndMK(GetPath_Templet()) + "不动产地籍调查表.docx";
+                        final String templet = FileUtils.getAppDirAndMK(GetPath_Templet()) + "不动产权籍调查表.docx";
                         final String file_dcb_doc = GetPath_BDC_doc(mapInstance, bdcdyh);
                         String file_zd_zip = GetPath_ZD_zip(mapInstance, f_zd);
                         if (FileUtils.exsit(templet)) {
