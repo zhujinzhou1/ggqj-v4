@@ -54,8 +54,6 @@ import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.map.custom.shape.ShapeUtil;
 import com.ovit.app.map.model.FwPc;
 import com.ovit.app.ui.dialog.AiDialog;
-import com.ovit.app.ui.dialog.DialogBuilder;
-import com.ovit.app.ui.dialog.ProgressDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
@@ -65,7 +63,6 @@ import com.ovit.app.util.ColorUtil;
 import com.ovit.app.util.ConvertUtil;
 import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
-import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ImageUtil;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.ReportUtils;
@@ -2022,7 +2019,7 @@ public class FeatureViewZD extends FeatureView {
                     final Map<String, Feature> map_jzx = new HashMap<>();
                     final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
 
-                    List<String> orids = FeatureHelper.GetOrids(featureBdcdy, FeatureHelper.TABLE_NAME_ZD);
+                    List<String> orids = FeatureHelper.GetOridsFormOridPath(featureBdcdy, FeatureHelper.TABLE_NAME_ZD);
                     String where = "";
                     if (orids != null && orids.size() > 0) {
                         for (String orid : orids) {
@@ -2184,7 +2181,7 @@ public class FeatureViewZD extends FeatureView {
 
     private void loadZd(MapInstance mapInstance, Feature f_bdcdy, final List<Feature> fs, final AiRunnable callback) {
 
-        List<String> orids = FeatureHelper.GetOrids(f_bdcdy, FeatureHelper.TABLE_NAME_ZD);
+        List<String> orids = FeatureHelper.GetOridsFormOridPath(f_bdcdy, FeatureHelper.TABLE_NAME_ZD);
         final String bdcdyh = FeatureHelper.Get(f_bdcdy, "BDCDYH", "");
         if (orids != null && orids.size() > 0) {
             String where = "";

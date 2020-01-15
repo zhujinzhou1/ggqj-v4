@@ -342,15 +342,6 @@ public class FeatureEditZD extends FeatureEdit {
                 }
             });
 
-            TextView tv_tzzh = (TextView) v_feature.findViewById(R.id.tv_tzzh);
-            tv_tzzh.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // update_zrzh();
-
-                }
-            });
-
             TextView tv_reload_ct = (TextView) v_feature.findViewById(R.id.tv_reload_ct);
             tv_reload_ct.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -881,7 +872,7 @@ public class FeatureEditZD extends FeatureEdit {
         if (view_ftqk == null) {
             ViewGroup ftqk_view = (ViewGroup) view.findViewById(R.id.ll_ft_list);
             ftqk_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_FTQK).buildListView(ftqk_view, fv.queryChildWhere());
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_FTQK).buildListView(ftqk_view, "FTQX_ID='" + fv.getOrid() + "'");
             view_ftqk = ftqk_view;
         }
     }
@@ -927,7 +918,15 @@ public class FeatureEditZD extends FeatureEdit {
                         // 加载界面
                         dialog.dismiss();
                         View ft_view = view.findViewById(R.id.ll_ft_content);
-                        FeatureEditFTQK.addFtToZD(mapInstance, feature, ft_view);
+                        FeatureEditFTQK.addFtToZD(mapInstance, feature, ft_view, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                if (t_ != null) {
+                                    reload_ftqk();
+                                }
+                                return null;
+                            }
+                        });
 
                     }
                 }).show();

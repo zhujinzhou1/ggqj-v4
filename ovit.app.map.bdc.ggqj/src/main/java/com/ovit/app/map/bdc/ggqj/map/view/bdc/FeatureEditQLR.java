@@ -303,7 +303,7 @@ public class FeatureEditQLR extends FeatureEdit {
         if (view_bdc == null) {
             ViewGroup ll_bdc_list = (ViewGroup) view.findViewById(R.id.ll_bdc_list);
             ll_bdc_list.setTag(null);//强制重新生成adapter
-            List<String> orids = FeatureHelper.GetOrids(feature, FeatureHelper.TABLE_NAME_ZD);
+            List<String> orids = FeatureHelper.GetOridsFormOridPath(feature, FeatureHelper.TABLE_NAME_ZD);
             if (orids != null && orids.size() > 0) {
                 String where = "";
                 for (String orid : orids) {

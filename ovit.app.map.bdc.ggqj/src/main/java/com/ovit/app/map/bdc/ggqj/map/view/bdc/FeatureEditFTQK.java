@@ -266,11 +266,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                     completeAddFt2ZD(mapInstance, selected_feature_list, feature_zd, new AiRunnable(callback) {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            if (t_ != null && t_ instanceof List) {
-                                AiRunnable.Ok(callback, true, objects);
-                            }else{
-                                AiRunnable.Ok(callback,false,objects);
-                            }
+                            AiRunnable.Ok(callback, t_, objects);
                             return null;
                         }
                     });
@@ -285,8 +281,8 @@ public class FeatureEditFTQK extends FeatureEdit {
             });
 
         }else{
-            AiRunnable.Ok(callback,false,false);
-            ToastMessage.Send("获得不动产列表失败!");
+            AiRunnable.Ok(callback,null,null);
+            ToastMessage.Send("获得分摊列表失败!");
         }
 
     }
@@ -356,7 +352,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                     FeatureHelper.Set(new_feature_ft,"FTJZMJ",FeatureHelper.Get(feature,"HSMJ"));
                     FeatureHelper.Set(new_feature_ft,"FTXS","0");
 
-                    FeatureHelper.Set(new_feature_ft,"FTQX_NAME",FeatureHelper.Get(feature_zd,"ORID"));
+                    FeatureHelper.Set(new_feature_ft,"FTQX_NAME",FeatureHelper.Get(feature_zd,"ZDDM"));
                     FeatureHelper.Set(new_feature_ft,"FTQX_ID",FeatureHelper.Get(feature_zd,"ORID"));
                     mapInstance.featureView.fillFeature(new_feature_ft);
                     need_to_save.add(new_feature_ft);
@@ -518,13 +514,14 @@ public class FeatureEditFTQK extends FeatureEdit {
     }
 
     //外部接口 添加分摊 以宗地为导向
-    public static void addFtToZD(final MapInstance mapInstance, final Feature feature_bdc, final View ft_view)
+    public static void addFtToZD(final MapInstance mapInstance, final Feature feature_bdc, final View ft_view, final AiRunnable callback)
     {
         try {
             selectFTQXToZD(mapInstance, feature_bdc, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     ((ViewGroup)ft_view).removeAllViews();
+                    AiRunnable.Ok(callback,t_,objects);
                     return null;
                 }
             });

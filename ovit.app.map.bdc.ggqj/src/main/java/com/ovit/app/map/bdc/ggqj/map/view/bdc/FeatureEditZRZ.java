@@ -22,7 +22,6 @@ import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
-import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.AppConfig;
@@ -162,6 +161,20 @@ public class FeatureEditZRZ extends FeatureEdit {
                         c_init();
                     }
                 });
+
+                v_feature.findViewById(R.id.tv_create_bdcdy).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        addBdcdy();
+                    }
+                });
+                v_feature.findViewById(R.id.tv_reload_bdcdy).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        reload_bdcdy();
+                    }
+                });
+
             }
         } catch (Exception es) {
             Log.e(TAG, "build: 构建失败", es);
@@ -217,14 +230,14 @@ public class FeatureEditZRZ extends FeatureEdit {
                 load_fcfh();
             }
         });
-        addMenu("分摊情况", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setMenuItem(R.id.ll_ft);
-                View ft_view = view.findViewById(R.id.ll_ft_content);
-                FeatureEditFTQK.load_ft(mapInstance, feature, ft_view);
-            }
-        });
+//        addMenu("分摊情况", new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                setMenuItem(R.id.ll_ft);
+//                View ft_view = view.findViewById(R.id.ll_ft_content);
+//                FeatureEditFTQK.load_ft(mapInstance, feature, ft_view);
+//            }
+//        });
 
         addAction("逻辑幢", R.mipmap.app_map_layer_h, new View.OnClickListener() {
             @Override
@@ -241,13 +254,13 @@ public class FeatureEditZRZ extends FeatureEdit {
         addAction("设定不动产", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initBdcdy();
+                addBdcdy();
             }
         });
 
     }
     //自然幢设定不动产单元
-    private void initBdcdy() {
+    private void addBdcdy() {
         final AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
         String oridPath = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
 
@@ -340,6 +353,13 @@ public class FeatureEditZRZ extends FeatureEdit {
             mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view,fv.queryChildWhere());
             view_bdcdy = bdcdy_view;
         }
+    }
+    /**
+     * 重新加载不动产单元列表
+     */
+    private void reload_bdcdy() {
+        view_bdcdy = null;
+        load_bdcdy();
     }
     View view_ljz;
 

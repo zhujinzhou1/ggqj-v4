@@ -24,7 +24,7 @@ import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.core.License;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_neimeng;
+import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
@@ -36,15 +36,10 @@ import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
-import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
-import com.ovit.app.map.bdc.ggqj.map.util.Excel;
-import com.ovit.app.util.gdal.cad.DxfHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -149,6 +144,20 @@ public class FeatureEditH extends FeatureEdit {
                         identyFtqk(null);
                     }
                 });
+
+                v_feature.findViewById(R.id.tv_create_bdcdy).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        addBdcdy();
+                    }
+                });
+                v_feature.findViewById(R.id.tv_reload_bdcdy).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        reload_bdcdy();
+                    }
+                });
+
             }
 
         } catch (Exception es) {
@@ -227,12 +236,12 @@ public class FeatureEditH extends FeatureEdit {
         addAction("设定不动产", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                initBdcdy();
+                addBdcdy();
             }
         });
     }
 
-    private void initBdcdy() {
+    private void addBdcdy() {
         final AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
         String oridPath = fv.getOrid_Path();
         if (StringUtil.IsNotEmpty(oridPath) || !oridPath.contains(FeatureHelper.TABLE_NAME_ZD)) {
@@ -292,77 +301,6 @@ public class FeatureEditH extends FeatureEdit {
         final String qlrxm = AiUtil.GetValue(feature.getAttributes().get("QLRXM"), "");
         final String qlrzjh = AiUtil.GetValue(feature.getAttributes().get("QLRZJH"), "");
         if ((!qlrxm.equals(old_qlrxm)) || (!qlrxm.equals(old_qlrzjh))) { /*在权利人和H一对多的情况下，一旦QLRXM或QLRZJH发生变化，则需要新建权利人 而清除多余权利人的操作则应在FeatureEditQLR中做 20180813*/
-            // final FeatureLayer layer_qlr = MapHelper.getLayer(map, "QLRXX", "权利人");
-//            final List<Feature> qlr_s = new ArrayList<Feature>();
-//            MapHelper.Query(layer_qlr.getFeatureTable(), StringUtil.WhereByIsEmpty(qlrzjh)+" ZJH = '" + qlrzjh + "' ", 0, qlr_s, new AiRunnable(callback) {
-//                @Override
-//                public <T_> T_ ok(T_ t_, Object... objects) {
-//                    if(TextUtils.isEmpty(qlrxm)||TextUtils.isEmpty(qlrzjh))
-//                    {
-//                        ToastMessage.Send(activity,"请输入权利人姓名或证件号！", Toast.LENGTH_LONG,"",null);
-//                        AiRunnable.Ok(callback, null);
-//                        return null;
-//                    }
-//
-//                    if (qlr_s.size() < 1) {
-//                        // final String pid = GsonUtil.GetValue(aiMap.JsonData, "", "XMBM", "xmbm") + "01";
-//                        final String pid = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "", "XMBM", "xmbm");
-//                        FeatureEditQLR.NewID(mapInstance, pid, "", new AiRunnable() {
-//                            @Override
-//                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                String id = t_ + "";
-//                                Feature feature = layer_qlr.getFeatureTable().createFeature();
-//                                feature.getAttributes().put("QLRDM", id);
-//                                feature.getAttributes().put("YHZGX", "户主");
-//                                feature.getAttributes().put("XM", qlrxm);
-//                                feature.getAttributes().put("ZJH", qlrzjh);
-//                                feature.getAttributes().put("ZJZL", AiUtil.GetValue(FeatureEditZD.this.feature.getAttributes().get("QLRZJZL"), ""));
-//                                feature.getAttributes().put("DZ", AiUtil.GetValue(FeatureEditZD.this.feature.getAttributes().get("QLRTXDZ"), ""));
-//                                feature.getAttributes().put("DH", AiUtil.GetValue(FeatureEditZD.this.feature.getAttributes().get("QLRDH"), ""));
-//                                feature.getAttributes().put("BDCQZH", AiUtil.GetValue(FeatureEditZD.this.feature.getAttributes().get("TDZH"), ""));
-//                                mapInstance.fillFeature(feature);
-//
-//                                String f_path = mapInstance.getpath_feature(FeatureEditZD.this.feature);
-//                                String fzd_path = mapInstance.getpath_feature(feature);
-//
-//                                String f_zjh_path=FileUtils.getAppDirAndMK(f_path+"/"+"附件材料/权利人证件号/");
-//                                String fzd_zjh_path=FileUtils.getAppDirAndMK(fzd_path +"/"+"附件材料/证件号/");
-//                                FileUtils.copyFile(f_zjh_path,fzd_zjh_path);
-//
-//                                String f_zmcl_path=FileUtils.getAppDirAndMK(f_path +"/"+"附件材料/土地权属来源证明材料/");
-//                                String fzd_zmcl_path=FileUtils.getAppDirAndMK(fzd_path+"/"+"附件材料/土地权属来源证明材料/");
-//                                FileUtils.copyFile(f_zmcl_path,fzd_zmcl_path);
-//
-//                                String f_hkb_path=FileUtils.getAppDirAndMK(f_path +"/"+"附件材料/户口簿/");
-//                                String fzd_hkb_path=FileUtils.getAppDirAndMK(fzd_path +"/"+"附件材料/户口簿/");
-//                                FileUtils.copyFile(f_hkb_path,fzd_hkb_path);
-//
-//                                MapHelper.saveFeature(feature, callback);
-//                                return  null;
-//                            }
-//                        });
-//
-//                    } else {
-//                        String where=" QLRDM  = '" + AiUtil.GetValue(feature.getAttributes().get("QLRDM")) + "' or  ZJH = '" + qlrzjh + "' ";
-//                        MapHelper.QueryOne(layer_qlr.getFeatureTable(), where, new AiRunnable() {
-//                            @Override
-//                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                Feature f_qlr=(Feature) objects[0];
-//                                f_qlr.getAttributes().put("XM", qlrxm);
-//                                f_qlr.getAttributes().put("ZJZL", AiUtil.GetValue(feature.getAttributes().get("QLRZJZL"), ""));
-//                                f_qlr.getAttributes().put("DZ", AiUtil.GetValue(feature.getAttributes().get("QLRTXDZ"), ""));
-//                                f_qlr.getAttributes().put("DH", AiUtil.GetValue(feature.getAttributes().get("QLRDH"), ""));
-//                                f_qlr.getAttributes().put("BDCQZH", AiUtil.GetValue(feature.getAttributes().get("TDZH"), ""));
-//                                f_qlr.getAttributes().put("ZJZL", AiUtil.GetValue(feature.getAttributes().get("QLRZJZL"), ""));
-//                                MapHelper.updateFeature(f_qlr, callback);
-//                                return  null;
-//                            }
-//                        });
-//
-//                    }
-//                    return null;
-//                }
-//            });
             if (StringUtil.IsEmpty(qlrxm) || StringUtil.IsEmpty(qlrzjh)) {
                 ToastMessage.Send("权利人姓名和权利人证件号不能为空！");
                 AiRunnable.Ok(callback, true);
@@ -410,6 +348,14 @@ public class FeatureEditH extends FeatureEdit {
             mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view, fv.queryChildWhere());
             view_bdcdy = bdcdy_view;
         }
+    }
+
+    /**
+     * 重新加载不动产单元列表
+     */
+    private void reload_bdcdy() {
+        view_bdcdy = null;
+        load_bdcdy();
     }
 
     //宗地识别自然幢

@@ -23,7 +23,6 @@ import com.ovit.app.core.License;
 import com.ovit.app.map.MapImage;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
@@ -36,7 +35,6 @@ import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.AppConfig;
-import com.ovit.app.util.Callback;
 import com.ovit.app.util.ConvertUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.ImageUtil;
@@ -55,7 +53,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -63,12 +60,18 @@ import java.util.Set;
  */
 
 public class FeatureEditC extends FeatureEdit {
+    //region 常量
     final static String TAG = "FeatureEditC";
+    ///endregion
+
+    //region 字段
     FeatureViewC fv;
-    //region  重写父类方法
-    // 初始化
+    ///endregion
 
+    //region 构造函数
+    ///endregion
 
+    //region 重写函数和回调
     @Override
     public void onCreate() {
         super.onCreate();
@@ -84,7 +87,6 @@ public class FeatureEditC extends FeatureEdit {
         // 菜单
         menus = new int[]{R.id.ll_info,R.id.ll_bdcdy};
     }
-
     // 显示数据
     @Override
     public void build() {
@@ -95,22 +97,42 @@ public class FeatureEditC extends FeatureEdit {
                 mapInstance.fillFeature(feature);
             }
             fillView(v_feature);
+            v_feature.findViewById(R.id.tv_create_bdcdy).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addBdcdy();
+                }
+            });
+            v_feature.findViewById(R.id.tv_reload_bdcdy).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    reload_bdcdy();
+                }
+            });
 
         } catch (Exception e) {
             Log.e(TAG, "构建失败 " + e);
         }
 
     }
-
+    @Override
     public void build_opt() {
         Log.i(TAG, "build zrz_c opt");
         super.build_opt();
+
         addAction("设定不动产", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                init_bdcdy();
+                addBdcdy();
             }
         });
+        addMenu("基本信息", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMenuItem(R.id.ll_info);
+            }
+        });
+
         addMenu("不动产单元", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,26 +141,59 @@ public class FeatureEditC extends FeatureEdit {
             }
         });
     }
+    ///endregion
+
+    //region 公有函数
+    ///endregion
+
+    //region 私有函数
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
     //层设定不动产单元
-    private void init_bdcdy() {
-        AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定")
-                .addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该层共同设定一个不动产单元！")
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                        // 加载界面
-                        fv.create_c_bdcfy(feature, new AiRunnable() {
+    private void addBdcdy() {
+        final AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+        String oridPath = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+
+        if (StringUtil.IsNotEmpty(oridPath)||!oridPath.contains(FeatureHelper.TABLE_NAME_ZRZ)) {
+            fv.checkcBdcdy(feature, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    if (t_ != null) {
+                        //可以设定不动产单元
+                        aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该层共同设定一个不动产单元！");
+                        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
                             @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                mapInstance.viewFeature((Feature) t_);
-                                dialog.dismiss();
-                                return null;
+                            public void onClick(final DialogInterface dialog, int which) {
+                                // 加载界面
+                                fv.create_c_bdcfy(feature, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        mapInstance.viewFeature((Feature) t_);
+                                        dialog.dismiss();
+                                        return null;
+                                    }
+                                });
                             }
-                        });
+                        }).show();
+
+                    } else {
+                        aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
+                        aiDialog.setFooterView("取消", "确定", null).show();
                     }
-                }).show();
+
+                    return null;
+                }
+            });
+        } else {
+            aiDialog.addContentView("不能设定不动产单元", "自然幢层没有与自然幢关联！");
+            aiDialog.setFooterView("取消", "确定", null).show();
+        }
 
     }
+
     View view_bdcdy;
     public void load_bdcdy() {
         if (view_bdcdy == null) {
@@ -147,6 +202,13 @@ public class FeatureEditC extends FeatureEdit {
             mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view,fv.queryChildWhere());
             view_bdcdy = bdcdy_view;
         }
+    }
+    /**
+     * 重新加载不动产单元列表
+     */
+    private void reload_bdcdy() {
+        view_bdcdy = null;
+        load_bdcdy();
     }
     public static void LoadAll(final MapInstance mapInstance, Feature f, final List<Feature> fs, AiRunnable callback) {
         LoadAll(mapInstance, mapInstance.getOrid(f), fs, callback);

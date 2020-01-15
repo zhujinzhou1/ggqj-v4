@@ -18,6 +18,7 @@ import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.dialog.AiDialog;
+import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.StringUtil;
@@ -344,10 +345,37 @@ public class FeatureViewFTQK extends FeatureView {
             ll_list_item.setTag(adapter);
             adapter.adpter(ll_list_item);
             FeatureViewZD fv = (FeatureViewZD) mapInstance.newFeatureView(feature_zd);
-            fv.queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG, fv.getOrid(), "", "LC", "asc", features_bdc, new AiRunnable() {
+            final List<Feature> fs = new ArrayList<>();
+            fv.queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG, fv.getOrid(), "", "LC", "asc", fs, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
-                    adapter.notifyDataSetChanged();
+
+                    if (FeatureHelper.isExistElement(fs)){
+                        new AiForEach<Feature>(fs,null){
+                            @Override
+                            public void exec() {
+                                final Feature feature = fs.get(postion);
+                                String where = "FTLY_ID='" + FeatureHelper.Get(feature,"ORID","") + "'";
+                                MapHelper.QueryOne(mapInstance.getTable(FeatureHelper.TABLE_NAME_FTQK), where, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        if (!FeatureHelper.isExistFeature(t_)){
+                                            features_bdc.add(feature);
+                                        }
+                                        AiRunnable.Ok(getNext(),t_,objects);
+                                        return null;
+                                    }
+                                });
+
+                            }
+                            @Override
+                            public void complet() {
+                                adapter.notifyDataSetChanged();
+                            }
+                        }.start();
+                    }else {
+                        adapter.notifyDataSetChanged();
+                    }
                     return null;
                 }
             });

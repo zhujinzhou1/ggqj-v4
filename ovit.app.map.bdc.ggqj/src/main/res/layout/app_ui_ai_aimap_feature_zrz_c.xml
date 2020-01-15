@@ -4,7 +4,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/ll_zrz_c_info"
+        android:id="@+id/ll_info"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -355,6 +355,48 @@
         </LinearLayout>
 
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_bdcdy"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
 
+        <LinearLayout
+            android:id="@+id/ll_bdcdy_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/app_split_small"
+            android:orientation="vertical"
+            >
 
+            <TextView
+                android:id="@+id/tv_create_bdcdy"
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/app_item_first"
+                android:gravity="center"
+                android:text="设定不动产单元"
+                android:textColor="@color/app_theme_fore"/>
+
+            <TextView
+                android:id="@+id/tv_reload_bdcdy"
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/app_item_last"
+                android:gravity="center"
+                android:text="重新加载"
+                android:textColor="@color/app_theme_fore"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
 </LinearLayout>
