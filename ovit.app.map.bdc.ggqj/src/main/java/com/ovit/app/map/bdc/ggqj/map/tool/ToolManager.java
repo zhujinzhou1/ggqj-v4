@@ -79,7 +79,7 @@ public class ToolManager extends com.ovit.app.map.tool.ToolManager {
     }
     // 显示宗地
     public boolean map_opt_wz(String id, String name, Object datakey) {
-        final View zdview = getInstance().newFeatureView(getInstance().getTable("ZD")).getListView("",0,null);
+        final View zdview = getInstance().newFeatureView(getInstance().getTable(FeatureHelper.TABLE_NAME_ZD)).getListView("",0,null);
         if(((ViewGroup)zdview).getChildCount()>0)
         {
             ((ViewGroup)zdview).getChildAt(0).setVisibility(View.GONE); //隐藏第一个默认view以优化UI（后期如有需要也可重写该view为面板增添其他功能）
@@ -103,8 +103,41 @@ public class ToolManager extends com.ovit.app.map.tool.ToolManager {
 
     // 显示项目
     public boolean map_opt_xm(final String id, final String name, final String where, final String searchWhere, final Object datakey) {
-        View v_ = null;
-        final CView cview = map_opt_cview(id,name,datakey, v_,false,true,null);
+//        final View bdcView = getInstance().newFeatureView(getInstance().getTable(FeatureHelper.TABLE_NAME_QLRXX)).getListView("", 0, null);
+//        final CView cview = map_opt_cview(id, name, datakey, bdcView, false, true, null);
+//
+//        final AiRunnable reload=new AiRunnable() {
+//            @Override
+//            public <T_> T_ ok(T_ t_, Object... objects) {
+//
+//                return null;
+//            }
+//        };
+//        cview.addAction("识别权利人", R.mipmap.app_search_pressed, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FeatureEditQLR.IdentyQlr(getInstance(), reload);
+//            }
+//        });
+//
+//        cview.addAction("添加权利人", R.mipmap.app_icon_add_thin, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FeatureEditQLR.CreateFeature(getInstance(), reload);
+//            }
+//        });
+//
+//        cview.setFloatRightAction(R.mipmap.app_icon_scan_white, new AiRunnable() {
+//            @Override
+//            public <T_> T_ ok(T_ t_, Object... objects) {
+//                FeatureEditQLR.ScanQlr(getInstance(), reload);
+//                return null;
+//            }
+//        });
+//        map_opt_show(cview);
+
+
+        final CView cview = map_opt_cview(id, name, datakey, null, false, true, null);
         FeatureEditQLR.GetView_QLR(getInstance(), cview, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {

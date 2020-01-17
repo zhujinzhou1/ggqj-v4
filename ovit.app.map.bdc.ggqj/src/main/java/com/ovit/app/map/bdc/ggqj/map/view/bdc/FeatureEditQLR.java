@@ -44,11 +44,20 @@ import java.util.Map;
  */
 
 public class FeatureEditQLR extends FeatureEdit {
+
+    //region 常量
     final static String TAG = "FeatureEditQLR";
+    ///endregion
+
+    //region 字段
     private EditText et_xm;
     private String old_qlrzjh;
     private String old_qlrxm;
     FeatureViewQLR fv;
+
+    ///endregion
+
+    //region 构造函数
 
     public FeatureEditQLR() {
         super();
@@ -58,7 +67,9 @@ public class FeatureEditQLR extends FeatureEdit {
         super(mapInstance, feature);
     }
 
-    //region  重写父类方法
+    ///endregion
+
+    //region 重写函数和回调
     @Override
     public void onCreate() {
         super.onCreate();
@@ -90,14 +101,6 @@ public class FeatureEditQLR extends FeatureEdit {
                 EditText et_zjh = (EditText) v_feature.findViewById(R.id.et_zjh);
                 old_qlrzjh = et_zjh.getText().toString();
                 old_qlrxm = et_xm.getText().toString();
-
-                et_xm.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        selectQlr(mapInstance);
-                        return false;
-                    }
-                });
 
                 CustomImagesView civ_zjh = (CustomImagesView) v_feature.findViewById(R.id.civ_zjh);
                 //   String filename = dir + "/" + FeatureHelper.Get(feature, "XM", "")+"/"+FeatureHelper.Get(feature, "ZJH", "")+"/" + AiUtil.GetValue(new Date(), "") + ".jpg";
@@ -135,24 +138,6 @@ public class FeatureEditQLR extends FeatureEdit {
                 CustomImagesView civ_fwzp = (CustomImagesView) v_feature.findViewById(R.id.civ_fwzp);
                 String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), "材料");
                 civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
-
-                //TODO 加载不动产单元下面的不动产
-//                final ViewGroup bdc_view_group = (ViewGroup) v_feature.findViewById(R.id.ll_bdc);
-//                bdc_view_group.removeAllViews();
-//                getAllBdcByQLR(mapInstance, feature, new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        bdc_view_group.addView(FeatureViewQLR.buildBdcViewByList(mapInstance, (List<Feature>) t_, true, 0));
-//                        return null;
-//                    }
-//                });
-//                getAllBdcByBDCDY(mapInstance, feature, new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        bdc_view_group.addView(FeatureViewQLR.buildBdcViewByList(mapInstance, (List<Feature>) t_, true, 0));
-//                        return null;
-//                    }
-//                });
 
                 //新增附属宗地
                 v_feature.findViewById(R.id.tv_add_fszd).setOnClickListener(new View.OnClickListener() {
@@ -200,11 +185,6 @@ public class FeatureEditQLR extends FeatureEdit {
         }
     }
 
-    // 长按不动产单元选择权利人
-    private void selectQlr(MapInstance mapInstance) {
-        // todo 1 弹出权利人列表 搜索选择权利人 2 更新不动产单元属性 3权利人与不动产单元绑定
-    }
-
     @Override
     public void build_opt() {
         super.build_opt();
@@ -221,7 +201,7 @@ public class FeatureEditQLR extends FeatureEdit {
         addAction("生成资料", R.mipmap.app_icon_excel_blue, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dy(feature,mapInstance,true);
+                dy(feature, mapInstance, true);
             }
         });
 
@@ -280,6 +260,23 @@ public class FeatureEditQLR extends FeatureEdit {
 
         }
     }
+    ///endregion
+
+    //region 公有函数
+    ///endregion
+
+    //region 私有函数
+    ///endregion
+
+    //region 面积计算
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
+
+    //region  重写父类方法
+
 
     View view_qlr;
 
@@ -449,55 +446,6 @@ public class FeatureEditQLR extends FeatureEdit {
 
     }
 
-//    //获得权利人名下所有的不动产 20180814 TODO 获取不动产单元下的定着物
-//    public static void getAllBdcByQLR(final MapInstance mapInstance, final Feature feature_qlr, final AiRunnable callback) {
-//        final List<Feature> features_bdc = new ArrayList<>();
-//
-//        try {
-//            if (StringUtil.IsNotEmpty(FeatureHelper.Get(feature_qlr, "ORID_PATH"))) {
-//                final List<String> orid_list_ = getOridsByQlr(feature_qlr);
-//                final List<String> orid_list = new ArrayList<>();
-//                orid_list.add(orid_list_.get(orid_list_.size() - 1));//
-//                final List<FeatureTable> search_table_list = getAllSearchTable(mapInstance);
-//
-//                new AiForEach<FeatureTable>(search_table_list, new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        AiRunnable.Ok(callback, features_bdc, features_bdc);
-//                        return null;
-//                    }
-//                }) {
-//                    public void exec() {
-//                        final FeatureTable table = search_table_list.get(postion); // TODO 权利人业务要变成不动产单元
-//                        new AiForEach<String>(orid_list, getNext()) {
-//                            public void exec() {
-//                                String orid = orid_list.get(postion);
-//                                String tableName = orid.substring(orid.indexOf("[") + 1, orid.lastIndexOf("]"));
-//                                FeatureTable table = mapInstance.getTable(tableName);
-//                                String where = "ORID ='" + orid + "'";
-//                                MapHelper.QueryOne(table, where, new AiRunnable(getNext()) {
-//                                    @Override
-//                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                        if (t_ != null) {
-//                                            features_bdc.add((Feature) t_);
-//                                        }
-//                                        AiRunnable.Ok(getNext(), true, true);
-//                                        return null;
-//                                    }
-//                                });
-//                            }
-//                        }.start();
-//                    }
-//                }.start();
-//            } else {
-//                AiRunnable.Ok(callback, features_bdc, features_bdc);
-//            }
-//        } catch (Exception es) {
-//            Log.e(TAG, "获得权利人名下所有的不动产失败!" + es);
-//            AiRunnable.Ok(callback, features_bdc, features_bdc);
-//        }
-//
-//    }
     public static void getAllBdcByQLR(final MapInstance mapInstance, final Feature feature_qlr, final AiRunnable callback) {
         final List<Feature> features_bdc = new ArrayList<>();
 
@@ -547,7 +495,6 @@ public class FeatureEditQLR extends FeatureEdit {
         }
 
     }
-
 
     //得到所有已和权利人绑定的不动产 20180814
     public static void getAllBoundBDC(final MapInstance mapInstance, final AiRunnable callback) {
@@ -1283,12 +1230,49 @@ public class FeatureEditQLR extends FeatureEdit {
                         return null;
                     }
                 });
-
                 cview.setView(BuildView_QLRXX(mapInstance, cview, (List<Feature>) t_));
                 AiRunnable.Ok(callback, true, true);
                 return null;
             }
         });
+
+//        final AiRunnable reload = new AiRunnable() {
+//            @Override
+//            public <T_> T_ ok(T_ t_, Object... objects) {
+//                reloadQlr(mapInstance, cview);
+//                return null;
+//            }
+//        };
+//
+//        cview.addAction("识别权利人", R.mipmap.app_search_pressed, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FeatureEditQLR.IdentyQlr(mapInstance, reload);
+//            }
+//        });
+//
+//        cview.addAction("添加权利人", R.mipmap.app_icon_add_thin, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FeatureEditQLR.CreateFeature(mapInstance, reload);
+//            }
+//        });
+//
+//        cview.setFloatRightAction(R.mipmap.app_icon_scan_white, new AiRunnable() {
+//            @Override
+//            public <T_> T_ ok(T_ t_, Object... objects) {
+//                FeatureEditQLR.ScanQlr(mapInstance, reload);
+//                return null;
+//            }
+//        });
+//        View bdcView = mapInstance.newFeatureView(mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX)).getListView("", 0, null);
+//        if(((ViewGroup)bdcView).getChildCount()>0) {
+//            ((ViewGroup)bdcView).getChildAt(0).setVisibility(View.GONE); //隐藏第一个默认view以优化UI（后期如有需要也可重写该view为面板增添其他功能）
+//        }
+//        cview.setView(bdcView);
+//        cview.setView(BuildView_QLRXX(mapInstance, cview, (List<Feature>) t_));
+//        AiRunnable.Ok(callback, true, true);
+
     }
 
 //    // 根据传入的权利人集合生成可展开的权利人列表 局部可刷新 20180815
@@ -1810,6 +1794,7 @@ public class FeatureEditQLR extends FeatureEdit {
                 FileUtils.openFile(mapInstance.activity, t_ + "", true);
                 return null;
             }
+
             @Override
             public <T_> T_ no(T_ t_, Object... objects) {
                 progressDialog.dismiss();

@@ -20,6 +20,7 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.data.Field;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.Geometry;
+import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.Polygon;
@@ -46,6 +47,7 @@ import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZRZ;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.map.custom.shape.GpkgUtil;
+import com.ovit.app.map.model.LineLabel;
 import com.ovit.app.map.model.MapProject;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.DialogBuilder;
@@ -60,6 +62,7 @@ import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.GdalAdapter;
 import com.ovit.app.util.gdal.cad.DxfAdapter;
 import com.ovit.app.util.gdal.cad.DxfFeature;
+import com.ovit.app.util.gdal.cad.DxfHelper;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -78,13 +81,27 @@ import java.util.Map;
  */
 
 public class V_Project extends com.ovit.app.map.view.V_Project {
-    MapInstance mapInstance;
 
+    //region 常量
+    public final static String STBM="STBM";
+    ///endregion
+
+    //region 字段
+    MapInstance mapInstance;
+    Map<String,String> mapStbm; //实体编码
+    ///endregion
+
+    //region 构造函数
     public V_Project(MapInstance mapInstance) {
         super(mapInstance);
         this.mapInstance = mapInstance;
     }
+    ///endregion
 
+    //region 重写函数和回调
+    ///endregion
+
+    //region 公有函数
     public View getView_Project() {
         CBXT_PROJECT pro_cur = project.getCurrent();
         LinearLayout tool_view = (LinearLayout) LayoutInflater.from(activity).inflate(
@@ -122,14 +139,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 final String fundesc = "生成两权数据！";
-                FeatureHelper.vaildfunc(mapInstance, fundesc,true, new AiRunnable() {
+                FeatureHelper.vaildfunc(mapInstance, fundesc, true, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        Geometry g=null;
-                        if (t_!=null && t_ instanceof Geometry){
-                            g= (Geometry) t_;
+                        Geometry g = null;
+                        if (t_ != null && t_ instanceof Geometry) {
+                            g = (Geometry) t_;
                         }
-                        output_lqsj(mapInstance,g);
+                        output_lqsj(mapInstance, g);
                         return null;
                     }
                 });
@@ -236,10 +253,10 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
 
         //图形修复
-        tool_view.findViewById(R.id.v_cggl_txxf ).setOnClickListener(new View.OnClickListener() {
+        tool_view.findViewById(R.id.v_cggl_txxf).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                txxf(mapInstance,true);
+                txxf(mapInstance, true);
             }
         });
 
@@ -247,7 +264,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.v_cggl_sctz).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Sctz(mapInstance,true);
+                Sctz(mapInstance, true);
             }
         });
 
@@ -303,16 +320,18 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
         return tool_view;
     }
+    ///endregion
 
+    //region 私有函数
     // 图形修复
     private void txxf(final MapInstance mapInstance, final boolean isReload) {
-        final String funcdesc = "该功能将逐一对项目中宗地，自然幢图形"+(isReload?"重新":"")+"进行修整。";
+        final String funcdesc = "该功能将逐一对项目中宗地，自然幢图形" + (isReload ? "重新" : "") + "进行修整。";
         License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 final AiDialog aidialog = AiDialog.get(mapInstance.activity);
                 aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "修整图形")
-                        .setContentView("注意：属于不可逆操作，如果您已经修整过图形，请注意备份谨慎处理！",funcdesc)
+                        .setContentView("注意：属于不可逆操作，如果您已经修整过图形，请注意备份谨慎处理！", funcdesc)
                         .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -321,21 +340,22 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null,"关闭",null);
+                                        aidialog.setFooterView(null, "关闭", null);
                                         return null;
                                     }
+
                                     @Override
                                     public <T_> T_ no(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据失败！");
-                                        aidialog.setFooterView(null,"关闭",null);
-                                        return  null;
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
                                     }
 
                                     @Override
                                     public <T_> T_ error(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据异常！");
-                                        aidialog.setFooterView(null,"关闭",null);
-                                        return  null;
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
                                     }
                                 };
                                 // 设置不可中断
@@ -344,8 +364,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         aidialog.setContentView("开始修整图形");
-                                        aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查找所有宗地，并生修整图形");
-                                        sjcl(mapInstance,callback);
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并生修整图形");
+                                        sjcl(mapInstance, callback);
                                         return null;
                                     }
                                 });
@@ -358,13 +378,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
     //生成台帐
     private void Sctz(final com.ovit.app.map.model.MapInstance mapInstance, final boolean isReload) {
-        final String funcdesc = "该功能将逐一对项目中每宗地资料"+(isReload?"重新":"")+"进行整理。";
+        final String funcdesc = "该功能将逐一对项目中每宗地资料" + (isReload ? "重新" : "") + "进行整理。";
         License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 final AiDialog aidialog = AiDialog.get(mapInstance.activity);
                 aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "整理资料")
-                        .setContentView("注意：属于不可逆操作，如果您已经整理过成果，请注意备份谨慎处理！",funcdesc)
+                        .setContentView("注意：属于不可逆操作，如果您已经整理过成果，请注意备份谨慎处理！", funcdesc)
                         .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -373,42 +393,43 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null,"关闭",null);
+                                        aidialog.setFooterView(null, "关闭", null);
                                         return null;
                                     }
+
                                     @Override
                                     public <T_> T_ no(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据失败！");
-                                        aidialog.setFooterView(null,"关闭",null);
-                                        return  null;
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
                                     }
 
                                     @Override
                                     public <T_> T_ error(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据异常！");
-                                        aidialog.setFooterView(null,"关闭",null);
-                                        return  null;
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
                                     }
                                 };
                                 // 设置不可中断
                                 aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
                                 aidialog.setContentView("开始处理数据");
-                                aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查找所有不动产单元，并生成资料");
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
                                 {
-                                    final List<Feature> fs_zd=new ArrayList<>();
+                                    final List<Feature> fs_zd = new ArrayList<>();
 
                                     MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_FEATURE_MAX_RESULTS, fs_zd, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
 
-                                            String xmmc = GsonUtil.GetValue(aiMap.JsonData,"XMMC","");
-                                            String xmbm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
-                                            final String filePath =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) +xmbm+xmmc+".xls";
-                                            final String filePath_enshi =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) +xmbm+xmmc+"_恩施"+".xls";
-                                            Excel.CreateStandingBook_JingShang(mapInstance,"总台账",filePath,fs_zd);
-                                            Excel.CreateStandingBook_EnShi(mapInstance,"总台账_恩施",filePath_enshi,fs_zd);
+                                            String xmmc = GsonUtil.GetValue(aiMap.JsonData, "XMMC", "");
+                                            String xmbm = GsonUtil.GetValue(aiMap.JsonData, "XMBM", "");
+                                            final String filePath = FileUtils.getAppDirAndMK(getMapInstance().getpath_root()) + xmbm + xmmc + ".xls";
+                                            final String filePath_enshi = FileUtils.getAppDirAndMK(getMapInstance().getpath_root()) + xmbm + xmmc + "_恩施" + ".xls";
+                                            Excel.CreateStandingBook_JingShang(mapInstance, "总台账", filePath, fs_zd);
+                                            Excel.CreateStandingBook_EnShi(mapInstance, "总台账_恩施", filePath_enshi, fs_zd);
 
-                                            AiRunnable.Ok(callback,null);
+                                            AiRunnable.Ok(callback, null);
                                             return null;
                                         }
                                     });
@@ -420,199 +441,178 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
     }
 
-
     // 生成两权数据
     private void output_lqsj(final MapInstance mapInstance, final Geometry licenseGeometry) {
-        {
-            final String funcdesc = "该功能将逐生成完整的dxf成果！";
+        final String funcdesc = "该功能将逐生成完整的dxf成果！";
 
-            License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
-                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            final AiDialog aidialog = AiDialog.get(mapInstance.activity);
 
-                void setMessage(final String message) {
-                    if (StringUtil.IsNotEmpty(message)) {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ToastMessage.Send(message);
-                                aidialog.setContentView(message);
-                            }
-                        });
-                    }
-                }
-
-                void addMessage(final String title, final String mssage) {
+            void setMessage(final String message) {
+                if (StringUtil.IsNotEmpty(message)) {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            aidialog.addContentView(title, mssage);
+                            ToastMessage.Send(message);
+                            aidialog.setContentView(message);
                         }
                     });
                 }
+            }
+
+            void addMessage(final String title, final String mssage) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        aidialog.addContentView(title, mssage);
+                    }
+                });
+            }
 
 
-                @Override
-                public <T_> T_ ok(T_ t_, Object... objects) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
 
-                    aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "dxf成果输出")
-                            .setContentView("注意：属于不可逆操作，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
-                            .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(final DialogInterface dialog, int which) {
+                aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "dxf成果输出")
+                        .setContentView("注意：属于不可逆操作，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
+                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, int which) {
 
-                                    // 完成后的回掉
-                                    final AiRunnable callback = new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            activity.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
-                                                    aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            dialog.dismiss();
-                                                        }
-                                                    }, null, null, "完成", null);
-                                                }
-                                            });
-                                            return null;
-                                        }
-
-                                        @Override
-                                        public <T_> T_ no(final T_ t_, Object... objects) {
-                                            activity.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    aidialog.addContentView("处理数据失败！", t_ + "");
-                                                    aidialog.setFooterView(null, "关闭", null);
-                                                }
-                                            });
-                                            return null;
-                                        }
-
-                                        @Override
-                                        public <T_> T_ error(final T_ t_, Object... objects) {
-                                            activity.runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    aidialog.addContentView("处理数据异常！", t_ + "");
-                                                    aidialog.setFooterView(null, "关闭", null);
-                                                }
-                                            });
-                                            return null;
-                                        }
-                                    };
-                                    aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                    aidialog.setContentView("开始处理数据");
-                                    final List<Feature> fs = new ArrayList<>();
-                                    String name = GsonUtil.GetValue(aiMap.JsonData, "XMMC", "");
-                                    final String dxfpath = FileUtils.getAppDirAndMK(mapInstance.getpath_root()) + name + ".dxf";
-
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try {
-                                                DxfAdapter dxf = new DxfAdapter();
-                                                Envelope extent = FeatureEdit.GetTable(mapInstance, "ZD", "宗地").getExtent();
-                                                dxf.create(dxfpath, extent, mapInstance.aiMap.getProjectWkid());
-                                                final DxfAdapter finalDxf = dxf;
-                                                MapHelper.Query(FeatureEdit.GetTable(mapInstance, "ZD", "宗地"), "", -1, fs, new AiRunnable() {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
+                                                aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
                                                     @Override
-                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                        try {
-                                                             if (licenseGeometry!=null && FeatureHelper.isExistElement(fs)){
-                                                                 int index = fs.size()/2;
-                                                                 Feature feature = fs.get(index);
-                                                                 if (!MapHelper.geometry_contains(licenseGeometry,feature.getGeometry())){
-                                                                     addMessage("", "处理图形超出授权范围，请联系当地经销商。");
-                                                                     AiRunnable.Error(callback, "");
-                                                                     return null;
-                                                                 }
-                                                              }
-
-                                                            addMessage("", "读取到" + fs.size() + "条宗地数据，正在输出成果...");
-                                                            List<Feature> features = new ArrayList<Feature>();
-
-                                                            finalDxf.write(mapInstance, fs); //
-                                                            fs.clear();
-                                                            addMessage("", "宗地导出成功！");
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
-                                                            AiRunnable.Error(callback, "宗地导出失败！");
-                                                        }
-                                                        MapHelper.Query(FeatureEdit.GetTable(mapInstance, "ZRZ", "自然幢"), "", -1, fs, new AiRunnable() {
-                                                            @Override
-                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                try {
-                                                                    addMessage("", "读取到" + fs.size() + "条自然幢数据，正在输出成果...");
-                                                                    finalDxf.write(mapInstance, fs); //
-                                                                    fs.clear();
-                                                                    addMessage("", "自然幢导出成功！");
-                                                                } catch (Exception e) {
-                                                                    e.printStackTrace();
-                                                                    AiRunnable.Error(callback, null);
-                                                                }
-                                                                MapHelper.Query(FeatureEdit.GetTable(mapInstance, "Z_FSJG", "幢附属结构"), "", -1, fs, new AiRunnable() {
-                                                                    @Override
-                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                        try {
-                                                                            addMessage("", "读取到" + fs.size() + "条幢附属结构数据，正在输出成果...");
-                                                                            finalDxf.write(mapInstance, fs); //
-                                                                            fs.clear();
-                                                                            addMessage("", "幢附属结构导出成功！");
-                                                                        } catch (Exception e) {
-                                                                            e.printStackTrace();
-                                                                            AiRunnable.Error(callback, null);
-                                                                        }
-                                                                        MapHelper.Query(FeatureEdit.GetTable(mapInstance, "JZD", "界址点"), "", -1, fs, new AiRunnable() {
-                                                                            @Override
-                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                                try {
-                                                                                    addMessage("", "读取到" + fs.size() + "条界址点数据，正在输出成果...");
-                                                                                    finalDxf.save();
-                                                                                    AiRunnable.Ok(callback, null);
-                                                                                } catch (Exception e) {
-                                                                                    e.printStackTrace();
-                                                                                    AiRunnable.Error(callback, null);
-                                                                                }
-                                                                                return null;
-                                                                            }
-                                                                        });
-                                                                        return null;
-                                                                    }
-                                                                });
-                                                                return null;
-                                                            }
-                                                        });
-                                                        return null;
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dialog.dismiss();
                                                     }
-                                                });
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                                AiRunnable.Error(callback, null);
+                                                }, null, null, "完成", null);
                                             }
-                                        }
-                                    }).start();
-                                }
-                            }).show();
-                    return null;
-                }
-            });
-        }
+                                        });
+                                        return null;
+                                    }
 
+                                    @Override
+                                    public <T_> T_ no(final T_ t_, Object... objects) {
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                aidialog.addContentView("处理数据失败！", t_ + "");
+                                                aidialog.setFooterView(null, "关闭", null);
+                                            }
+                                        });
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(final T_ t_, Object... objects) {
+                                        activity.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                aidialog.addContentView("处理数据异常！", t_ + "");
+                                                aidialog.setFooterView(null, "关闭", null);
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                };
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据");
+                                final List<Feature> fs = new ArrayList<>();
+                                String name = GsonUtil.GetValue(aiMap.JsonData, "XMMC", "");
+                                final String dxfpath = FileUtils.getAppDirAndMK(mapInstance.getpath_root()) + name + ".dxf";
+
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Envelope extent_ZD = com.ovit.app.map.view.FeatureEdit.GetTable(getMapInstance(), FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD).getExtent();
+                                            Envelope extent_ZRZ = com.ovit.app.map.view.FeatureEdit.GetTable(getMapInstance(), FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD).getExtent();
+                                            Envelope extent = GeometryEngine.combineExtents(extent_ZD, extent_ZRZ);
+//                                                final DxfAdapter dxf = DxfAdapter.getInstance();
+                                            final DxfAdapter dxf = new DxfAdapter();
+                                            dxf.create(dxfpath, extent, MapHelper.GetSpatialReference(mapInstance));
+
+                                            final List<String> tableNames = new ArrayList<>();
+                                            tableNames.add(FeatureHelper.LAYER_NAME_ZD);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_ZRZ);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_LJZ);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_JZD);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_XZDW);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_MZDW);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_ZJD);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_ZJX);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_Z_FSJG);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_H_FSJG);
+                                            //    tableNames.add(FeatureHelper.LAYER_NAME_H);
+                                            //    tableNames.add(FeatureHelper.LAYER_NAME_JZX);
+                                            //    tableNames.add(FeatureHelper.LAYER_NAME_DZDW);
+                                            new AiForEach<String>(tableNames, null) {
+                                                @Override
+                                                public void exec() {
+                                                    final String tableName = tableNames.get(postion);
+                                                    MapHelper.Query(com.ovit.app.map.view.FeatureEdit.GetTable(mapInstance, tableName), "", MapHelper.QUERY_LENGTH_MAX, fs, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            try {
+                                                                addMessage("", "读取到" + fs.size() + "条" + tableName + "数据，正在输出成果...");
+                                                                dxf.write(getMapInstance(), fs, null, null, DxfHelper.TYPE, DxfHelper.LINE_LABEL_OUTSIDE, new LineLabel());
+                                                                fs.clear();
+                                                                addMessage("", tableName + "数据导出成功！");
+                                                                AiRunnable.Ok(getNext(), t_);
+                                                            } catch (Exception e) {
+                                                                addMessage("导出成功两权数据失败", e.getMessage());
+                                                                AiRunnable.Error(callback, null);
+                                                            }
+                                                            return null;
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void complet() {
+                                                    try {
+                                                        dxf.save();
+                                                        AiRunnable.Ok(callback, null);
+                                                    } catch (Exception e) {
+                                                        addMessage("导出成功两权数据失败", "数据保存失败"+e.getMessage());
+                                                        AiRunnable.Error(callback, null);
+                                                    }
+                                                }
+                                            }.start();
+
+                                        } catch (Exception e) {
+
+                                            addMessage("操作失败", e.getMessage());
+                                            AiRunnable.Error(callback, null);
+                                        }
+                                    }
+                                }).start();
+
+
+                            }
+                        }).show();
+                return null;
+            }
+        });
     }
 
-
     /**
-     * 图形修复
+     * 数据处理
+     *
      * @param mapInstance
      * @param callback
      */
-    public  static void sjcl(final MapInstance mapInstance, final AiRunnable callback){
-        FeatureTable featureTableZD = FeatureEditZD.GetTable(mapInstance,FeatureHelper.TABLE_NAME_ZD,FeatureHelper.LAYER_NAME_ZD);
-        final List<Feature> fs_zd=new ArrayList<>();
-        final List<Feature> fs_all=new ArrayList<>();
+    private void sjcl(final MapInstance mapInstance, final AiRunnable callback) {
+        FeatureTable featureTableZD = FeatureEditZD.GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD);
+        final List<Feature> fs_zd = new ArrayList<>();
+        final List<Feature> fs_all = new ArrayList<>();
         MapHelper.Query(featureTableZD, "", MapHelper.QUERY_FEATURE_MAX_RESULTS, fs_zd, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -620,15 +620,15 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         fs_all.addAll(fs_zd);
-                        MapHelper.saveFeature(fs_all,callback);
+                        MapHelper.saveFeature(fs_all, callback);
                         return null;
                     }
-                }){
+                }) {
                     @Override
                     public void exec() {
                         final Feature f_zd = fs_zd.get(postion);
-                        String where="ZDDM='"+FeatureEditZD.GetID(f_zd)+"'";
-                        final List<Feature> fs_zrz=new ArrayList<>();
+                        String where = "ZDDM='" + FeatureEditZD.GetID(f_zd) + "'";
+                        final List<Feature> fs_zrz = new ArrayList<>();
 //                        // 通过范围去查询
 //                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ), f_zd.getGeometry(), -0.015, fs_zrz, new AiRunnable() {
 //                            @Override
@@ -662,11 +662,11 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                 fs_all.addAll(fs_zrz);
                                 for (int i = 0; i < fs_zrz.size(); i++) {
                                     Feature f_zrz = fs_zrz.get(i);
-                                    for (int j=i+1; j < fs_zrz.size(); j++){
+                                    for (int j = i + 1; j < fs_zrz.size(); j++) {
                                         Feature f_zrz_next = fs_zrz.get(j);
                                         Geometry g = MapHelper.geometry_trim(f_zrz.getGeometry(), f_zrz_next.getGeometry());
                                         f_zrz.setGeometry(g);
-                                        Geometry g_next = MapHelper.geometry_trim( f_zrz_next.getGeometry(),f_zrz.getGeometry());
+                                        Geometry g_next = MapHelper.geometry_trim(f_zrz_next.getGeometry(), f_zrz.getGeometry());
                                         f_zrz_next.setGeometry(g_next);
                                     }
                                 }
@@ -676,7 +676,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     Geometry geometry = MapHelper.geometry_trim(f_zd.getGeometry(), fs_zrz.get(i).getGeometry());
                                     f_zd.setGeometry(geometry);
                                 }
-                                AiRunnable.Ok(getNext (),null);
+                                AiRunnable.Ok(getNext(), null);
                                 return null;
                             }
                         });
@@ -686,9 +686,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
-
-
-
 
     /**
      * 导入不动产单元
@@ -850,11 +847,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
     }
 
+    /**
+     * 输出excel
+     */
     private void output_excels() {
-        final AiDialog dialog =   AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_zd_fw, "导入Excel数据");
+        final AiDialog dialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_zd_fw, "导入Excel数据");
 
-        final Map<String ,String> dataconfig  = new HashMap<>();
-        dialog.addContentView(dialog.getSelectView("图层","map_tc",dataconfig,"tc"));
+        final Map<String, String> dataconfig = new HashMap<>();
+        dialog.addContentView(dialog.getSelectView("图层", "map_tc", dataconfig, "tc"));
 
         dialog.addContentViewMenu(Arrays.asList(
                 new Object[]{R.mipmap.app_icon_shp, "导入Mdb文件", new View.OnClickListener() {
@@ -867,7 +867,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     @Override
                     public void onClick(View v) {
                         FileUtils.showChooser(activity, new AiRunnable() {
-                            void setMessage(final String message){
+                            void setMessage(final String message) {
                                 if (StringUtil.IsNotEmpty(message)) {
                                     activity.runOnUiThread(new Runnable() {
                                         @Override
@@ -878,26 +878,29 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     });
                                 }
                             }
-                            void addMessage(final String title,final String  mssage){
+
+                            void addMessage(final String title, final String mssage) {
                                 activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        dialog.addContentView(title,mssage);
+                                        dialog.addContentView(title, mssage);
                                     }
                                 });
                             }
-                            void setComplete(final int icon,final String text,final  boolean cancelable){
+
+                            void setComplete(final int icon, final String text, final boolean cancelable) {
                                 activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         dialog.setCancelable(cancelable);
-                                        dialog.setFooterView(dialog.getStateView(icon,text));
-                                        addMessage(text,"");
+                                        dialog.setFooterView(dialog.getStateView(icon, text));
+                                        addMessage(text, "");
 
                                     }
                                 });
                             }
-                            void save(final Map<String,Integer> map_fs ,List<Feature> features ,final boolean isComplete){
+
+                            void save(final Map<String, Integer> map_fs, List<Feature> features, final boolean isComplete) {
                                 final List<Feature> fs = new ArrayList<>(features);
                                 features.clear();
                                 String messge_ = "";
@@ -906,14 +909,17 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                 MapHelper.saveFeature(fs, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        addMessage("",AiUtil.GetValue(new Date(),AiUtil.F_TIME)+"导入" + fs.size() + "个图形成功:"+messge+"...");
-                                        if(isComplete) setComplete(R.mipmap.app_icon_ok_f,"导入" + messge + "成功！",true);
+                                        addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "导入" + fs.size() + "个图形成功:" + messge + "...");
+                                        if (isComplete)
+                                            setComplete(R.mipmap.app_icon_ok_f, "导入" + messge + "成功！", true);
                                         return null;
                                     }
+
                                     @Override
                                     public <T_> T_ error(T_ t_, Object... objects) {
-                                        addMessage("导入失败:",((Exception) t_).getMessage());
-                                        if(isComplete)  setComplete(R.mipmap.app_icon_error_smaller,"导入失败",true);
+                                        addMessage("导入失败:", ((Exception) t_).getMessage());
+                                        if (isComplete)
+                                            setComplete(R.mipmap.app_icon_error_smaller, "导入失败", true);
                                         return null;
                                     }
                                 });
@@ -924,8 +930,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                 String message = "";
                                 // TODO... 根据excel 模板生成 生成入库成果
                                 final String filePath = (String) t_;
-                                String tc =  AiUtil.GetValue(dataconfig.get("tc"),"");
-                                final String sel_tc = StringUtil.substr(tc,tc.indexOf("[")+1,tc.indexOf("]"));
+                                String tc = AiUtil.GetValue(dataconfig.get("tc"), "");
+                                final String sel_tc = StringUtil.substr(tc, tc.indexOf("[") + 1, tc.indexOf("]"));
 
                                 if (filePath.toLowerCase().endsWith(".xls")) {
                                     dialog.setCancelable(false)
@@ -936,40 +942,40 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                         @Override
                                         public void run() {
                                             try {
-                                                final List<Feature> features_upt=new ArrayList<>();
-                                                final  List<Map<String, String>> xlsData = Excel.getXlsMap(filePath,sel_tc,0);
+                                                final List<Feature> features_upt = new ArrayList<>();
+                                                final List<Map<String, String>> xlsData = Excel.getXlsMap(filePath, sel_tc, 0);
                                                 new AiForEach<Map<String, String>>(xlsData, new AiRunnable() {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                                        save(null,features_upt,true);
+                                                        save(null, features_upt, true);
                                                         return null;
                                                     }
-                                                }){
+                                                }) {
                                                     @Override
                                                     public void exec() {
                                                         final Map<String, String> map = xlsData.get(postion);
-                                                        String where="";
-                                                        if (FeatureHelper.TABLE_NAME_QLRXX.equals(sel_tc)){
-                                                            String qlrzjh=AiUtil.GetValue(map.get("ZJH"), "");
-                                                            String qlrdm=AiUtil.GetValue(map.get("QLRDM"), "");
-                                                            String qlrxm=AiUtil.GetValue(map.get("XM"), "");
+                                                        String where = "";
+                                                        if (FeatureHelper.TABLE_NAME_QLRXX.equals(sel_tc)) {
+                                                            String qlrzjh = AiUtil.GetValue(map.get("ZJH"), "");
+                                                            String qlrdm = AiUtil.GetValue(map.get("QLRDM"), "");
+                                                            String qlrxm = AiUtil.GetValue(map.get("XM"), "");
 
-                                                            if (TextUtils.isEmpty(qlrzjh)&&TextUtils.isEmpty(qlrdm)){
-                                                                where="0=1";
-                                                            }else if (StringUtil.IsNotEmpty(qlrzjh)&&StringUtil.IsNotEmpty(qlrdm)){
-                                                                where="ZJH='"+qlrzjh+"' and QLRDM='"+qlrdm+"'";
-                                                            }else if (StringUtil.IsNotEmpty(qlrzjh)){
-                                                                where="ZJH='"+qlrzjh+"'";
-                                                            }else {
-                                                                where="QLRDM='"+qlrdm+"'";
+                                                            if (TextUtils.isEmpty(qlrzjh) && TextUtils.isEmpty(qlrdm)) {
+                                                                where = "0=1";
+                                                            } else if (StringUtil.IsNotEmpty(qlrzjh) && StringUtil.IsNotEmpty(qlrdm)) {
+                                                                where = "ZJH='" + qlrzjh + "' and QLRDM='" + qlrdm + "'";
+                                                            } else if (StringUtil.IsNotEmpty(qlrzjh)) {
+                                                                where = "ZJH='" + qlrzjh + "'";
+                                                            } else {
+                                                                where = "QLRDM='" + qlrdm + "'";
                                                             }
-                                                            where="XM='"+qlrxm+"'"+" and "+where;
-                                                        }else if (FeatureHelper.TABLE_NAME_ZD.equals(sel_tc)){
-                                                            String zddm=AiUtil.GetValue(map.get("ZDDM"), "");
-                                                            if (TextUtils.isEmpty(zddm)){
-                                                                where="0=1";
-                                                            }else {
-                                                                where="ZDDM='"+zddm+"'";
+                                                            where = "XM='" + qlrxm + "'" + " and " + where;
+                                                        } else if (FeatureHelper.TABLE_NAME_ZD.equals(sel_tc)) {
+                                                            String zddm = AiUtil.GetValue(map.get("ZDDM"), "");
+                                                            if (TextUtils.isEmpty(zddm)) {
+                                                                where = "0=1";
+                                                            } else {
+                                                                where = "ZDDM='" + zddm + "'";
                                                             }
                                                         }
                                                         MapHelper.QueryOne(mapInstance.getTable(sel_tc), where, new AiRunnable() {
@@ -1028,8 +1034,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                 }.start();
 
                                             } catch (Exception es) {
-                                                setMessage("读取文件失败："+es.getMessage());
-                                                setComplete(R.mipmap.app_icon_error_smaller,"读取文件失败",true);
+                                                setMessage("读取文件失败：" + es.getMessage());
+                                                setComplete(R.mipmap.app_icon_error_smaller, "读取文件失败", true);
                                             }
                                         }
                                     }).start();
@@ -1048,8 +1054,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 ).show();
 
     }
-
-
 
     /**
      * 不动产单元与不动产进行挂接
@@ -1302,7 +1306,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
      * @param ls       数据集，1、y、x、z 例 ：1,3339131.752,573089.173,74.307,
      * @param callback
      */
-    public void inputCld(String zbx, List<String[]> ls, final AiRunnable callback) {
+    private void inputCld(String zbx, List<String[]> ls, final AiRunnable callback) {
         FeatureLayer layer = MapHelper.getLayer(map, "KZD");
         final List<Feature> fs = new ArrayList<Feature>();
         String sel_zbx = AiUtil.GetValue(zbx, "");
@@ -1335,6 +1339,248 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
+
+    // 导入两权数据
+    private void show_lqsj_items() {
+
+        final AiDialog dialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_zd_fw, "导入两权数据")
+                .addContentView("可以从SHP、CAD中导入两权数据，请选择文件格式");
+
+        final Map<String, String> dataconfig = new HashMap<>();
+        dialog.addContentView(dialog.getSelectView("坐标系", "map_zbx", dataconfig, "zbx"));
+        dialog.addContentView(dialog.getSelectView("字符集", "file_encode", dataconfig, "encode"));
+
+        dialog.addContentViewMenu(Arrays.asList(
+                new Object[]{R.mipmap.app_icon_shp, "导入SHP文件", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ToastMessage.Send("功能正在建设中...");
+                    }
+                }},
+                new Object[]{R.mipmap.app_icon_cad, "导入DXF文件", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        FileUtils.showChooser(activity, new AiRunnable() {
+                            void setMessage(final String message) {
+                                if (StringUtil.IsNotEmpty(message)) {
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ToastMessage.Send(message);
+                                            dialog.setContentView(message);
+                                        }
+                                    });
+                                }
+                            }
+
+                            void addMessage(final String title, final String mssage) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.addContentView(title, mssage);
+                                    }
+                                });
+                            }
+
+                            void setComplete(final int icon, final String text, final boolean cancelable) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.setCancelable(cancelable);
+                                        dialog.setFooterView(dialog.getStateView(icon, text));
+                                        addMessage(text, "");
+
+                                    }
+                                });
+                            }
+
+                            void save(final Map<String, Integer> map_fs, List<Feature> features, final boolean isComplete) {
+                                final List<Feature> fs = new ArrayList<>(features);
+                                features.clear();
+                                String messge_ = "";
+                                for (String key : map_fs.keySet()) {
+                                    messge_ += "[" + key + "：" + map_fs.get(key) + "]";
+                                }
+                                final String messge = messge_;
+                                MapHelper.saveFeature(fs, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "导入" + fs.size() + "个图形成功:" + messge + "...");
+                                        if (isComplete)
+                                            setComplete(R.mipmap.app_icon_ok_f, "导入" + messge + "成功！", true);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        addMessage("导入失败:", ((Exception) t_).getMessage());
+                                        if (isComplete)
+                                            setComplete(R.mipmap.app_icon_error_smaller, "导入失败", true);
+                                        return null;
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                String message = "";
+                                try {
+                                    final String path = (String) t_;
+                                    String sel_zbx = AiUtil.GetValue(dataconfig.get("zbx"), "");
+                                    sel_zbx = StringUtil.substr(sel_zbx, sel_zbx.indexOf("[") + 1, sel_zbx.indexOf("]"));
+                                    final int wkid = AiUtil.GetValue(sel_zbx, map.getSpatialReference().getWkid());
+
+                                    final String encode = AiUtil.GetValue(dataconfig.get("encode"), "");
+                                     mapStbm = new HashMap<>();
+                                    if (path.toLowerCase().endsWith(".dxf")) {
+                                        dialog.setCancelable(false)
+                                                .setFooterView(dialog.getProgressView("正在导入数据..."))
+                                                .setContentView("正在读取dxf内容导入中，所耗时间取决于导入文件的大小，请耐心等待...");
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    FeatureTable table_zd = MapHelper.getLayer(map, "ZD").getFeatureTable();
+                                                    FeatureTable table_ljz = MapHelper.getLayer(map, "LJZ").getFeatureTable();
+//                                                             FeatureTable table_zrz = MapHelper.getLayer(map, "ZRZ").getFeatureTable();
+                                                    FeatureTable table_z_fsjg = MapHelper.getLayer(map, "Z_FSJG").getFeatureTable();
+                                                    FeatureTable table_h_fsjg = MapHelper.getLayer(map, "H_FSJG").getFeatureTable();
+
+                                                    FeatureTable table_cld = MapHelper.getLayer(map, "KZD").getFeatureTable();
+                                                    FeatureTable table_dzdw = MapHelper.getLayer(map, "DZDW").getFeatureTable();
+                                                    FeatureTable table_xzdw = MapHelper.getLayer(map, "XZDW").getFeatureTable();
+                                                    FeatureTable table_mzdw = MapHelper.getLayer(map, "MZDW").getFeatureTable();
+//                                                             FeatureTable table_dzj = MapHelper.getLayer(map, "ZJ_D").getFeatureTable();
+//                                                             FeatureTable table_xzj = MapHelper.getLayer(map, "ZJ_X").getFeatureTable();
+//                                                             FeatureTable table_mzj = MapHelper.getLayer(map, "ZJ_M").getFeatureTable();
+                                                    final List<Feature> fs = new ArrayList<>();
+                                                    final Map<String, Integer> map_fs = new HashMap<>();
+                                                    DxfAdapter dxf = new DxfAdapter().open(path);
+                                                    DxfFeature f;
+                                                    int index = 0;
+                                                    while ((f = dxf.readNext(encode)) != null) {
+                                                        try {
+                                                            String stdm = f.getExtendeds(0);
+                                                            if (StringUtil.IsEmpty(stdm)) continue;
+
+                                                            if (index >= 100) {
+                                                                save(map_fs, fs, false);
+                                                                index = 0;
+                                                            }
+                                                            index++;
+                                                            Log.d(TAG, "：-> " + f.toString());
+
+                                                            if (readZd(table_zd, fs, map_fs, f, wkid)) {
+                                                                continue;
+                                                            }
+                                                            if (readLjz(table_ljz, fs, map_fs, f, wkid)) {
+                                                                continue;
+                                                            }
+//                                                           if(readZrz(table_zrz,fs,map_fs,f,wkid)){ continue;  }
+                                                            if (readFSJG(table_z_fsjg, table_h_fsjg, fs, map_fs, f, wkid)) {
+                                                                continue;
+                                                            }
+                                                            if (readCLD(table_cld, fs, map_fs, f, wkid)) {
+                                                                continue;
+                                                            }
+                                                            if (readDw(table_dzdw, table_xzdw, table_mzdw, fs, map_fs, f, wkid)) {
+                                                                continue;
+                                                            }
+
+                                                            if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
+                                                                Log.d(TAG, f.getExtendeds(0) + "： -> 【未处理】" + f.toString());
+                                                            }
+                                                            index--;
+                                                        } catch (Exception es) {
+                                                            addMessage("", "读取实体失败,跳过：" + es.getMessage());
+                                                        }
+                                                    }
+                                                    save(map_fs, fs, true);
+                                                } catch (Exception es) {
+                                                    addMessage("解析文件失败!", es.getMessage());
+                                                    setComplete(R.mipmap.app_icon_error_smaller, "解析文件失败", true);
+                                                }
+                                            }
+                                        }).start();
+                                    } else {
+                                        ToastMessage.Send("文件格式不正确");
+                                    }
+                                } catch (Exception es) {
+                                    setMessage("读取文件失败：" + es.getMessage());
+                                    setComplete(R.mipmap.app_icon_error_smaller, "读取文件失败", true);
+                                }
+                                return null;
+                            }
+                        });
+                    }
+                }}))
+                .addContentView("导入SHP数据：",
+                        "1、导入SHP文件时数据导入到文件名称与图层名称一致的图层中，如：宗地.shp 导入到宗地图层",
+                        "2、shp的字符集为标准UTF8格式"
+                )
+                .addContentView("导入CAD数据：",
+                        "1、支持的CAD文件时数据为.dxf文件，如果是.dwg文件请事先转换为.dxf文件",
+                        "2、dxf文件为二权标准成果文件dwg转换的dxf文件",
+                        "3、文件中对应的实体编码会导入到相应的图层"
+                ).show();
+
+    }
+
+    private boolean isEmptyStdm(DxfFeature f, String stdm) {
+        for (String s : f.getExtendeds()) {
+            if (StringUtil.IsNotEmpty(s) && StringUtil.IsNotEmpty(stdm)) {
+                if (stdm.equals(s)) {
+                    return true;
+                }
+                ;
+            }
+        }
+        return false;
+    }
+
+    private boolean isEmptyStdm(DxfFeature f, Map<String, String> mapStbm, List<String> stdms) {
+        for (String s : f.getExtendeds()) {
+            if (StringUtil.IsNotEmpty(s)) {
+                if (stdms.contains(s)) {
+                    mapStbm.put(STBM,s);
+                    return true;
+                }
+                ;
+            }
+        }
+        return false;
+    }
+
+    private boolean isEmptyStdm(DxfFeature f, Map<String, String> mapStbm, Map<String, String> stdms) {
+        for (String s : f.getExtendeds()) {
+            if (StringUtil.IsNotEmpty(s)) {
+                if (stdms.containsKey(s)) {
+                    mapStbm.put(STBM,s);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isEmptyStdm(DxfFeature f, String stdm, String s) {
+        if (StringUtil.IsNotEmpty(stdm) && s.equals(stdm)) {
+            return true;
+        }
+        for (String v : f.getExtendeds()) {
+            if (StringUtil.IsNotEmpty(s)) {
+                if (s.equals(v)) {
+                    stdm = s;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    ///endregion
+    //region 内部类或接口
+    ///endregion
 
     /**
      * 项目管理
@@ -1758,192 +2004,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
     }
 
-    // 导入两权数据
-    private void show_lqsj_items() {
-
-        final AiDialog dialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_zd_fw, "导入两权数据")
-                .addContentView("可以从SHP、CAD中导入两权数据，请选择文件格式");
-
-        final Map<String, String> dataconfig = new HashMap<>();
-        dialog.addContentView(dialog.getSelectView("坐标系", "map_zbx", dataconfig, "zbx"));
-        dialog.addContentView(dialog.getSelectView("字符集", "file_encode", dataconfig, "encode"));
-
-        dialog.addContentViewMenu(Arrays.asList(
-                new Object[]{R.mipmap.app_icon_shp, "导入SHP文件", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ToastMessage.Send("功能正在建设中...");
-                    }
-                }},
-                new Object[]{R.mipmap.app_icon_cad, "导入DXF文件", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        FileUtils.showChooser(activity, new AiRunnable() {
-                            void setMessage(final String message) {
-                                if (StringUtil.IsNotEmpty(message)) {
-                                    activity.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            ToastMessage.Send(message);
-                                            dialog.setContentView(message);
-                                        }
-                                    });
-                                }
-                            }
-
-                            void addMessage(final String title, final String mssage) {
-                                activity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        dialog.addContentView(title, mssage);
-                                    }
-                                });
-                            }
-
-                            void setComplete(final int icon, final String text, final boolean cancelable) {
-                                activity.runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        dialog.setCancelable(cancelable);
-                                        dialog.setFooterView(dialog.getStateView(icon, text));
-                                        addMessage(text, "");
-
-                                    }
-                                });
-                            }
-
-                            void save(final Map<String, Integer> map_fs, List<Feature> features, final boolean isComplete) {
-                                final List<Feature> fs = new ArrayList<>(features);
-                                features.clear();
-                                String messge_ = "";
-                                for (String key : map_fs.keySet()) {
-                                    messge_ += "[" + key + "：" + map_fs.get(key) + "]";
-                                }
-                                final String messge = messge_;
-                                MapHelper.saveFeature(fs, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "导入" + fs.size() + "个图形成功:" + messge + "...");
-                                        if (isComplete)
-                                            setComplete(R.mipmap.app_icon_ok_f, "导入" + messge + "成功！", true);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        addMessage("导入失败:", ((Exception) t_).getMessage());
-                                        if (isComplete)
-                                            setComplete(R.mipmap.app_icon_error_smaller, "导入失败", true);
-                                        return null;
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                String message = "";
-                                try {
-                                    final String path = (String) t_;
-                                    String sel_zbx = AiUtil.GetValue(dataconfig.get("zbx"), "");
-                                    sel_zbx = StringUtil.substr(sel_zbx, sel_zbx.indexOf("[") + 1, sel_zbx.indexOf("]"));
-                                    final int wkid = AiUtil.GetValue(sel_zbx, map.getSpatialReference().getWkid());
-
-                                    final String encode = AiUtil.GetValue(dataconfig.get("encode"), "");
-
-                                    if (path.toLowerCase().endsWith(".dxf")) {
-                                        dialog.setCancelable(false)
-                                                .setFooterView(dialog.getProgressView("正在导入数据..."))
-                                                .setContentView("正在读取dxf内容导入中，所耗时间取决于导入文件的大小，请耐心等待...");
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    FeatureTable table_zd = MapHelper.getLayer(map, "ZD").getFeatureTable();
-                                                    FeatureTable table_ljz = MapHelper.getLayer(map, "LJZ").getFeatureTable();
-//                                                             FeatureTable table_zrz = MapHelper.getLayer(map, "ZRZ").getFeatureTable();
-                                                    FeatureTable table_z_fsjg = MapHelper.getLayer(map, "Z_FSJG").getFeatureTable();
-
-                                                    FeatureTable table_cld = MapHelper.getLayer(map, "KZD").getFeatureTable();
-                                                    FeatureTable table_dzdw = MapHelper.getLayer(map, "DZDW").getFeatureTable();
-                                                    FeatureTable table_xzdw = MapHelper.getLayer(map, "XZDW").getFeatureTable();
-                                                    FeatureTable table_mzdw = MapHelper.getLayer(map, "MZDW").getFeatureTable();
-//                                                             FeatureTable table_dzj = MapHelper.getLayer(map, "ZJ_D").getFeatureTable();
-//                                                             FeatureTable table_xzj = MapHelper.getLayer(map, "ZJ_X").getFeatureTable();
-//                                                             FeatureTable table_mzj = MapHelper.getLayer(map, "ZJ_M").getFeatureTable();
-                                                    final List<Feature> fs = new ArrayList<>();
-                                                    final Map<String, Integer> map_fs = new HashMap<>();
-                                                    DxfAdapter dxf = new DxfAdapter().open(path);
-                                                    DxfFeature f;
-                                                    int index = 0;
-                                                    while ((f = dxf.readNext(encode)) != null) {
-                                                        try {
-                                                            String stdm = f.getExtendeds(0);
-                                                            if (StringUtil.IsEmpty(stdm)) continue;
-
-                                                            if (index >= 100) {
-                                                                save(map_fs, fs, false);
-                                                                index = 0;
-                                                            }
-                                                            index++;
-                                                            Log.d(TAG, "：-> " + f.toString());
-
-                                                            if (readZd(table_zd, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-                                                            if (readLjz(table_ljz, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-//                                                                     if(readZrz(table_zrz,fs,map_fs,f,wkid)){ continue;  }
-                                                            if (readZrzFSJG(table_z_fsjg, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-                                                            if (readCLD(table_cld, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-                                                            if (readDw(table_dzdw, table_xzdw, table_mzdw, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-
-                                                            if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
-                                                                Log.d(TAG, f.getExtendeds(0) + "： -> 【未处理】" + f.toString());
-                                                            }
-                                                            index--;
-                                                        } catch (Exception es) {
-                                                            addMessage("", "读取实体失败,跳过：" + es.getMessage());
-                                                        }
-                                                    }
-                                                    save(map_fs, fs, true);
-                                                } catch (Exception es) {
-                                                    addMessage("解析文件失败!", es.getMessage());
-                                                    setComplete(R.mipmap.app_icon_error_smaller, "解析文件失败", true);
-                                                }
-                                            }
-                                        }).start();
-                                    } else {
-                                        ToastMessage.Send("文件格式不正确");
-                                    }
-                                } catch (Exception es) {
-                                    setMessage("读取文件失败：" + es.getMessage());
-                                    setComplete(R.mipmap.app_icon_error_smaller, "读取文件失败", true);
-                                }
-                                return null;
-                            }
-                        });
-                    }
-                }}))
-                .addContentView("导入SHP数据：",
-                        "1、导入SHP文件时数据导入到文件名称与图层名称一致的图层中，如：宗地.shp 导入到宗地图层",
-                        "2、shp的字符集为标准UTF8格式"
-                )
-                .addContentView("导入CAD数据：",
-                        "1、支持的CAD文件时数据为.dxf文件，如果是.dwg文件请事先转换为.dxf文件",
-                        "2、dxf文件为二权标准成果文件dwg转换的dxf文件",
-                        "3、文件中对应的实体编码会导入到相应的图层"
-                ).show();
-
-    }
-
     public boolean readZd(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
         String name = FeatureHelper.LAYER_NAME_ZD;
         if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
@@ -2120,9 +2180,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 //        141200	简	简单房屋
 //        141300	建	建筑房屋
 //        141400	破	破坏房屋
-        String stdm = f.getExtendeds(0);
-        boolean flag = isEmptyStdm(f, stdm, stdms);// 是否包含实体编码
+        boolean flag = isEmptyStdm(f, mapStbm, stdms);// 是否包含实体编码
         if (flag) {
+            String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
             if (g instanceof Polyline) {
@@ -2179,60 +2239,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 }
             }
         }
-//        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag) {
-////        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag) {
-//            // 幢
-//            Geometry g = GdalAdapter.convert(f.getGeometry());
-//            g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
-//            g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
-//            if (g != null) {
-//                Feature f_zrz = table.createFeature();
-//                FeatureHelper.Set(f_zrz, "ZCS", f.getExtendeds(1)); // 层数
-//                FeatureHelper.Set(f_zrz, "LSZD", f.getExtendeds(2)); //隶属宗地（地籍号）
-//                FeatureHelper.Set(f_zrz, "ZLDZ", f.getExtendeds(3)); // 坐落地址
-//                FeatureHelper.Set(f_zrz, "SCJZMJ", f.getExtendeds(4)); // 建筑面积
-//                FeatureHelper.Set(f_zrz, "ZZDMJ", f.getExtendeds(5));// 占地面积
-//
-//                if ("141111".equalsIgnoreCase(stdm)) {
-//                    // 砼 房屋
-//                    FeatureHelper.Set(f_zrz, "FWJG", "A");// 房屋结构 [A][砼]钢筋混凝土结构
-//                } else if ("141121".equalsIgnoreCase(stdm)) {
-//                    // 砖 房屋
-//                    FeatureHelper.Set(f_zrz, "FWJG", "C");// 房屋结构 [C][砖]砖木结构
-//                } else if ("141131".equalsIgnoreCase(stdm)) {
-//                    //  铁房子
-//                    FeatureHelper.Set(f_zrz, "FWJG", "M");// 房屋结构 [M][砼]钢结构
-//                } else if ("141141".equalsIgnoreCase(stdm)) {
-//                    //  钢房屋
-//                    FeatureHelper.Set(f_zrz, "FWJG", "M");// 房屋结构 [M][砼]钢结构
-//                } else if ("141151".equalsIgnoreCase(stdm)) {
-//                    //  木房子
-//                    FeatureHelper.Set(f_zrz, "FWJG", "T");// [T][土]土木结构
-//                } else if ("141161".equalsIgnoreCase(stdm)) {
-//                    //  混房子
-//                    FeatureHelper.Set(f_zrz, "FWJG", "B");// [B][混]混合结构
-//                } else if ("141200".equalsIgnoreCase(stdm)) {
-//                    // 简 房屋
-//                    FeatureHelper.Set(f_zrz, "FWJG", "简");// 房屋结构 [简][简]简单房屋
-//                } else if ("141300".equalsIgnoreCase(stdm)) {
-//                    // 建筑中房屋
-//                        FeatureHelper.Set(f_zrz, "FWJG", "建");// [建][建]建筑中房屋
-//                } else if ("141400".equalsIgnoreCase(stdm)) {
-//                    // 破坏房屋
-//                    FeatureHelper.Set(f_zrz, "FWJG", "破");// 房屋结构 [破][破]破坏房屋
-//                } else {
-//                    //141101	0	一般房屋
-//                    FeatureHelper.Set(f_zrz, "FWJG", "其");// 房屋结构 [C][砖]砖木结构
-//                }
-//
-//                f_zrz.setGeometry(g);
-//                FeatureEditZRZ.FillFeature(f_zrz, true);
-//                BaseTool.fillFeature(f_zrz, aiMap.JsonData);
-//                fs.add(f_zrz);
-//                map_fs.put(name, AiUtil.GetValue(map_fs.get(name), 0) + 1);
-//                return true;
-//            }
-//        }
         return false;
     }
 
@@ -2253,53 +2259,53 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 //        141200	简	简单房屋
 //        141300	建	建筑房屋
 //        141400	破	破坏房屋
-
-        String stdm = f.getExtendeds(0);
-        boolean flag = isEmptyStdm(f,stdm,stdms);
+        boolean flag = isEmptyStdm(f, mapStbm, stdms);
         if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag) {
             // 幢
+            String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
             g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
             if (g != null) {
                 Feature f_ljz = table.createFeature();
-
-                FeatureHelper.Set(f_ljz, "ZCS", f.getExtendeds(1)); // 层数
-                FeatureHelper.Set(f_ljz, "LSZD", f.getExtendeds(2)); //隶属宗地（地籍号）
-                FeatureHelper.Set(f_ljz, "ZLDZ", f.getExtendeds(3)); // 坐落地址
-                FeatureHelper.Set(f_ljz, "SCJZMJ", f.getExtendeds(4)); // 建筑面积
-                FeatureHelper.Set(f_ljz, "ZZDMJ", f.getExtendeds(5));// 占地面积
+                String fwjg1= "FWJG1";
+                for (String value : f.getExtendeds()) {
+                    if (isLc(value)){
+                        FeatureHelper.Set(f_ljz, "ZCS",value); // 层数
+                        break;
+                    }
+                }
 
                 if ("141111".equalsIgnoreCase(stdm)) {
                     // 砼 房屋
-                    FeatureHelper.Set(f_ljz, "FWJG", "A");// 房屋结构 [A][砼]钢筋混凝土结构
+                    FeatureHelper.Set(f_ljz, fwjg1, "3");// 房屋结构 [A][砼]钢筋混凝土结构
                 } else if ("141121".equalsIgnoreCase(stdm)) {
                     // 砖 房屋
-                    FeatureHelper.Set(f_ljz, "FWJG", "C");// 房屋结构 [C][砖]砖木结构
+                    FeatureHelper.Set(f_ljz, fwjg1, "5");// 房屋结构 [C][砖]砖木结构
                 } else if ("141131".equalsIgnoreCase(stdm)) {
                     //  铁房子
-                    FeatureHelper.Set(f_ljz, "FWJG", "M");// 房屋结构 [M][砼]钢结构
+                    FeatureHelper.Set(f_ljz, fwjg1, "铁");// 房屋结构 [铁][铁]铁结构
                 } else if ("141141".equalsIgnoreCase(stdm)) {
                     //  钢房屋
-                    FeatureHelper.Set(f_ljz, "FWJG", "M");// 房屋结构 [M][砼]钢结构
+                    FeatureHelper.Set(f_ljz, fwjg1, "1");// 房屋结构 [1][钢]铁结构
                 } else if ("141151".equalsIgnoreCase(stdm)) {
                     //  木房子
-                    FeatureHelper.Set(f_ljz, "FWJG", "T");// [T][土]土木结构
+                    FeatureHelper.Set(f_ljz, fwjg1, "木");// [T][土]土木结构
                 } else if ("141161".equalsIgnoreCase(stdm)) {
                     //  混房子
-                    FeatureHelper.Set(f_ljz, "FWJG", "B");// [B][混]混合结构
+                    FeatureHelper.Set(f_ljz, fwjg1, "4");// [B][混]混合结构
                 } else if ("141200".equalsIgnoreCase(stdm)) {
                     // 简 房屋
-                    FeatureHelper.Set(f_ljz, "FWJG", "简");// 房屋结构 [简][简]简单房屋
+                    FeatureHelper.Set(f_ljz, fwjg1, "简");// 房屋结构 [简][简]简单房屋
                 } else if ("141300".equalsIgnoreCase(stdm)) {
                     // 建筑中房屋
-                    FeatureHelper.Set(f_ljz, "FWJG", "建");// [建][建]建筑中房屋
+                    FeatureHelper.Set(f_ljz, fwjg1, "建");// [建][建]建筑中房屋
                 } else if ("141400".equalsIgnoreCase(stdm)) {
                     // 破坏房屋
-                    FeatureHelper.Set(f_ljz, "FWJG", "破");// 房屋结构 [破][破]破坏房屋
+                    FeatureHelper.Set(f_ljz, fwjg1, "破");// 房屋结构 [破][破]破坏房屋
                 } else {
                     //141101	0	一般房屋
-                    FeatureHelper.Set(f_ljz, "FWJG", "其");// 房屋结构 [C][砖]砖木结构
+                    FeatureHelper.Set(f_ljz, fwjg1, "6");// 其他房屋
                 }
                 f_ljz.setGeometry(g);
                 mapInstance.fillFeature(f_ljz);
@@ -2311,10 +2317,12 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    public boolean readZrzFSJG(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readFSJG(FeatureTable table_z, FeatureTable table_h, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
 
         String name = "幢附属";
         List<String> stdms = Arrays.asList("141500,143130,141510,141600,141700,141800,143111,143112,143800,140001,143131,143140".split(","));
+        List<String> zStdm = Arrays.asList("141500,143130,141510,141600,141700,143111,143112,143800,143131,143140".split(","));
+        List<String> hStdms = Arrays.asList("141800,140001".split(","));
 
 //        141500	0	棚房
 //        143130        檐廊
@@ -2331,51 +2339,57 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 //        143131	0	挑廊
 //        143140	0	悬空通廊
 
-        String stdm = f.getExtendeds(0);
-        boolean flag = isEmptyStdm(f, stdm, stdms);// 是否包含实体编码
+        boolean flag = isEmptyStdm(f, mapStbm, stdms);// 是否包含实体编码
 
-        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag) {
-            // 宗地
+        if (("JMD".equals(f.Layer) || "FWFS".equals(f.Layer)) && (f.SubClasses + "").contains("Polyline") && flag) {
+            String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
             g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
             if (g != null) {
-                Feature ff = table.createFeature();
-                if ("141500".equalsIgnoreCase(stdm)) {
-                    // 棚房 房屋附属
-                    FeatureHelper.Set(ff, "FHMC", "棚房");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("143130".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "檐廊");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("143111".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "柱廊");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("143112".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "柱廊");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("143131".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "挑廊");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("143140".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "悬空通廊");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("141700".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "廊房");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("141800".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "飘楼");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("143800".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "门顶");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
-                } else if ("140001".equalsIgnoreCase(stdm)) {
-                    FeatureHelper.Set(ff, "FHMC", "阳台");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                Feature ff = null;
+                if (zStdm.contains(stdm)) {
+                    ff = table_z.createFeature();
+                    if ("141500".equalsIgnoreCase(stdm)) {
+                        // 棚房 房屋附属
+                        FeatureHelper.Set(ff, "FHMC", "棚房");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("143130".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "檐廊");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("143111".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "柱廊");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("143112".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "柱廊");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("143131".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "挑廊");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("143140".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "悬空通廊");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("141700".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "廊房");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("143800".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "门顶");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else {
+                        FeatureHelper.Set(ff, "FHMC", "棚房");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    }
                 } else {
-                    FeatureHelper.Set(ff, "FHMC", "棚房");
-                    FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    ff = table_h.createFeature();
+                    if ("141800".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "飘楼");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    } else if ("140001".equalsIgnoreCase(stdm)) {
+                        FeatureHelper.Set(ff, "FHMC", "阳台");
+                        FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
+                    }
                 }
+                FeatureHelper.Set(ff, "FHDM", stdm);
                 ff.setGeometry(g);
                 mapInstance.fillFeature(ff);
                 fs.add(ff);
@@ -2390,10 +2404,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         String name = "测量点";
         Map<String, String> stdms = DxfFeature.GetCassSTDM_KZD();
 
-        String stdm = f.getExtendeds(0);
-        boolean flag = isEmptyStdm(f, stdm, stdms);// 是否包含实体编码
-
+        boolean flag = isEmptyStdm(f, mapStbm, stdms );// 是否包含实体编码
         if ((f.SubClasses + "").contains("Text") && flag) {
+            String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             if (g != null && g instanceof Point) {
                 g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
@@ -2403,6 +2416,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 FeatureHelper.Set(ff, "YZB", ((Point) g).getY());
                 FeatureHelper.Set(ff, "BZ", f.ExtendedEntity);
                 ff.setGeometry(g);
+                FeatureHelper.Set(ff, "FHDM", stdm);
                 mapInstance.fillFeature(ff);
                 fs.add(ff);
                 map_fs.put(name, AiUtil.GetValue(map_fs.get(name), 0) + 1);
@@ -2416,9 +2430,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         String name = "地物";
         Map<String, String> stdms = DxfFeature.GetCassSTDM_DW();
 
-        String stdm = f.getExtendeds(0);
-        boolean flag = isEmptyStdm(f, stdm, stdms);// 是否包含实体编码
+        boolean flag = isEmptyStdm(f, mapStbm, stdms);// 是否包含实体编码
         if (flag) {
+            String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
             if (g != null) {
@@ -2448,61 +2462,18 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    private boolean isEmptyStdm(DxfFeature f, String stdm) {
-        for (String s : f.getExtendeds()) {
-            if (StringUtil.IsNotEmpty(s) && StringUtil.IsNotEmpty(stdm)) {
-                if (stdm.equals(s)) {
+    private boolean isLc(String value) {
+        try {
+            if (value.contains(".")){
+                if (Float.parseFloat(value)<99){
                     return true;
                 }
-                ;
-            }
-        }
-        return false;
-    }
-
-    private boolean isEmptyStdm(DxfFeature f, String stdm, List<String> stdms) {
-        if (StringUtil.IsNotEmpty(stdm) && stdms.contains(stdm)) {
-            return true;
-        }
-        for (String s : f.getExtendeds()) {
-            if (StringUtil.IsNotEmpty(s)) {
-                if (stdms.contains(s)) {
-                    stdm = s;
-                    return true;
-                }
-                ;
-            }
-        }
-        return false;
-    }
-
-    private boolean isEmptyStdm(DxfFeature f, String stdm, Map<String, String> stdms) {
-        if (StringUtil.IsNotEmpty(stdm) && stdms.containsKey(stdm)) {
-            return true;
-        }
-        for (String s : f.getExtendeds()) {
-            if (StringUtil.IsNotEmpty(s)) {
-                if (stdms.containsKey(s)) {
-                    stdm = s;
-                    return true;
-                }
-                ;
-            }
-        }
-        return false;
-    }
-
-    private boolean isEmptyStdm(DxfFeature f, String stdm, String s) {
-        if (StringUtil.IsNotEmpty(stdm) && s.equals(stdm)) {
-            return true;
-        }
-        for (String v : f.getExtendeds()) {
-            if (StringUtil.IsNotEmpty(s)) {
-                if (s.equals(v)) {
-                    stdm = s;
+            }else {
+                if (Integer.parseInt(value)<99){
                     return true;
                 }
             }
+        } catch (NumberFormatException e) {
         }
         return false;
     }

@@ -281,7 +281,7 @@ public class FeatureEditFTQK extends FeatureEdit {
             });
 
         }else{
-            AiRunnable.Ok(callback,null,null);
+            AiRunnable.Ok(callback,"","");
             ToastMessage.Send("获得分摊列表失败!");
         }
 
@@ -359,7 +359,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                 }
                 MapHelper.saveFeature(need_to_save,callback);
             }catch(Exception es){
-                AiRunnable.Ok(callback,null,null);
+                AiRunnable.Ok(callback,"","");
                 Log.e(TAG,"处理添加分摊去向后续逻辑失败！"+es);
             }
         }

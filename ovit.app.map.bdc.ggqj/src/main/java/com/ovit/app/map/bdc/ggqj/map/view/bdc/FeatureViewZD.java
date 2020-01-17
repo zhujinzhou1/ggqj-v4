@@ -93,7 +93,7 @@ public class FeatureViewZD extends FeatureView {
     //region 字段
     ///endregion
 
-    //region 构造函数
+    //region 构造函数与构造方法
     public static FeatureViewZD From(MapInstance mapInstance, Feature f) {
         FeatureViewZD fv = From(mapInstance);
         fv.set(f);

@@ -44,6 +44,17 @@ import java.util.List;
  */
 
 public class FeatureViewQLR extends FeatureView {
+
+    //region 常量
+    ///endregion
+
+    //region 字段
+    ///endregion
+
+    //region 构造函数
+    ///endregion
+
+    //region 重写函数和回调
     @Override
     public void fillFeature(Feature feature) {
         super.fillFeature(feature);
@@ -82,7 +93,9 @@ public class FeatureViewQLR extends FeatureView {
             }
         });
     }
+    ///endregion
 
+    //region 公有函数
     //通过不动产集合生成不动产View （单级不支持展开） 20180814
     public static View buildBdcViewByList(final MapInstance mapInstance, final List<Feature> features_bdc, final boolean setOnLongClick, final int deep) {
         try {
@@ -174,9 +187,6 @@ public class FeatureViewQLR extends FeatureView {
         }
 
     }
-
-
-    //不动产绑定相关
 
     //非递归获得从宗地开始的所有符合条件的可选择不动产列表(当前展开至户 where为条件) 20180730
     public static View getAllSelectBDC(final MapInstance mapInstance, String where, final List<Feature> selected_feature_list) {
@@ -402,6 +412,53 @@ public class FeatureViewQLR extends FeatureView {
         }
     }
 
+    public static String GetBdcdyhFromFeature(List<Feature> fs, String zddm) {
+        if (fs == null || fs.size() == 0) {
+            return zddm + FeatureHelper.FEATURE_W00000000;
+        }
+        if (fs.size() > 1) {
+            return zddm + FeatureHelper.FEATURE_F99990001;
+        } else {
+            return FeatureHelper.Get(fs.get(0), "ZRZH", "") + FeatureHelper.FEATURE_0001;
+        }
+    }
+
+    public  void createNewQlrByBdc(final MapInstance mapInstance, final Feature feature_bdc, final AiRunnable callback) {
+        try {
+            final Feature feature_new_qlr = mapInstance.getTable("GYRXX").createFeature();
+            feature_new_qlr.getAttributes().put("YHZGX", "户主");
+            feature_new_qlr.getAttributes().put("XM", FeatureHelper.Get(feature_bdc, "XM"));
+            feature_new_qlr.getAttributes().put("ZJH", FeatureHelper.Get(feature_bdc, "ZJH"));
+            feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature_bdc, "ZJZL"));
+            feature_new_qlr.getAttributes().put("CSRQ", FeatureHelper.Get(feature_bdc, "CSRQ"));
+            feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature_bdc, "DH"));
+            feature_new_qlr.getAttributes().put("TDZH", FeatureHelper.Get(feature_bdc, "BDCQZH"));
+            feature_new_qlr.getAttributes().put("ORID_PATH", FeatureHelper.Get(feature_bdc, "ORID") + "/"); //权利人关联不动产单元
+
+            //拷贝资料
+            String f_zd_path = mapInstance.getpath_feature(feature_bdc); //     不动产d单元
+            String f_qlr_path = mapInstance.getpath_feature(feature_new_qlr);// 权利人 gyrxx
+
+            String f_zd_zjh_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/证件号/");
+            String f_qlr_zjh_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/证件号/");
+            FileUtils.copyFile(f_zd_zjh_path, f_qlr_zjh_path);
+
+            String f_zd_zmcl_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/土地权属来源证明材料/");
+            String f_qlr_zmcl_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/土地权属来源证明材料/");
+            FileUtils.copyFile(f_zd_zmcl_path, f_qlr_zmcl_path);
+
+            String f_zd_hkb_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/户口簿/");
+            String f_qlr_hkb_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/户口簿/");
+
+            FileUtils.copyFile(f_zd_hkb_path, f_qlr_hkb_path);
+            MapHelper.saveFeature(feature_new_qlr, callback);
+
+        } catch (Exception es) {
+            Log.e(TAG, "通过不动产单元创建新权利人失败!" + es);
+            AiRunnable.Ok(callback, false, false);
+        }
+    }
+
     public void queryBdc(final AiRunnable callback) {
         String bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_BDCDYH, "");
         if (FeatureHelper.isBDCDYHValid(bdcdyh)) {
@@ -479,21 +536,11 @@ public class FeatureViewQLR extends FeatureView {
             // 不动产单元无效
             AiRunnable.Ok(callback, null);
         }
-    }
 
-    public static String GetBdcdyhFromFeature(List<Feature> fs, String zddm) {
-        if (fs == null || fs.size() == 0) {
-            return zddm + FeatureHelper.FEATURE_W00000000;
-        }
-        if (fs.size() > 1) {
-            return zddm + FeatureHelper.FEATURE_F99990001;
-        } else {
-            return FeatureHelper.Get(fs.get(0), "ZRZH", "") + FeatureHelper.FEATURE_0001;
-        }
     }
 
     // 新建权利人：
-    protected void update_gyrxx(final AiRunnable callback) {
+    public void update_gyrxx(final AiRunnable callback) {
         final String qlrxm = AiUtil.GetValue(feature.getAttributes().get("XM"), "");
         final String qlrzjh = AiUtil.GetValue(feature.getAttributes().get("ZJH"), "");
         final List<Feature> fs_gyrxx = new ArrayList<>();
@@ -553,42 +600,6 @@ public class FeatureViewQLR extends FeatureView {
                 return null;
             }
         });
-    }
-
-    public static void createNewQlrByBdc(final MapInstance mapInstance, final Feature feature_bdc, final AiRunnable callback) {
-        try {
-            final Feature feature_new_qlr = mapInstance.getTable("GYRXX").createFeature();
-            feature_new_qlr.getAttributes().put("YHZGX", "户主");
-            feature_new_qlr.getAttributes().put("XM", FeatureHelper.Get(feature_bdc, "XM"));
-            feature_new_qlr.getAttributes().put("ZJH", FeatureHelper.Get(feature_bdc, "ZJH"));
-            feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature_bdc, "ZJZL"));
-            feature_new_qlr.getAttributes().put("CSRQ", FeatureHelper.Get(feature_bdc, "CSRQ"));
-            feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature_bdc, "DH"));
-            feature_new_qlr.getAttributes().put("TDZH", FeatureHelper.Get(feature_bdc, "BDCQZH"));
-            feature_new_qlr.getAttributes().put("ORID_PATH", FeatureHelper.Get(feature_bdc, "ORID") + "/"); //权利人关联不动产单元
-
-            //拷贝资料
-            String f_zd_path = mapInstance.getpath_feature(feature_bdc); //     不动产d单元
-            String f_qlr_path = mapInstance.getpath_feature(feature_new_qlr);// 权利人 gyrxx
-
-            String f_zd_zjh_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/证件号/");
-            String f_qlr_zjh_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/证件号/");
-            FileUtils.copyFile(f_zd_zjh_path, f_qlr_zjh_path);
-
-            String f_zd_zmcl_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/土地权属来源证明材料/");
-            String f_qlr_zmcl_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/土地权属来源证明材料/");
-            FileUtils.copyFile(f_zd_zmcl_path, f_qlr_zmcl_path);
-
-            String f_zd_hkb_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/户口簿/");
-            String f_qlr_hkb_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/户口簿/");
-
-            FileUtils.copyFile(f_zd_hkb_path, f_qlr_hkb_path);
-            MapHelper.saveFeature(feature_new_qlr, callback);
-
-        } catch (Exception es) {
-            Log.e(TAG, "通过不动产单元创建新权利人失败!" + es);
-            AiRunnable.Ok(callback, false, false);
-        }
     }
 
     public void loadByOrid(String orid, AiRunnable callback) {
@@ -652,7 +663,7 @@ public class FeatureViewQLR extends FeatureView {
                 if (StringUtil.IsNotEmpty(orid_path) && orid_path.contains(FeatureHelper.SEPARATORS_BDC)) {
                     updateOridPath = StringUtil.substr(orid_path, 0, FeatureHelper.SEPARATORS_BDC);
                 }
-                AiRunnable.Ok(callback, updateOridPath, null);
+                AiRunnable.Ok(callback, updateOridPath);
             }
         }, "放弃", new DialogInterface.OnClickListener() {
             @Override
@@ -663,4 +674,15 @@ public class FeatureViewQLR extends FeatureView {
 
 
     }
+    ///endregion
+
+    //region 私有函数
+    ///endregion
+
+    //region 面积计算
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
 }

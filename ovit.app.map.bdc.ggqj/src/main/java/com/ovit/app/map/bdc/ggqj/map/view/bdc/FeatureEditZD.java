@@ -68,6 +68,9 @@ import java.util.Map;
  //region 私有函数
  ///endregion
 
+ //region 面积计算
+ ///endregion
+
  //region 内部类或接口
  ///endregion
 
@@ -78,8 +81,6 @@ public class FeatureEditZD extends FeatureEdit {
     final static String TAG = "FeatureEditZD";
     //endregion
 
-    //region 字段
-
     //region基础字段
     FeatureViewZD fv;
     private Map<String, String> map_tzm_zddm = new HashMap<>();
@@ -88,6 +89,7 @@ public class FeatureEditZD extends FeatureEdit {
     List<Map<String, Object>> fs_jzqz = new ArrayList<>();
     final Map<String, Feature> map_jzx = new HashMap<>();
     //endregion
+
     //region 界面相关属性
     final int spn_resid = R.layout.app_ui_ai_aimap_feature_spn_item_sm;
     private EditText et_zddm;
@@ -105,8 +107,6 @@ public class FeatureEditZD extends FeatureEdit {
     View view_hjxx;
     View view_bdcdy;
     View view_ftqk;
-    //endregion
-
     //endregion
 
     //region  重写父类方法
@@ -600,313 +600,6 @@ public class FeatureEditZD extends FeatureEdit {
     ///endregion
 
     //region 界面调用方法，私用方法
-
-    //region 界址点线签字
-    // 清除界址点线签字缓存数据
-    private void clear_jzdxqz() {
-        fs_jzd.clear();
-        fs_jzx.clear();
-        fs_jzqz.clear();
-        map_jzx.clear();
-    }
-
-    // 初始化界址点线签字缓存数据
-    private void int_jzdxqz() {
-        FeatureEditJZD.UpdateJZD(mapInstance, feature, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                FeatureEditJZX.UpdateJZX(mapInstance, feature, new AiRunnable() {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        clear_jzdxqz();
-                        load_jzdxqx();
-                        return null;
-                    }
-                });
-                return null;
-            }
-        });
-    }
-
-    // 加载界址点线签字
-    private void load_jzdxqx() {
-        if (fs_jzd.size() > 0) {
-            return;
-        }
-        try {
-            clear_jzdxqz();
-//             final long time = System.currentTimeMillis();
-            FeatureView.LoadJzdxqz(mapInstance, feature, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
-                @Override
-                public <T_> T_ ok(T_ t_, Object... objects) {
-//                    Log.e(TAG, "加载界址点线时间"+((System.currentTimeMillis()-time)/1000)+ "秒" );
-                    long time = System.currentTimeMillis();
-                    getAdapter_jzdx().replaceAll(fs_jzd);
-//                    Log.e(TAG, "填充界址点时间"+((System.currentTimeMillis()-time)/1000)+ "秒" );
-                    time = System.currentTimeMillis();
-                    getAdapter_jzqz().replaceAll(fs_jzqz);
-//                    Log.e(TAG, "填充界址线时间"+((System.currentTimeMillis()-time)/1000)+ "秒" );
-                    return null;
-                }
-            });
-        } catch (Exception es) {
-            Log.e(TAG, "load_jzdx: ", es);
-        }
-    }
-    //界址点线适配器
-    private QuickAdapter<Feature> getAdapter_jzdx() {
-        final LinearLayout list_jzd = (LinearLayout) view.findViewById(R.id.ll_list_jzd);
-        if (list_jzd.getTag() != null) {
-            return (QuickAdapter<Feature>) list_jzd.getTag();
-        } else {
-            QuickAdapter<Feature> adapter_jzdx = new QuickAdapter<Feature>(activity, R.layout.app_ui_ai_aimap_feature_zd_jzd, new ArrayList<Feature>()) {
-                @Override
-                protected void convert(BaseAdapterHelper helper, final Feature f_jzd) {
-                    View view = helper.getView();
-                    int i = helper.getPosition();
-                    int j = (i + 1 < getData().size()) ? i + 1 : 0;
-                    Feature f_jzd2 = getData().get(j);
-                    final String name = FeatureHelper.Get(f_jzd, "JZDH", "");
-                    String name2 = FeatureHelper.Get(f_jzd2, "JZDH", "");
-                    Feature f_jzx = FeatureEditJZX.Get(map_jzx, f_jzd, f_jzd2);
-                    String jzx_zdzhdm = FeatureHelper.Get(f_jzx, "ZDZHDM", "");
-
-                    helper.setText(R.id.tv_l_name, name + "-" + name2);
-                    helper.setText(R.id.tv_index, "" + (i + 1));
-                    helper.setText(R.id.tv_l_length, AiUtil.Scale(FeatureHelper.Get(f_jzx, "JZXCD", 0d), 2, 0) + "米");
-
-                    fillView(((TextView) view.findViewById(R.id.et_p_name)), f_jzd, "JZDH");
-                    fillView(((TextView) view.findViewById(R.id.et_jzxsm)), f_jzx, "JZXSM");
-
-                    fillView(((Spinner) view.findViewById(R.id.spn_jblx)), spn_resid, f_jzd, "jblx", DicUtil.getArray(activity, "jblx"));
-                    fillView(((Spinner) view.findViewById(R.id.spn_jzxlb)), spn_resid, f_jzx, "jzxlb", DicUtil.getArray(activity, "jzxlb"));
-                    fillView(((Spinner) view.findViewById(R.id.spn_jzxlb)), spn_resid, f_jzd, "jzxlb", DicUtil.getArray(activity, "jzxlb"));
-
-                    if (!jzx_zdzhdm.startsWith(getId())) {
-                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzx, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
-                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzd, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
-                    } else {
-                        // 邻宗地
-                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzx, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
-                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzd, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
-                    }
-
-                    Bitmap bm = MapHelper.geometry_icon(new Geometry[]{feature.getGeometry(), f_jzx.getGeometry(), f_jzd.getGeometry()}, 100, 100, new int[]{R.color.app_theme_fore, Color.RED, Color.RED}, new int[]{1, 5, 15});
-                    helper.setImageBitmap(R.id.v_icon, bm);
-                    helper.setOnClickListener(R.id.v_icon, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            MapHelper.showCallout(mapInstance.map, name, (Point) f_jzd.getGeometry());
-                        }
-                    });
-                }
-            };
-            adapter_jzdx.adpter(list_jzd);
-            list_jzd.setTag(adapter_jzdx);
-            return adapter_jzdx;
-        }
-    }
-    //界址签章适配器
-    private QuickAdapter<Map<String, Object>> getAdapter_jzqz() {
-        final LinearLayout ll_list_jzqz = (LinearLayout) view.findViewById(R.id.ll_list_jzqz);
-        if (ll_list_jzqz.getTag() != null) {
-            return (QuickAdapter<Map<String, Object>>) ll_list_jzqz.getTag();
-        } else {
-            QuickAdapter<Map<String, Object>> adapter_jzqz = new QuickAdapter<Map<String, Object>>(activity, R.layout.app_ui_ai_aimap_feature_zd_jzqz, new ArrayList<Map<String, Object>>()) {
-                @Override
-                protected void convert(BaseAdapterHelper helper, final Map<String, Object> f_jzqz) {
-                    int i = helper.getPosition();
-                    String zjh = AiUtil.GetValue(f_jzqz.get("JZXZJH"), "");
-                    final String name = AiUtil.GetValue(f_jzqz.get("JZXQDH"), "") + " " +
-                            (StringUtil.IsEmpty(zjh) ? "" : "[" + zjh + "]") + " " +
-                            AiUtil.GetValue(f_jzqz.get("JZXZDH"), "");
-                    helper.setText(R.id.tv_l_name, name);
-
-                    helper.setText(R.id.et_jzqzbrq, AiUtil.GetValue(f_jzqz.get("JZQZBRQ"), ""));
-                    helper.setText(R.id.et_xlzdqlr, StringUtil.substr_last(AiUtil.GetValue(f_jzqz.get("XLZDQLR"), ""), 7));
-                    helper.setText(R.id.et_lzdzjr, AiUtil.GetValue(f_jzqz.get("LZDZJR"), ""));
-                    helper.setText(R.id.et_bzdzjr, AiUtil.GetValue(f_jzqz.get("BZDZJR"), ""));
-
-                    //            fillView_seldate(((TextView) view.findViewById(R.id.et_jzqzbrq)), item, "jzqzbrq");
-                    //            fillView(((TextView) view.findViewById(R.id.et_xlzdqlr)), item, "xlzdqlr");
-                    //            fillView(((TextView) view.findViewById(R.id.et_lzdzjr)), item, "lzdzjr");
-                    //            fillView(((TextView) view.findViewById(R.id.et_bzdzjr)), item, "bzdzjr");
-                    final Geometry g = (Geometry) f_jzqz.get("Geometry");
-                    Bitmap bm = MapHelper.geometry_icon(new Geometry[]{feature.getGeometry(), g}, 100, 100, new int[]{R.color.app_theme_fore, Color.RED, Color.RED}, new int[]{1, 5, 15});
-                    helper.setImageBitmap(R.id.v_icon, bm);
-                    helper.setOnClickListener(R.id.v_icon, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            MapHelper.showCallout(mapInstance.map, name, g);
-                        }
-                    });
-                }
-            };
-            adapter_jzqz.adpter(ll_list_jzqz);
-            ll_list_jzqz.setTag(adapter_jzqz);
-            return adapter_jzqz;
-        }
-    }
-
-    //endregion 界址点线签字
-
-    //region menu 菜单功能实现方法
-    /**
-     * 加载宗地草图
-     */
-    private void load_zdct(final boolean reload) {
-        fv.loadZdct(reload, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                try {
-                    final String filename = t_ + "";
-                    final ImageView iv_ct = (ImageView) view.findViewById(R.id.iv_ct);
-
-                    if ((!reload) && FileUtils.exsit(filename)) {
-                        ImageUtil.set(iv_ct, filename);
-                    } else {
-                        TextView et_glblc = (TextView) view.findViewById(R.id.et_glblc);
-                        et_glblc.setText(objects.length > 0 ? ("1:" + objects[0] + "") : "");
-                        ImageUtil.set(iv_ct, filename);
-                    }
-                } catch (Exception es) {
-                    Log.e(TAG, "load_zdct: 绘制宗地图错误", es);
-                }
-                return null;
-            }
-        });
-    }
-
-    /**
-     * 加载房产图
-     */
-    private void load_fct(boolean reload) {
-        final ImageView iv_ct = (ImageView) view.findViewById(R.id.iv_fct);
-        fv.loadFct(reload, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                try {
-                    String filename = t_ + "";
-                    TextView et_glblc = (TextView) view.findViewById(R.id.et_glblc);
-                    et_glblc.setText(objects.length > 0 ? ("1:" + objects[0] + "") : "");
-                    ImageUtil.set(iv_ct, filename);
-                } catch (Exception es) {
-                    Log.e(TAG, "load_fct: 绘制房产图错误", es);
-                }
-                return null;
-            }
-        });
-    }
-
-    /**
-     * 加载房屋分层图
-     */
-    private void load_fwfct() {
-        try {
-            final LinearLayout ll_fwfct_content = (LinearLayout) view.findViewById(R.id.ll_fwfct_content);
-            if (ll_fwfct_content.getTag() == null) {
-                QuickAdapter<String> adpter = FeatureEditC.getFctAdapter(mapInstance, feature, "分层图", null);
-                ll_fwfct_content.setTag(adpter);
-                adpter.adpter(ll_fwfct_content);
-            }
-            final ArrayList<String> fct = new ArrayList<String>();
-            fv.loadFwfct(fct, new AiRunnable() {
-                @Override
-                public <T_> T_ ok(T_ t_, Object... objects) {
-                    ((QuickAdapter<String>) ll_fwfct_content.getTag()).replaceAll(fct);
-                    return null;
-                }
-            });
-        } catch (Exception es) {
-            Log.e(TAG, "load_fwfct: 绘制房屋分层图错误", es);
-
-        }
-
-    }
-
-    /**
-     * 加载自然幢列表
-     */
-    private void load_zrz() {
-        if (view_zrz == null) {
-            ViewGroup ll_zrz_list = (ViewGroup) view.findViewById(R.id.ll_zrz_list);
-            ll_zrz_list.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_ZRZ).buildListView(ll_zrz_list, fv.queryChildWhere());
-            view_zrz = ll_zrz_list;
-        }
-    }
-
-    /**
-     * 重新加载自然幢列表
-     */
-    private void reload_zrz() {
-        view_zrz = null;
-        load_zrz();
-    }
-
-    /**
-     * 加载户籍信息列表
-     */
-    private void load_hjxx() {
-        if (view_hjxx == null) {
-//            ViewGroup hjxx_view = (ViewGroup) view.findViewById(R.id.ll_hjxx_list);
-            ViewGroup hjxx_view = null;
-            hjxx_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_GYRXX).buildListView(hjxx_view, fv.queryChildWhere());
-            view_hjxx = hjxx_view;
-        }
-    }
-
-    /**
-     * 重新加载户籍信息列表
-     */
-    private void reload_hjxx() {
-        view_hjxx = null;
-        load_hjxx();
-    }
-
-    /**
-     * 加载宗地分摊情况列表
-     */
-    private void load_ftqk() {
-        if (view_ftqk == null) {
-            ViewGroup ftqk_view = (ViewGroup) view.findViewById(R.id.ll_ft_list);
-            ftqk_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_FTQK).buildListView(ftqk_view, "FTQX_ID='" + fv.getOrid() + "'");
-            view_ftqk = ftqk_view;
-        }
-    }
-
-    /**
-     * 重新加载宗地分摊情况列表
-     */
-    private void reload_ftqk() {
-        view_ftqk = null;
-        load_ftqk();
-    }
-
-    /**
-     * 加载不动产单元列表 采用继承
-     */
-    private void load_bdcdy() {
-        if (view_bdcdy == null) {
-            ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
-            bdcdy_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_QLRXX).buildListView(bdcdy_view, fv.queryChildWhere());
-            view_bdcdy = bdcdy_view;
-        }
-    }
-
-    /**
-     * 重新加载不动产单元列表
-     */
-    private void reload_bdcdy() {
-        view_bdcdy = null;
-        load_bdcdy();
-    }
-
-    //endregion menu 菜单功能
-
 
     //宗地分摊
     private void addFtqk() {
@@ -1455,6 +1148,310 @@ public class FeatureEditZD extends FeatureEdit {
 
     //endregion
 
+    //region 界址点线签字
+    // 清除界址点线签字缓存数据
+    private void clear_jzdxqz() {
+        fs_jzd.clear();
+        fs_jzx.clear();
+        fs_jzqz.clear();
+        map_jzx.clear();
+    }
 
+    // 初始化界址点线签字缓存数据
+    private void int_jzdxqz() {
+        FeatureEditJZD.UpdateJZD(mapInstance, feature, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                FeatureEditJZX.UpdateJZX(mapInstance, feature, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        clear_jzdxqz();
+                        load_jzdxqx();
+                        return null;
+                    }
+                });
+                return null;
+            }
+        });
+    }
+
+    // 加载界址点线签字
+    private void load_jzdxqx() {
+        if (fs_jzd.size() > 0) {
+            return;
+        }
+        try {
+            clear_jzdxqz();
+//             final long time = System.currentTimeMillis();
+            FeatureView.LoadJzdxqz(mapInstance, feature, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+//                    Log.e(TAG, "加载界址点线时间"+((System.currentTimeMillis()-time)/1000)+ "秒" );
+                    long time = System.currentTimeMillis();
+                    getAdapter_jzdx().replaceAll(fs_jzd);
+//                    Log.e(TAG, "填充界址点时间"+((System.currentTimeMillis()-time)/1000)+ "秒" );
+                    time = System.currentTimeMillis();
+                    getAdapter_jzqz().replaceAll(fs_jzqz);
+//                    Log.e(TAG, "填充界址线时间"+((System.currentTimeMillis()-time)/1000)+ "秒" );
+                    return null;
+                }
+            });
+        } catch (Exception es) {
+            Log.e(TAG, "load_jzdx: ", es);
+        }
+    }
+    //界址点线适配器
+    private QuickAdapter<Feature> getAdapter_jzdx() {
+        final LinearLayout list_jzd = (LinearLayout) view.findViewById(R.id.ll_list_jzd);
+        if (list_jzd.getTag() != null) {
+            return (QuickAdapter<Feature>) list_jzd.getTag();
+        } else {
+            QuickAdapter<Feature> adapter_jzdx = new QuickAdapter<Feature>(activity, R.layout.app_ui_ai_aimap_feature_zd_jzd, new ArrayList<Feature>()) {
+                @Override
+                protected void convert(BaseAdapterHelper helper, final Feature f_jzd) {
+                    View view = helper.getView();
+                    int i = helper.getPosition();
+                    int j = (i + 1 < getData().size()) ? i + 1 : 0;
+                    Feature f_jzd2 = getData().get(j);
+                    final String name = FeatureHelper.Get(f_jzd, "JZDH", "");
+                    String name2 = FeatureHelper.Get(f_jzd2, "JZDH", "");
+                    Feature f_jzx = FeatureEditJZX.Get(map_jzx, f_jzd, f_jzd2);
+                    String jzx_zdzhdm = FeatureHelper.Get(f_jzx, "ZDZHDM", "");
+
+                    helper.setText(R.id.tv_l_name, name + "-" + name2);
+                    helper.setText(R.id.tv_index, "" + (i + 1));
+                    helper.setText(R.id.tv_l_length, AiUtil.Scale(FeatureHelper.Get(f_jzx, "JZXCD", 0d), 2, 0) + "米");
+
+                    fillView(((TextView) view.findViewById(R.id.et_p_name)), f_jzd, "JZDH");
+                    fillView(((TextView) view.findViewById(R.id.et_jzxsm)), f_jzx, "JZXSM");
+
+                    fillView(((Spinner) view.findViewById(R.id.spn_jblx)), spn_resid, f_jzd, "jblx", DicUtil.getArray(activity, "jblx"));
+                    fillView(((Spinner) view.findViewById(R.id.spn_jzxlb)), spn_resid, f_jzx, "jzxlb", DicUtil.getArray(activity, "jzxlb"));
+                    fillView(((Spinner) view.findViewById(R.id.spn_jzxlb)), spn_resid, f_jzd, "jzxlb", DicUtil.getArray(activity, "jzxlb"));
+
+                    if (!jzx_zdzhdm.startsWith(getId())) {
+                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzx, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
+                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzd, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
+                    } else {
+                        // 邻宗地
+                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzx, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
+                        fillView(((Spinner) view.findViewById(R.id.spn_jzxwz)), spn_resid, f_jzd, "jzxwz", DicUtil.getArray(activity, "jzxwz"));
+                    }
+
+                    Bitmap bm = MapHelper.geometry_icon(new Geometry[]{feature.getGeometry(), f_jzx.getGeometry(), f_jzd.getGeometry()}, 100, 100, new int[]{R.color.app_theme_fore, Color.RED, Color.RED}, new int[]{1, 5, 15});
+                    helper.setImageBitmap(R.id.v_icon, bm);
+                    helper.setOnClickListener(R.id.v_icon, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MapHelper.showCallout(mapInstance.map, name, (Point) f_jzd.getGeometry());
+                        }
+                    });
+                }
+            };
+            adapter_jzdx.adpter(list_jzd);
+            list_jzd.setTag(adapter_jzdx);
+            return adapter_jzdx;
+        }
+    }
+    //界址签章适配器
+    private QuickAdapter<Map<String, Object>> getAdapter_jzqz() {
+        final LinearLayout ll_list_jzqz = (LinearLayout) view.findViewById(R.id.ll_list_jzqz);
+        if (ll_list_jzqz.getTag() != null) {
+            return (QuickAdapter<Map<String, Object>>) ll_list_jzqz.getTag();
+        } else {
+            QuickAdapter<Map<String, Object>> adapter_jzqz = new QuickAdapter<Map<String, Object>>(activity, R.layout.app_ui_ai_aimap_feature_zd_jzqz, new ArrayList<Map<String, Object>>()) {
+                @Override
+                protected void convert(BaseAdapterHelper helper, final Map<String, Object> f_jzqz) {
+                    int i = helper.getPosition();
+                    String zjh = AiUtil.GetValue(f_jzqz.get("JZXZJH"), "");
+                    final String name = AiUtil.GetValue(f_jzqz.get("JZXQDH"), "") + " " +
+                            (StringUtil.IsEmpty(zjh) ? "" : "[" + zjh + "]") + " " +
+                            AiUtil.GetValue(f_jzqz.get("JZXZDH"), "");
+                    helper.setText(R.id.tv_l_name, name);
+
+                    helper.setText(R.id.et_jzqzbrq, AiUtil.GetValue(f_jzqz.get("JZQZBRQ"), ""));
+                    helper.setText(R.id.et_xlzdqlr, StringUtil.substr_last(AiUtil.GetValue(f_jzqz.get("XLZDQLR"), ""), 7));
+                    helper.setText(R.id.et_lzdzjr, AiUtil.GetValue(f_jzqz.get("LZDZJR"), ""));
+                    helper.setText(R.id.et_bzdzjr, AiUtil.GetValue(f_jzqz.get("BZDZJR"), ""));
+
+                    //            fillView_seldate(((TextView) view.findViewById(R.id.et_jzqzbrq)), item, "jzqzbrq");
+                    //            fillView(((TextView) view.findViewById(R.id.et_xlzdqlr)), item, "xlzdqlr");
+                    //            fillView(((TextView) view.findViewById(R.id.et_lzdzjr)), item, "lzdzjr");
+                    //            fillView(((TextView) view.findViewById(R.id.et_bzdzjr)), item, "bzdzjr");
+                    final Geometry g = (Geometry) f_jzqz.get("Geometry");
+                    Bitmap bm = MapHelper.geometry_icon(new Geometry[]{feature.getGeometry(), g}, 100, 100, new int[]{R.color.app_theme_fore, Color.RED, Color.RED}, new int[]{1, 5, 15});
+                    helper.setImageBitmap(R.id.v_icon, bm);
+                    helper.setOnClickListener(R.id.v_icon, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MapHelper.showCallout(mapInstance.map, name, g);
+                        }
+                    });
+                }
+            };
+            adapter_jzqz.adpter(ll_list_jzqz);
+            ll_list_jzqz.setTag(adapter_jzqz);
+            return adapter_jzqz;
+        }
+    }
+
+    //endregion 界址点线签字
+
+    //region menu 菜单功能实现方法
+    /**
+     * 加载宗地草图
+     */
+    private void load_zdct(final boolean reload) {
+        fv.loadZdct(reload, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                try {
+                    final String filename = t_ + "";
+                    final ImageView iv_ct = (ImageView) view.findViewById(R.id.iv_ct);
+
+                    if ((!reload) && FileUtils.exsit(filename)) {
+                        ImageUtil.set(iv_ct, filename);
+                    } else {
+                        TextView et_glblc = (TextView) view.findViewById(R.id.et_glblc);
+                        et_glblc.setText(objects.length > 0 ? ("1:" + objects[0] + "") : "");
+                        ImageUtil.set(iv_ct, filename);
+                    }
+                } catch (Exception es) {
+                    Log.e(TAG, "load_zdct: 绘制宗地图错误", es);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * 加载房产图
+     */
+    private void load_fct(boolean reload) {
+        final ImageView iv_ct = (ImageView) view.findViewById(R.id.iv_fct);
+        fv.loadFct(reload, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                try {
+                    String filename = t_ + "";
+                    TextView et_glblc = (TextView) view.findViewById(R.id.et_glblc);
+                    et_glblc.setText(objects.length > 0 ? ("1:" + objects[0] + "") : "");
+                    ImageUtil.set(iv_ct, filename);
+                } catch (Exception es) {
+                    Log.e(TAG, "load_fct: 绘制房产图错误", es);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * 加载房屋分层图
+     */
+    private void load_fwfct() {
+        try {
+            final LinearLayout ll_fwfct_content = (LinearLayout) view.findViewById(R.id.ll_fwfct_content);
+            if (ll_fwfct_content.getTag() == null) {
+                QuickAdapter<String> adpter = FeatureEditC.getFctAdapter(mapInstance, feature, "分层图", null);
+                ll_fwfct_content.setTag(adpter);
+                adpter.adpter(ll_fwfct_content);
+            }
+            final ArrayList<String> fct = new ArrayList<String>();
+            fv.loadFwfct(fct, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    ((QuickAdapter<String>) ll_fwfct_content.getTag()).replaceAll(fct);
+                    return null;
+                }
+            });
+        } catch (Exception es) {
+            Log.e(TAG, "load_fwfct: 绘制房屋分层图错误", es);
+
+        }
+
+    }
+
+    /**
+     * 加载自然幢列表
+     */
+    private void load_zrz() {
+        if (view_zrz == null) {
+            ViewGroup ll_zrz_list = (ViewGroup) view.findViewById(R.id.ll_zrz_list);
+            ll_zrz_list.setTag(null); //强制重新生成adapter
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_ZRZ).buildListView(ll_zrz_list, fv.queryChildWhere());
+            view_zrz = ll_zrz_list;
+        }
+    }
+
+    /**
+     * 重新加载自然幢列表
+     */
+    private void reload_zrz() {
+        view_zrz = null;
+        load_zrz();
+    }
+
+    /**
+     * 加载户籍信息列表
+     */
+    private void load_hjxx() {
+        if (view_hjxx == null) {
+//            ViewGroup hjxx_view = (ViewGroup) view.findViewById(R.id.ll_hjxx_list);
+            ViewGroup hjxx_view = null;
+            hjxx_view.setTag(null); //强制重新生成adapter
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_GYRXX).buildListView(hjxx_view, fv.queryChildWhere());
+            view_hjxx = hjxx_view;
+        }
+    }
+
+    /**
+     * 重新加载户籍信息列表
+     */
+    private void reload_hjxx() {
+        view_hjxx = null;
+        load_hjxx();
+    }
+
+    /**
+     * 加载宗地分摊情况列表
+     */
+    private void load_ftqk() {
+        if (view_ftqk == null) {
+            ViewGroup ftqk_view = (ViewGroup) view.findViewById(R.id.ll_ft_list);
+            ftqk_view.setTag(null); //强制重新生成adapter
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_FTQK).buildListView(ftqk_view, "FTQX_ID='" + fv.getOrid() + "'");
+            view_ftqk = ftqk_view;
+        }
+    }
+
+    /**
+     * 重新加载宗地分摊情况列表
+     */
+    private void reload_ftqk() {
+        view_ftqk = null;
+        load_ftqk();
+    }
+
+    /**
+     * 加载不动产单元列表 采用继承
+     */
+    private void load_bdcdy() {
+        if (view_bdcdy == null) {
+            ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
+            bdcdy_view.setTag(null); //强制重新生成adapter
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_QLRXX).buildListView(bdcdy_view, fv.queryChildWhere());
+            view_bdcdy = bdcdy_view;
+        }
+    }
+
+    /**
+     * 重新加载不动产单元列表
+     */
+    private void reload_bdcdy() {
+        view_bdcdy = null;
+        load_bdcdy();
+    }
+
+    //endregion menu 菜单功能
 }
 

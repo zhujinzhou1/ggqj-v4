@@ -5,8 +5,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -24,6 +26,7 @@ import com.ovit.app.map.bdc.ggqj.map.pojo.FeaturePojo;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
+import com.ovit.app.ui.ai.component.AiWindow;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
@@ -46,7 +49,103 @@ import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZ_FSJG.CreateFea
  */
 
 public class FeatureViewLJZ extends FeatureView {
+    //region 常量
+    ///endregion
 
+    //region 字段
+    ///endregion
+
+    //region 构造函数与构造方法
+    public static FeatureViewLJZ From(MapInstance mapInstance, Feature f) {
+        FeatureViewLJZ fv = From(mapInstance);
+        fv.set(f);
+        return fv;
+    }
+
+    public static FeatureViewLJZ From(MapInstance mapInstance) {
+        FeatureViewLJZ fv = new FeatureViewLJZ();
+        fv.set(mapInstance).set(mapInstance.getTable("LJZ"));
+        return fv;
+    }
+
+    public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, final AiRunnable callback) {
+        CreateFeature(mapInstance, f_p, null, callback);
+    }
+
+    public static void CreateFeature(final MapInstance mapInstance, String orid, final Feature feature, final AiRunnable callback) {
+        // 去查宗地
+        FeatureViewZRZ.From(mapInstance).load(orid, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                Feature f_p = (Feature) t_;
+                CreateFeature(mapInstance, f_p, feature, callback);
+                return null;
+            }
+        });
+    }
+    //    绘制逻辑幢
+    public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, Feature f, final AiRunnable callback) {
+
+        if (f_p != null && f_p.getFeatureTable() != mapInstance.getTable("ZRZ")) {
+            // 如果不是自然幢
+            String orid = mapInstance.getOrid_Match(f, "ZRZ");
+            if (StringUtil.IsNotEmpty(orid)) {
+                CreateFeature(mapInstance, orid, f, callback);
+                return;
+            }
+        }
+
+        final FeatureViewLJZ fv = From(mapInstance, f);
+        final Feature feature;
+        if (f == null) {
+            feature = fv.table.createFeature();
+            fv.set(feature);// 设置 Feature
+        } else {
+            feature = f;
+        }
+        if (f_p == null) {
+            ToastMessage.Send("注意：缺少自然幢信息");
+        }
+        if (feature.getGeometry() == null && f_p != null) {
+            feature.setGeometry(MapHelper.geometry_copy(f_p.getGeometry()));
+        }
+
+        final List<Feature> fs_update = new ArrayList<>();
+        final String zddm = FeatureHelper.Get(f_p, "ZDDM", "");
+        final String zrzh = FeatureHelper.Get(f_p, "ZRZH", "");
+        // 绘图
+        fv.drawAndAutoCompelet(feature, fs_update, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                // 设置新的zddm
+                fv.newLjzh(zrzh, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        String id = t_ + "";
+                        FeatureHelper.Set(feature, "LJZH", id);
+                        // 填充
+                        fv.fillFeature(feature, f_p);
+                        fs_update.add(feature);
+                        // 保存
+                        MapHelper.saveFeature(fs_update, new AiRunnable(callback) {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                // 返回显示
+                                AiRunnable.Ok(callback, feature);
+                                mapInstance.viewFeature(feature);
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                });
+                return null;
+            }
+        });
+    }
+    ///endregion
+
+    //region 重写函数和回调
     @Override
     public void onCreate() {
         super.onCreate();
@@ -148,10 +247,11 @@ public class FeatureViewLJZ extends FeatureView {
                     draw_h(feature, "1", null);
                 }
             });
-            mapInstance.addAction(groupname, "画飘楼", R.mipmap.app_map_layer_fsjg, new View.OnClickListener() {
+            mapInstance.addAction(groupname, "画附属", R.mipmap.app_map_layer_fsjg, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    draw_z_fsjg(feature, "飘楼", "2", null);
+//                    draw_z_fsjg(feature, "飘楼", "2", null);
+                    selectFsjg(v);
                 }
             });
         }
@@ -225,7 +325,6 @@ public class FeatureViewLJZ extends FeatureView {
         return groupname;
     }
 
-    // 列表项，点击加载自然幢
     @Override
     public void listAdapterConvert(BaseAdapterHelper helper, final Feature item, final int deep) {
         super.listAdapterConvert(helper, item, deep);
@@ -260,174 +359,204 @@ public class FeatureViewLJZ extends FeatureView {
         });
     }
 
-    public static FeatureTable GetTable(MapInstance mapInstance) {
-        return MapHelper.getLayer(mapInstance.map, FeatureHelper.TABLE_NAME_LJZ).getFeatureTable();
-    }
-
-    //  获取最大的编号
-    public void getMaxLjzh(String zrzh, final AiRunnable callback) {
-        if (FeatureHelper.isZRZHValid(zrzh)) {
-            String id = StringUtil.substr(zrzh, FeatureHelper.FEATURE_DJZQDM_LENG);
-            MapHelper.QueryMax(table, StringUtil.WhereByIsEmpty(id) + "LJZH like '" + id + "__'", "LJZH", id.length(), 0, id + "00", callback);
-        } else {
-            AiRunnable.Ok(callback, null, "00", "00");
+    @Override
+    public String getZddm() {
+        String zrzh = getZrzh();
+        if (StringUtil.IsEmpty(zrzh)) {
+            return "";
         }
+        return StringUtil.substr(zrzh, 0, zrzh.length() - 5);
     }
 
-    private String getId(String zddm) {
-        if (TextUtils.isEmpty(zddm)) {
-            String xmbm = mapInstance.aiMap.getProjectXmbm();
-            if (!TextUtils.isEmpty(xmbm) && xmbm.length() == 12) {
-                return xmbm + "F000";
-            }
-        }
-        return StringUtil.substr(zddm, 0, 12) + "F000";
+    ///endregion
+
+    //region 公有函数
+    public void loadCs(List<Feature> fs_c, AiRunnable callback) {
+        String orid_zrzh = mapInstance.getOrid_Match(feature, "ZRZ");
+        List<Feature> fs = new ArrayList<>();
+        int szc = FeatureHelper.Get(feature, "SZC", 1);
+        int zcs = FeatureHelper.Get(feature, "ZCS", 1);
+        String where = " SJC > '" + (szc - 1) + "'  and  SJC < '" + (szc + zcs) + "' ";
+        queryChildFeature("ZRZ_C", orid_zrzh, "", "CH", "", fs, callback);
     }
 
-    // 新的逻辑幢号
-    public void newLjzh(String zrzh, final AiRunnable callback) {
-        getMaxLjzh(zrzh, new AiRunnable(callback) {
+    // 快速绘制户
+    public void h_init(final AiRunnable callback) {
+        FeatureViewH.InitFeatureAll(mapInstance, feature, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                String id = "";
-                if (objects.length > 1) {
-                    String maxid = objects[0] + "";
-                    // 最大号加1
-                    int count = AiUtil.GetValue(objects[1], 0) + 1;
-                    id = StringUtil.fill(String.format("%02d", count), maxid, true);
-                }
-                AiRunnable.Ok(callback, id);
+                AiRunnable.Ok(callback, t_, objects);
                 return null;
             }
         });
     }
 
-    public void loadByLjzh(String ljzh, AiRunnable callback) {
-        MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(ljzh) + " LJZH like '%'" + ljzh + "%' ", callback);
+    // 绘制天井
+    public void draw_tj(Feature feature, AiRunnable callback) {
+        String type = "天井";
+        FeatureLayer layer = MapHelper.getLayer(map, "Z_FSJG", "幢附属结构");
+        final Feature f = layer.getFeatureTable().createFeature();
+        f.getAttributes().put("LC", "1");
+        f.getAttributes().put("MC", type);
+        f.getAttributes().put("TYPE", "1");
+        f.getAttributes().put("FHMC", type);
+        mapInstance.fillFeature(f);
+        CreateFeatureHollow(mapInstance, feature, f, "1", callback);
     }
-
-    public static FeatureViewLJZ From(MapInstance mapInstance, Feature f) {
-        FeatureViewLJZ fv = From(mapInstance);
-        fv.set(f);
-        return fv;
+    // 实例化户
+    public void InitFeatureLjz(final AiRunnable callback) {
+        FeaturePojo featurePojo = new FeaturePojo(feature, "BZ");
+        List<String> lcs = featurePojo.getLc();
+        List<Feature> fs_h = new ArrayList<>();
+        for (String lc : lcs) {
+            Feature f_h = mapInstance.getTable("H").createFeature();
+            f_h.setGeometry(feature.getGeometry());
+            FeatureHelper.Set(f_h, "SZC", lc);
+            FeatureHelper.Set(f_h, "LJZH", featurePojo.getLjzh());
+            FeatureHelper.Set(f_h, "ZRZH", featurePojo.getZrzh());
+            FeatureHelper.Set(f_h, "HH", featurePojo.getHh());
+            FeatureHelper.Set(f_h, "MPH", featurePojo.getZrzh() + "-" + featurePojo.getLjzh() + "-" + lc + featurePojo.getHh());
+            mapInstance.fillFeature(f_h, feature);
+            fs_h.add(f_h);
+        }
+        AiRunnable.Ok(callback, fs_h);
     }
-
-    public static FeatureViewLJZ From(MapInstance mapInstance) {
-        FeatureViewLJZ fv = new FeatureViewLJZ();
-        fv.set(mapInstance).set(mapInstance.getTable("LJZ"));
-        return fv;
-    }
-
-    public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, final AiRunnable callback) {
-        CreateFeature(mapInstance, f_p, null, callback);
-    }
-
-    public static void CreateFeature(final MapInstance mapInstance, String orid, final Feature feature, final AiRunnable callback) {
-        // 去查宗地
-        FeatureViewZRZ.From(mapInstance).load(orid, new AiRunnable() {
+    // 实例化附属结构
+    public void init_fsjg(String fsjg_lx, final String tableName) {
+        setFsjgAttribute(fsjg_lx, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                Feature f_p = (Feature) t_;
-                CreateFeature(mapInstance, f_p, feature, callback);
-                return null;
-            }
-        });
-    }
-
-    //    绘制逻辑幢
-    public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, Feature f, final AiRunnable callback) {
-
-        if (f_p != null && f_p.getFeatureTable() != mapInstance.getTable("ZRZ")) {
-            // 如果不是自然幢
-            String orid = mapInstance.getOrid_Match(f, "ZRZ");
-            if (StringUtil.IsNotEmpty(orid)) {
-                CreateFeature(mapInstance, orid, f, callback);
-                return;
-            }
-        }
-
-        final FeatureViewLJZ fv = From(mapInstance, f);
-        final Feature feature;
-        if (f == null) {
-            feature = fv.table.createFeature();
-            fv.set(feature);// 设置 Feature
-        } else {
-            feature = f;
-        }
-        if (f_p == null) {
-            ToastMessage.Send("注意：缺少自然幢信息");
-        }
-        if (feature.getGeometry() == null && f_p != null) {
-            feature.setGeometry(MapHelper.geometry_copy(f_p.getGeometry()));
-        }
-
-        final List<Feature> fs_update = new ArrayList<>();
-        final String zddm = FeatureHelper.Get(f_p, "ZDDM", "");
-        final String zrzh = FeatureHelper.Get(f_p, "ZRZH", "");
-        // 绘图
-        fv.drawAndAutoCompelet(feature, fs_update, new AiRunnable(callback) {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                // 设置新的zddm
-                fv.newLjzh(zrzh, new AiRunnable() {
+                final AiDialog dialog = (AiDialog) t_;
+                dialog.dismiss();
+                final Map<String, Object> map = (Map<String, Object>) objects[0];
+                final Map<String, String> dataconfig = (Map<String, String>) objects[1];
+                final FeatureView featureView = (FeatureView) mapInstance.newFeatureView(tableName);
+                featureView.fsjg_init(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        String id = t_ + "";
-                        FeatureHelper.Set(feature, "LJZH", id);
-                        // 填充
-                        fv.fillFeature(feature, f_p);
-                        fs_update.add(feature);
-                        // 保存
-                        MapHelper.saveFeature(fs_update, new AiRunnable(callback) {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                // 返回显示
-                                AiRunnable.Ok(callback, feature);
-                                mapInstance.viewFeature(feature);
-                                return null;
+                        if (t_ instanceof Feature) {
+                            final Feature f_t = (Feature) t_;
+                            String szc = map.get("SZC") + "";
+                            final List<Integer> nubs = StringUtil.GetNumbers(szc);
+                            final ArrayList<Feature> features_save = new ArrayList<>();
+                            for (int nub : nubs) {
+                                Feature f;
+                                if (nubs.indexOf(nub) == 0) {
+                                    f = f_t;
+                                } else {
+                                    f = mapInstance.getTable(tableName).createFeature();
+                                }
+                                f.setGeometry(f_t.getGeometry());
+                                f.getAttributes().put("LC", nub + "");
+                                String dataconfigType = dataconfig.get("TYPE");
+                                String type = dataconfigType.substring(dataconfigType.indexOf("[") + 1, dataconfigType.indexOf("]"));
+                                f.getAttributes().put("TYPE", type);
+                                f.getAttributes().put("FHMC", dataconfig.get("FHMC"));
+                                featureView.hsmj(f, mapInstance);
+                                fv.fillFeature(f, feature);
+                                features_save.add(f);
                             }
-                        });
+                            MapHelper.saveFeature(features_save, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    mapInstance.viewFeature(f_t);
+                                    return null;
+                                }
+                            });
+                        }
                         return null;
                     }
                 });
                 return null;
             }
         });
+
     }
 
-    // 查询所有逻辑幢，识别户和幢附属
-    public static void LaodAllLJZ_IdentyHAndZFSJG(final MapInstance mapInstance, final AiRunnable callback) {
-        final List<Feature> fs = new ArrayList<>();
-        MapHelper.Query(GetTable(mapInstance), "", -1, fs, new AiRunnable(callback) {
-            // 递归调用，直到全部完成
-            void identy(final List<Feature> fs, final int index, final AiRunnable identy_callback) {
-                if (index < fs.size()) {
-                    FeatureViewLJZ.IdentyLJZ_HAndZFSJG(mapInstance, fs.get(index), new AiRunnable(callback) {
-                        @Override
-                        public <T_> T_ ok(T_ t_, Object... objects) {
-                            identy(fs, index + 1, identy_callback);
-                            return null;
-                        }
-                    });
-                } else {
-                    AiRunnable.Ok(identy_callback, index);
-                }
-            }
-
+    public static void IdentyLJZ_HAndZFSJG(final MapInstance mapInstance, final Feature f_ljz, final AiRunnable callback) {
+        String ljzh = FeatureHelper.Get(f_ljz, "ZRZH", "");
+        if (StringUtil.IsEmpty(ljzh)) {
+            AiRunnable.Ok(callback, ljzh);
+            return;
+        }
+        FeatureEditH.IdentyLJZ_H(mapInstance, f_ljz, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                identy(fs, 0, new AiRunnable(callback) {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        AiRunnable.Ok(callback, fs, fs.size());
-                        return null;
-                    }
-                });
+                FeatureViewZ_FSJG.IdentyLJZ_FSJG(mapInstance, f_ljz, callback);
                 return null;
             }
         });
     }
 
+    ///endregion
+
+    //region 私有函数
+    private void setFsjgAttribute(final String resname, final AiRunnable callback) {
+        String desc = "该操作主要是绘制幢附属结构到指定楼层！";
+        final Map<String, Object> map = new LinkedHashMap<>();
+        final Map<String, String> dataconfig = new LinkedHashMap<>();
+        final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
+        final String szc = "SZC";
+        map.put(szc, "1");
+        dataconfig.put("TYPE", "1");
+        aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
+        aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
+        aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
+                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc));
+        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AiRunnable.Ok(callback, aiDialog, map, dataconfig);
+            }
+        });
+    }
+
+    /**
+     * 附属结构列表
+     * @param view
+     */
+    private void selectFsjg(final View view) {
+        final AiWindow aiWindow = new AiWindow(activity);
+        aiWindow.autoShow = true;
+        aiWindow.layout_resid = R.layout.app_ui_ai_aipop;
+        aiWindow.showing = new Runnable() {
+            @Override
+            public void run() {
+                LinearLayout view_ll = (LinearLayout) LayoutInflater.from(activity).inflate(
+                        R.layout.app_ui_ai_aimap_action_fsjg, null);
+                View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            if (v.getId()==R.id.ll_zfsjg_yl){
+                                init_fsjg("z_fsjg_lx", FeatureHelper.LAYER_NAME_Z_FSJG);
+                            }else if (v.getId()==R.id.ll_hfsjg_yt){
+                                init_fsjg("h_fsjg_lx", FeatureHelper.TABLE_NAME_H_FSJG);
+                            }
+                            command_change(v);
+                            aiWindow.window.dismiss();
+                        } catch (Exception es) {
+                            Log.e(TAG, "绘制:地物 ", es);
+                        }
+                    }
+                };
+                view_ll.findViewById(R.id.ll_hfsjg_yt).setOnClickListener(listener);
+                view_ll.findViewById(R.id.ll_zfsjg_yl).setOnClickListener(listener);
+
+                aiWindow.addView(view_ll);
+                aiWindow.setDefOpt();
+                aiWindow.setSizeAuto();
+                aiWindow.window.showAsDropDown(view);
+            }
+        };
+        aiWindow.Build();
+    }
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
+    //region 面积计算
     public void update_Area(Feature feature, final List<Feature> f_hs, List<Feature> f_z_fsjgs, List<Feature> f_h_fsjgs, final AiRunnable callback) {
         String id = FeatureHelper.Get(feature, "ZRZH", "");
         int zcs = FeatureHelper.Get(feature, "ZCS", 1);
@@ -511,16 +640,6 @@ public class FeatureViewLJZ extends FeatureView {
 
         }
     }
-
-    @Override
-    public String getZddm() {
-        String zrzh = getZrzh();
-        if (StringUtil.IsEmpty(zrzh)) {
-            return "";
-        }
-        return StringUtil.substr(zrzh, 0, zrzh.length() - 5);
-    }
-
     // 核算宗地 占地面积、建筑面积
     public void update_Area(final AiRunnable callback) {
         final List<Feature> fs_z_fsjg = new ArrayList<>();
@@ -540,20 +659,16 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+    ///endregion
 
-    private void loadH_And_Fsjg(MapInstance mapInstance, Feature feature, List<Feature> fs_z_fsjg, List<Feature> fs_h, List<Feature> fs_h_fsjg, AiRunnable aiRunnable) {
-
-    }
-
+    //region 图形识别
     public void identyH(List<Feature> fs_h, final AiRunnable callback) {
         MapHelper.Query(mapInstance.getTable("H"), feature.getGeometry(), -1, fs_h, callback);
     }
-
     // 默认识别保存
     public void identyH(final AiRunnable callback) {
         identyH(true, callback);
     }
-
     // 识别显示结果返回
     public void identyH(final boolean isShow, final AiRunnable callback) {
         final List<Feature> fs_h = new ArrayList<>();
@@ -648,55 +763,42 @@ public class FeatureViewLJZ extends FeatureView {
         }.start();
 
     }
+    // 查询所有逻辑幢，识别户和幢附属
+    public static void LaodAllLJZ_IdentyHAndZFSJG(final MapInstance mapInstance, final AiRunnable callback) {
+        final List<Feature> fs = new ArrayList<>();
+        MapHelper.Query(GetTable(mapInstance), "", -1, fs, new AiRunnable(callback) {
+            // 递归调用，直到全部完成
+            void identy(final List<Feature> fs, final int index, final AiRunnable identy_callback) {
+                if (index < fs.size()) {
+                    FeatureViewLJZ.IdentyLJZ_HAndZFSJG(mapInstance, fs.get(index), new AiRunnable(callback) {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            identy(fs, index + 1, identy_callback);
+                            return null;
+                        }
+                    });
+                } else {
+                    AiRunnable.Ok(identy_callback, index);
+                }
+            }
 
-    public void loadCs(List<Feature> fs_c, AiRunnable callback) {
-        String orid_zrzh = mapInstance.getOrid_Match(feature, "ZRZ");
-        List<Feature> fs = new ArrayList<>();
-        int szc = FeatureHelper.Get(feature, "SZC", 1);
-        int zcs = FeatureHelper.Get(feature, "ZCS", 1);
-        String where = " SJC > '" + (szc - 1) + "'  and  SJC < '" + (szc + zcs) + "' ";
-        queryChildFeature("ZRZ_C", orid_zrzh, "", "CH", "", fs, callback);
-    }
-
-    // 快速绘制户
-    public void h_init(final AiRunnable callback) {
-        FeatureViewH.InitFeatureAll(mapInstance, feature, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                AiRunnable.Ok(callback, t_, objects);
+                identy(fs, 0, new AiRunnable(callback) {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        AiRunnable.Ok(callback, fs, fs.size());
+                        return null;
+                    }
+                });
                 return null;
             }
         });
     }
+    ///endregion
 
-    // 生成层
-    public void draw_tj(Feature feature, AiRunnable callback) {
-        String type = "天井";
-        FeatureLayer layer = MapHelper.getLayer(map, "Z_FSJG", "幢附属结构");
-        final Feature f = layer.getFeatureTable().createFeature();
-        f.getAttributes().put("LC", "1");
-        f.getAttributes().put("MC", type);
-        f.getAttributes().put("TYPE", "1");
-        f.getAttributes().put("FHMC", type);
-        mapInstance.fillFeature(f);
-        CreateFeatureHollow(mapInstance, feature, f, "1", callback);
-    }
-
-    public static void IdentyLJZ_HAndZFSJG(final MapInstance mapInstance, final Feature f_ljz, final AiRunnable callback) {
-        String ljzh = FeatureHelper.Get(f_ljz, "ZRZH", "");
-        if (StringUtil.IsEmpty(ljzh)) {
-            AiRunnable.Ok(callback, ljzh);
-            return;
-        }
-        FeatureEditH.IdentyLJZ_H(mapInstance, f_ljz, new AiRunnable(callback) {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                FeatureViewZ_FSJG.IdentyLJZ_FSJG(mapInstance, f_ljz, callback);
-                return null;
-            }
-        });
-    }
-
+    //region 图层转换
+    //转幢附属
     public void featureConversionToZfsjg(final AiRunnable callback) {
         String type = "沿廊";
         FeatureLayer layer = MapHelper.getLayer(map, "Z_FSJG", "幢附属结构");
@@ -717,7 +819,7 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
-
+    //转户附属
     public void featureConversionToHfsjg(final AiRunnable callback) {
         String type = "阳台";
         FeatureLayer layer = MapHelper.getLayer(map, "H_FSJG", "户附属结构");
@@ -738,96 +840,57 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+    ///endregion
 
-    // 实例化户
-    public void InitFeatureLjz(final AiRunnable callback) {
-        FeaturePojo featurePojo = new FeaturePojo(feature, "BZ");
-        List<String> lcs = featurePojo.getLc();
-        List<Feature> fs_h = new ArrayList<>();
-        for (String lc : lcs) {
-            Feature f_h = mapInstance.getTable("H").createFeature();
-            f_h.setGeometry(feature.getGeometry());
-            FeatureHelper.Set(f_h, "SZC", lc);
-            FeatureHelper.Set(f_h, "LJZH", featurePojo.getLjzh());
-            FeatureHelper.Set(f_h, "ZRZH", featurePojo.getZrzh());
-            FeatureHelper.Set(f_h, "HH", featurePojo.getHh());
-            FeatureHelper.Set(f_h, "MPH", featurePojo.getZrzh() + "-" + featurePojo.getLjzh() + "-" + lc + featurePojo.getHh());
-            mapInstance.fillFeature(f_h, feature);
-            fs_h.add(f_h);
-        }
-        AiRunnable.Ok(callback, fs_h);
+    //region 基础方法
+
+    public static FeatureTable GetTable(MapInstance mapInstance) {
+        return MapHelper.getLayer(mapInstance.map, FeatureHelper.TABLE_NAME_LJZ).getFeatureTable();
     }
 
-    public void init_fsjg(String fsjg_lx, final String tableName) {
-        setFsjgAttribute(fsjg_lx, new AiRunnable() {
+    //  获取最大的编号
+    public void getMaxLjzh(String zrzh, final AiRunnable callback) {
+        if (FeatureHelper.isZRZHValid(zrzh)) {
+            String id = StringUtil.substr(zrzh, FeatureHelper.FEATURE_DJZQDM_LENG);
+            MapHelper.QueryMax(table, StringUtil.WhereByIsEmpty(id) + "LJZH like '" + id + "__'", "LJZH", id.length(), 0, id + "00", callback);
+        } else {
+            AiRunnable.Ok(callback, null, "00", "00");
+        }
+    }
+
+    private String getId(String zddm) {
+        if (TextUtils.isEmpty(zddm)) {
+            String xmbm = mapInstance.aiMap.getProjectXmbm();
+            if (!TextUtils.isEmpty(xmbm) && xmbm.length() == 12) {
+                return xmbm + "F000";
+            }
+        }
+        return StringUtil.substr(zddm, 0, 12) + "F000";
+    }
+
+    // 新的逻辑幢号
+    public void newLjzh(String zrzh, final AiRunnable callback) {
+        getMaxLjzh(zrzh, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                final AiDialog dialog = (AiDialog) t_;
-                dialog.dismiss();
-                final Map<String, Object> map = (Map<String, Object>) objects[0];
-                final Map<String, String> dataconfig = (Map<String, String>) objects[1];
-                final FeatureView featureView = (FeatureView) mapInstance.newFeatureView(tableName);
-                featureView.fsjg_init(new AiRunnable() {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        if (t_ instanceof Feature) {
-                            final Feature f_t = (Feature) t_;
-                            String szc = map.get("SZC") + "";
-                            final List<Integer> nubs = StringUtil.GetNumbers(szc);
-                            final ArrayList<Feature> features_save = new ArrayList<>();
-                            for (int nub : nubs) {
-                                Feature f;
-                                if (nubs.indexOf(nub) == 0) {
-                                    f = f_t;
-                                } else {
-                                    f = mapInstance.getTable(tableName).createFeature();
-                                }
-                                f.setGeometry(f_t.getGeometry());
-                                f.getAttributes().put("LC", nub + "");
-                                String dataconfigType = dataconfig.get("TYPE");
-                                String type = dataconfigType.substring(dataconfigType.indexOf("[") + 1, dataconfigType.indexOf("]"));
-                                f.getAttributes().put("TYPE", type);
-                                f.getAttributes().put("FHMC", dataconfig.get("FHMC"));
-                                featureView.hsmj(f, mapInstance);
-                                fv.fillFeature(f, feature);
-                                features_save.add(f);
-                            }
-                            MapHelper.saveFeature(features_save, new AiRunnable() {
-                                @Override
-                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                    mapInstance.viewFeature(f_t);
-                                    return null;
-                                }
-                            });
-                        }
-                        return null;
-                    }
-                });
+                String id = "";
+                if (objects.length > 1) {
+                    String maxid = objects[0] + "";
+                    // 最大号加1
+                    int count = AiUtil.GetValue(objects[1], 0) + 1;
+                    id = StringUtil.fill(String.format("%02d", count), maxid, true);
+                }
+                AiRunnable.Ok(callback, id);
                 return null;
             }
         });
-
     }
 
-
-    private void setFsjgAttribute(final String resname, final AiRunnable callback) {
-        String desc = "该操作主要是绘制幢附属结构到指定楼层！";
-        final Map<String, Object> map = new LinkedHashMap<>();
-        final Map<String, String> dataconfig = new LinkedHashMap<>();
-        final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
-        final String szc = "SZC";
-        map.put(szc, "1");
-        dataconfig.put("TYPE", "1");
-        aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
-        aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
-        aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
-                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc));
-        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                AiRunnable.Ok(callback, aiDialog, map, dataconfig);
-            }
-        });
+    public void loadByLjzh(String ljzh, AiRunnable callback) {
+        MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(ljzh) + " LJZH like '%'" + ljzh + "%' ", callback);
     }
+
+    ///endregion
+
 
 }
