@@ -19,9 +19,11 @@ import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.ImmutablePart;
+import com.esri.arcgisruntime.geometry.ImmutablePartCollection;
 import com.esri.arcgisruntime.geometry.Multipart;
 import com.esri.arcgisruntime.geometry.Multipoint;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.esri.arcgisruntime.layers.FeatureLayer;
@@ -155,6 +157,14 @@ public class FeatureViewZD extends FeatureView {
                         znsb(feature);
                     }
                 });
+
+                mapInstance.addAction(groupname, "提取幢", R.mipmap.app_icon_map_znsb, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        zntq(feature);
+                    }
+                });
+
             }
         }
 
@@ -447,12 +457,122 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    /**
-     * 通过自然幢生成层
-     *
-     * @param featuresZRZ
-     * @param callback    执行完成回调
-     */
+    private void zntq(final Feature f_zd) {
+        final String funcdesc = "该功能将逐宗地内房屋进行处理："
+                + "\n 1、通过逻辑幢合成自然幢；";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理")
+                        .setContentView("注意：属于不可逆操作，将查询宗地范围内的逻辑幢合成自然幢", funcdesc)
+                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
+                                        aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        }, null, null, "完成", null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据失败！");
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据异常！");
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
+                                    }
+                                };
+                                // 设置不可中断
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据" + "ZDDM=" + FeatureHelper.Get(feature, "ZDDM", ""));
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "查找所有的逻辑幢，并合成自然幢");
+                                Log.d(TAG, "智能处理:查找所有的逻辑幢，并合成自然幢");
+                                // 查询宗地范围内的逻辑幢
+                                final FeatureViewZD fv_zd = (FeatureViewZD) mapInstance.newFeatureView(feature);
+                                final List<Feature> featuresLJZ = new ArrayList<>();
+                                MapHelper.Query(mapInstance.getTable("LJZ"), feature.getGeometry(), featuresLJZ, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        // 通过逻辑幢合成自然幢
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查询到" + featuresLJZ.size() + "个逻辑幢。");
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 通过逻辑幢合成自然幢。");
+                                        final List<Feature> featuresZRZ = new ArrayList<>();
+                                        creatZrzToLjzUnion(featuresLJZ, featuresZRZ, new AiRunnable() {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+
+
+                                                ToastMessage.Send("通过逻辑幢合成自然幢");
+                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已合成" + featuresZRZ.size() + "自然幢。");
+
+
+
+
+                                                MapHelper.saveFeature(featuresZRZ,callback);
+                                                return null;
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                });
+
+
+                            }
+                        }).show();
+                ;
+
+                return null;
+            }
+        });
+    }
+
+    private void creatZrzToLjzUnion(List<Feature> featuresLJZ, final List<Feature> featuresZRZ, final AiRunnable callback) {
+        if (featuresLJZ.size() > 0) {
+            List<Geometry> gs = MapHelper.geometry_get(featuresLJZ);
+            Geometry g = GeometryEngine.union(gs);
+            if (g instanceof Polygon) {
+                ImmutablePartCollection polygonParts = ((Polygon) g).getParts();
+                int ps = polygonParts.size();
+                if (ps > 0) {
+                    for (ImmutablePart segments : polygonParts) {
+                        Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
+                        Feature featureZrz = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
+                        featureZrz.setGeometry(polygon);
+                        List<Feature> myLjz = new ArrayList<>();
+                        for (Feature f_ljz : featuresLJZ) {
+                            if (MapHelper.geometry_contains(polygon,featureZrz.getGeometry())){
+                                myLjz.add(f_ljz);
+                            }
+                        }
+                        featureZrz.getAttributes().put("ZCS", Double.valueOf(getMaxFloor(myLjz, "ZCS")));
+                        featureZrz.getAttributes().put("FWJG", getZrzStructure(myLjz));
+                        featuresZRZ.add(featureZrz);
+                    }
+                    AiRunnable.Ok(callback, featuresZRZ);
+                } else {
+                    AiRunnable.Ok(callback, featuresZRZ);
+                }
+            }
+        } else {
+            AiRunnable.Ok(callback, featuresZRZ);
+        }
+    }
+
     private void creatCToZrz(final List<Feature> featuresZRZ, final AiRunnable callback) {
         MapHelper.saveFeature(featuresZRZ, new AiRunnable(callback) {
             @Override

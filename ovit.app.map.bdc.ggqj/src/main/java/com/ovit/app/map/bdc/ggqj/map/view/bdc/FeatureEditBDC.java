@@ -544,124 +544,123 @@ public class FeatureEditBDC extends FeatureEdit {
 
     // 智能
     private void znclToZd(boolean isRelaod, final AiRunnable callback) {
-        {
-            final String funcdesc = "该功能将逐一对宗地内房屋进行智能处理："
-                    + "\n 1、通过逻辑幢合成自然幢；"
-                    + "\n 2、自然幢生成层；"
-                    + "\n 3、逻辑幢快速生成户。"
-                    + "\n 4、宗地，自然幢，逻辑幢，层，户，附属结构关系建立。";
-            License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
-                @Override
-                public <T_> T_ ok(T_ t_, Object... objects) {
-                    final AiDialog aidialog = AiDialog.get(mapInstance.activity);
-                    aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理")
-                            .setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
-                            .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // 完成后的回掉
-                                    final AiRunnable callback = new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
-                                            aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.dismiss();
-                                                }
-                                            }, null, null, "完成", null);
-                                            return null;
-                                        }
+        final String funcdesc = "该功能将逐一对宗地内房屋进行智能处理："
+                + "\n 1、通过逻辑幢合成自然幢；"
+                + "\n 2、自然幢生成层；"
+                + "\n 3、逻辑幢快速生成户。"
+                + "\n 4、宗地，自然幢，逻辑幢，层，户，附属结构关系建立。";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理")
+                        .setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
+                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
+                                        aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        }, null, null, "完成", null);
+                                        return null;
+                                    }
 
-                                        @Override
-                                        public <T_> T_ no(T_ t_, Object... objects) {
-                                            aidialog.addContentView("处理数据失败！");
-                                            aidialog.setFooterView(null, "关闭", null);
-                                            return null;
-                                        }
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据失败！");
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
+                                    }
 
-                                        @Override
-                                        public <T_> T_ error(T_ t_, Object... objects) {
-                                            aidialog.addContentView("处理数据异常！");
-                                            aidialog.setFooterView(null, "关闭", null);
-                                            return null;
-                                        }
-                                    };
-                                    // 设置不可中断
-                                    aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                    aidialog.setContentView("开始处理数据" + "ZDDM=" + FeatureHelper.Get(feature, "ZDDM", ""));
-                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "查找所有的逻辑幢，并合成自然幢");
-                                    Log.d(TAG, "智能处理:查找所有的逻辑幢，并合成自然幢");
-                                    // 查询宗地范围内的逻辑幢
-                                    final FeatureViewZD fv_zd = (FeatureViewZD) mapInstance.newFeatureView(feature);
-                                    final List<Feature> featuresLJZ = new ArrayList<>();
-                                    MapHelper.Query(mapInstance.getTable("LJZ"), feature.getGeometry(), featuresLJZ, new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            // 通过逻辑幢合成自然幢
-                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查询到" + featuresLJZ.size() + "个逻辑幢。");
-                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 通过逻辑幢合成自然幢。");
-                                            final List<Feature> featuresZRZ = new ArrayList<>();
-                                            creatZrzToLjzUnion(featuresLJZ, featuresZRZ, new AiRunnable() {
-                                                @Override
-                                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                                    ToastMessage.Send("通过逻辑幢合成自然幢");
-                                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已合成" + featuresZRZ.size() + "自然幢。");
-                                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 宗地识别自然幢");
-                                                    // zd 识别自然幢;
-                                                    fv_zd.identyZd_Zrz(mapInstance, feature, featuresZRZ, new AiRunnable() {
-                                                        @Override
-                                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            // 自然幢识别逻辑幢
-                                                            ToastMessage.Send("zd 识别自然幢");
-                                                            indentyLjzToZrz(featuresZRZ, new AiRunnable() {
-                                                                @Override
-                                                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                    // 自然幢生成层
-                                                                    ToastMessage.Send("自然幢识别逻辑幢完成");
-                                                                    creatCToZrz(featuresZRZ, new AiRunnable() {
-                                                                        @Override
-                                                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                            // 通过宗地生成不动产单元
-                                                                            ToastMessage.Send("层生成完成");
-                                                                            createBdcdyToZd(feature, new AiRunnable() {
-                                                                                @Override
-                                                                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                                    ToastMessage.Send("宗地生成权利人，不动产单元成功。");
-                                                                                    AiRunnable.Ok(callback, t_, objects);
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据异常！");
+                                        aidialog.setFooterView(null, "关闭", null);
+                                        return null;
+                                    }
+                                };
+                                // 设置不可中断
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据" + "ZDDM=" + FeatureHelper.Get(feature, "ZDDM", ""));
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "查找所有的逻辑幢，并合成自然幢");
+                                Log.d(TAG, "智能处理:查找所有的逻辑幢，并合成自然幢");
+                                // 查询宗地范围内的逻辑幢
+                                final FeatureViewZD fv_zd = (FeatureViewZD) mapInstance.newFeatureView(feature);
+                                final List<Feature> featuresLJZ = new ArrayList<>();
+                                MapHelper.Query(mapInstance.getTable("LJZ"), feature.getGeometry(), featuresLJZ, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        // 通过逻辑幢合成自然幢
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查询到" + featuresLJZ.size() + "个逻辑幢。");
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 通过逻辑幢合成自然幢。");
+                                        final List<Feature> featuresZRZ = new ArrayList<>();
+                                        creatZrzToLjzUnion(featuresLJZ, featuresZRZ, new AiRunnable() {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                ToastMessage.Send("通过逻辑幢合成自然幢");
+                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已合成" + featuresZRZ.size() + "自然幢。");
+                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 宗地识别自然幢");
+                                                // zd 识别自然幢;
+                                                fv_zd.identyZd_Zrz(mapInstance, feature, featuresZRZ, new AiRunnable() {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                        // 自然幢识别逻辑幢
+                                                        ToastMessage.Send("zd 识别自然幢");
+                                                        indentyLjzToZrz(featuresZRZ, new AiRunnable() {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                // 自然幢生成层
+                                                                ToastMessage.Send("自然幢识别逻辑幢完成");
+                                                                creatCToZrz(featuresZRZ, new AiRunnable() {
+                                                                    @Override
+                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        // 通过宗地生成不动产单元
+                                                                        ToastMessage.Send("层生成完成");
+                                                                        createBdcdyToZd(feature, new AiRunnable() {
+                                                                            @Override
+                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                ToastMessage.Send("宗地生成权利人，不动产单元成功。");
+                                                                                AiRunnable.Ok(callback, t_, objects);
 //                                                                                        aidialog.dismiss();
-                                                                                    // 输出成果
+                                                                                // 输出成果
 //                                                                                         OutputAllBdcdyResultsToZD(feature,null);
-                                                                                    return null;
-                                                                                }
-                                                                            });
-                                                                            return null;
-                                                                        }
-                                                                    });
-                                                                    return null;
-                                                                }
-                                                            });
-                                                            return null;
-                                                        }
-                                                    });
-                                                    return null;
-                                                }
-                                            });
-                                            return null;
-                                        }
-                                    });
+                                                                                return null;
+                                                                            }
+                                                                        });
+                                                                        return null;
+                                                                    }
+                                                                });
+                                                                return null;
+                                                            }
+                                                        });
+                                                        return null;
+                                                    }
+                                                });
+                                                return null;
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                });
 
 
-                                }
-                            }).show();
-                    ;
+                            }
+                        }).show();
+                ;
 
-                    return null;
-                }
-            });
-        }
-
+                return null;
+            }
+        });
     }
+
+
 
     private void OutputAllBdcdyResultsToZD(Feature feature, final AiRunnable callback) {
         if (feature.getFeatureTable().getTableName().equals("ZD")) {

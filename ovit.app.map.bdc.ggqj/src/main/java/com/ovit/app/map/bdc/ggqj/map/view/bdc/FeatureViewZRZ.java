@@ -227,7 +227,7 @@ public class FeatureViewZRZ extends FeatureView {
         }
         if (0d == FeatureHelper.Get(feature, "SCJZMJ", 0d)) {
             double scjzmj = area * AiUtil.GetValue(feature.getAttributes().get("ZCS"), 1);
-            feature.getAttributes().put("SCJZMJ", scjzmj+"");
+            feature.getAttributes().put("SCJZMJ", scjzmj);
         }
 
         if (isF99990001) {
