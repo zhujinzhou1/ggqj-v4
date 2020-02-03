@@ -175,24 +175,24 @@ public class FeatureViewLJZ extends FeatureView {
     @Override
     public String addActionBus(String groupname) {
         int count = mapInstance.getSelFeatureCount();
-        // 推荐
-        mapInstance.addAction(groupname, "画逻辑幢", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                draw_ljz(mapInstance.getOrid_Parent(feature), "1", null);
-            }
-        });
         if (count > 0) {
-            boolean iscantqzrz = true;
+            mapInstance.addAction(groupname, "画附属", R.mipmap.app_map_layer_fsjg, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawFsjg(v);
+                }
+            });
+            //提取自然幢
+            boolean isCanDrawDraw = true;//是否可以提取自然幢
             final List<Feature> fs = new ArrayList<>(mapInstance.features_sel);
             for (Feature f : fs) {
                 String orid_path = mapInstance.getOrid_Path(f);
                 if (StringUtil.IsNotEmpty(orid_path)) {
-                    iscantqzrz = false;
+                    isCanDrawDraw = false;
                     break;
                 }
             }
-            if (iscantqzrz) {
+            if (isCanDrawDraw) {
                 mapInstance.addAction(groupname, "提取自然幢", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -240,37 +240,21 @@ public class FeatureViewLJZ extends FeatureView {
 //                        draw_c(feature, "1", null);
 //                    }
 //                });
-
-            mapInstance.addAction(groupname, "画户", R.mipmap.app_map_layer_h, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    draw_h(feature, "1", null);
-                }
-            });
-            mapInstance.addAction(groupname, "画附属", R.mipmap.app_map_layer_fsjg, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-//                    draw_z_fsjg(feature, "飘楼", "2", null);
-                    selectFsjg(v);
-                }
-            });
-        }
-
 //
-//        if (count > 0) {
-//            mapInstance.addAction(groupname, "画飘窗", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
+//            mapInstance.addAction(groupname, "画户", R.mipmap.app_map_layer_h, new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
-//                    draw_h_fsjg(feature, "飘窗");
+//                    draw_h(feature, "1", null);
 //                }
 //            });
-//            mapInstance.addAction(groupname, "画阳台", R.mipmap.app_map_h, new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    draw_h_fsjg(feature, "阳台");
-//                }
-//            });
-//        }
+        }
+        // 推荐
+        mapInstance.addAction(groupname, "画逻辑幢", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                draw_ljz(mapInstance.getOrid_Parent(feature), "1", null);
+            }
+        });
 
         addActionTY(groupname);
         addActionPZ(groupname);
@@ -515,7 +499,7 @@ public class FeatureViewLJZ extends FeatureView {
      * 附属结构列表
      * @param view
      */
-    private void selectFsjg(final View view) {
+    private void drawFsjg(final View view) {
         final AiWindow aiWindow = new AiWindow(activity);
         aiWindow.autoShow = true;
         aiWindow.layout_resid = R.layout.app_ui_ai_aipop;
@@ -729,13 +713,22 @@ public class FeatureViewLJZ extends FeatureView {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 FeatureViewZ_FSJG fv_ = FeatureViewZ_FSJG.From(mapInstance);
-                fv_.fillFeature(fs_z_fsjg, feature);
+//                fv_.fillFeature(fs_z_fsjg, feature);
+                for (Feature f : fs_z_fsjg) {
+                    Geometry bufferHfsjg = GeometryEngine.buffer(f.getGeometry(), 0.02);
+                    Geometry g = GeometryEngine.intersection(feature.getGeometry(), bufferHfsjg);
+                    if (MapHelper.getArea(mapInstance,g)<1*0.02){
+                        continue;
+                    }
+                    fv_.fillFeature(f, feature);
+                }
+
                 if (isShow) {
                     fv_.fs_ref = ListUtil.asList(feature);
                     QuickAdapter<Feature> adapter = fv_.getListAdapter(fs_z_fsjg, 0);
                     AiDialog dialog = AiDialog.get(mapInstance.activity, adapter);
                     dialog.setHeaderView(R.mipmap.app_map_layer_zrz, "识别到" + fs_z_fsjg.size() + "个附属");
-                    dialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    dialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             MapHelper.saveFeature(fs_z_fsjg, callback);

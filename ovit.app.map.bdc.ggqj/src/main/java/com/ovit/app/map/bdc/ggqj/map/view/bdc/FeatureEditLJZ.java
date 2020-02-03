@@ -245,8 +245,6 @@ public class FeatureEditLJZ extends FeatureEdit {
             public void onClick(View v) {
                 setMenuItem(R.id.ll_ft);
                 load_ftqk();
-//                View ft_view = view.findViewById(R.id.ll_ft_content);
-//                FeatureEditFTQK.load_ft(mapInstance, feature, ft_view);
             }
         });
         addAction("画户", R.mipmap.app_map_layer_h, new View.OnClickListener() {
