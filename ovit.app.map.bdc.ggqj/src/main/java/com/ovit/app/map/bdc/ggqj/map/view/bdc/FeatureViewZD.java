@@ -123,6 +123,25 @@ public class FeatureViewZD extends FeatureView {
         // 根据画宗地推荐
         if (feature != null && feature.getFeatureTable() == table) {
             if (count > 0) {
+                mapInstance.addAction(groupname, "提取幢", R.mipmap.app_icon_map_znsb, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        zntq(feature);
+                    }
+                });
+
+                mapInstance.addAction(groupname, "图形关联", R.mipmap.app_icon_map_txgl, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        znsb(feature);
+                    }
+                });
+
+            }
+        }
+
+        if (feature != null && feature.getFeatureTable() == table) {
+            if (count > 0) {
                 mapInstance.addAction(groupname, "权属", R.mipmap.app_map_user, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -149,24 +168,6 @@ public class FeatureViewZD extends FeatureView {
                 draw_ljz("", "1", null);
             }
         });
-        if (feature != null && feature.getFeatureTable() == table) {
-            if (count > 0) {
-                mapInstance.addAction(groupname, "智能识别", R.mipmap.app_icon_map_znsb, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        znsb(feature);
-                    }
-                });
-
-                mapInstance.addAction(groupname, "提取幢", R.mipmap.app_icon_map_znsb, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        zntq(feature);
-                    }
-                });
-
-            }
-        }
 
         addActionTY(groupname);// 涂鸦
         addActionPZ(groupname);// 拍照
@@ -412,34 +413,18 @@ public class FeatureViewZD extends FeatureView {
                                             {
                                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 宗地识别自然幢");
                                                 // zd 识别自然幢;
-                                                fv_zd.identyZd_Zrz(mapInstance, feature, featuresZrz, new AiRunnable() {
+                                                fv_zd.identyZrzFromZD(mapInstance, feature, featuresZrz, new AiRunnable() {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                                         // 自然幢识别逻辑幢
-                                                        new AiForEach<Feature>(featuresZrz, callback) {
+                                                        FeatureViewZRZ fv_zrz = (FeatureViewZRZ) mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_ZRZ);
+                                                        fv_zrz.indentyLjzFromZrzs(featuresZrz, new AiRunnable() {
                                                             @Override
-                                                            public void exec() {
-                                                                final Feature featureZrz = getValue();
-                                                                FeatureViewZRZ fvZrz = (FeatureViewZRZ) mapInstance.newFeatureView(featureZrz);
-                                                                final AiForEach<Feature> that = this;
-                                                                fvZrz.identyLjz(false, new AiRunnable() {
-                                                                    @Override
-                                                                    public <T_> T_ ok(final T_ t_, Object... objects) {
-                                                                        final List<Feature> featuresLjz = (List<Feature>) t_;
-                                                                        featureZrz.getAttributes().put("JZWJBYT", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("FWYT1"), "")); // 更新自然幢用途
-                                                                        Log.i(TAG, "自然幢识别逻辑幢===" + postion);
-                                                                        AiRunnable.Ok(that.getNext(), featuresLjz);
-                                                                        return null;
-                                                                    }
-                                                                });
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                AiRunnable.Ok(callback,featuresZrz,objects);
+                                                                return null;
                                                             }
-
-                                                            @Override
-                                                            public void complet() {
-                                                                AiRunnable.Ok(callback, featuresZrz);
-                                                            }
-                                                        }.start();
-
+                                                        });
                                                         return null;
                                                     }
                                                 });
@@ -1769,20 +1754,20 @@ public class FeatureViewZD extends FeatureView {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             fv_.fillFeature(fs_zrz, feature);
-                            identyZd_Zrz(mapInstance, feature, fs_zrz, callback);
+                            identyZrzFromZD(mapInstance, feature, fs_zrz, callback);
                             dialog.dismiss();
                         }
                     });
                 } else {
                     fv_.fillFeature(fs_zrz, feature);
-                    identyZd_Zrz(mapInstance, feature, fs_zrz, callback);
+                    identyZrzFromZD(mapInstance, feature, fs_zrz, callback);
                 }
                 return null;
             }
         });
     }
 
-    public void identyZd_Zrz(com.ovit.app.map.model.MapInstance mapInstance, Feature f_zd, List<Feature> features_zrz, final AiRunnable callback) {
+    public void identyZrzFromZD(com.ovit.app.map.model.MapInstance mapInstance, Feature f_zd, List<Feature> features_zrz, final AiRunnable callback) {
         double area_jzmj = 0;
         double area_jzzdmj = 0;
         String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");

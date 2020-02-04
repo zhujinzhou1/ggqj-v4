@@ -232,13 +232,6 @@ public class FeatureEditH extends FeatureEdit {
                 });
             }
         });
-        // 设定不动产单元
-        addAction("设定不动产", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addBdcdy();
-            }
-        });
     }
 
     private void addBdcdy() {

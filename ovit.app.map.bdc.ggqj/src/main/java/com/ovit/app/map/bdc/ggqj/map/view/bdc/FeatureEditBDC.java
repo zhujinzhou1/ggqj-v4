@@ -608,7 +608,7 @@ public class FeatureEditBDC extends FeatureEdit {
                                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已合成" + featuresZRZ.size() + "自然幢。");
                                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 宗地识别自然幢");
                                                 // zd 识别自然幢;
-                                                fv_zd.identyZd_Zrz(mapInstance, feature, featuresZRZ, new AiRunnable() {
+                                                fv_zd.identyZrzFromZD(mapInstance, feature, featuresZRZ, new AiRunnable() {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                                         // 自然幢识别逻辑幢

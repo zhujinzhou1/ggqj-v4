@@ -512,7 +512,15 @@ public class FeatureViewZRZ extends FeatureView {
             }
         });
     }
-
+    public void c_init(final AiRunnable callback) {
+        FeatureViewC.InitFeatureAll(mapInstance, feature, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                AiRunnable.Ok(callback, t_, objects);
+                return null;
+            }
+        });
+    }
     public void identyLjz(List<Feature> features_zrz, final AiRunnable callback) {
         MapHelper.Query(mapInstance.getTable("LJZ"), GeometryEngine.buffer(feature.getGeometry(), -0.5), features_zrz, callback);
     }
@@ -558,18 +566,10 @@ public class FeatureViewZRZ extends FeatureView {
         });
     }
 
-    public void c_init(final AiRunnable callback) {
-        FeatureViewC.InitFeatureAll(mapInstance, feature, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                AiRunnable.Ok(callback, t_, objects);
-                return null;
-            }
-        });
-    }
+
 
     // 自然幢识别逻辑幢
-    private void indentyLjzToZrz(final List<Feature> featuresZRZ, AiRunnable callback) {
+    public void indentyLjzFromZrzs(final List<Feature> featuresZRZ, AiRunnable callback) {
         new AiForEach<Feature>(featuresZRZ, callback) {
             public void exec() {
                 final Feature featureZrz = getValue();
@@ -578,12 +578,17 @@ public class FeatureViewZRZ extends FeatureView {
                 fvZrz.identyLjz(false, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(final T_ t_, Object... objects) {
-                        final List<Feature> featuresLjz = (List<Feature>) t_;
+                        if (FeatureHelper.isExistFeature(t_)){
+//                            final List<Feature> featuresLjz = (List<Feature>) t_;
 //                        featuresZRZ.get(postion).getAttributes().put("ZCS", getMaxLc(featuresLjz)); // 更新自然幢楼层
 //                        featureZrz.getAttributes().put("FWJG", getZrzJc(featuresLjz)); // 更新自然幢结构
 //                        featuresZRZ.get(postion).getAttributes().put("JGRQ", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("JGRQ"),"")); // 更新自然幢竣工日期
-                        featureZrz.getAttributes().put("JZWJBYT", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("FWYT1"), "")); // 更新自然幢用途
-                        Log.i(TAG, "自然幢识别逻辑幢===" + postion);
+//                        featureZrz.getAttributes().put("JZWJBYT", AiUtil.GetValue(featuresLjz.get(0).getAttributes().get("FWYT1"), "")); // 更新自然幢用途
+                            Log.i(TAG, "自然幢识别逻辑幢===" + postion);
+                        }else {
+                            //TODO 没有识别到逻辑幢，通过自然幢生成逻辑幢。
+                        }
+                        AiRunnable.Ok(that.getNext(), t_);
 //                        initAllFeatureHToLjz(featuresLjz, that.getNext());
                         return null;
                     }
