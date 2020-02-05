@@ -66,6 +66,7 @@ public class FeatureEditC extends FeatureEdit {
 
     //region 字段
     FeatureViewC fv;
+    View view_bdcdy;
     ///endregion
 
     //region 构造函数
@@ -144,72 +145,6 @@ public class FeatureEditC extends FeatureEdit {
     ///endregion
 
     //region 公有函数
-    ///endregion
-
-    //region 私有函数
-    ///endregion
-
-    //region 内部类或接口
-    ///endregion
-
-    //层设定不动产单元
-    private void addBdcdy() {
-        final AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
-        String oridPath = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
-
-        if (StringUtil.IsNotEmpty(oridPath)||!oridPath.contains(FeatureHelper.TABLE_NAME_ZRZ)) {
-            fv.checkcBdcdy(feature, new AiRunnable() {
-                @Override
-                public <T_> T_ ok(T_ t_, Object... objects) {
-                    if (t_ != null) {
-                        //可以设定不动产单元
-                        aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该层共同设定一个不动产单元！");
-                        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(final DialogInterface dialog, int which) {
-                                // 加载界面
-                                fv.create_c_bdcfy(feature, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        mapInstance.viewFeature((Feature) t_);
-                                        dialog.dismiss();
-                                        return null;
-                                    }
-                                });
-                            }
-                        }).show();
-
-                    } else {
-                        aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
-                        aiDialog.setFooterView("取消", "确定", null).show();
-                    }
-
-                    return null;
-                }
-            });
-        } else {
-            aiDialog.addContentView("不能设定不动产单元", "自然幢层没有与自然幢关联！");
-            aiDialog.setFooterView("取消", "确定", null).show();
-        }
-
-    }
-
-    View view_bdcdy;
-    public void load_bdcdy() {
-        if (view_bdcdy == null) {
-            ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
-            bdcdy_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view,fv.queryChildWhere());
-            view_bdcdy = bdcdy_view;
-        }
-    }
-    /**
-     * 重新加载不动产单元列表
-     */
-    private void reload_bdcdy() {
-        view_bdcdy = null;
-        load_bdcdy();
-    }
     public static void LoadAll(final MapInstance mapInstance, Feature f, final List<Feature> fs, AiRunnable callback) {
         LoadAll(mapInstance, mapInstance.getOrid(f), fs, callback);
     }
@@ -269,79 +204,6 @@ public class FeatureEditC extends FeatureEdit {
             }
         });
         return keys;
-    }
-
-    private static void copylc(final MapInstance mapInstance, final Feature f_ljz, final String lc, final AiRunnable callback) {
-        String desc = "该操作主要是将选中的层，复制到新的楼层，请谨慎处理！";
-        final AiDialog aidialog = AiDialog.get(mapInstance.activity);
-        aidialog.setHeaderView(R.mipmap.app_icon_warning_red, "不可逆操作提醒")
-                .addContentView("确定要复制么？", desc)
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                        final Map<String, Object> map = new LinkedHashMap<>();
-                        final int lc_f = AiUtil.GetValue(lc, 1);
-                        map.put("szc", (lc_f + 1) + "");
-                        aidialog.setContentView("请输入需要复制到的层数，多层使用“,”、“-”隔开：如：3,5,7 或是 2-7 层")
-                                .addContentView("如：3,5,7 将复制到3、5、7层")
-                                .addContentView("如：3-7 将复制到3、4、5、6、7层")
-                                .addContentView(aidialog.getEditView("请输入要复制到的楼层", map, "szc"))
-                                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        String szc = map.get("szc") + "";
-                                        final List<Integer> nubs = StringUtil.GetNumbers(szc);
-                                        aidialog.setContentView("输入的楼层为“" + szc + "”：将复制到" + StringUtil.Join(nubs) + "层");
-                                        aidialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                try {
-                                                    final List<Feature> fs = new ArrayList<>();
-                                                    FeatureViewLJZ.LoadH_And_Fsjg(mapInstance, f_ljz, lc, fs, fs, fs, new AiRunnable() {
-                                                        @Override
-                                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            List<Feature> fs_save = new ArrayList<>();
-                                                            for (int szc : nubs) {
-                                                                for (Feature f : fs) {
-                                                                    // 复制户、幢附属
-                                                                    Feature f_ = FeatureHelper.Copy(f);
-                                                                    f_.setGeometry(f.getGeometry());
-                                                                    FeatureHelper.Set(f_, "SZC", szc);
-                                                                    FeatureHelper.Set(f_, "LC", szc);
-                                                                    FeatureHelper.Set(f_, "CH", szc);
-                                                                    // 将倒数地3、4位，替换位新的层
-                                                                    FeatureHelper.Set(f_, "HH", text_replace_lc(FeatureHelper.Get(f, "HH", ""), lc_f, szc));
-                                                                    FeatureHelper.Set(f_, "HID", text_replace_lc(FeatureHelper.Get(f, "HH", ""), lc_f, szc));
-                                                                    FeatureHelper.Set(f_, "BDCDYH", text_replace_lc(FeatureHelper.Get(f, "BDCDYH", ""), lc_f, szc));
-                                                                    FeatureHelper.Set(f_, "FWDM", text_replace_lc(FeatureHelper.Get(f, "FWDM", ""), lc_f, szc));
-
-                                                                    if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.H_FSJG_TABLE_NAME)) {
-                                                                        FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc, 8));
-                                                                        FeatureHelper.Set(f_,"ORID_PATH","");
-                                                                    } else if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.Z_FSJG_TABLE_NAME)){
-                                                                        FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc));
-                                                                    } else if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.H_TABLE_NAME)){
-                                                                        FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc));
-                                                                    }
-                                                                    fs_save.add(f_);
-                                                                }
-                                                            }
-                                                            mapInstance.fillFeature(fs_save);
-                                                            MapHelper.saveFeature(fs_save, callback);
-                                                            return null;
-                                                        }
-                                                    });
-                                                } catch (Exception es) {
-                                                    ToastMessage.Send("复制层失败！", es);
-                                                }
-                                                aidialog.dismiss();
-                                            }
-                                        });
-                                    }
-                                });
-
-                    }
-                }).show();
     }
 
     public static String text_replace_lc(String text, int lc1, int lc2) {
@@ -489,13 +351,13 @@ public class FeatureEditC extends FeatureEdit {
                 final List<Integer> cs = new ArrayList<Integer>();
                 for (int i = 0; i < zcs_; i++) {
                     if (qsc<0){
-                          if (i>=-qsc){
-                              cs.add(qsc + i+1);
-                          }else {
-                              cs.add(qsc + i);
-                          }
+                        if (i>=-qsc){
+                            cs.add(qsc + i+1);
+                        }else {
+                            cs.add(qsc + i);
+                        }
                     }else {
-                    cs.add(qsc + i);
+                        cs.add(qsc + i);
                     }
                 }
                 for (String key : map_all.keySet()) {
@@ -1052,7 +914,7 @@ public class FeatureEditC extends FeatureEdit {
     public static void LoadAllFeatureToH() {
 
     }
-
+    //生成成果
     public static void CreateDOCX(final MapInstance mapInstance, final Feature featureBdcdy, final boolean isRelaod, final AiRunnable callback) {
         final String bdcdyh = FeatureEditQLR.GetBdcdyh(featureBdcdy);
         String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
@@ -1135,7 +997,7 @@ public class FeatureEditC extends FeatureEdit {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                                         Feature f_c=null;
-                                                       final List<Feature> fs_all=new ArrayList<>();
+                                                        final List<Feature> fs_all=new ArrayList<>();
                                                         for (Feature feature : fs_c_all.keySet()) {
                                                             f_c=feature;
                                                             fs_all.addAll(fs_c_all.get(feature));
@@ -1253,7 +1115,7 @@ public class FeatureEditC extends FeatureEdit {
                                   final List<Feature> fs_c,
                                   final List<Feature> fs_ftqk,
                                   final LinkedHashMap<Feature,List<Feature>> fs_c_all
-                                 ) {
+    ) {
         try {
             String bdcdyh=FeatureHelper.Get(feature_bdc,"BDCDYH","");
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
@@ -1285,5 +1147,151 @@ public class FeatureEditC extends FeatureEdit {
             Log.e(TAG, "导出数据失败", es);
         }
     }
+
+    ///endregion
+
+    //region 私有函数
+    //层设定不动产单元
+    private void addBdcdy() {
+        final AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+        String oridPath = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+
+        if (StringUtil.IsNotEmpty(oridPath)||!oridPath.contains(FeatureHelper.TABLE_NAME_ZRZ)) {
+            fv.checkcBdcdy(feature, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    if (t_ != null) {
+                        //可以设定不动产单元
+                        aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该层共同设定一个不动产单元！");
+                        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog, int which) {
+                                // 加载界面
+                                fv.create_c_bdcfy(feature, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        mapInstance.viewFeature((Feature) t_);
+                                        dialog.dismiss();
+                                        return null;
+                                    }
+                                });
+                            }
+                        }).show();
+
+                    } else {
+                        aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
+                        aiDialog.setFooterView("取消", "确定", null).show();
+                    }
+
+                    return null;
+                }
+            });
+        } else {
+            aiDialog.addContentView("不能设定不动产单元", "自然幢层没有与自然幢关联！");
+            aiDialog.setFooterView("取消", "确定", null).show();
+        }
+
+    }
+
+    private void load_bdcdy() {
+        if (view_bdcdy == null) {
+            ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
+            bdcdy_view.setTag(null); //强制重新生成adapter
+            mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view,fv.queryChildWhere());
+            view_bdcdy = bdcdy_view;
+        }
+    }
+    /**
+     * 重新加载不动产单元列表
+     */
+    private void reload_bdcdy() {
+        view_bdcdy = null;
+        load_bdcdy();
+    }
+    /**
+     * 拷贝楼层
+     * @param mapInstance
+     * @param f_ljz
+     * @param lc
+     * @param callback
+     */
+    private  static void copylc(final MapInstance mapInstance, final Feature f_ljz, final String lc, final AiRunnable callback) {
+        String desc = "该操作主要是将选中的层，复制到新的楼层，请谨慎处理！";
+        final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+        aidialog.setHeaderView(R.mipmap.app_icon_warning_red, "不可逆操作提醒")
+                .addContentView("确定要复制么？", desc)
+                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialog, int which) {
+                        final Map<String, Object> map = new LinkedHashMap<>();
+                        final int lc_f = AiUtil.GetValue(lc, 1);
+                        map.put("szc", (lc_f + 1) + "");
+                        aidialog.setContentView("请输入需要复制到的层数，多层使用“,”、“-”隔开：如：3,5,7 或是 2-7 层")
+                                .addContentView("如：3,5,7 将复制到3、5、7层")
+                                .addContentView("如：3-7 将复制到3、4、5、6、7层")
+                                .addContentView(aidialog.getEditView("请输入要复制到的楼层", map, "szc"))
+                                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        String szc = map.get("szc") + "";
+                                        final List<Integer> nubs = StringUtil.GetNumbers(szc);
+                                        aidialog.setContentView("输入的楼层为“" + szc + "”：将复制到" + StringUtil.Join(nubs) + "层");
+                                        aidialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                try {
+                                                    final List<Feature> fs = new ArrayList<>();
+                                                    FeatureViewLJZ.LoadH_And_Fsjg(mapInstance, f_ljz, lc, fs, fs, fs, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            List<Feature> fs_save = new ArrayList<>();
+                                                            for (int szc : nubs) {
+                                                                for (Feature f : fs) {
+                                                                    // 复制户、幢附属
+                                                                    Feature f_ = FeatureHelper.Copy(f);
+                                                                    f_.setGeometry(f.getGeometry());
+                                                                    FeatureHelper.Set(f_, "SZC", szc);
+                                                                    FeatureHelper.Set(f_, "LC", szc);
+                                                                    FeatureHelper.Set(f_, "CH", szc);
+                                                                    // 将倒数地3、4位，替换位新的层
+                                                                    FeatureHelper.Set(f_, "HH", text_replace_lc(FeatureHelper.Get(f, "HH", ""), lc_f, szc));
+                                                                    FeatureHelper.Set(f_, "HID", text_replace_lc(FeatureHelper.Get(f, "HH", ""), lc_f, szc));
+                                                                    FeatureHelper.Set(f_, "BDCDYH", text_replace_lc(FeatureHelper.Get(f, "BDCDYH", ""), lc_f, szc));
+                                                                    FeatureHelper.Set(f_, "FWDM", text_replace_lc(FeatureHelper.Get(f, "FWDM", ""), lc_f, szc));
+
+                                                                    if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.H_FSJG_TABLE_NAME)) {
+                                                                        FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc, 8));
+                                                                        FeatureHelper.Set(f_,"ORID_PATH","");
+                                                                    } else if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.Z_FSJG_TABLE_NAME)){
+                                                                        FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc));
+                                                                    } else if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.H_TABLE_NAME)){
+                                                                        FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc));
+                                                                    }
+                                                                    fs_save.add(f_);
+                                                                }
+                                                            }
+                                                            mapInstance.fillFeature(fs_save);
+                                                            MapHelper.saveFeature(fs_save, callback);
+                                                            return null;
+                                                        }
+                                                    });
+                                                } catch (Exception es) {
+                                                    ToastMessage.Send("复制层失败！", es);
+                                                }
+                                                aidialog.dismiss();
+                                            }
+                                        });
+                                    }
+                                });
+
+                    }
+                }).show();
+    }
+
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
 
 }

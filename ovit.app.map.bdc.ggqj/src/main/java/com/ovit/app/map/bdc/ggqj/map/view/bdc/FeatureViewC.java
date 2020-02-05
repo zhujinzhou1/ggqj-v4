@@ -35,15 +35,25 @@ import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditC.calcuZrzcMj;
 
 public class FeatureViewC extends FeatureView {
 
+    //region 常量
+    final static String TAG = "FeatureViewC";
+    ///endregion
+
+    //region 字段
     // 上级，幢或是自然幢
     public Feature feature_p;
+    ///endregion
 
+    //region 构造函数
+    ///endregion
+
+    //region 重写函数和回调
     @Override
     public void onCreate() {
         super.onCreate();
         iconColor = Color.rgb(169, 0, 230);
     }
-
+    @Override
     public void fillFeature(Feature feature, Feature feature_zrz) {
         super.fillFeature(feature, feature_zrz);
         String ch = FeatureHelper.Get(feature, "CH", "");
@@ -150,8 +160,8 @@ public class FeatureViewC extends FeatureView {
         super.listAdapterConvert(helper, item, deep);
         final ViewGroup ll_list_item = helper.getView(R.id.ll_list_item);
         ll_list_item.setVisibility(View.GONE);
-        final String szc=FeatureHelper.Get(item,"SJC","1");
-        helper.setText(com.ovit.R.id.tv_name,"["+szc+"楼]");
+        final String szc = FeatureHelper.Get(item, "SJC", "1");
+        helper.setText(com.ovit.R.id.tv_name, "[" + szc + "楼]");
         helper.getView(R.id.ll_head).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,7 +171,7 @@ public class FeatureViewC extends FeatureView {
                 if (!flag) {
                     final List<Feature> fs = new ArrayList<>();
 //                    String where="ORID_PATH like '%"+FeatureHelper.Get(item,"ORID_PATH","")+"%' and SZC= '"+FeatureHelper.Get(item,"SJC","")+"'";
-                    String where="and SZC= '"+szc+"'";
+                    String where = "and SZC= '" + szc + "'";
                     queryChildFeature("H", FeatureHelper.Get(item, "ORID_PATH", ""), where, "HH", "asc", fs, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -172,7 +182,7 @@ public class FeatureViewC extends FeatureView {
 //                                    return null;
 //                                }
 //                            });
-                            queryChildFeature("Z_FSJG", FeatureHelper.Get(item, "ORID_PATH", ""), "and LC= '"+szc+"'", "ID", "asc", fs, new AiRunnable() {
+                            queryChildFeature("Z_FSJG", FeatureHelper.Get(item, "ORID_PATH", ""), "and LC= '" + szc + "'", "ID", "asc", fs, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     mapInstance.newFeatureView("H").buildListView(ll_list_item, fs, deep + 1);
@@ -187,8 +197,9 @@ public class FeatureViewC extends FeatureView {
             }
         });
     }
+    ///endregion
 
-    //  获取最大的编号
+    //region 公有函数
     public void getMaxCh(AiRunnable callback) {
         String id = getZrzh();
         MapHelper.QueryMax(table, StringUtil.WhereByIsEmpty(id) + "CH like '" + id + "____'", "CH", id.length(), 0, id + "0000", callback);
@@ -214,7 +225,6 @@ public class FeatureViewC extends FeatureView {
     public void loadByCh(String ch, AiRunnable callback) {
         MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(ch) + " CH like '%'" + ch + "%' ", callback);
     }
-
 
     public static FeatureViewC From(MapInstance mapInstance, Feature f) {
         FeatureViewC fv = From(mapInstance);
@@ -299,57 +309,6 @@ public class FeatureViewC extends FeatureView {
         });
     }
 
-    public void update_Area(Feature feature, List<Feature> f_hs, List<Feature> f_z_fsjgs) {
-        String id = FeatureHelper.Get(feature, "CH", "");
-        int zcs = FeatureHelper.Get(feature, "ZCS", 1);
-        Geometry g = feature.getGeometry();
-        double area = 0;
-        double hsmj = 0;
-        if (g != null) {
-            area = MapHelper.getArea(mapInstance, g);
-
-            for (Feature f : f_hs) {
-                String zrzh = FeatureHelper.Get(f, "ZRZH", "");
-                if (id.equals(zrzh)) {
-                    double f_hsmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
-                    hsmj += f_hsmj;
-                }
-            }
-            for (Feature f : f_z_fsjgs) {
-                String zid = FeatureHelper.Get(f, "ZID", "");
-                if (id.equals(zid)) {
-                    double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
-                    hsmj += f_hsmj;
-                }
-            }
-            if (hsmj <= 0) {
-                hsmj = area * zcs;
-            }
-            FeatureHelper.Set(feature, "ZZDMJ", AiUtil.Scale(area, 2));
-            FeatureHelper.Set(feature, "SCJZMJ", AiUtil.Scale(hsmj, 2));
-        }
-    }
-
-    // 核算宗地 占地面积、建筑面积
-    public void update_Area(final AiRunnable callback) {
-        final List<Feature> fs_z_fsjg = new ArrayList<>();
-        final List<Feature> fs_h = new ArrayList<>();
-        final List<Feature> fs_h_fsjg = new ArrayList<>();
-        final List<Feature> update_fs = new ArrayList<>();
-        String id = getZddm();
-        if (StringUtil.IsEmpty(id)) {
-            AiRunnable.Ok(callback, null);
-            return;
-        }
-        LoadH_And_Fsjg(mapInstance, feature, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                update_Area(feature, fs_h, fs_z_fsjg);
-                return null;
-            }
-        });
-    }
-
     public static void InitFeatureAll(final MapInstance mapInstance, final Feature feature, AiRunnable callback_) {
         final AiDialog dialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz_c, "生成层")
                 .addContentView("将根据自然幢的范围删除原有的层，重新层", "该操作不可逆转，如果已经生成过层请谨慎操作");
@@ -411,13 +370,14 @@ public class FeatureViewC extends FeatureView {
             });
         }
     }
+
     public void create_c_bdcfy(final Feature f_c, final AiRunnable callback) {
-        String orid_path=FeatureHelper.Get(f_c,"ORID_PATH","");
-        if (TextUtils.isEmpty(orid_path)||!orid_path.contains("[ZRZ]")){
+        String orid_path = FeatureHelper.Get(f_c, "ORID_PATH", "");
+        if (TextUtils.isEmpty(orid_path) || !orid_path.contains("[ZRZ]")) {
             ToastMessage.Send("缺少幢信息，请检查！");
             return;
         }
-        String id=FeatureHelper.Get(f_c,"ZRZH","");
+        String id = FeatureHelper.Get(f_c, "ZRZH", "");
         MapHelper.QueryMax(mapInstance.getTable(FeatureConstants.QLRXX_TABLE_NAME), StringUtil.WhereByIsEmpty(FeatureHelper.Get(f_c, "ZRZH", "")) + "BDCDYH like '" + id + "____'", "BDCDYH", id.length(), 0, id + "0000", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -429,13 +389,13 @@ public class FeatureViewC extends FeatureView {
                     id = StringUtil.fill(String.format("%04d", count), maxid, true);
                 }
                 final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
-                mapInstance.featureView.fillFeature(feature_new_qlr,f_c);
-                feature_new_qlr.getAttributes().put("BDCDYH",id);
+                mapInstance.featureView.fillFeature(feature_new_qlr, f_c);
+                feature_new_qlr.getAttributes().put("BDCDYH", id);
 
                 MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        AiRunnable.Ok(callback,feature_new_qlr,t_);
+                        AiRunnable.Ok(callback, feature_new_qlr, t_);
                         return null;
                     }
                 });
@@ -445,4 +405,67 @@ public class FeatureViewC extends FeatureView {
 
 
     }
+    ///endregion
+
+    //region 私有函数
+    ///endregion
+
+    //region 面积计算
+    public void update_Area(Feature feature, List<Feature> f_hs, List<Feature> f_z_fsjgs) {
+        String id = FeatureHelper.Get(feature, "CH", "");
+        int zcs = FeatureHelper.Get(feature, "ZCS", 1);
+        Geometry g = feature.getGeometry();
+        double area = 0;
+        double hsmj = 0;
+        if (g != null) {
+            area = MapHelper.getArea(mapInstance, g);
+
+            for (Feature f : f_hs) {
+                String zrzh = FeatureHelper.Get(f, "ZRZH", "");
+                if (id.equals(zrzh)) {
+                    double f_hsmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
+                    hsmj += f_hsmj;
+                }
+            }
+            for (Feature f : f_z_fsjgs) {
+                String zid = FeatureHelper.Get(f, "ZID", "");
+                if (id.equals(zid)) {
+                    double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
+                    hsmj += f_hsmj;
+                }
+            }
+            if (hsmj <= 0) {
+                hsmj = area * zcs;
+            }
+            FeatureHelper.Set(feature, "ZZDMJ", AiUtil.Scale(area, 2));
+            FeatureHelper.Set(feature, "SCJZMJ", AiUtil.Scale(hsmj, 2));
+        }
+    }
+
+    // 核算宗地 占地面积、建筑面积
+    public void update_Area(final AiRunnable callback) {
+        final List<Feature> fs_z_fsjg = new ArrayList<>();
+        final List<Feature> fs_h = new ArrayList<>();
+        final List<Feature> fs_h_fsjg = new ArrayList<>();
+        final List<Feature> update_fs = new ArrayList<>();
+        String id = getZddm();
+        if (StringUtil.IsEmpty(id)) {
+            AiRunnable.Ok(callback, null);
+            return;
+        }
+        LoadH_And_Fsjg(mapInstance, feature, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                update_Area(feature, fs_h, fs_z_fsjg);
+                return null;
+            }
+        });
+    }
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
+    //  获取最大的编号
+
 }

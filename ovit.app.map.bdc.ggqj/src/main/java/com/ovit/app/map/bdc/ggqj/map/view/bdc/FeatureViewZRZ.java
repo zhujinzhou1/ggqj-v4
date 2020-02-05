@@ -1,6 +1,5 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -27,7 +26,6 @@ import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
-import com.ovit.app.map.custom.shape.ShapeUtil;
 import com.ovit.app.map.model.FwPc;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.DialogBuilder;
@@ -553,13 +551,13 @@ public class FeatureViewZRZ extends FeatureView {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             fv_.fillFeature(fs_ljz, feature);  // orid
-                            identyZrz_Ljz(mapInstance, feature, fs_ljz, callback);
+                            identyLjzFromZrz(mapInstance, feature, fs_ljz, callback);
                             dialog.dismiss();
                         }
                     });
                 } else {
                     fv_.fillFeature(fs_ljz, feature);  // orid
-                    identyZrz_Ljz(mapInstance, feature, fs_ljz, callback);
+                    identyLjzFromZrz(mapInstance, feature, fs_ljz, callback);
                 }
                 return null;
             }
@@ -597,7 +595,7 @@ public class FeatureViewZRZ extends FeatureView {
         }.start();
     }
 
-    public void identyZrz_Ljz(com.ovit.app.map.model.MapInstance mapInstance, Feature f_zrz, final List<Feature> fs_ljz, final AiRunnable callback) {
+    public void identyLjzFromZrz(com.ovit.app.map.model.MapInstance mapInstance, Feature f_zrz, final List<Feature> fs_ljz, final AiRunnable callback) {
         double area_jzmj = 0;
         double area_jzzdmj = 0;
         String zddm = FeatureHelper.Get(f_zrz, "ZDDM", "");
