@@ -55,6 +55,8 @@ public class FeatureEditQLR extends FeatureEdit {
     private String old_qlrxm;
     FeatureViewQLR fv;
 
+    View view_qlr;
+    View view_bdc;
     ///endregion
 
     //region 构造函数
@@ -266,20 +268,6 @@ public class FeatureEditQLR extends FeatureEdit {
     ///endregion
 
     //region 私有函数
-    ///endregion
-
-    //region 面积计算
-    ///endregion
-
-    //region 内部类或接口
-    ///endregion
-
-
-    //region  重写父类方法
-
-
-    View view_qlr;
-
     private void load_qlr() {
         if (view_qlr == null) {
             ViewGroup ll_qlr_list = (ViewGroup) view.findViewById(R.id.ll_qlr_list);
@@ -288,13 +276,10 @@ public class FeatureEditQLR extends FeatureEdit {
             view_qlr = ll_qlr_list;
         }
     }
-
     private void reload_qlr() {
         view_qlr = null;
         load_qlr();
     }
-
-    View view_bdc;
 
     private void load_bdc() {
         if (view_bdc == null) {
@@ -316,11 +301,20 @@ public class FeatureEditQLR extends FeatureEdit {
             }
         }
     }
-
     private void reload_bdc() {
         view_bdc = null;
         load_bdc();
     }
+    ///endregion
+
+    //region 面积计算
+    ///endregion
+
+    //region 内部类或接口
+    ///endregion
+
+
+    //region  重写父类方法
 
     public static void createNewQlrByBdc(final MapInstance mapInstance, final Feature feature_bdc, final AiRunnable callback) {
         try {
