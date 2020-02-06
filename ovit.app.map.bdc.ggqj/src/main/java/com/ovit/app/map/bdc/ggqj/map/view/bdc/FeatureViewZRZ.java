@@ -1160,19 +1160,19 @@ public class FeatureViewZRZ extends FeatureView {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
 
-                MapHelper.Query(GetTable(mapInstance, "ZRZ"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID = '" + orid_bdc + "' ", "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
+                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID = '" + orid_bdc + "' ", "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        MapHelper.Query(GetTable(mapInstance, "LJZ"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
+                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                MapHelper.Query(GetTable(mapInstance, "H"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "ID", "asc", -1, fs_h, new AiRunnable() {
+                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "ID", "asc", -1, fs_h, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.Query(GetTable(mapInstance, "Z_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {
+                                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_Z_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                MapHelper.Query(GetTable(mapInstance, "H_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "ID", "asc", -1, fs_h_fsjg, new AiRunnable() {
+                                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "ID", "asc", -1, fs_h_fsjg, new AiRunnable() {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                                         AiRunnable.Ok(callback, t_, objects);
@@ -1208,7 +1208,7 @@ public class FeatureViewZRZ extends FeatureView {
                                   final List<Feature> fs_h,
                                   final List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
 
-        final String bdcdyh = FeatureHelper.Get(f_bdc, "BDCDYH", "");
+        final String bdcdyh = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
         String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
         if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
             Log.i(TAG, "生成资料: 已经存在跳过");
@@ -1218,7 +1218,7 @@ public class FeatureViewZRZ extends FeatureView {
                 @Override
                 public void run() {
                     try {
-                        String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                        String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                         Map<String, Object> map_ = new LinkedHashMap<>();
                         //  设置系统参数
                         FeatureEditBDC.Put_data_sys(map_);
@@ -1279,7 +1279,7 @@ public class FeatureViewZRZ extends FeatureView {
                                   final List<Feature> fs_h_fsjg) {
         try {
             MapHelper.selectAddCenterFeature(mapInstance.map, f_zd);
-            String bdcdyh = FeatureHelper.Get(f_bdc, "BDCDYH", "");
+            String bdcdyh = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 

@@ -262,7 +262,7 @@ public class FeatureEditC extends FeatureEdit {
                     FeatureEditH.BuildView_H(mapInstance, gv_list_item, f_zrzOrLjz, fs, deep + 1);
                     gv_list_item.measure(gv_list_item.getLayoutParams().width, gv_list_item.getLayoutParams().height);
 
-                    boolean isLjz = mapInstance.getTable("LJZ") == f_zrzOrLjz.getFeatureTable();
+                    boolean isLjz = mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ) == f_zrzOrLjz.getFeatureTable();
                     helper.setVisible(R.id.iv_add, isLjz);
                     helper.getView(R.id.iv_add).setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -291,7 +291,7 @@ public class FeatureEditC extends FeatureEdit {
 //                                    BuildView_C(mapInstance, ll_list, f_zrzOrLjz, map_all, deep);
                                     FeatureView fv = mapInstance.newFeatureView(f_zrzOrLjz);
                                     final List<Feature> fs_h = new ArrayList<>();
-                                    fv.queryChildFeature("H", f_zrzOrLjz, fs_h, new AiRunnable() {
+                                    fv.queryChildFeature(FeatureHelper.TABLE_NAME_H, f_zrzOrLjz, fs_h, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                             new AiForEach<Feature>(fs_h, new AiRunnable() {
@@ -1056,7 +1056,7 @@ public class FeatureEditC extends FeatureEdit {
                 @Override
                 public void run() {
                     try {
-                        String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                        String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                         Map<String, Object> map_ = new LinkedHashMap<>();
                         //  设置系统参数
                         FeatureEditBDC.Put_data_sys(map_);
@@ -1117,7 +1117,7 @@ public class FeatureEditC extends FeatureEdit {
                                   final LinkedHashMap<Feature,List<Feature>> fs_c_all
     ) {
         try {
-            String bdcdyh=FeatureHelper.Get(feature_bdc,"BDCDYH","");
+            String bdcdyh=FeatureHelper.Get(feature_bdc,FeatureHelper.TABLE_ATTR_BDCDYH,"");
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
             // 导出shp 文件
@@ -1157,17 +1157,17 @@ public class FeatureEditC extends FeatureEdit {
         String oridPath = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
 
         if (StringUtil.IsNotEmpty(oridPath)||!oridPath.contains(FeatureHelper.TABLE_NAME_ZRZ)) {
-            fv.checkcBdcdy(feature, new AiRunnable() {
+            fv.checkBdcdy(feature, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     if (t_ != null) {
                         //可以设定不动产单元
                         aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该层共同设定一个不动产单元！");
-                        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
                                 // 加载界面
-                                fv.create_c_bdcfy(feature, new AiRunnable() {
+                                fv.createBdcdyFromC(feature, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         mapInstance.viewFeature((Feature) t_);
@@ -1180,7 +1180,7 @@ public class FeatureEditC extends FeatureEdit {
 
                     } else {
                         aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
-                        aiDialog.setFooterView("取消", "确定", null).show();
+                        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
                     }
 
                     return null;
@@ -1188,7 +1188,7 @@ public class FeatureEditC extends FeatureEdit {
             });
         } else {
             aiDialog.addContentView("不能设定不动产单元", "自然幢层没有与自然幢关联！");
-            aiDialog.setFooterView("取消", "确定", null).show();
+            aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
         }
 
     }
@@ -1220,7 +1220,7 @@ public class FeatureEditC extends FeatureEdit {
         final AiDialog aidialog = AiDialog.get(mapInstance.activity);
         aidialog.setHeaderView(R.mipmap.app_icon_warning_red, "不可逆操作提醒")
                 .addContentView("确定要复制么？", desc)
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.COMFIRM, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         final Map<String, Object> map = new LinkedHashMap<>();
@@ -1230,13 +1230,13 @@ public class FeatureEditC extends FeatureEdit {
                                 .addContentView("如：3,5,7 将复制到3、5、7层")
                                 .addContentView("如：3-7 将复制到3、4、5、6、7层")
                                 .addContentView(aidialog.getEditView("请输入要复制到的楼层", map, "szc"))
-                                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                .setFooterView(AiDialog.COMFIRM, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         String szc = map.get("szc") + "";
                                         final List<Integer> nubs = StringUtil.GetNumbers(szc);
                                         aidialog.setContentView("输入的楼层为“" + szc + "”：将复制到" + StringUtil.Join(nubs) + "层");
-                                        aidialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                        aidialog.setFooterView(AiDialog.COMFIRM, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
                                                 try {

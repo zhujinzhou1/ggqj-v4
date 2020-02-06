@@ -371,7 +371,7 @@ public class FeatureViewC extends FeatureView {
         }
     }
 
-    public void create_c_bdcfy(final Feature f_c, final AiRunnable callback) {
+    public void createBdcdyFromC(final Feature f_c, final AiRunnable callback) {
         String orid_path = FeatureHelper.Get(f_c, "ORID_PATH", "");
         if (TextUtils.isEmpty(orid_path) || !orid_path.contains("[ZRZ]")) {
             ToastMessage.Send("缺少幢信息，请检查！");
@@ -411,7 +411,7 @@ public class FeatureViewC extends FeatureView {
     ///endregion
 
     //region 面积计算
-    public void update_Area(Feature feature, List<Feature> f_hs, List<Feature> f_z_fsjgs) {
+    public void updateArea(Feature feature, List<Feature> f_hs, List<Feature> f_z_fsjgs) {
         String id = FeatureHelper.Get(feature, "CH", "");
         int zcs = FeatureHelper.Get(feature, "ZCS", 1);
         Geometry g = feature.getGeometry();
@@ -443,7 +443,7 @@ public class FeatureViewC extends FeatureView {
     }
 
     // 核算宗地 占地面积、建筑面积
-    public void update_Area(final AiRunnable callback) {
+    public void updateArea(final AiRunnable callback) {
         final List<Feature> fs_z_fsjg = new ArrayList<>();
         final List<Feature> fs_h = new ArrayList<>();
         final List<Feature> fs_h_fsjg = new ArrayList<>();
@@ -456,7 +456,7 @@ public class FeatureViewC extends FeatureView {
         LoadH_And_Fsjg(mapInstance, feature, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                update_Area(feature, fs_h, fs_z_fsjg);
+                updateArea(feature, fs_h, fs_z_fsjg);
                 return null;
             }
         });

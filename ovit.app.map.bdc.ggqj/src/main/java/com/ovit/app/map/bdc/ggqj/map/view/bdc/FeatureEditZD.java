@@ -628,7 +628,7 @@ public class FeatureEditZD extends FeatureEdit {
 
     //不动产单元
     private void addBdcdy() {
-        fv.checkcBdcdy(feature, new AiRunnable() {
+        fv.checkBdcdy(feature, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");

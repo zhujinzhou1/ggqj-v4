@@ -265,7 +265,7 @@ public class FeatureEditZRZ extends FeatureEdit {
         String oridPath = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
 
         if (StringUtil.IsNotEmpty(oridPath)||!oridPath.contains(FeatureHelper.TABLE_NAME_ZD)) {
-            fv.checkcBdcdy(feature, new AiRunnable() {
+            fv.checkBdcdy(feature, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     if (t_ != null) {

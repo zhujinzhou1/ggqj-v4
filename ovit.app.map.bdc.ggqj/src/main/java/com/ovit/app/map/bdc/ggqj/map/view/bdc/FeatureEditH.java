@@ -239,7 +239,7 @@ public class FeatureEditH extends FeatureEdit {
         String oridPath = fv.getOrid_Path();
         if (StringUtil.IsNotEmpty(oridPath) || !oridPath.contains(FeatureHelper.TABLE_NAME_ZD)) {
             // 图形已经关联成功
-            fv.checkcBdcdy(feature, new AiRunnable() {
+            fv.checkBdcdy(feature, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     if (t_ != null) {
