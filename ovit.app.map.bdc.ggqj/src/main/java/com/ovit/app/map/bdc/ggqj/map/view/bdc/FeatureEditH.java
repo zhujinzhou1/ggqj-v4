@@ -249,7 +249,7 @@ public class FeatureEditH extends FeatureEdit {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
                                 // 加载界面
-                                fv.create_h_bdcdy(feature, new AiRunnable() {
+                                fv.createBdcdyFromH(feature, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         mapInstance.viewFeature((Feature) t_);

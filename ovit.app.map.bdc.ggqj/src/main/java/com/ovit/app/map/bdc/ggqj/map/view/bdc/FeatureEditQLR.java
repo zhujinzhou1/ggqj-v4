@@ -165,7 +165,7 @@ public class FeatureEditQLR extends FeatureEdit {
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 String oridPath = (String) t_;
                                 if (StringUtil.IsNotEmpty(oridPath)) {
-                                    FeatureHelper.Set(feature, "ORID_PATH", oridPath);
+                                    FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, oridPath);
                                     MapHelper.saveFeature(feature, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -219,7 +219,7 @@ public class FeatureEditQLR extends FeatureEdit {
         addMenu("不动产", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "load all gyr of qlr");
+                Log.i(TAG, "load all bdc of qlr");
                 setMenuItem(R.id.ll_bdc);
                 load_bdc();
             }
@@ -371,7 +371,7 @@ public class FeatureEditQLR extends FeatureEdit {
     //获得所有的权利人 20180815
     public static void getAllQlr(final MapInstance mapInstance, final AiRunnable callback) {
         try {
-            FeatureTable table_qlr = mapInstance.getTable("QLRXX");
+            FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
             MapHelper.Query(table_qlr, "1=1", new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -405,10 +405,10 @@ public class FeatureEditQLR extends FeatureEdit {
     public static List<FeatureTable> getAllSearchTable(final MapInstance mapInstance) {
         final List<FeatureTable> search_table_list = new ArrayList<FeatureTable>();
         try {
-            search_table_list.add(mapInstance.getTable("ZD"));
-            search_table_list.add(mapInstance.getTable("ZRZ"));
-            search_table_list.add(mapInstance.getTable("LJZ"));
-            search_table_list.add(mapInstance.getTable("H"));
+            search_table_list.add(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD));
+            search_table_list.add(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ));
+            search_table_list.add(mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ));
+            search_table_list.add(mapInstance.getTable(FeatureHelper.TABLE_NAME_H));
         } catch (Exception es) {
             Log.e(TAG, "获得所有不动产查询范围列表失败!" + es);
         }
@@ -567,7 +567,7 @@ public class FeatureEditQLR extends FeatureEdit {
     }
 
     public static FeatureTable GetTable(MapInstance mapInstance) {
-        return MapHelper.getLayer(mapInstance.map, "QLRXX", "权利人").getFeatureTable();
+        return MapHelper.getLayer(mapInstance.map, FeatureHelper.TABLE_NAME_QLRXX, FeatureHelper.LAYER_NAME_QLRXX).getFeatureTable();
     }
 
     public static void Load(MapInstance mapInstance, String qlrdm, final AiRunnable callback) {
@@ -1772,7 +1772,7 @@ public class FeatureEditQLR extends FeatureEdit {
     }
 
     public static String GetBdcdyh(Feature featureBdc) {
-        return FeatureHelper.Get(featureBdc, "BDCDYH", "");
+        return FeatureHelper.Get(featureBdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
     }
 
     public void dy(Feature f, final MapInstance mapInstance, boolean isRelaod) {
@@ -1781,7 +1781,7 @@ public class FeatureEditQLR extends FeatureEdit {
                 "加载中...");
         progressDialog.show();
         progressDialog.setCancelable(false);
-        FeatureEditBDC.CreateDOCXForFeatureBdc(mapInstance, feature, new AiRunnable() {
+        FeatureEditBDC.CreateDOCXFromFeatureBdc(mapInstance, feature, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 progressDialog.dismiss();

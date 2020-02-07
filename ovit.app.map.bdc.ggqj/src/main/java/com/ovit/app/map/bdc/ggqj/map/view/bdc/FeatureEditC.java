@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.Point;
@@ -123,12 +124,6 @@ public class FeatureEditC extends FeatureEdit {
         Log.i(TAG, "build zrz_c opt");
         super.build_opt();
 
-        addAction("设定不动产", R.mipmap.app_map_layer_add_bdcdy, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addBdcdy();
-            }
-        });
         addMenu("基本信息", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -704,7 +699,8 @@ public class FeatureEditC extends FeatureEdit {
 
     // 根据自然幢提取层
     public static void InitFeatureAll(final MapInstance mapInstance, final Feature feature, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("ZRZ_C"), "ORID_PATH like '%" + FeatureHelper.Get(feature, "ORID") + "%'", new AiRunnable() {
+        final FeatureTable cTable = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C);
+        MapHelper.Query(cTable, "ORID_PATH like '%" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID) + "%'", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 MapHelper.deleteFeature((List<Feature>) t_, new AiRunnable() {
@@ -717,11 +713,11 @@ public class FeatureEditC extends FeatureEdit {
 //                                final LinkedHashMap<Feature, List<Feature>> features_c = new LinkedHashMap();
                                 final List<Feature> featuresC = new ArrayList<>();
                                 for (Map.Entry<String, List<Feature>> zrz_c : zrz_c_s) {
-                                    Feature feature_c = mapInstance.getTable("ZRZ_C").createFeature();
+                                    Feature feature_c =cTable.createFeature();
                                     mapInstance.fillFeature(feature_c, feature);
                                     FeatureHelper.Set(feature_c, "CH", zrz_c.getKey());
                                     FeatureHelper.Set(feature_c, "SJC", zrz_c.getKey());
-                                    FeatureHelper.Set(feature_c, "ZRZH", FeatureHelper.Get(feature, "ZH"));
+                                    FeatureHelper.Set(feature_c, "ZRZH", FeatureHelper.Get(feature, "ZRZH"));
                                     FeatureHelper.Set(feature_c, "CJZMJ", calcuZrzcMj(zrz_c.getValue(), "CJZMJ"));
                                     FeatureHelper.Set(feature_c, "CFTJZMJ", calcuZrzcMj(zrz_c.getValue(), "CFTJZMJ"));
                                     List<Feature> featuresH = new ArrayList<>();
@@ -915,239 +911,6 @@ public class FeatureEditC extends FeatureEdit {
     //  图通过户加载所有图形重新生成
     public static void LoadAllFeatureToH() {
 
-    }
-
-    //生成成果
-    public static void CreateDOCX(final MapInstance mapInstance, final Feature featureBdcdy, final boolean isRelaod, final AiRunnable callback) {
-        final String bdcdyh = FeatureEditQLR.GetBdcdyh(featureBdcdy);
-        String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
-        if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
-            AiRunnable.Ok(callback, file_dcb_doc);
-        } else {
-            FeatureEditBDC.LoadZD(mapInstance, bdcdyh, new AiRunnable(callback) {
-                        @Override
-                        public <T_> T_ ok(T_ t_, Object... objects) {
-                            final Feature f_zd = (Feature) t_;
-                            final List<Feature> fs_zrz = new ArrayList<Feature>();
-                            final List<Feature> fs_ljz = new ArrayList<Feature>();
-                            final LinkedHashMap<Feature, List<Feature>> fs_c_all = new LinkedHashMap<>();
-                            final List<Feature> fs_h = new ArrayList<Feature>();
-                            final List<Feature> fs_jzd = new ArrayList<Feature>();
-                            final List<Feature> fs_jzx = new ArrayList<Feature>();
-                            final List<Feature> fs_bdc_h = new ArrayList<Feature>();
-                            final List<Feature> fs_c = new ArrayList<Feature>();
-                            final List<Feature> fs_ftqk = new ArrayList<Feature>();
-                            final Map<String, Feature> map_jzx = new HashMap<>();
-                            final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
-
-                            LoadAll(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_bdc_h, fs_h, fs_c, fs_ftqk, fs_c_all, new AiRunnable(callback) {
-                                @Override
-                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                    CreateDOCX(mapInstance, bdcdyh, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_h, fs_c_all, isRelaod, new AiRunnable(callback) {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            // 数据归集
-                                            OutputData(mapInstance, featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_h, fs_c, fs_ftqk, fs_c_all);
-                                            AiRunnable.Ok(callback, t_, objects);
-                                            return null;
-                                        }
-                                    });
-                                    return null;
-                                }
-                            });
-                            return null;
-                        }
-                    }
-            );
-        }
-    }
-
-
-    public static void LoadAll(final MapInstance mapInstance, final String bdcdyh,
-                               final Feature featureBdcdy,
-                               final Feature f_zd,
-                               final List<Feature> fs_jzd,
-                               final List<Feature> fs_jzx,
-                               final Map<String, Feature> map_jzx,
-                               final List<Map<String, Object>> fs_jzqz,
-                               final List<Feature> fs_zrz,
-                               final List<Feature> fs_ljz,
-                               final List<Feature> fs_bdc_h,
-                               final List<Feature> fs_h,
-                               final List<Feature> fs_c,
-                               final List<Feature> fs_ftqk,
-                               final LinkedHashMap<Feature, List<Feature>> fs_c_all,
-                               final AiRunnable callback) {
-        final String orid_bdc = FeatureHelper.GetLastOrid(featureBdcdy);
-        FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable(callback) {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                MapHelper.QueryOne(GetTable(mapInstance, FeatureConstants.C_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + orid_bdc + "' ", new AiRunnable() {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        Feature f_c = (Feature) t_;
-                        fs_c.add(f_c);
-                        MapHelper.Query(GetTable(mapInstance, FeatureConstants.ZRZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                new FeatureView().queryChildFeature(FeatureConstants.LJZ_TABLE_NAME, fs_zrz.get(0), fs_ljz, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        new FeatureView().queryChildFeature(FeatureConstants.H_TABLE_NAME, fs_zrz.get(0), fs_h, new AiRunnable() {
-                                            @Override
-                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                FeatureEditBDC.LoadAllCAndFsToH(mapInstance, fs_zrz.get(0), FeatureHelper.Get(fs_c.get(0), "SJC", ""), fs_c_all, new AiRunnable() {
-                                                    @Override
-                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                        Feature f_c = null;
-                                                        final List<Feature> fs_all = new ArrayList<>();
-                                                        for (Feature feature : fs_c_all.keySet()) {
-                                                            f_c = feature;
-                                                            fs_all.addAll(fs_c_all.get(feature));
-                                                        }
-                                                        new AiForEach<Feature>(fs_all, callback) {
-                                                            @Override
-                                                            public void exec() {
-                                                                String orid = FeatureHelper.Get(fs_all.get(postion), "ORID", "");
-                                                                MapHelper.Query(GetTable(mapInstance, FeatureConstants.FTQK_TABLE_NAME)
-                                                                        , StringUtil.WhereByIsEmpty(orid) + " FTQX_ID= '" + orid + "' ", -1, fs_ftqk, getNext());
-
-                                                            }
-                                                        }.start();
-
-
-                                                        return null;
-                                                    }
-                                                });
-
-
-                                                return null;
-                                            }
-                                        });
-                                        return null;
-                                    }
-                                });
-                                return null;
-                            }
-                        });
-                        return null;
-                    }
-                });
-
-                return null;
-            }
-        });
-    }
-
-    public static void CreateDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_zd,
-                                  final List<Feature> fs_jzd,
-                                  final List<Feature> fs_jzx,
-                                  final Map<String, Feature> map_jzx,
-                                  final List<Map<String, Object>> fs_jzqz,
-                                  final List<Feature> fs_zrz,
-                                  final List<Feature> fs_ljz,
-                                  final List<Feature> fs_h,
-                                  final LinkedHashMap<Feature, List<Feature>> fs_c,
-                                  boolean isRelaod, final AiRunnable callback) {
-        String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
-        if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
-            Log.i(TAG, "生成资料: 已经存在跳过");
-            AiRunnable.Ok(callback, file_dcb_doc);
-        } else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
-                        Map<String, Object> map_ = new LinkedHashMap<>();
-                        //  设置系统参数
-                        FeatureEditBDC.Put_data_sys(map_);
-                        //  设置宗地参数
-                        FeatureEditBDC.Put_data_zd(mapInstance, map_, bdcdyh, f_zd);
-                        // 界址签字
-                        FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
-                        // 界址点
-                        FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
-                        // 设置界址线
-                        FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
-                        // 自然幢
-//                        FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h);
-                        // 在全局放所有户
-                        //  Put_data_hs(mapInstance, map_, fs_h);
-                        // 在全局放一个户
-                        FeatureEditBDC.Put_data_h(mapInstance, map_, fs_h);
-                        // 在全局放一个幢
-                        FeatureEditBDC.Put_data_zrz(mapInstance, map_, fs_zrz);
-                        // 在全局放一所以的户
-                        // 宗地草图
-                        FeatureEditBDC.Put_data_zdct(mapInstance, map_, f_zd);
-                        // 附件材料
-                        FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd);
-
-                        final String templet = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产地籍调查表.docx";
-                        final String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
-                        String file_zd_zip = FeatureEditBDC.GetPath_ZD_zip(mapInstance, f_zd);
-                        if (FileUtils.exsit(templet)) {
-                            ReportUtils.exportWord(templet, file_dcb_doc, map_);
-                            // 资料已经发生改变，移除压缩包
-                            FileUtils.deleteFile(file_zd_zip);
-                            Log.i(TAG, "生成资料: 生成完成");
-                            AiRunnable.U_Ok(mapInstance.activity, callback, file_dcb_doc);
-                        } else {
-                            ToastMessage.Send("《不动产权籍调查表》模板文件不存在！");
-                            AiRunnable.U_No(mapInstance.activity, callback, null);
-                        }
-                    } catch (Exception es) {
-                        Log.i(TAG, "生成资料: 生成失败");
-                        ToastMessage.Send("生成《不动产权籍调查表》失败", es);
-                        AiRunnable.U_No(mapInstance.activity, callback, null);
-                    }
-                }
-            }).start();
-        }
-    }
-
-    public static void OutputData(final MapInstance mapInstance,
-                                  final Feature feature_bdc,
-                                  final Feature f_zd,
-                                  final List<Feature> fs_jzd,
-                                  final List<Feature> fs_jzx,
-                                  final List<Feature> fs_zrz,
-                                  final List<Feature> fs_h,
-                                  final List<Feature> fs_c,
-                                  final List<Feature> fs_ftqk,
-                                  final LinkedHashMap<Feature, List<Feature>> fs_c_all
-    ) {
-        try {
-            String bdcdyh = FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
-            FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
-            // 导出shp 文件
-            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "宗地" + ".shp";
-            ShapeUtil.writeShp(shpfile_zd, f_zd);
-            final String shpfile_jzd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址点" + ".shp";
-            ShapeUtil.writeShp(shpfile_jzd, fs_jzd);
-            final String shpfile_jzx = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址线" + ".shp";
-            ShapeUtil.writeShp(shpfile_jzx, fs_jzx);
-            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "自然幢" + ".shp";
-            ShapeUtil.writeShp(shpfile_zrz, fs_zrz);
-            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户" + ".shp";
-            ShapeUtil.writeShp(shpfile_h, fs_h);
-//            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "幢附属结构" + ".shp";
-//            ShapeUtil.writeShp(shpfile_zfsjg, fs_z_fsjg);
-//            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户附属结构" + ".shp";
-//            ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
-            Feature f_c = null;
-            List<Feature> fs_all = new ArrayList<>();
-            for (Feature feature : fs_c_all.keySet()) {
-                f_c = feature;
-                fs_all = fs_c_all.get(feature);
-            }
-            final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature_bdc) + "附件材料/") + bdcdyh + "分层分户图.dxf"; //20180709
-//            new DxfFcfcfht_c(mapInstance).set(dxf_fcfht).set(feature_bdc, f_zd, fs_zrz.get(0),fs_ftqk,f_c,fs_all).write().save();
-        } catch (Exception es) {
-            Log.e(TAG, "导出数据失败", es);
-        }
     }
 
     ///endregion
