@@ -227,7 +227,7 @@ public class FeatureViewZD extends FeatureView {
     @Override
     public void fillFeature(Feature feature) {
         super.fillFeature(feature);
-        String zddm = FeatureHelper.Get(feature, "ZDDM", "");// todo .. 当地级子区有误时 zddm 会存问题。006026
+        String zddm = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
         if (zddm.length() != 19) {
             if (StringUtil.IsNotEmpty(zddm) && !zddm.contains("JC") && !zddm.contains("JB") && !zddm.contains("GB")) {
                 // 宗地代码不包含特征码
@@ -237,7 +237,7 @@ public class FeatureViewZD extends FeatureView {
                 String xmbm = getXmbm();
                 zddm = StringUtil.substr(xmbm, 0, 19 - zddm.length()) + zddm;
             }
-            FeatureHelper.Set(feature, "ZDDM", zddm);
+            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDDM, zddm);
             FeatureHelper.Set(feature, "YBZDDM", zddm);
         }
 //        FeatureHelper.Set(feature, "YBZDDM", zddm, true, false);
@@ -2247,19 +2247,19 @@ public class FeatureViewZD extends FeatureView {
         FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                MapHelper.Query(GetTable(mapInstance, "ZRZ"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
+                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(bdcdyh) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        MapHelper.Query(GetTable(mapInstance, "LJZ"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
+                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(bdcdyh) + where, FeatureHelper.TABLE_ATTR_LJZH, "asc", -1, fs_ljz, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                MapHelper.Query(GetTable(mapInstance, "H"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h, new AiRunnable() {
+                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.Query(GetTable(mapInstance, "Z_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {
+                                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_Z_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                MapHelper.Query(GetTable(mapInstance, "H_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h_fsjg, new AiRunnable() {
+                                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h_fsjg, new AiRunnable() {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
 //                                                        MapHelper.Query(GetTable(mapInstance, "ZRZ_C"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "LC", "asc", -1, fs_zrz_c, callback);
@@ -2287,7 +2287,7 @@ public class FeatureViewZD extends FeatureView {
     private void loadZd(MapInstance mapInstance, Feature f_bdcdy, final List<Feature> fs, final AiRunnable callback) {
 
         List<String> orids = FeatureHelper.GetOridsFormOridPath(f_bdcdy, FeatureHelper.TABLE_NAME_ZD);
-        final String bdcdyh = FeatureHelper.Get(f_bdcdy, "BDCDYH", "");
+        final String bdcdyh = FeatureHelper.Get(f_bdcdy, FeatureHelper.TABLE_ATTR_BDCDYH, "");
         if (orids != null && orids.size() > 0) {
             String where = "";
             for (String orid : orids) {
@@ -2303,7 +2303,7 @@ public class FeatureViewZD extends FeatureView {
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     Feature f_zz = null;
                     for (Feature f : fs) {
-                        String zddm = FeatureHelper.Get(f, "ZDDM", "");
+                        String zddm = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, "");
                         if (StringUtil.IsNotEmpty(zddm) && bdcdyh.contains(zddm)) {
                             f_zz = f;
                             break;
@@ -2363,6 +2363,9 @@ public class FeatureViewZD extends FeatureView {
                 new DxfFcfct_xianan(mapInstance).set(dxf_fc_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
                 final String dxf_fcfht_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产图.dxf";// fs_zrz =0
                 new DxfFct_xianan(mapInstance).set(dxf_fcfht_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            }else {
+                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
+                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);

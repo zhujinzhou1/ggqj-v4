@@ -38,6 +38,7 @@ import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
+import com.ovit.app.util.gdal.cad.DxfHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1096,7 +1097,7 @@ public class FeatureViewZRZ extends FeatureView {
     //endregion 楼盘表
     //region 输出成果
 
-    public static void CreateDOCX(final MapInstance mapInstance, final Feature f_bdc, final boolean isRelaod, final AiRunnable callback) {
+    public  void createDOCX(final MapInstance mapInstance, final Feature f_bdc, final boolean isRelaod, final AiRunnable callback) {
         final String bdcdyh = FeatureEditQLR.GetBdcdyh(f_bdc);
         String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
         if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
@@ -1117,14 +1118,14 @@ public class FeatureViewZRZ extends FeatureView {
                             final Map<String, Feature> map_jzx = new HashMap<>();
                             final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
 
-                            LoadAll(mapInstance, bdcdyh, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
+                            loadAll(mapInstance, bdcdyh, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    CreateDOCX(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
+                                    createDOCX(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                             // 数据归集
-                                            OutputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
+                                            outputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
                                             AiRunnable.Ok(callback, t_, objects);
                                             return null;
                                         }
@@ -1140,7 +1141,7 @@ public class FeatureViewZRZ extends FeatureView {
     }
 
 
-    public static void LoadAll(final MapInstance mapInstance, final String bdcdyh,
+    public  void loadAll(final MapInstance mapInstance, final String bdcdyh,
                                final Feature featureBdcdy,
                                final Feature f_zd,
                                final List<Feature> fs_jzd,
@@ -1196,7 +1197,7 @@ public class FeatureViewZRZ extends FeatureView {
         });
     }
 
-    public static void CreateDOCX(final MapInstance mapInstance, final Feature f_bdc, final Feature f_zd,
+    public  void createDOCX(final MapInstance mapInstance, final Feature f_bdc, final Feature f_zd,
                                   final List<Feature> fs_jzd,
                                   final List<Feature> fs_jzx,
                                   final Map<String, Feature> map_jzx,
@@ -1268,23 +1269,25 @@ public class FeatureViewZRZ extends FeatureView {
     }
 
 
-    public static void OutputData(final MapInstance mapInstance,
-                                  final Feature f_bdc,
-                                  final Feature f_zd,
-                                  final List<Feature> fs_jzd,
-                                  final List<Feature> fs_jzx,
-                                  final List<Feature> fs_zrz,
-                                  final List<Feature> fs_z_fsjg,
-                                  final List<Feature> fs_h,
-                                  final List<Feature> fs_h_fsjg) {
+    public  void outputData(final MapInstance mapInstance,
+                            final Feature f_bdc,
+                            final Feature f_zd,
+                            final List<Feature> fs_jzd,
+                            final List<Feature> fs_jzx,
+                            final List<Feature> fs_zrz,
+                            final List<Feature> fs_z_fsjg,
+                            final List<Feature> fs_h,
+                            final List<Feature> fs_h_fsjg) {
         try {
             MapHelper.selectAddCenterFeature(mapInstance.map, f_zd);
             String bdcdyh = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
-            final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "分层分户图.dxf"; //20180709
-//            new DxfFcfwh_zrz(mapInstance).set(dxf_fcfht).set(f_bdc, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            if (DxfHelper.TYPE == DxfHelper.TYPE_DEFULT) {
+                // TODO 待完善，以自然幢生成房产分层分户图。
+                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
+            }
 
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
