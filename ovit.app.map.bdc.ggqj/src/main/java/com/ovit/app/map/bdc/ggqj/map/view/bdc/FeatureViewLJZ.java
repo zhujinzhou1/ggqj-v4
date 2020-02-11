@@ -749,7 +749,7 @@ public class FeatureViewLJZ extends FeatureView {
             public void exec() {
                 Feature f_h = getValue();
                 FeatureViewH fv = (FeatureViewH) mapInstance.newFeatureView(f_h);
-                Log.i(TAG, "户识别户附属结构: " + FeatureHelper.Get(f_h, "ORID", "") + "====" + this.postion);
+                Log.i(TAG, "户识别户附属结构: " + FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID, "") + "====" + this.postion);
                 fv.identyH_FSJG(f_h, false, getNext());
             }
         }.start();
