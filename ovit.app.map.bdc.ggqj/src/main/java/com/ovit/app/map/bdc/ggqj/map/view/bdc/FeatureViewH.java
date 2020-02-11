@@ -494,7 +494,7 @@ public class FeatureViewH extends FeatureView {
     public void identyH_FSJG(List<Feature> fs_h_fsjg,final AiRunnable callback){
         String szc=FeatureHelper.Get(feature,"SZC","1");
         String where="LC='0' or LC='"+szc+"'";
-        MapHelper.Query(mapInstance.getTable("H_FSJG"),feature.getGeometry(),0.1,where, fs_h_fsjg,callback);
+        MapHelper.Query(mapInstance.getTable("H_FSJG"),feature.getGeometry(),0.02,where, fs_h_fsjg,callback);
     }
     // 默认识别保存
     public void identyH_FSJG(final AiRunnable callback){

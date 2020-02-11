@@ -353,12 +353,15 @@ public class FeatureViewZ_FSJG extends FeatureView {
             final List<Feature> features_update = new ArrayList<Feature>();
             final List<Feature> features_save = new ArrayList<Feature>();
             // 放到 0.2米的范围
-            MapHelper.Query(GetTable(mapInstance), f_ljz.getGeometry(),0.2, features_zfsjg, new AiRunnable(callback) {
+            MapHelper.Query(GetTable(mapInstance), f_ljz.getGeometry(),0.05, features_zfsjg, new AiRunnable(callback) {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     double area_jzmj = FeatureHelper.Get(f_ljz,"SCJZMJ", 0d);
                     int count = 0;
                     for (Feature f : features_zfsjg) {
+
+
+
                         String orid = FeatureHelper.GetOrid(FeatureHelper.Get(f, "ORID_PATH", ""), "LJZ");
                         if (StringUtil.IsNotEmpty(oridLjz)&&(TextUtils.isEmpty(orid)||oridLjz.equals(orid))){
                             // 幢附属结构 orid 为空或者 或者包含 oridLjz

@@ -698,7 +698,7 @@ public class FeatureViewLJZ extends FeatureView {
     }
 
     public void identyZ_Fsjg(List<Feature> features_zrz, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("Z_FSJG"), feature.getGeometry(), 0.1, features_zrz, callback);
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.LAYER_NAME_Z_FSJG), feature.getGeometry(), 0.02, features_zrz, callback);
     }
 
     // 默认识别保存
@@ -713,14 +713,13 @@ public class FeatureViewLJZ extends FeatureView {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 FeatureViewZ_FSJG fv_ = FeatureViewZ_FSJG.From(mapInstance);
-//                fv_.fillFeature(fs_z_fsjg, feature);
+                Geometry mG=feature.getGeometry();
                 for (Feature f : fs_z_fsjg) {
                     Geometry bufferHfsjg = GeometryEngine.buffer(f.getGeometry(), 0.02);
-                    Geometry g = GeometryEngine.intersection(feature.getGeometry(), bufferHfsjg);
-                    if (MapHelper.getArea(mapInstance,g)<1*0.02){
-                        continue;
+                    Geometry g = GeometryEngine.intersection(mG, bufferHfsjg);
+                    if (MapHelper.getArea(mapInstance,g)>1.5*0.02){
+                        fv_.fillFeature(f, feature);
                     }
-                    fv_.fillFeature(f, feature);
                 }
 
                 if (isShow) {

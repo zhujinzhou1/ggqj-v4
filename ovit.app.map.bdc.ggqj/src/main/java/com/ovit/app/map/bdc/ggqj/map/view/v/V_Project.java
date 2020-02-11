@@ -189,7 +189,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 License.vaildfunc(activity, fundesc, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        zngj_bdcdy(mapInstance);
+                        zngjBdcFromBdcdy(mapInstance);
                         return null;
                     }
                 });
@@ -221,7 +221,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.ll_identy_qlr).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                mapInstance.tool.identyQlr(null);
                 FeatureEditQLR.IdentyQlr(mapInstance, null);
             }
         });
@@ -1060,7 +1059,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
      *
      * @param mapInstance
      */
-    private void zngj_bdcdy(final MapInstance mapInstance) {
+    private void zngjBdcFromBdcdy(final MapInstance mapInstance) {
         final String funcdesc = "该功能将逐步完成不动产产单元与不动产挂接！";
 
         License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
