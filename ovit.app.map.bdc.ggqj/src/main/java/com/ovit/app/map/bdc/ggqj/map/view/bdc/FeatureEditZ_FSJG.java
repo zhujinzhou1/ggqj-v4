@@ -43,7 +43,11 @@ import java.util.Set;
 public class FeatureEditZ_FSJG extends FeatureEdit {
     final static String TAG = "FeatureEditZ_FSJG";
     FeatureViewZ_FSJG fv;
-    public FeatureEditZ_FSJG(){ super();}
+
+    public FeatureEditZ_FSJG() {
+        super();
+    }
+
     public FeatureEditZ_FSJG(MapInstance mapInstance, Feature feature) {
         super(mapInstance, feature);
     }
@@ -62,12 +66,13 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
     public void init() {
         super.init();
         // 菜单
-        menus = new int []{   R.id.ll_info ,R.id.ll_ft};
+        menus = new int[]{R.id.ll_info, R.id.ll_ft};
     }
+
     // 显示数据
     @Override
     public void build() {
-        final   LinearLayout v_feature = (LinearLayout) LayoutInflater.from(activity).inflate(R.layout.app_ui_ai_aimap_feature_z_fsjg, v_content);
+        final LinearLayout v_feature = (LinearLayout) LayoutInflater.from(activity).inflate(R.layout.app_ui_ai_aimap_feature_z_fsjg, v_content);
         try {
             if (feature != null) {
                 mapInstance.fillFeature(feature);
@@ -83,6 +88,7 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
                         setDicValue(feature, "TYPE", value);
                         hsmj();
                     }
+
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
                         setValue(feature, "TYPE", null);
@@ -95,6 +101,7 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
                         setDicValue(feature, "FHMC", value);
                         hsmj();
                     }
+
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
                         setValue(feature, "FHMC", null);
@@ -107,12 +114,12 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
                         ((EditText) v_feature.findViewById(R.id.et_id)).setText("");
                         ((EditText) v_feature.findViewById(R.id.et_zh)).setText("");
 //                        ((EditText) v_feature.findViewById(R.id.et_zid)).setText("");
-                        FeatureHelper.Set(feature,"ID","");
-                        FeatureHelper.Set(feature,"ZH","");
-                        FeatureHelper.Set(feature,"ZID","");
-                        FeatureHelper.Set(feature,"LJZH","");
-                        FeatureHelper.Set(feature,"ORID_PATH","");
-                        ToastMessage.Send(activity,"保存后，该附属结构将解除与幢的关系！");
+                        FeatureHelper.Set(feature, "ID", "");
+                        FeatureHelper.Set(feature, "ZH", "");
+                        FeatureHelper.Set(feature, "ZID", "");
+                        FeatureHelper.Set(feature, "LJZH", "");
+                        FeatureHelper.Set(feature, "ORID_PATH", "");
+                        ToastMessage.Send(activity, "保存后，该附属结构将解除与幢的关系！");
                     }
                 });
 
@@ -121,20 +128,20 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
                     @Override
                     public void onClick(View v) {
                         View ft_view = view.findViewById(R.id.ll_ft_content);
-                        FeatureEditFTQK.addFt(mapInstance,feature,ft_view);
+                        FeatureEditFTQK.addFt(mapInstance, feature, ft_view);
                     }
                 });
                 // 宗地分摊
                 v_feature.findViewById(R.id.add_ft_zd).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                     final AiDialog aiDialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz, "添加宗地分摊");
+                        final AiDialog aiDialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz, "添加宗地分摊");
                         aiDialog.addContentView("确定要设置该附属结构为宗地分摊吗？");
                         aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 Feature new_feature_ft = mapInstance.getTable("FTQK").createFeature();
-                                fv.addFtqk(mapInstance,new_feature_ft,feature);
+                                fv.addFtqk(mapInstance, new_feature_ft, feature);
                                 MapHelper.saveFeature(new_feature_ft, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
@@ -203,7 +210,7 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
         addAction("复制", R.mipmap.app_icon_copy, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FeatureViewZ_FSJG.copylc(mapInstance,feature,FeatureHelper.Get(feature,"LC",""),new AiRunnable(){
+                FeatureViewZ_FSJG.copylc(mapInstance, feature, FeatureHelper.Get(feature, "LC", ""), new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         ToastMessage.Send("复制成功");
@@ -215,33 +222,33 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
 
     }
 
-    public void hsmj(){
-        fv.hsmj(feature,mapInstance);
-        fillView(v_content,feature,"MC");
-        fillView(v_content,feature,"MJ");
-        fillView(v_content,feature,"HSMJ");
+    public void hsmj() {
+        fv.hsmj(feature, mapInstance);
+        fillView(v_content, feature, "MC");
+        fillView(v_content, feature, "MJ");
+        fillView(v_content, feature, "HSMJ");
     }
 
-    public static void  hsmj(Feature feature,MapInstance mapInstance){
-        String fhmc = FeatureHelper.Get(feature,"FHMC","");
-        double type  = FeatureHelper.Get(feature,"TYPE",0d);
+    public static void hsmj(Feature feature, MapInstance mapInstance) {
+        String fhmc = FeatureHelper.Get(feature, "FHMC", "");
+        double type = FeatureHelper.Get(feature, "TYPE", 0d);
         Geometry g = feature.getGeometry();
         double area = 0;
         double hsmj = 0;
-        if(g!=null) {
-            area = MapHelper.getArea(mapInstance,g);
-            if(area>0){
+        if (g != null) {
+            area = MapHelper.getArea(mapInstance, g);
+            if (area > 0) {
                 hsmj = type * area;
             }
         }
-        if (fhmc.contains("门廊")){
+        if (fhmc.contains("门廊")) {
             // feature.getAttributes().put("MC",(type==0?"":(type==1?"双柱门廊，多柱门廊":"单柱门廊，凹槽式门廊")));
-            FeatureHelper.Set(feature,"MC",fhmc+"");
-        }else{
-            FeatureHelper.Set(feature,"MC",fhmc+""+(type==0?"":(type==1?"（全）":"（半）")));
+            FeatureHelper.Set(feature, "MC", fhmc + "");
+        } else {
+            FeatureHelper.Set(feature, "MC", fhmc + "" + (type == 0 ? "" : (type == 1 ? "（全）" : "（半）")));
         }
-        FeatureHelper.Set(feature,"MJ", AiUtil.Scale(area,2));
-        FeatureHelper.Set(feature,"HSMJ",AiUtil.Scale(hsmj,2));
+        FeatureHelper.Set(feature, "MJ", AiUtil.Scale(area, 2));
+        FeatureHelper.Set(feature, "HSMJ", AiUtil.Scale(hsmj, 2));
 
     }
 

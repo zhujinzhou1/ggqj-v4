@@ -641,11 +641,11 @@ public class FeatureEditH extends FeatureEdit {
     // 核算户 占地面积、建筑面积
     public static void IdentyH_Area(final MapInstance mapInstance, final Feature f_h, final AiRunnable callback) {
 //        final String hid =FeatureHelper.Get(f_h,"HID", "");
-        final String hid = FeatureHelper.Get(f_h, "ORID", "");
+        final String hid = FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID, "");
         final List<Feature> f_zrz_h_fsjgs = new ArrayList<>();
         final List<Feature> update_fs = new ArrayList<>();
 
-        MapHelper.Query(GetTable(mapInstance, "H_FSJG"), StringUtil.WhereByIsEmpty(hid) + " ORID_PATH like '%" + hid + "%' ", "LC", "asc", -1, f_zrz_h_fsjgs, new AiRunnable(callback) {
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(hid) + " ORID_PATH like '%" + hid + "%' ", "LC", "asc", -1, f_zrz_h_fsjgs, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 for (Feature f : f_zrz_h_fsjgs) {
@@ -663,7 +663,7 @@ public class FeatureEditH extends FeatureEdit {
     // 核算户 占地面积、建筑面积 、分摊面积
     public static void IdentyH_Area(final MapInstance mapInstance, final Feature f_h, final List<Feature> f_ftqk, final AiRunnable callback) {
         final String hid = FeatureHelper.Get(f_h, "HID", "");
-        final String hOrid = FeatureHelper.Get(f_h, "ORID", "");
+        final String hOrid = FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID, "");
         final List<Feature> f_zrz_h_fsjgs = new ArrayList<>();
         final List<Feature> update_fs = new ArrayList<>();
 
