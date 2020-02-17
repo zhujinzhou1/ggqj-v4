@@ -263,6 +263,10 @@ public class FeatureEditBDC extends FeatureEdit {
         return FileUtils.getAppDirAndMK(GetPath(mapInstance, bdcdyh) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
     }
 
+    public static String GetPath_doc(MapInstance mapInstance, String bdcdyh, String id) {
+        return FileUtils.getAppDirAndMK(GetPath(mapInstance, bdcdyh) + "附件材料/") + id + bdcdyh + ".docx";
+    }
+
     public static void LoadZD(MapInstance mapInstance, String bdcdyh, final AiRunnable callback) {
         FeatureViewZD.From(mapInstance).loadByZddm(GetZDDM(bdcdyh), callback);
     }

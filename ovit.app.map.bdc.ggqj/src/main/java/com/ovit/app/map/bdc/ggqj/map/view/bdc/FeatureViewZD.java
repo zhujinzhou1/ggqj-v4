@@ -71,6 +71,7 @@ import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.cad.DxfHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -79,6 +80,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_Templet;
+import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_ZD_zip;
+import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_doc;
 import static com.ovit.app.map.view.FeatureEdit.GetTable;
 
 /**
@@ -2175,7 +2179,7 @@ public class FeatureViewZD extends FeatureView {
             , List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
 
         {
-            String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
+            final String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
             if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
                 Log.i(TAG, "生成资料: 已经存在跳过");
                 AiRunnable.Ok(callback, file_dcb_doc);
@@ -2185,7 +2189,7 @@ public class FeatureViewZD extends FeatureView {
                     public void run() {
                         try {
                             String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
-                            Map<String, Object> map_ = new LinkedHashMap<>();
+                            final Map<String, Object> map_ = new LinkedHashMap<>();
                             //  设置系统参数
                             FeatureEditBDC.Put_data_sys(map_);
                             //  设置宗地参数
@@ -2211,9 +2215,42 @@ public class FeatureViewZD extends FeatureView {
                             FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd);
                             put_data_zd(map_, fs_zd);
 
-                            final String templet = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产权籍调查表.docx";
+
+                            final ArrayList<String> files = new ArrayList<String>();
+                            File file = new File( FileUtils.getAppDirAndMK(GetPath_Templet()));
+                            File[] tempList = file.listFiles();
+                            for(int i=0;i<tempList.length;i++){
+                                if(tempList[i].toString().endsWith(".docx")){
+                                    files.add(tempList[i].toString());
+                                }
+                            }
+
+                            new AiForEach<String>(files,null) {
+                                @Override
+                                public void exec() {
+                                    String file1 = files.get(postion);
+                                    String mbID= StringUtil.substr(file1,file1.lastIndexOf("/")+1,file1.lastIndexOf("."));
+                                    final String file_dcb_doc = GetPath_doc(mapInstance, bdcdyh,mbID);
+                                    String file_zd_zip = GetPath_ZD_zip(mapInstance, f_zd);
+                                    if (FileUtils.exsit(file1)) {
+                                        ReportUtils.exportWord(file1, file_dcb_doc, map_);
+                                        // 资料已经发生改变，移除压缩包
+                                        FileUtils.deleteFile(file_zd_zip);
+                                    } else {
+                                        ToastMessage.Send("《不动产权籍调查表》模板文件不存在！");
+                                        AiRunnable.U_No(mapInstance.activity, callback, null);
+                                    }
+                                    AiRunnable.Ok(getNext(), null);
+                                }
+                                @Override
+                                public void complet() {
+                                    Log.i(TAG, "生成资料: 生成完成");
+                                    AiRunnable.U_Ok(mapInstance.activity, callback, file_dcb_doc, map_);
+                                }
+                            }.start();
+                            /*final String templet = FileUtils.getAppDirAndMK(GetPath_Templet()) + "不动产权籍调查表.docx";
                             final String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
-                            String file_zd_zip = FeatureEditBDC.GetPath_ZD_zip(mapInstance, f_zd);
+                            String file_zd_zip = GetPath_ZD_zip(mapInstance, f_zd);
                             if (FileUtils.exsit(templet)) {
                                 ReportUtils.exportWord(templet, file_dcb_doc, map_);
                                 FileUtils.deleteFile(file_zd_zip);
@@ -2222,7 +2259,7 @@ public class FeatureViewZD extends FeatureView {
                             } else {
                                 ToastMessage.Send("《不动产权籍调查表》模板文件不存在！");
                                 AiRunnable.U_No(mapInstance.activity, callback, null);
-                            }
+                            }*/
                         } catch (Exception es) {
                             Log.i(TAG, "生成资料: 生成失败");
                             ToastMessage.Send("生成《不动产权籍调查表》失败", es);
