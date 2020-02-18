@@ -1199,6 +1199,107 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
+    /*//智能处理生成宗地图和宗地草图（待测试）
+    public void Batch_loadZdct(boolean reload, final AiRunnable callback) {
+        try {
+            final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/宗地草图/") + "宗地草图.jpg";
+            if ((!reload) && FileUtils.exsit(filename)) {
+                AiRunnable.Ok(callback, filename);
+            } else if (!FeatureHelper.isPolygonFeatureValid(feature)) {
+                CrashHandler.WriteLog("出宗地图异常", "宗地图形数据异常请检查：编号："
+                        + FeatureHelper.Get(feature, "ZDDM", "")
+                        + "权利人" + FeatureHelper.Get(feature, "QLRXM", ""));
+                AiRunnable.Ok(callback, filename);
+            } else {
+                final List<Feature> features_jzd = new ArrayList<>();
+                loadJzds(mapInstance, feature, features_jzd, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        MapHelper.geometry_ct(mapInstance.map, feature.getGeometry(), null, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                final AiRunnable runnable = (AiRunnable) t_;
+                                final Envelope e = (Envelope) objects[0];
+                                final GraphicsOverlay glayer = (GraphicsOverlay) objects[1];
+                                final List<Layer> layers = (List<Layer>) objects[2];
+                                final int scale = (Integer) objects[4];
+                                final List<Feature> fs_zd = new ArrayList<Feature>();
+                                final List<Feature> fs_zrz = new ArrayList<Feature>();
+                                final List<Feature> fs_h_fsjg = new ArrayList<Feature>();
+                                final List<Feature> fs_z_fsjg = new ArrayList<Feature>();
+                                final List<Feature> fs_zj_x = new ArrayList<Feature>();
+                                final List<Feature> fs_mzdw = new ArrayList<Feature>();
+                                final List<Feature> fs_xzdw = new ArrayList<Feature>();
+                                final Geometry g = GeometryEngine.bufferGeodetic(feature.getGeometry(), 1, MapHelper.U_L, 0.01, MapHelper.GC);
+                                // 范围内所有宗地
+                                final double buffer = DxfHelper.getZdctBuffer();
+                                MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, g, buffer, fs_zd, new AiRunnable(runnable) {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        // 范围内所有自然幢
+                                        MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_ZRZ, g, buffer, fs_zrz, new AiRunnable(runnable) {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_H_FSJG, g, buffer, fs_h_fsjg, new AiRunnable(runnable) {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                        // 范围内所有幢附属
+                                                        MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_Z_FSJG, g, buffer, fs_z_fsjg, new AiRunnable(runnable) {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                MapHelper.Query(mapInstance.map, "BZ_X", g, buffer, fs_zj_x, new AiRunnable(runnable) {
+                                                                    @Override
+                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        MapHelper.Query(mapInstance.map, "MZDW", g, buffer, fs_mzdw, new AiRunnable(runnable) {
+                                                                            @Override
+                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+
+                                                                                MapHelper.Query(mapInstance.map, "XZDW", g, buffer, fs_xzdw, new AiRunnable(runnable) {
+                                                                                    @Override
+                                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                        String jxlx = FeatureHelper.Get(feature, "JXLX", "J");
+                                                                                        if (true) {
+                                                                                            for (Feature feature : features_jzd) {
+                                                                                                feature.getAttributes().put("JZDH", jxlx + (features_jzd.indexOf(feature) + 1));
+                                                                                            }
+                                                                                        }
+                                                                                        //生成dxf
+                                                                                        loadZdct_Dxf(mapInstance, feature, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, features_jzd, fs_zj_x, fs_xzdw, fs_mzdw);
+                                                                                        AiRunnable.Ok(runnable, null);
+                                                                                        return null;
+                                                                                    }
+                                                                                });
+                                                                                return null;
+                                                                            }
+                                                                        });
+                                                                        return null;
+                                                                    }
+                                                                });
+                                                                return null;
+                                                            }
+                                                        });
+                                                        return null;
+                                                    }
+                                                });
+                                                return null;
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                });
+
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                });
+            }
+        } catch (Exception es) {
+            Log.e(TAG, "load_zdct: 绘制宗地图错误", es);
+        }
+    }*/
+
     public void loadZdct(boolean reload, final AiRunnable callback) {
         try {
             final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/宗地草图/") + "宗地草图.jpg";
