@@ -23,6 +23,7 @@ import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_defult;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
@@ -1284,9 +1285,11 @@ public class FeatureViewZRZ extends FeatureView {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
+            String dxf_bdcdyh = bdcdyh;
             if (DxfHelper.TYPE == DxfHelper.TYPE_DEFULT) {
                 // TODO 待完善，以自然幢生成房产分层分户图。
-                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                String dxf_fcfht_defult = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                new DxfFcfht_defult(mapInstance).set(dxf_fcfht_defult).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
 
         } catch (Exception es) {
