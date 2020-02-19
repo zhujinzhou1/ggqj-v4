@@ -23,7 +23,7 @@ import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_defult;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfhtDefaultZ;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
@@ -1116,21 +1116,25 @@ public class FeatureViewZRZ extends FeatureView {
                             final List<Feature> fs_h_fsjg = new ArrayList<Feature>();
                             final List<Feature> fs_jzd = new ArrayList<Feature>();
                             final List<Feature> fs_jzx = new ArrayList<Feature>();
+                            final List<Feature> fs_c_all = new ArrayList<Feature>();
                             final Map<String, Feature> map_jzx = new HashMap<>();
                             final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
 
                             loadAll(mapInstance, bdcdyh, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    createDOCX(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            // 数据归集
-                                            outputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
-                                            AiRunnable.Ok(callback, t_, objects);
-                                            return null;
-                                        }
-                                    });
+
+                                        createDOCX(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                // 数据归集
+//                                                outputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg,fs_c_all);
+                                                outputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
+                                                AiRunnable.Ok(callback, t_, objects);
+                                                return null;
+                                            }
+                                        });
+
                                     return null;
                                 }
                             });
@@ -1285,11 +1289,10 @@ public class FeatureViewZRZ extends FeatureView {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
-            String dxf_bdcdyh = bdcdyh;
             if (DxfHelper.TYPE == DxfHelper.TYPE_DEFULT) {
-                // TODO 待完善，以自然幢生成房产分层分户图。
-                String dxf_fcfht_defult = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
-                new DxfFcfht_defult(mapInstance).set(dxf_fcfht_defult).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+                //以自然幢生成房产分层分户图。
+                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                new DxfFcfhtDefaultZ(mapInstance).set(dxf_fcfht).set(f_bdc, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
 
         } catch (Exception es) {
