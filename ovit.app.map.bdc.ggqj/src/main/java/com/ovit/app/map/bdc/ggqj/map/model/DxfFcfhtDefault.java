@@ -204,7 +204,7 @@ public class DxfFcfhtDefault {
                 // 单元格3-4
                 x_ = x_ + w * 2 / 15;
                 Envelope cel_3_4 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
-                dxf.write(cel_3_4, null, FeatureHelper.Get(f,"SZC",1)+"层", o_fontsize, o_fontstyle, false, DxfHelper.COLOR_CYAN, 0);
+                dxf.write(cel_3_4, null, FeatureHelper.Get(f,"SJC",1)+"层", o_fontsize, o_fontstyle, false, DxfHelper.COLOR_CYAN, 0);
                 // 单元格3-5
                 x_ = x_ + w * 2 / 15;
                 Envelope cel_3_5 = new Envelope(x_, y_, x_ + w * 1 / 6, y_ - h, p_extend.getSpatialReference());

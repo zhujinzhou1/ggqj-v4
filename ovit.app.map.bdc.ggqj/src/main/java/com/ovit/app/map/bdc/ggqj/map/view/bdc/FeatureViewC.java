@@ -679,10 +679,14 @@ public class FeatureViewC extends FeatureView {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
+            String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh ;
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
                 // 内蒙 城镇 陈总
-                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                String dxf_fcfht = dxfDir + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfhtDefault(mapInstance).set(dxf_fcfht).set(feature_bdc, f_h, f_zd, fs_zrz, fs_c_all).write().save();
+            } else {
+                String dxfDefault = dxfDir + "房产分户图.dxf";
+                new DxfFcfhtDefault(mapInstance).set(dxfDefault).set(feature_bdc, f_h, f_zd, fs_zrz, fs_c_all).write().save();
             }
 
         } catch (Exception es) {
