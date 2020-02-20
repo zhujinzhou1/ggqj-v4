@@ -1291,7 +1291,7 @@ public class FeatureViewZRZ extends FeatureView {
 
             if (DxfHelper.TYPE == DxfHelper.TYPE_DEFULT) {
                 //以自然幢生成房产分层分户图。
-                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分层分户图.dxf";// fs_zrz =0
                 new DxfFcfhtDefaultZ(mapInstance).set(dxf_fcfht).set(f_bdc, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
 

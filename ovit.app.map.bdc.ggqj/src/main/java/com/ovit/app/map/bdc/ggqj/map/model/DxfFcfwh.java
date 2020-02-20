@@ -399,7 +399,7 @@ public class DxfFcfwh {
                 Envelope cel_7_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c1 =  getCJZMJ(cs,0+page*4);
 //                dxf.write(cel_7_5, jzmj_c1>0?(jzmj_c1+""):"/");
-                dxf.write(cel_7_5,null,jzmj_c1>0?(jzmj_c1+""):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_7_5,null,jzmj_c1>0?(AiUtil.GetValue(jzmj_c1,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格8-4
@@ -414,7 +414,7 @@ public class DxfFcfwh {
                 Envelope cel_8_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c2 =  getCJZMJ(cs,1+page*4);
 //                dxf.write(cel_8_5,  jzmj_c2>0?(jzmj_c2+""):"/");
-                dxf.write(cel_8_5,null,jzmj_c2>0?(jzmj_c2+""):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_8_5,null,jzmj_c2>0?(AiUtil.GetValue(jzmj_c2,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
 
@@ -430,7 +430,7 @@ public class DxfFcfwh {
                 Envelope cel_9_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c3 =  getCJZMJ(cs,2+page*4);
 //                dxf.write(cel_9_5,  jzmj_c3>0?(jzmj_c3+""):"/");
-                dxf.write(cel_9_5,null,jzmj_c3>0?(jzmj_c3+""):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_9_5,null,jzmj_c3>0?(AiUtil.GetValue(jzmj_c3,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格10-4
@@ -444,7 +444,7 @@ public class DxfFcfwh {
                 Envelope cel_10_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c4 =  getCJZMJ(cs,3+page*4);
 //                dxf.write(cel_10_5,  jzmj_c4>0?(jzmj_c4+""):"/");
-                dxf.write(cel_10_5,null,jzmj_c4>0?(jzmj_c4+""):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_10_5,null,jzmj_c4>0?(AiUtil.GetValue(jzmj_c4,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格6-4 汇总值 建筑面积汇总
@@ -569,8 +569,8 @@ public class DxfFcfwh {
             Point p_blc = new Point(cell.getXMin() + cell.getWidth() / 4 / 2, cell.getYMax() - o_split / 2);
             dxf.write(p_blc, null, scale_1, o_fontsize, null, false, 0, 0);
 
-            dxf.writeLine(Arrays.asList(new Point[]{new Point(p_blc.getX() - Integer.parseInt(s_d_m_) * 0.5, p_blc.getY() - 1.5 * o_fontsize), new Point(p_blc.getX() + 0.5 * Integer.parseInt(s_d_m_), p_blc.getY() - 1.5 * o_fontsize)}), "", false, 0, 0);
-            dxf.write(new Point(p_blc.getX(), p_blc.getY() - 3 * o_fontsize), null, s_d_m_3, o_fontsize, null, false, 0, 0);
+//            dxf.writeLine(Arrays.asList(new Point[]{new Point(p_blc.getX() - Integer.parseInt(s_d_m_) * 0.5, p_blc.getY() - 1.5 * o_fontsize), new Point(p_blc.getX() + 0.5 * Integer.parseInt(s_d_m_), p_blc.getY() - 1.5 * o_fontsize)}), "", false, 0, 0);
+//            dxf.write(new Point(p_blc.getX() +  cell.getWidth() / 2 / 2, p_blc.getY() - 3 * o_fontsize), null, s_d_m_3, o_fontsize, null, false, 0, 0);
         }
         Point p_n = new Point(cell.getXMax() - o_split/2 ,cell.getYMax()- o_split);
         dxf.write(p_n,null,"N",o_fontsize*0.8f,null,false,0,0);

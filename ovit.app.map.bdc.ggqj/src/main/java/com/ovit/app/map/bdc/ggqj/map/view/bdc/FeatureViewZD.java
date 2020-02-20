@@ -43,14 +43,12 @@ import com.ovit.app.exception.CrashHandler;
 import com.ovit.app.map.MapImage;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfct_tianmen;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfct_xianan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_badong;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh_jinshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFct_xianan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -1189,19 +1187,15 @@ public class FeatureViewZD extends FeatureView {
             , List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h_fsjg
             , List<Feature> fs_jzd, List<Feature> fs_zj_x, List<Feature> fs_xzdw, List<Feature> fs_mzdw) {
         try {
-            String dxf_zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
-            String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + dxf_zddm;
-            final String dxfpath_zdct = dxfDir + "宗地草图.dxf";
-            final String dxfpath_zdt = dxfDir + "宗地图.dxf";
+            final String dxfpath_zdt = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, "ZDDM", "") + "宗地图.dxf";
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
-              //  final String dxfpath_zdct = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, "ZDDM", "") + "宗地草图.dxf";
-                new DxfZdct(mapInstance).set(dxfpath_zdct).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+                final String dxfpath_zdct = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, "ZDDM", "") + "宗地草图.dxf";
+                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
             } else {
-                new DxfZdct(mapInstance).set(dxfpath_zdct).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
-                new DxfZdt(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd, fs_zj_x, fs_xzdw, fs_mzdw).write().save();
+                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
             }
         } catch (Exception es) {
-            Log.e(TAG, "生成宗地图失败");
+            Log.e(TAG, "生成分层分户图失败");
         }
     }
 
@@ -2521,8 +2515,8 @@ public class FeatureViewZD extends FeatureView {
                 final String dxf_fcfht_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产图.dxf";// fs_zrz =0
                 new DxfFct_xianan(mapInstance).set(dxf_fcfht_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else {
-                final String DxfFcfctDefUlt = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
-                new DxfFcfct(mapInstance).set(DxfFcfctDefUlt).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
+                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
