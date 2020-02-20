@@ -2486,44 +2486,42 @@ public class FeatureViewZD extends FeatureView {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
             // 导出shp 文件
-            String shpDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd);
-            final String shpfile_zd = shpDir + "宗地" + ".shp";
+            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "宗地" + ".shp";
             ShapeUtil.writeShp(shpfile_zd, f_zd);
-            final String shpfile_jzd = shpDir + "界址点" + ".shp";
+            final String shpfile_jzd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址点" + ".shp";
             ShapeUtil.writeShp(shpfile_jzd, fs_jzd);
-            final String shpfile_jzx = shpDir + "界址线" + ".shp";
+            final String shpfile_jzx = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址线" + ".shp";
             ShapeUtil.writeShp(shpfile_jzx, fs_jzx);
-            final String shpfile_zrz = shpDir + "自然幢" + ".shp";
+            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "自然幢" + ".shp";
             ShapeUtil.writeShp(shpfile_zrz, fs_zrz);
-            final String shpfile_h = shpDir + "户" + ".shp";
+            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户" + ".shp";
             ShapeUtil.writeShp(shpfile_h, fs_h);
-            final String shpfile_zfsjg = shpDir + "幢附属结构" + ".shp";
+            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "幢附属结构" + ".shp";
             ShapeUtil.writeShp(shpfile_zfsjg, fs_z_fsjg);
-            final String shpfile_hfsjg = shpDir + "户附属结构" + ".shp";
+            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户附属结构" + ".shp";
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
-             String dxf_bdcdyh = bdcdyh;
-             String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh ;
+            String dxf_bdcdyh = bdcdyh;
             if (DxfHelper.TYPE == DxfHelper.TYPE_JINSAN) {
                 // 京山 十堰 郧阳 冀保书
-                final String dxf_fcfht = dxfDir + "分层分户图.dxf";// fs_zrz =0
+                final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "分层分户图.dxf";// fs_zrz =0
                 new DxfFcfwh_jinshan(mapInstance).set(dxf_fcfht).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_BADONG) {
                 // 巴东 王总
-                final String dxf_fcfht_enshi = dxfDir + "房产分户图.dxf";// fs_zrz =0
+                final String dxf_fcfht_enshi = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfht_badong(mapInstance).set(dxf_fcfht_enshi).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_TIANMEN || DxfHelper.TYPE == DxfHelper.TYPE_HONGHU) {
                 // 天门 乔向阳
-                final String dxf_fcfht_tianmen = dxfDir + "房产分层平面图.dxf";// fs_zrz =0
+                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
                 new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN) {
                 // 咸安
-                final String dxf_fc_xianan = dxfDir + "房屋分层平面图.dxf";// fs_zrz =0
+                final String dxf_fc_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
                 new DxfFcfct_xianan(mapInstance).set(dxf_fc_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-                final String dxf_fcfht_xianan = dxfDir + "房产图.dxf";// fs_zrz =0
+                final String dxf_fcfht_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产图.dxf";// fs_zrz =0
                 new DxfFct_xianan(mapInstance).set(dxf_fcfht_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else {
-                final String DxfFcfctDefUlt = dxfDir + "房产分层平面图.dxf";// fs_zrz =0
+                final String DxfFcfctDefUlt = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
                 new DxfFcfct(mapInstance).set(DxfFcfctDefUlt).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
         } catch (Exception es) {

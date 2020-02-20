@@ -67,7 +67,7 @@ public abstract class BaseDxf {
     public BaseDxf write() throws Exception {
         getExtend(); // 多大范围
         if (dxf == null) {
-            dxf = DxfAdapter.getInstance();
+            dxf = new DxfAdapter();
             // 创建dxf
             dxf.create(dxfpath, p_extend, spatialReference).setFontSize(o_fontsize);
         }

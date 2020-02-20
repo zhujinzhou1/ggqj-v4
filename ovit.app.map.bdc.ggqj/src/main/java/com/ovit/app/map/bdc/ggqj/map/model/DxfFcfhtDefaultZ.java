@@ -290,7 +290,7 @@ public class DxfFcfhtDefaultZ {
                 DxfHelper.writeDaYingKuangfwfct(dxf,envelope,o_split,spatialReference);
 
                 Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + o_split * 1, envelope.getSpatialReference());
-                dxf.writeText(p_title, "房屋分层平面图", o_fontsize * 2, DxfHelper.FONT_WIDTH_ONE, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, null, null);
+                dxf.writeText(p_title, "房屋分层分户图", o_fontsize * 2, DxfHelper.FONT_WIDTH_ONE, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, null, null);
 
                 Point p_unit = new Point(envelope.getXMax(), envelope.getYMax() + o_split * 0.5, envelope.getSpatialReference());
                 dxf.writeText(p_unit, "单位：m·㎡", 0.63f, DxfHelper.FONT_WIDTH_ONE, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_BYLAYER, null, null);
