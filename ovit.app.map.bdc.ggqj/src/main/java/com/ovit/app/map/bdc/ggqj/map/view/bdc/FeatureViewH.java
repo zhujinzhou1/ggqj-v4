@@ -38,7 +38,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.ovit.app.map.custom.FeatureHelper.FILE_DOCX;
 
 /**
  * Created by Lichun on 2018/1/24.
@@ -860,7 +859,7 @@ public class FeatureViewH extends FeatureView {
                             final List<Feature> fs_c_all) {
         try {
             String bdcdyh = FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + FILE_DOCX;
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + FeatureHelper.FILE_DOCX;
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {

@@ -85,15 +85,6 @@ import java.util.Map;
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_Templet;
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_ZD_zip;
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_doc;
-import static com.ovit.app.map.custom.FeatureHelper.FILE_DOCX;
-import static com.ovit.app.map.custom.FeatureHelper.FILE_SHP;
-import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_H;
-import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_H_FSJG;
-import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_JZD;
-import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_JZX;
-import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_ZD;
-import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_ZRZ;
-import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_Z_FSJG;
 import static com.ovit.app.map.view.FeatureEdit.GetTable;
 
 /**
@@ -562,7 +553,7 @@ public class FeatureViewZD extends FeatureView {
                 if (ps > 0) {
                     for (ImmutablePart segments : polygonParts) {
                         Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
-                        Feature featureZrz = mapInstance.getTable(LAYER_NAME_ZRZ).createFeature();
+                        Feature featureZrz = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
                         featureZrz.setGeometry(polygon);
                         List<Feature> myLjz = new ArrayList<>();
                         for (Feature f_ljz : featuresLJZ) {
@@ -2492,23 +2483,23 @@ public class FeatureViewZD extends FeatureView {
                             final List<Feature> fs_h,
                             final List<Feature> fs_h_fsjg) {
         try {
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + FILE_DOCX;
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + FeatureHelper.FILE_DOCX;
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
             // 导出shp 文件
             String shpDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd);
-            final String shpfile_zd = shpDir + LAYER_NAME_ZD + FILE_SHP;
+            final String shpfile_zd = shpDir + FeatureHelper.LAYER_NAME_ZD + FeatureHelper.FILE_SHP;
             ShapeUtil.writeShp(shpfile_zd, f_zd);
-            final String shpfile_jzd = shpDir + LAYER_NAME_JZD + FILE_SHP;
+            final String shpfile_jzd = shpDir + FeatureHelper.LAYER_NAME_JZD + FeatureHelper.FILE_SHP;
             ShapeUtil.writeShp(shpfile_jzd, fs_jzd);
-            final String shpfile_jzx = shpDir + LAYER_NAME_JZX + FILE_SHP;
+            final String shpfile_jzx = shpDir + FeatureHelper.LAYER_NAME_JZX + FeatureHelper.FILE_SHP;
             ShapeUtil.writeShp(shpfile_jzx, fs_jzx);
-            final String shpfile_zrz = shpDir + LAYER_NAME_ZRZ + FILE_SHP;
+            final String shpfile_zrz = shpDir + FeatureHelper.LAYER_NAME_ZRZ + FeatureHelper.FILE_SHP;
             ShapeUtil.writeShp(shpfile_zrz, fs_zrz);
-            final String shpfile_h = shpDir + LAYER_NAME_H + FILE_SHP;
+            final String shpfile_h = shpDir + FeatureHelper.LAYER_NAME_H + FeatureHelper.FILE_SHP;
             ShapeUtil.writeShp(shpfile_h, fs_h);
-            final String shpfile_zfsjg = shpDir + LAYER_NAME_Z_FSJG + FILE_SHP;
+            final String shpfile_zfsjg = shpDir + FeatureHelper.LAYER_NAME_Z_FSJG + FeatureHelper.FILE_SHP;
             ShapeUtil.writeShp(shpfile_zfsjg, fs_z_fsjg);
-            final String shpfile_hfsjg = shpDir + LAYER_NAME_H_FSJG + FILE_SHP;
+            final String shpfile_hfsjg = shpDir + FeatureHelper.LAYER_NAME_H_FSJG + FeatureHelper.FILE_SHP;
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
              String dxf_bdcdyh = bdcdyh;
