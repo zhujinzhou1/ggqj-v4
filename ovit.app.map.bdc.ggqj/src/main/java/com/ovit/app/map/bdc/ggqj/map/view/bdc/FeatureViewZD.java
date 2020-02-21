@@ -43,12 +43,14 @@ import com.ovit.app.exception.CrashHandler;
 import com.ovit.app.map.MapImage;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfct_tianmen;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfct_xianan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_badong;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh_jinshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFct_xianan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -83,6 +85,15 @@ import java.util.Map;
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_Templet;
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_ZD_zip;
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC.GetPath_doc;
+import static com.ovit.app.map.custom.FeatureHelper.FILE_DOCX;
+import static com.ovit.app.map.custom.FeatureHelper.FILE_SHP;
+import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_H;
+import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_H_FSJG;
+import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_JZD;
+import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_JZX;
+import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_ZD;
+import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_ZRZ;
+import static com.ovit.app.map.custom.FeatureHelper.LAYER_NAME_Z_FSJG;
 import static com.ovit.app.map.view.FeatureEdit.GetTable;
 
 /**
@@ -551,7 +562,7 @@ public class FeatureViewZD extends FeatureView {
                 if (ps > 0) {
                     for (ImmutablePart segments : polygonParts) {
                         Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
-                        Feature featureZrz = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
+                        Feature featureZrz = mapInstance.getTable(LAYER_NAME_ZRZ).createFeature();
                         featureZrz.setGeometry(polygon);
                         List<Feature> myLjz = new ArrayList<>();
                         for (Feature f_ljz : featuresLJZ) {
@@ -1187,15 +1198,19 @@ public class FeatureViewZD extends FeatureView {
             , List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h_fsjg
             , List<Feature> fs_jzd, List<Feature> fs_zj_x, List<Feature> fs_xzdw, List<Feature> fs_mzdw) {
         try {
-            final String dxfpath_zdt = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, "ZDDM", "") + "宗地图.dxf";
+            String dxf_zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+            String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + dxf_zddm;
+            final String dxfpath_zdct = dxfDir + "宗地草图.dxf";
+            final String dxfpath_zdt = dxfDir + "宗地图.dxf";
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
-                final String dxfpath_zdct = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, "ZDDM", "") + "宗地草图.dxf";
-                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+              //  final String dxfpath_zdct = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, "ZDDM", "") + "宗地草图.dxf";
+                new DxfZdct(mapInstance).set(dxfpath_zdct).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
             } else {
-                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+                new DxfZdct(mapInstance).set(dxfpath_zdct).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+                new DxfZdt(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd, fs_zj_x, fs_xzdw, fs_mzdw).write().save();
             }
         } catch (Exception es) {
-            Log.e(TAG, "生成分层分户图失败");
+            Log.e(TAG, "生成宗地图失败");
         }
     }
 
@@ -2477,46 +2492,48 @@ public class FeatureViewZD extends FeatureView {
                             final List<Feature> fs_h,
                             final List<Feature> fs_h_fsjg) {
         try {
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + FILE_DOCX;
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
             // 导出shp 文件
-            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "宗地" + ".shp";
+            String shpDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd);
+            final String shpfile_zd = shpDir + LAYER_NAME_ZD + FILE_SHP;
             ShapeUtil.writeShp(shpfile_zd, f_zd);
-            final String shpfile_jzd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址点" + ".shp";
+            final String shpfile_jzd = shpDir + LAYER_NAME_JZD + FILE_SHP;
             ShapeUtil.writeShp(shpfile_jzd, fs_jzd);
-            final String shpfile_jzx = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址线" + ".shp";
+            final String shpfile_jzx = shpDir + LAYER_NAME_JZX + FILE_SHP;
             ShapeUtil.writeShp(shpfile_jzx, fs_jzx);
-            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "自然幢" + ".shp";
+            final String shpfile_zrz = shpDir + LAYER_NAME_ZRZ + FILE_SHP;
             ShapeUtil.writeShp(shpfile_zrz, fs_zrz);
-            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户" + ".shp";
+            final String shpfile_h = shpDir + LAYER_NAME_H + FILE_SHP;
             ShapeUtil.writeShp(shpfile_h, fs_h);
-            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "幢附属结构" + ".shp";
+            final String shpfile_zfsjg = shpDir + LAYER_NAME_Z_FSJG + FILE_SHP;
             ShapeUtil.writeShp(shpfile_zfsjg, fs_z_fsjg);
-            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户附属结构" + ".shp";
+            final String shpfile_hfsjg = shpDir + LAYER_NAME_H_FSJG + FILE_SHP;
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
-            String dxf_bdcdyh = bdcdyh;
+             String dxf_bdcdyh = bdcdyh;
+             String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh ;
             if (DxfHelper.TYPE == DxfHelper.TYPE_JINSAN) {
                 // 京山 十堰 郧阳 冀保书
-                final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "分层分户图.dxf";// fs_zrz =0
+                final String dxf_fcfht = dxfDir + "分层分户图.dxf";// fs_zrz =0
                 new DxfFcfwh_jinshan(mapInstance).set(dxf_fcfht).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_BADONG) {
                 // 巴东 王总
-                final String dxf_fcfht_enshi = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                final String dxf_fcfht_enshi = dxfDir + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfht_badong(mapInstance).set(dxf_fcfht_enshi).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_TIANMEN || DxfHelper.TYPE == DxfHelper.TYPE_HONGHU) {
                 // 天门 乔向阳
-                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
+                final String dxf_fcfht_tianmen = dxfDir + "房产分层平面图.dxf";// fs_zrz =0
                 new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN) {
                 // 咸安
-                final String dxf_fc_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
+                final String dxf_fc_xianan = dxfDir + "房屋分层平面图.dxf";// fs_zrz =0
                 new DxfFcfct_xianan(mapInstance).set(dxf_fc_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-                final String dxf_fcfht_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产图.dxf";// fs_zrz =0
+                final String dxf_fcfht_xianan = dxfDir + "房产图.dxf";// fs_zrz =0
                 new DxfFct_xianan(mapInstance).set(dxf_fcfht_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else {
-                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
-                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+                final String DxfFcfctDefUlt = dxfDir + "房产分层平面图.dxf";// fs_zrz =0
+                new DxfFcfct(mapInstance).set(DxfFcfctDefUlt).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
