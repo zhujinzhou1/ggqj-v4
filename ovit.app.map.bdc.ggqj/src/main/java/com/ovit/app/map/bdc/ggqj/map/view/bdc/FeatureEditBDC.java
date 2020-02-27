@@ -1107,12 +1107,6 @@ public class FeatureEditBDC extends FeatureEdit {
                                                     try {
                                                         // 数据归集
                                                         OutputData(mapInstance, bdcdyh, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
-
-
-
-
-
-
                                                         Zip.zipSubFiles(file_zd_dir, file_zd_zip);
                                                         AiRunnable.Ok(callback, file_zd_zip);
                                                     } catch (Exception es) {
