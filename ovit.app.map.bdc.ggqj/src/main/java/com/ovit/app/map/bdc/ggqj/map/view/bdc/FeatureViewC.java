@@ -490,6 +490,7 @@ public class FeatureViewC extends FeatureView {
                             final List<Feature> fs_ljz = new ArrayList<Feature>();
                             final List<Feature> fs_ftqk = new ArrayList<Feature>();
                             final List<Feature> fs_h = new ArrayList<Feature>();
+                            final List<Feature> fs_z_fsjg = new ArrayList<Feature>();
                             final List<Feature> fs_jzd = new ArrayList<Feature>();
                             final List<Feature> fs_jzx = new ArrayList<Feature>();
                             final List<Feature> fs_bdc_h = new ArrayList<Feature>();
@@ -497,12 +498,12 @@ public class FeatureViewC extends FeatureView {
                             final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
                             final LinkedHashMap<Feature, List<Feature>> fs_c_all = new LinkedHashMap<>();
 
-                            LoadAll(mapInstance, featureBdcdy, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_ftqk, fs_bdc_h, fs_h, fs_c_all, new AiRunnable() {
+                            LoadAll(mapInstance, featureBdcdy, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz,fs_z_fsjg, fs_ljz, fs_ftqk, fs_bdc_h, fs_h, fs_c_all, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     final Feature f_c = (Feature) t_;
                                     if (f_c != null && fs_zrz.size() > 0) {
-                                        createDOCX(mapInstance, featureBdcdy, f_c, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_h, isRelaod, new AiRunnable() {
+                                        createDOCX(mapInstance, featureBdcdy, f_c, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz,fs_z_fsjg, fs_h, isRelaod, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
                                                 // 数据归集
@@ -547,6 +548,7 @@ public class FeatureViewC extends FeatureView {
                          final Map<String, Feature> map_jzx,
                          final List<Map<String, Object>> fs_jzqz,
                          final List<Feature> fs_zrz,
+                         final List<Feature> fs_z_fsjg,
                          final List<Feature> fs_ljz,
                          final List<Feature> fs_ftqk,
                          final List<Feature> fs_bdc_h,
@@ -606,6 +608,7 @@ public class FeatureViewC extends FeatureView {
                             final Map<String, Feature> map_jzx,
                             final List<Map<String, Object>> fs_jzqz,
                             final List<Feature> fs_zrz,
+                            final List<Feature> fs_z_fsjg,
                             final List<Feature> fs_h
             , boolean isRelaod, final AiRunnable callback) {
         final String bdcdyh = FeatureHelper.Get(featureBdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
@@ -632,6 +635,10 @@ public class FeatureViewC extends FeatureView {
                         FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
                         // 设置界址线
                         FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
+                        // 自然幢
+                        FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h);
+                        // 在全局放所有户
+                        FeatureEditBDC.Put_data_hs(mapInstance, map_, fs_h);
                         // 在全局放一个户
                         FeatureEditBDC.Put_data_h(mapInstance, map_, fs_h);
                         // 在全局放一个幢

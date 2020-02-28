@@ -1159,7 +1159,6 @@ public class FeatureViewZRZ extends FeatureView {
                                final List<Feature> fs_z_fsjg,
                                final List<Feature> fs_h,
                                final List<Feature> fs_h_fsjg,
-
                                final AiRunnable callback) {
         final String orid_bdc = FeatureHelper.GetLastOrid(featureBdcdy);
         FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
@@ -1239,7 +1238,7 @@ public class FeatureViewZRZ extends FeatureView {
                         // 自然幢
                         FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h);
                         // 在全局放所有户
-                        //  Put_data_hs(mapInstance, map_, fs_h);
+                        FeatureEditBDC.Put_data_hs(mapInstance, map_, fs_h);
                         // 在全局放一个户
                         FeatureEditBDC.Put_data_h(mapInstance, map_, fs_h);
                         // 在全局放一个幢
