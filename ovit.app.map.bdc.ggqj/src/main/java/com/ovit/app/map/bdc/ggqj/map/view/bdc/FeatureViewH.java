@@ -17,6 +17,7 @@ import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfhtDefault;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_neimeng;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -872,6 +873,9 @@ public class FeatureViewH extends FeatureView {
                 // 内蒙 城镇 陈总
                 String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfht_neimeng(mapInstance).set(dxf_fcfht).set(feature_bdc, f_h, f_zd, fs_zrz, fs_c_all).write().save();
+            }else{
+                String dxfDefault =FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";
+                new DxfFcfhtDefault(mapInstance).set(dxfDefault).set(feature_bdc, f_h, f_zd, fs_zrz, fs_c_all).write().save();
             }
 
         } catch (Exception es) {

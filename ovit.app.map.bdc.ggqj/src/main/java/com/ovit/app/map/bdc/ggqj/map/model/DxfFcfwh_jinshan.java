@@ -361,7 +361,7 @@ public class DxfFcfwh_jinshan {
                 x_ = x_+w* 1/6;
                 Envelope cel_7_5 = new Envelope(x_,y_,x+w,y_-h,envelope.getSpatialReference()) ;
                 double jzmj_c1 =  getCJZMJ(cs,0+page*4);
-                dxf.write(cel_7_5,null,jzmj_c1>0?(jzmj_c1+""):"/",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_7_5,null,jzmj_c1>0?(AiUtil.GetValue(jzmj_c1 ,"", AiUtil.F_FLOAT2)):"",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格8-4
@@ -373,7 +373,7 @@ public class DxfFcfwh_jinshan {
                 x_ = x_+w* 1/6;
                 Envelope cel_8_5 = new Envelope(x_,y_,x+w,y_-h,envelope.getSpatialReference()) ;
                 double jzmj_c2 =  getCJZMJ(cs,1+page*4);
-                dxf.write(cel_8_5,null,jzmj_c2>0?(jzmj_c2+""):"/",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_8_5,null,jzmj_c2>0?(AiUtil.GetValue(jzmj_c2 ,"", AiUtil.F_FLOAT2)):"",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格9-4
                 x_ = x+w*4/6; y_ = y_-h;
@@ -384,7 +384,7 @@ public class DxfFcfwh_jinshan {
                 x_ = x_+w* 1/6;
                 Envelope cel_9_5 = new Envelope(x_,y_,x+w,y_-h,envelope.getSpatialReference()) ;
                 double jzmj_c3 =  getCJZMJ(cs,2+page*4);
-                dxf.write(cel_9_5,null,jzmj_c3>0?(jzmj_c3+""):"/",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_9_5,null,jzmj_c3>0?(AiUtil.GetValue(jzmj_c3 ,"", AiUtil.F_FLOAT2)):"",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格10-4
                 x_ = x+w*4/6; y_ = y_-h;
@@ -395,11 +395,11 @@ public class DxfFcfwh_jinshan {
                 x_ = x_+w* 1/6;
                 Envelope cel_10_5 = new Envelope(x_,y_,x+w,y_-h,envelope.getSpatialReference()) ;
                 double jzmj_c4 =  getCJZMJ(cs,3+page*4);
-                dxf.write(cel_10_5,null,jzmj_c4>0?(jzmj_c4+""):"/",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_10_5,null,jzmj_c4>0?(AiUtil.GetValue(jzmj_c4 ,"", AiUtil.F_FLOAT2)):"",o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格6-4 汇总值 建筑面积汇总
                 double jzmj_c  =jzmj_c1+jzmj_c2+jzmj_c3+jzmj_c4;
-                dxf.write(cel_6_4,null,jzmj_c>0?(AiUtil.GetValue(jzmj_c,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_6_4,null,jzmj_c>0?(AiUtil.GetValue(jzmj_c,"", AiUtil.F_FLOAT2)):"",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格7-2 总层数汇总值
                 double zcs_hz =jzmj_c1+jzmj_c2+jzmj_c3+jzmj_c4;

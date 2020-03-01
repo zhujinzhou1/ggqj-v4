@@ -269,21 +269,21 @@ public class DxfFcfwh {
 
                 // 单元格1-1
                 Envelope cel_1_1 = new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
-                dxf.write(cel_1_1,null,"不动产单元号",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_1_1,null,"不动产单元号",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
                 // 单元格1-2
                 x_ = x_+w* 1/6;
                 Envelope cel_1_2 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
-                dxf.write(cel_1_2,null,bdcdyh,o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_1_2,null,bdcdyh,o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格2-1
                 x_ = x; y_ = y_-h;
                 Envelope cel_2_1 =  new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
-                dxf.write(cel_2_1,null,"坐落",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_2_1,null,"坐落",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格2-2
                 x_ = x_+w* 1/6;
                 Envelope cel_2_2 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
-                dxf.write(cel_2_2,null,Get(f_zd,"ZL",""),o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_2_2,null,Get(f_zd,"ZL",""),o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格3-1
                 x_ = x; y_ = y_-h;
@@ -322,39 +322,39 @@ public class DxfFcfwh {
                 x_ = x_+w* 1/6;
                 Envelope cel_5_2 = new Envelope(x_,y_,x+w* 1/2,y_-h,c_.getSpatialReference()) ;
                 String bdcdyh = FeatureHelper.Get(fs_zrz.get(0), "BDCDYH", "");
-                dxf.write(cel_5_2,null,bdcdyh.contains("F9999")?"F9999":"F0001" ,o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_5_2,null,bdcdyh.contains("F9999")?"F9999":"F0001" ,o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格5-3
                 x_ = x+w* 1/2;
                 Envelope cel_5_3 = new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_5_3,"户  号");
-                dxf.write(cel_5_3,null,"户  号",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_5_3,null,"户  号",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格5-4
                 x_ = x_+w* 1/6;
                 Envelope cel_5_4 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_5_4,"0001" );//StringUtil.substr_last(bdcdyh,4)
-                dxf.write(cel_5_4,null,"0001",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_5_4,null,"0001",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格6-1
                 x_ = x; y_ = y_-h;
                 Envelope cel_6_1 =  new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_6_1,"房屋结构");
-                dxf.write(cel_6_1,null,"房屋结构",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_6_1,null,"房屋结构",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格6-2
                 x_ = x_+w* 1/6;
                 Envelope cel_6_2 = new Envelope(x_,y_,x+w* 1/2,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_6_2,getFwjg(cs,page));
-                dxf.write(cel_6_2,null,getFwjg(cs,page),o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_6_2,null,getFwjg(cs,page),o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格6-3
                 x_ = x+w* 1/2;
                 Envelope cel_6_3 = new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_6_3,"建筑面积（m2）");
-                dxf.write(cel_6_3,null,"建筑面积（m2）",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_6_3,null,"建筑面积（m2）",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格6-4
                 x_ = x_+w* 1/6;
@@ -373,7 +373,7 @@ public class DxfFcfwh {
                 x_ = x;
                 Envelope cel_7_1 =  new Envelope(x_,y_,x_+w* 1/6,y_-4*h,c_.getSpatialReference()) ;
 //                dxf.write(cel_7_1,"总层数");
-                dxf.write(cel_7_1,null,"总层数",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_7_1,null,"总层数",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格7-2
@@ -385,28 +385,28 @@ public class DxfFcfwh {
                 x_ = x+w* 1/2;
                 Envelope cel_7_3 = new Envelope(x_,y_,x_+w* 1/6,y_-4*h,c_.getSpatialReference()) ;
 //                dxf.write(cel_7_3,"各层面积（m2）");
-                dxf.write(cel_7_3,null,"各层面积（m2）",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_7_3,null,"各层面积（m2）",o_fontsize* 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格7-4
                 x_ = x_+w* 1/6;
                 Envelope cel_7_4 = new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_7_4, getCName(cs,0+page*4));
-                dxf.write(cel_7_4,null,getCName(cs,0+page*4),o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_7_4,null,getCName(cs,0+page*4),o_fontsize* 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格7-5
                 x_ = x_+w* 1/6;
                 Envelope cel_7_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c1 =  getCJZMJ(cs,0+page*4);
 //                dxf.write(cel_7_5, jzmj_c1>0?(jzmj_c1+""):"/");
-                dxf.write(cel_7_5,null,jzmj_c1>0?(AiUtil.GetValue(jzmj_c1,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_7_5,null,jzmj_c1>0?(AiUtil.GetValue(jzmj_c1,"", AiUtil.F_FLOAT2)):"",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格8-4
                 x_ = x+w*4/6; y_ = y_-h;
                 Envelope cel_8_4 = new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_8_4, getCName(cs,1+page*4));
-                dxf.write(cel_8_4,null,getCName(cs,1+page*4),o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_8_4,null,getCName(cs,1+page*4),o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格8-5
@@ -414,7 +414,7 @@ public class DxfFcfwh {
                 Envelope cel_8_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c2 =  getCJZMJ(cs,1+page*4);
 //                dxf.write(cel_8_5,  jzmj_c2>0?(jzmj_c2+""):"/");
-                dxf.write(cel_8_5,null,jzmj_c2>0?(AiUtil.GetValue(jzmj_c2,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_8_5,null,jzmj_c2>0?(AiUtil.GetValue(jzmj_c2,"", AiUtil.F_FLOAT2)):"",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
 
@@ -422,7 +422,7 @@ public class DxfFcfwh {
                 x_ = x+w*4/6; y_ = y_-h;
                 Envelope cel_9_4 = new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_9_4, getCName(cs,2+page*4));
-                dxf.write(cel_9_4,null,getCName(cs,2+page*4),o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_9_4,null,getCName(cs,2+page*4),o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格9-5
@@ -430,33 +430,33 @@ public class DxfFcfwh {
                 Envelope cel_9_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c3 =  getCJZMJ(cs,2+page*4);
 //                dxf.write(cel_9_5,  jzmj_c3>0?(jzmj_c3+""):"/");
-                dxf.write(cel_9_5,null,jzmj_c3>0?(AiUtil.GetValue(jzmj_c3,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_9_5,null,jzmj_c3>0?(AiUtil.GetValue(jzmj_c3,"", AiUtil.F_FLOAT2)):"",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格10-4
                 x_ = x+w*4/6; y_ = y_-h;
                 Envelope cel_10_4 = new Envelope(x_,y_,x_+w* 1/6,y_-h,c_.getSpatialReference()) ;
 //                dxf.write(cel_10_4, getCName(cs,3+page*4));
-                dxf.write(cel_10_4,null, getCName(cs,3+page*4),o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_10_4,null, getCName(cs,3+page*4),o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格10-5
                 x_ = x_+w* 1/6;
                 Envelope cel_10_5 = new Envelope(x_,y_,x+w,y_-h,c_.getSpatialReference()) ;
                 double jzmj_c4 =  getCJZMJ(cs,3+page*4);
 //                dxf.write(cel_10_5,  jzmj_c4>0?(jzmj_c4+""):"/");
-                dxf.write(cel_10_5,null,jzmj_c4>0?(AiUtil.GetValue(jzmj_c4,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_10_5,null,jzmj_c4>0?(AiUtil.GetValue(jzmj_c4,"", AiUtil.F_FLOAT2)):"",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格6-4 汇总值 建筑面积汇总
                 double jzmj_c  =jzmj_c1+jzmj_c2+jzmj_c3+jzmj_c4;
 //                dxf.write(cel_6_4,jzmj_c>0?(AiUtil.GetValue(jzmj_c+"",AiUtil.F_FLOAT2,"/")):"/");
-                dxf.write(cel_6_4,null,jzmj_c>0?(AiUtil.GetValue(jzmj_c,"/", AiUtil.F_FLOAT2)):"/",o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_6_4,null,jzmj_c>0?(AiUtil.GetValue(jzmj_c,"", AiUtil.F_FLOAT2)):"",o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
 
 
                 // 单元格7-2 总层数汇总值
                 double zcs_hz =jzmj_c1+jzmj_c2+jzmj_c3+jzmj_c4;
 //                dxf.write(cel_7_2,zcshz);
-                dxf.write(cel_7_2,null,zcshz,o_fontsize,null,false, DxfHelper.COLOR_BYLAYER,0);
+                dxf.write(cel_7_2,null,zcshz,o_fontsize * 0.8f,null,false, DxfHelper.COLOR_BYLAYER,0);
                 zcshz="";
 //                // 落款
 //                x_ = x+o_split;  y_ = y_-h;
@@ -488,16 +488,16 @@ public class DxfFcfwh {
 
                 Point p_auditDate = new Point(envelope.getCenter().getX()- w * 1 / 3-w * 1 / 20, envelope.getYMin() -3* o_split * 0.3, envelope.getSpatialReference());
                 Point p_drawDate = new Point(envelope.getCenter().getX()- w * 1 / 3-w * 1 / 20 , envelope.getYMin() - o_split * 0.3, envelope.getSpatialReference());
-                dxf.writeText(p_drawDate, "绘图日期:"+drawDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
-                dxf.writeText(p_auditDate,"审核日期:"+auditDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+                dxf.writeText(p_drawDate, "绘图日期:"+drawDate, o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+                dxf.writeText(p_auditDate,"审核日期:"+auditDate, o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
 
                 Point p_blc = new Point(envelope.getCenter().getX() , envelope.getYMin() - o_split * 0.3, envelope.getSpatialReference());
-                dxf.writeText(p_blc, "1:200", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+                dxf.writeText(p_blc, "1:200", o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
 
                 Point p_chr = new Point(envelope.getCenter().getX() + w * 1 / 3+w*1/10, envelope.getYMin() - o_split * 0.3, envelope.getSpatialReference());
-                dxf.writeText(p_chr, "测绘员："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR",""), o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+                dxf.writeText(p_chr, "测绘员："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR",""), o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
                 Point p_shr = new Point(envelope.getCenter().getX() + w * 1 / 3+w*1/10, envelope.getYMin() - 3*o_split * 0.3, envelope.getSpatialReference());
-                dxf.writeText(p_shr, "审核员："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"SHR",""), o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+                dxf.writeText(p_shr, "审核员："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"SHR",""), o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
 
 
 
