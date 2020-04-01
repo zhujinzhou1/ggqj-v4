@@ -63,6 +63,10 @@ public abstract class BaseDxf {
         this.spatialReference = spatialReference;
         return this;
     }
+    public BaseDxf set(Feature f_zd) {
+        return this;
+    }
+
 
     public BaseDxf write() throws Exception {
         getExtend(); // 多大范围

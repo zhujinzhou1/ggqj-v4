@@ -49,6 +49,7 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_badong;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh_jinshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFct_xianan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfZdctDefult;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -2518,7 +2519,8 @@ public class FeatureViewZD extends FeatureView {
                 new DxfFct_xianan(mapInstance).set(dxf_fcfht_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
-                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+//                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+                new DxfZdctDefult(mapInstance).set(dxf_fcfht_tianmen).set(f_zd).save();
             }
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
