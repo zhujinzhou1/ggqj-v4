@@ -152,12 +152,12 @@ public class FeatureViewH extends FeatureView {
         }
         FeatureHelper.Set(feature, "ZRZH", zrzh);
         String zddm = StringUtil.substr_last(zrzh, 0, FeatureHelper.FEATURE_ZD_ZDDM_LENG);
-        FeatureHelper.Set(feature,"ZDDM", zddm);
+        FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_ZDDM, zddm);
 
-        String bdcdyh = FeatureHelper.Get(feature_ljz, "BDCDYH", FeatureHelper.Get(feature, "BDCDYH","" ));
+        String bdcdyh = FeatureHelper.Get(feature_ljz, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH,"" ));
         boolean isF99990001 = bdcdyh.endsWith("F99990001");
         bdcdyh = isF99990001 ? (zddm + "F99990001") :(zrzh+  StringUtil.substr_last(id, 4));
-        FeatureHelper.Set(feature,"BDCDYH", bdcdyh);
+        FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_ORID_PATH, bdcdyh);
         FeatureHelper.Set(feature,"FWBM", StringUtil.substr_last(bdcdyh, 9));
 
         int lc = FeatureHelper.Get(feature,"SZC", 1);
@@ -209,12 +209,12 @@ public class FeatureViewH extends FeatureView {
                 boolean flag = ll_list_item.getVisibility() == View.VISIBLE;
                 if (!flag) {
                     final List<Feature> fs = new ArrayList<>();
-                    queryChildFeature("H_FSJG", item, fs, new AiRunnable() {
+                    queryChildFeature(FeatureHelper.TABLE_NAME_H_FSJG, item, fs, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
                             List<Feature> fs_p = new ArrayList<>();
                             fs_p.add(item);
-                            mapInstance.newFeatureView("H_FSJG").buildListView(ll_list_item,fs,deep+1);
+                            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_H_FSJG).buildListView(ll_list_item,fs,deep+1);
                             return  null;
                         }
                     });
@@ -233,21 +233,21 @@ public class FeatureViewH extends FeatureView {
     }
     public static FeatureViewH From(MapInstance mapInstance){
         FeatureViewH fv = new FeatureViewH();
-        fv.set(mapInstance).set(mapInstance.getTable("H"));
+        fv.set(mapInstance).set(mapInstance.getTable(FeatureHelper.TABLE_NAME_H));
         return  fv;
     }
 
     public static FeatureTable GetTable(MapInstance mapInstance) {
-        return MapHelper.getLayer(mapInstance.map, "H", "户").getFeatureTable();
+        return MapHelper.getLayer(mapInstance.map, FeatureHelper.TABLE_NAME_H, FeatureHelper.LAYER_NAME_H).getFeatureTable();
     }
     public static  void LoadAll(final MapInstance mapInstance,Feature f,final List<Feature>fs,AiRunnable callback){
         LoadAll(mapInstance,mapInstance.getOrid(f),fs,callback);
     }
     public static  void LoadAll(final MapInstance mapInstance,String orid,final List<Feature>fs,AiRunnable callback){
-        mapInstance.newFeatureView().queryChildFeature("H",orid,"HH","asc",fs,callback);
+        mapInstance.newFeatureView().queryChildFeature(FeatureHelper.TABLE_NAME_H,orid,"HH","asc",fs,callback);
     }
     public static void Load(MapInstance mapInstance, String orid, final AiRunnable callback){
-        mapInstance.newFeatureView().findFeature("H",orid,callback);
+        mapInstance.newFeatureView().findFeature(FeatureHelper.TABLE_NAME_H,orid,callback);
     }
 
     public static void InitFeatureAll(final MapInstance mapInstance,   final Feature featureLJZ, final AiRunnable callback)  {
@@ -291,7 +291,7 @@ public class FeatureViewH extends FeatureView {
     }
     public static void ClearFeatureAll(final MapInstance mapInstance,   final Feature featureLJZ, final AiRunnable callback)  {
         if (featureLJZ != null) {
-            mapInstance.newFeatureView().delChildFeature("H",featureLJZ,callback);
+            mapInstance.newFeatureView().delChildFeature(FeatureHelper.TABLE_NAME_H,featureLJZ,callback);
 
         } else {
             ToastMessage.Send( "没有逻辑幢信息！");
@@ -326,9 +326,9 @@ public class FeatureViewH extends FeatureView {
     }
     public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, Feature f, final AiRunnable callback) {
 
-        if(f_p!=null&& f_p.getFeatureTable() != mapInstance.getTable("LJZ")) {
+        if(f_p!=null&& f_p.getFeatureTable() != mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ)) {
             // 如果不是逻辑
-            String orid = mapInstance.getOrid_Match(f,"LJZ");
+            String orid = mapInstance.getOrid_Match(f,FeatureHelper.TABLE_NAME_LJZ);
             if(StringUtil.IsNotEmpty(orid)){
                 CreateFeature(mapInstance,orid,f,callback);
                 return;
@@ -386,8 +386,8 @@ public class FeatureViewH extends FeatureView {
         }else{
             feature = feature_h;
         }
-        if(featureLJZ!=null&& featureLJZ.getFeatureTable() != mapInstance.getTable("LJZ")) {
-            String orid = mapInstance.getOrid_Match(feature,"LJZ");
+        if(featureLJZ!=null&& featureLJZ.getFeatureTable() != mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ)) {
+            String orid = mapInstance.getOrid_Match(feature,FeatureHelper.TABLE_NAME_LJZ);
             if(StringUtil.IsNotEmpty(orid)){
                 CreateFeature(mapInstance,orid,cs,feature,callback);
                 return;
@@ -437,7 +437,7 @@ public class FeatureViewH extends FeatureView {
     //region 面积计算
     // 更新户分摊面积
     public void update_Area(Feature feature, List<Feature> fs_ftqk) {
-        String orid = FeatureHelper.Get(feature,"ORID","");
+        String orid = FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_ORID,"");
         Geometry g = feature.getGeometry();
         double area = 0;
         double hsmj = 0;
@@ -469,7 +469,7 @@ public class FeatureViewH extends FeatureView {
         });
     }
     public static void hsmj(Feature feature,MapInstance mapInstance, List<Feature> f_h_fsjgs) {
-        String id = AiUtil.GetValue(feature.getAttributes().get("ORID"));
+        String id = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID));
         Geometry g = feature.getGeometry();
         double area = 0;
         double hsmj = 0;
@@ -480,7 +480,7 @@ public class FeatureViewH extends FeatureView {
             }
         }
         for (Feature f : f_h_fsjgs) {
-            String hid =FeatureHelper.Get(f,"ORID_PATH","");
+            String hid =FeatureHelper.Get(f,FeatureHelper.TABLE_ATTR_ORID_PATH,"");
             if (hid.contains(id)) {
                 double f_hsmj = AiUtil.GetValue(f.getAttributes().get("HSMJ"), 0d);
                 hsmj += f_hsmj;
@@ -495,7 +495,7 @@ public class FeatureViewH extends FeatureView {
     public void identyH_FSJG(List<Feature> fs_h_fsjg,final AiRunnable callback){
         String szc=FeatureHelper.Get(feature,"SZC","1");
         String where="LC='0' or LC='"+szc+"'";
-        MapHelper.Query(mapInstance.getTable("H_FSJG"),feature.getGeometry(),0.02,where, fs_h_fsjg,callback);
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_H_FSJG),feature.getGeometry(),0.02,where, fs_h_fsjg,callback);
     }
     // 默认识别保存
     public void identyH_FSJG(final AiRunnable callback){
@@ -522,7 +522,7 @@ public class FeatureViewH extends FeatureView {
                     QuickAdapter<Feature> adapter = fv_.getListAdapter(fs_h_fsjg, 0);
                     AiDialog dialog = AiDialog.get(mapInstance.activity, adapter);
                     dialog.setHeaderView(R.mipmap.app_map_layer_zrz, "识别到" + fs_h_fsjg.size() + "个户附属");
-                    dialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    dialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             MapHelper.saveFeature(fs_h_fsjg, callback);
@@ -538,7 +538,7 @@ public class FeatureViewH extends FeatureView {
     }
 
     public void identyZ_Fsjg(List<Feature> features_zrz ,final AiRunnable callback){
-        MapHelper.Query(mapInstance.getTable("Z_FSJG"),feature.getGeometry(), features_zrz,callback);
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_Z_FSJG),feature.getGeometry(), features_zrz,callback);
     }
     // 默认识别保存
     public void identyZ_Fsjg(final AiRunnable callback){
@@ -557,7 +557,7 @@ public class FeatureViewH extends FeatureView {
                     QuickAdapter<Feature> adapter = fv_.getListAdapter( fs_z_fsjg, 0);
                     AiDialog dialog = AiDialog.get(mapInstance.activity, adapter);
                     dialog.setHeaderView(R.mipmap.app_map_layer_zrz, "识别到" + fs_z_fsjg.size() + "个附属");
-                    dialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    dialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             MapHelper.saveFeature(fs_z_fsjg, callback);
@@ -751,14 +751,14 @@ public class FeatureViewH extends FeatureView {
                         MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.FTQK_TABLE_NAME), StringUtil.WhereByIsEmpty(orid_bdc) + " FTQX_ID= '" + orid_bdc + "' ", -1, fs_ftqk, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.LJZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_h, "ORID_PATH", ""), FeatureConstants.LJZ_TABLE_NAME) + "' ", "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
+                                MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.LJZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureConstants.LJZ_TABLE_NAME) + "' ", "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.ZRZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_h, "ORID_PATH", ""), FeatureConstants.ZRZ_TABLE_NAME) + "' ", "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
+                                        MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.ZRZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureConstants.ZRZ_TABLE_NAME) + "' ", "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
                                                 FeatureEditBDC.LoadAllCAndFsToH(mapInstance,fs_zrz.get(0),FeatureHelper.Get(f_h,"SZC",""),fs_c,callback);
-                                                String where = "ORID_PATH like '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_h, "ORID_PATH", ""), FeatureConstants.ZRZ_TABLE_NAME) + "' "
+                                                String where = "ORID_PATH like '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureConstants.ZRZ_TABLE_NAME) + "' "
                                                         + "and SZC='" + FeatureHelper.Get(f_h, "SZC", "") + "'";
                                                 MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.H_TABLE_NAME), where, -1, fs_h, new AiRunnable() {
                                                     @Override
@@ -804,7 +804,7 @@ public class FeatureViewH extends FeatureView {
                 @Override
                 public void run() {
                     try {
-                        String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                        String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                         Map<String, Object> map_ = new LinkedHashMap<>();
                         //  设置系统参数
                         FeatureEditBDC.Put_data_sys(map_);

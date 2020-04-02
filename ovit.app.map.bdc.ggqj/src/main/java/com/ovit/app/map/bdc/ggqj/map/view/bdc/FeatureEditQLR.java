@@ -326,7 +326,7 @@ public class FeatureEditQLR extends FeatureEdit {
             feature_new_qlr.getAttributes().put("CSRQ", FeatureHelper.Get(feature_bdc, "CSRQ"));
             feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature_bdc, "DH"));
             feature_new_qlr.getAttributes().put("TDZH", FeatureHelper.Get(feature_bdc, "BDCQZH"));
-            feature_new_qlr.getAttributes().put("ORID_PATH", FeatureHelper.Get(feature_bdc, "ORID") + "/"); //权利人关联不动产
+            feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_ORID) + "/"); //权利人关联不动产
             mapInstance.featureView.fillFeature(feature_new_qlr, feature_bdc);
 
             //拷贝资料
@@ -357,7 +357,7 @@ public class FeatureEditQLR extends FeatureEdit {
     public static List<String> getOridsByQlr(Feature feature_qlr) {
         final List<String> orid_list = new ArrayList<>();
         try {
-            final String qlr_orid_path = FeatureHelper.Get(feature_qlr, "ORID_PATH") + "";
+            final String qlr_orid_path = FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
             final String orids[] = qlr_orid_path.split("/");
             for (int i = 0; i < orids.length; i++) {
                 orid_list.add(orids[i]);
@@ -387,7 +387,7 @@ public class FeatureEditQLR extends FeatureEdit {
 
     public static void getAllBdcdy(final MapInstance mapInstance, final AiRunnable callback) {
         try {
-            FeatureTable table_qlr = mapInstance.getTable("QLRXX");
+            FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
             MapHelper.Query(table_qlr, "1=1", new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -444,7 +444,7 @@ public class FeatureEditQLR extends FeatureEdit {
         final List<Feature> features_bdc = new ArrayList<>();
 
         try {
-            if (StringUtil.IsNotEmpty(FeatureHelper.Get(feature_qlr, "ORID_PATH"))) {
+            if (StringUtil.IsNotEmpty(FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH))) {
                 final List<String> orid_list_ = getOridsByQlr(feature_qlr);
                 final List<String> orid_list = new ArrayList<>();
                 orid_list.add(orid_list_.get(orid_list_.size() - 1));//
@@ -707,12 +707,12 @@ public class FeatureEditQLR extends FeatureEdit {
                         if (t_ != null) {
                             String valid_orid = "";
                             for (int i = 0; i < ((List<Feature>) t_).size(); i++) {
-                                valid_orid += FeatureHelper.Get(((List<Feature>) t_).get(i), "ORID") + "/";
+                                valid_orid += FeatureHelper.Get(((List<Feature>) t_).get(i), FeatureHelper.TABLE_ATTR_ORID) + "/";
                             }
-                            FeatureHelper.Set(feature_qlr, "ORID_PATH", valid_orid);
+                            FeatureHelper.Set(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH, valid_orid);
                             MapHelper.updateFeature(feature_qlr, callback);
                         } else {
-                            FeatureHelper.Set(feature_qlr, "ORID_PATH", "");
+                            FeatureHelper.Set(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                             MapHelper.updateFeature(feature_qlr, callback);
                         }
                         return null;
@@ -757,8 +757,8 @@ public class FeatureEditQLR extends FeatureEdit {
                         String qlrzjh_ = FeatureHelper.Get(features_qlr.get(j), "ZJH") + "";
                         if (qlrxm.equals(qlrxm_) && qlrzjh.equals(qlrzjh_)) {
                             //合并资料
-                            String orid_path = FeatureHelper.Get(features_qlr.get(i), "ORID_PATH") + "/" + FeatureHelper.Get(features_qlr.get(j), "ORID_PATH");
-                            FeatureHelper.Set(features_qlr.get(i), "ORID_PATH", orid_path);
+                            String orid_path = FeatureHelper.Get(features_qlr.get(i), FeatureHelper.TABLE_ATTR_ORID_PATH) + "/" + FeatureHelper.Get(features_qlr.get(j), FeatureHelper.TABLE_ATTR_ORID_PATH);
+                            FeatureHelper.Set(features_qlr.get(i), FeatureHelper.TABLE_ATTR_ORID_PATH, orid_path);
 
                             String f_path = mapInstance.getpath_feature(features_qlr.get(j));
                             String f_qlr_path = mapInstance.getpath_feature(features_qlr.get(i));
@@ -862,8 +862,8 @@ public class FeatureEditQLR extends FeatureEdit {
     //解除权利人和不动产的关联 (目前仅简单解除ORID和ORID_PATH之间的关联 对于ZD和H可选是否深度解除绑定)20180814
     public static void unassociateQlrAndBdc(final MapInstance mapInstance, final Feature feature_bdc, final boolean deep_unassociate, final AiRunnable callback) {
         try {
-            final FeatureTable table_qlr = mapInstance.getTable("QLRXX");
-            final String bdc_orid = FeatureHelper.Get(feature_bdc, "ORID") + "";
+            final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
+            final String bdc_orid = FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_ORID) + "";
             String where_qlr = "ORID_PATH like '%" + bdc_orid + "%'";
             MapHelper.QueryOne(table_qlr, where_qlr, new AiRunnable() {
                 @Override
@@ -881,7 +881,7 @@ public class FeatureEditQLR extends FeatureEdit {
                         for (int k = 0; k < orid_list.size(); k++) {
                             new_qlr_orid += orid_list.get(k) + "/";
                         }
-                        FeatureHelper.Set((Feature) t_, "ORID_PATH", new_qlr_orid);
+                        FeatureHelper.Set((Feature) t_, FeatureHelper.TABLE_ATTR_ORID_PATH, new_qlr_orid);
 
                         MapHelper.updateFeature((Feature) t_, new AiRunnable() {
                             @Override
@@ -937,9 +937,9 @@ public class FeatureEditQLR extends FeatureEdit {
                                         if (t_ != null) { //移除所有已绑定的不动产
                                             final List<Feature> all_bound_bdc_list = new ArrayList<>((List<Feature>) t_);
                                             for (int i = 0; i < all_bound_bdc_list.size(); i++) {
-                                                String orid_bound = FeatureHelper.Get(all_bound_bdc_list.get(i), "ORID") + "";
+                                                String orid_bound = FeatureHelper.Get(all_bound_bdc_list.get(i), FeatureHelper.TABLE_ATTR_ORID) + "";
                                                 for (int j = 0; i < all_bdc_list.size(); j++) {
-                                                    String orid = FeatureHelper.Get(all_bdc_list.get(j), "ORID") + "";
+                                                    String orid = FeatureHelper.Get(all_bdc_list.get(j), FeatureHelper.TABLE_ATTR_ORID) + "";
                                                     if (orid.equals(orid_bound)) {
                                                         all_bdc_list.remove(all_bdc_list.get(j));
                                                         break;
@@ -958,7 +958,7 @@ public class FeatureEditQLR extends FeatureEdit {
                                         if (all_bdc_list.size() > 0) {
                                             final List<Feature> need_to_create = new ArrayList<>();
                                             final List<Feature> need_to_bind = new ArrayList<>();
-                                            final FeatureTable table_qlr = mapInstance.getTable("QLRXX");
+                                            final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
                                             new AiForEach<Feature>(all_bdc_list, new AiRunnable() {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) { //后续处理
@@ -1005,7 +1005,7 @@ public class FeatureEditQLR extends FeatureEdit {
                                                     }) {
                                                         public void exec() {
                                                             switch (need_to_create.get(postion).getFeatureTable().getTableName()) {
-                                                                case "ZD": {
+                                                                case FeatureHelper.TABLE_NAME_ZD: {
                                                                     FeatureEditZD.createNewQlrByZD(mapInstance, need_to_create.get(postion), false, false, false, new AiRunnable(getNext()) {
                                                                         @Override
                                                                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -1018,7 +1018,7 @@ public class FeatureEditQLR extends FeatureEdit {
                                                                     });
                                                                     break;
                                                                 }
-                                                                case "H": {
+                                                                case FeatureHelper.TABLE_NAME_H: {
                                                                     FeatureEditH.createNewQlrByH(mapInstance, need_to_create.get(postion), false, false, false, new AiRunnable(getNext()) {
                                                                         @Override
                                                                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -1047,8 +1047,8 @@ public class FeatureEditQLR extends FeatureEdit {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                                             if (t_ != null) { //需要绑定
-                                                                String orid_path = FeatureHelper.Get((Feature) t_, "ORID_PATH") + "/" + FeatureHelper.Get(all_bdc_list.get(postion), "ORID");
-                                                                FeatureHelper.Set((Feature) t_, "ORID_PATH", orid_path);
+                                                                String orid_path = FeatureHelper.Get((Feature) t_, FeatureHelper.TABLE_ATTR_ORID_PATH) + "/" + FeatureHelper.Get(all_bdc_list.get(postion), FeatureHelper.TABLE_ATTR_ORID);
+                                                                FeatureHelper.Set((Feature) t_, FeatureHelper.TABLE_ATTR_ORID_PATH, orid_path);
                                                                 need_to_bind.add((Feature) t_);
                                                                 MapHelper.updateFeature((Feature) t_, new AiRunnable(getNext()) {
                                                                     @Override
@@ -1316,12 +1316,12 @@ public class FeatureEditQLR extends FeatureEdit {
 //                            AiDialog dialog = AiDialog.get(mapInstance.activity);
 //                            dialog.setHeaderView("确认删除此不动产单元吗?");
 //                            dialog.setContentView("此操作不可逆转，请谨慎执行！");
-//                            dialog.setFooterView("取消", new DialogInterface.OnClickListener() {
+//                            dialog.setFooterView(AiDialog.CENCEL, new DialogInterface.OnClickListener() {
 //                                @Override
 //                                public void onClick(final DialogInterface dialog, int which) {
 //                                    dialog.dismiss();
 //                                }
-//                            }, null, null, "确定", new DialogInterface.OnClickListener() {
+//                            }, null, null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
 //                                @Override
 //                                public void onClick(final DialogInterface dialog, int which) {
 //                                    MapHelper.deleteFeature(item, new AiRunnable() {
@@ -1414,12 +1414,12 @@ public class FeatureEditQLR extends FeatureEdit {
                             AiDialog dialog = AiDialog.get(mapInstance.activity);
                             dialog.setHeaderView("确认删除此不动产单元吗?");
                             dialog.setContentView("此操作不可逆转，请谨慎执行！");
-                            dialog.setFooterView("取消", new DialogInterface.OnClickListener() {
+                            dialog.setFooterView(AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(final DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                 }
-                            }, null, null, "确定", new DialogInterface.OnClickListener() {
+                            }, null, null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(final DialogInterface dialog, int which) {
                                     MapHelper.deleteFeature(item, new AiRunnable() {
@@ -1476,9 +1476,9 @@ public class FeatureEditQLR extends FeatureEdit {
             feature_zd.getAttributes().put("QLRDH", FeatureHelper.Get(feature_qlr, "DH"));
             feature_zd.getAttributes().put("TDZH", FeatureHelper.Get(feature_qlr, "BDCQZH"));
             //关联权利人和宗地
-            String qlr_orid_path = FeatureHelper.Get(feature_qlr, "ORID_PATH") + "";
-            qlr_orid_path += FeatureHelper.Get(feature_zd, "ORID") + "/";
-            feature_qlr.getAttributes().put("ORID_PATH", qlr_orid_path);
+            String qlr_orid_path = FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
+            qlr_orid_path += FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_ORID) + "/";
+            feature_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, qlr_orid_path);
 
             //拷贝资料
             String f_zd_path = mapInstance.getpath_feature(feature_zd);
@@ -1504,9 +1504,9 @@ public class FeatureEditQLR extends FeatureEdit {
     //权利人绑定自然幢 (不持久化 不级联)20180815
     public static void bindZRZ(final MapInstance mapInstance, final Feature feature_qlr, final Feature feature_zrz) {
         try {
-            String qlr_orid_path = FeatureHelper.Get(feature_qlr, "ORID_PATH") + "";
-            qlr_orid_path += FeatureHelper.Get(feature_zrz, "ORID") + "/";
-            feature_qlr.getAttributes().put("ORID_PATH", qlr_orid_path);
+            String qlr_orid_path = FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
+            qlr_orid_path += FeatureHelper.Get(feature_zrz, FeatureHelper.TABLE_ATTR_ORID) + "/";
+            feature_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, qlr_orid_path);
         } catch (Exception es) {
             Log.e(TAG, "权利人绑定自然幢失败!" + es);
         }
@@ -1516,9 +1516,9 @@ public class FeatureEditQLR extends FeatureEdit {
     //权利人绑定逻辑幢 (不持久化 不级联)20180815
     public static void bindLJZ(final MapInstance mapInstance, final Feature feature_qlr, final Feature feature_ljz) {
         try {
-            String qlr_orid_path = FeatureHelper.Get(feature_qlr, "ORID_PATH") + "";
-            qlr_orid_path += FeatureHelper.Get(feature_ljz, "ORID") + "/";
-            feature_qlr.getAttributes().put("ORID_PATH", qlr_orid_path);
+            String qlr_orid_path = FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
+            qlr_orid_path += FeatureHelper.Get(feature_ljz, FeatureHelper.TABLE_ATTR_ORID) + "/";
+            feature_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, qlr_orid_path);
         } catch (Exception es) {
             Log.e(TAG, "权利人绑定逻辑幢失败!" + es);
         }
@@ -1534,9 +1534,9 @@ public class FeatureEditQLR extends FeatureEdit {
             feature_h.getAttributes().put("QLRTXDZ", FeatureHelper.Get(feature_qlr, "DZ"));
             feature_h.getAttributes().put("QLRDH", FeatureHelper.Get(feature_qlr, "DH"));
 
-            String qlr_orid_path = FeatureHelper.Get(feature_qlr, "ORID_PATH") + "";
-            qlr_orid_path += FeatureHelper.Get(feature_h, "ORID") + "/";
-            feature_qlr.getAttributes().put("ORID_PATH", qlr_orid_path);
+            String qlr_orid_path = FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
+            qlr_orid_path += FeatureHelper.Get(feature_h, FeatureHelper.TABLE_ATTR_ORID) + "/";
+            feature_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, qlr_orid_path);
 
             //拷贝资料
             String f_h_path = mapInstance.getpath_feature(feature_h);
@@ -1560,7 +1560,7 @@ public class FeatureEditQLR extends FeatureEdit {
         final AiDialog dialog = FeatureViewQLR.getBindBDC_View(mapInstance, where, selected_feature_list);
 
         if (dialog != null) {
-            dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+            dialog.setFooterView(AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(final DialogInterface dialog, int which) {
                     bindBDC(mapInstance, selected_feature_list, qlr_feature, new AiRunnable() {
@@ -1578,7 +1578,7 @@ public class FeatureEditQLR extends FeatureEdit {
                         }
                     });
                 }
-            }, null, null, "取消", new DialogInterface.OnClickListener() {
+            }, null, null, AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     ToastMessage.Send("您取消了绑定不动产！");
@@ -1594,28 +1594,28 @@ public class FeatureEditQLR extends FeatureEdit {
     //在这里完成不动产绑定逻辑
     private static void bindBDC(final MapInstance mapInstance, final List<Feature> selected_feature_list, Feature feature_qlr, final AiRunnable callback) {
         try {
-            if (StringUtil.IsEmpty(FeatureHelper.Get(feature_qlr, "ORID_PATH"))) {
-                FeatureHelper.Set(feature_qlr, "ORID_PATH", "/");
+            if (StringUtil.IsEmpty(FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH))) {
+                FeatureHelper.Set(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH, "/");
             }
 
             for (Feature feature : selected_feature_list) {
                 switch (feature.getFeatureTable().getTableName()) {
-                    case "ZD":
+                    case FeatureHelper.TABLE_NAME_ZD:
                         bindZD(mapInstance, feature_qlr, feature);
                         break;
-                    case "ZRZ":
+                    case FeatureHelper.TABLE_NAME_ZRZ:
                         bindZRZ(mapInstance, feature_qlr, feature);
                         break;
-                    case "LJZ":
+                    case FeatureHelper.TABLE_NAME_LJZ:
                         bindLJZ(mapInstance, feature_qlr, feature);
                         break;
-                    case "H":
+                    case FeatureHelper.TABLE_NAME_H:
                         bindH(mapInstance, feature_qlr, feature);
                         break;
                     default: {
-                        String qlr_orid_path = FeatureHelper.Get(feature_qlr, "ORID_PATH") + "";
-                        qlr_orid_path += FeatureHelper.Get(feature, "ORID") + "/";
-                        feature_qlr.getAttributes().put("ORID_PATH", qlr_orid_path);
+                        String qlr_orid_path = FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
+                        qlr_orid_path += FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID) + "/";
+                        feature_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, qlr_orid_path);
                         break;
                     }
                 }
@@ -1639,9 +1639,9 @@ public class FeatureEditQLR extends FeatureEdit {
     }
 
     public static void load_bdcdy(final MapInstance mapInstance, final Feature feature_bdc, final View ft_view) {
-        if (feature_bdc.getFeatureTable().getTableName().equals("ZD")) {
-            String where = "ORID_PATH like'%" + FeatureHelper.Get(feature_bdc, "ORID") + "%'";
-            FeatureTable table = mapInstance.getTable("QLRXX");
+        if (feature_bdc.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_ZD)) {
+            String where = "ORID_PATH like'%" + FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_ORID) + "%'";
+            FeatureTable table = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
             MapHelper.Query(table, where, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -1710,7 +1710,7 @@ public class FeatureEditQLR extends FeatureEdit {
             String tvName = FeatureHelper.Get(item, "XM", "");
             helper.setText(com.ovit.app.map.R.id.tv_groupname, "不动产");
             helper.setText(com.ovit.app.map.R.id.tv_name, tvName);
-            helper.setText(com.ovit.R.id.tv_desc, item.getAttributes().get("BDCDYH") + "");
+            helper.setText(com.ovit.R.id.tv_desc, item.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH) + "");
 
             int s = (int) (deep * mapInstance.activity.getResources().getDimension(com.ovit.R.dimen.app_size_smaller));
             helper.getView(com.ovit.R.id.v_split).getLayoutParams().width = s;
@@ -1750,7 +1750,7 @@ public class FeatureEditQLR extends FeatureEdit {
         AiDialog dialog = AiDialog.get(mapInstance.activity);
         dialog.setHeaderView("确认删除此不动产单元吗?");
         dialog.setContentView("此操作不可逆转，请谨慎执行！");
-        dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+        dialog.setFooterView(AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface dialog, int which) {
                 MapHelper.deleteFeature(item, new AiRunnable() {
@@ -1763,7 +1763,7 @@ public class FeatureEditQLR extends FeatureEdit {
                     }
                 });
             }
-        }, null, null, "取消", new DialogInterface.OnClickListener() {
+        }, null, null, AiDialog.CENCEL, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

@@ -192,7 +192,7 @@ public class FeatureViewH_FSJG extends FeatureView {
     public void identyH_fsjg(final MapInstance mapInstance, final Feature f_h, final AiRunnable callback) {
         final String hid = FeatureHelper.Get(f_h, "ID", "");
         final int hch = FeatureHelper.Get(f_h, "SZC", 1);
-        final String orid = FeatureHelper.Get(f_h, "ORID", "");
+        final String orid = FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID, "");
         final List<Feature> features_hfsjg = new ArrayList<Feature>();
         final List<Feature> features_update = new ArrayList<Feature>();
         final List<Feature> features_save = new ArrayList<Feature>();
@@ -204,7 +204,7 @@ public class FeatureViewH_FSJG extends FeatureView {
                 double area_jzmj = h_area;
                 int count = 0;
                 for (Feature f : features_hfsjg) {
-                    final String orid_path = FeatureHelper.Get(f, "ORID_PATH", "");
+                    final String orid_path = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                     final String[] fs_orid = orid_path.split("/");
                     int f_lc = FeatureHelper.Get(f, "LC", 0);
                     double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
@@ -239,7 +239,7 @@ public class FeatureViewH_FSJG extends FeatureView {
     }
 
     public FeatureTable getFeatureTable() {
-        return mapInstance.getTable("H_FSJG");
+        return mapInstance.getTable(FeatureHelper.TABLE_NAME_H_FSJG);
     }
 
     public void fsjg_init(final AiRunnable callback) {

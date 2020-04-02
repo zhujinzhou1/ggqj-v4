@@ -335,7 +335,7 @@ public class DxfFcfhtDefaultZ {
 
                 x_ = x_ + w / 12;
                 Envelope cel_4_2 = new Envelope(x_, y_, x_ + w / 4-w/180, y_ - h, p_extend.getSpatialReference());
-                dxf.write(cel_4_2, DxfHelper.LINETYPE_SOLID_LINE, FeatureHelper.Get(f_zd, "ZDDM", ""), o_fontsize, fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
+                dxf.write(cel_4_2, DxfHelper.LINETYPE_SOLID_LINE, FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), o_fontsize, fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
 
                 x_ = x_ + w / 4-w/180;
                 Envelope cel_4_3 = new Envelope(x_, y_, x_ + w / 12, y_ - h, p_extend.getSpatialReference());

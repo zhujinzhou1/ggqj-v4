@@ -95,9 +95,9 @@ public class FeatureEditGNQ extends FeatureEdit {
                     public void onClick(View v) {
                         if(fv_ft!=null && feature_ft!=null) {
                             FeatureView fv_p = FeatureViewZRZ.From(mapInstance);
-                            String orid_p =  mapInstance.getOrid_Match(feature_ft,"ZD");
+                            String orid_p =  mapInstance.getOrid_Match(feature_ft,FeatureHelper.TABLE_NAME_ZD);
                             if(StringUtil.IsEmpty(orid_p)){
-                                orid_p = mapInstance.getOrid_Match(feature_ft,"ZRZ");
+                                orid_p = mapInstance.getOrid_Match(feature_ft,FeatureHelper.TABLE_NAME_ZRZ);
                                 fv_p = FeatureViewLJZ.From(mapInstance);
                             }
                             QuickAdapter<Feature> adapter =  fv_p.buildListView(null,"");

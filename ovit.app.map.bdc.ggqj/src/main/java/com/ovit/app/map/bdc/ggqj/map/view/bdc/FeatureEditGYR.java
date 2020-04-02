@@ -139,7 +139,7 @@ public class FeatureEditGYR extends FeatureEdit
             try{
                 FeatureHelper.Set(feature,"YHZGX","其他");
                 FeatureHelper.Set(feature,"HZZJH",FeatureHelper.Get(qlr_feature,"ZJH"));
-                FeatureHelper.Set(feature,"ORID_PATH",FeatureHelper.Get(qlr_feature,"ORID","")+"/");
+                FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_ORID_PATH,FeatureHelper.Get(qlr_feature,FeatureHelper.TABLE_ATTR_ORID,"")+"/");
             }catch (Exception es){
                 Log.e(TAG,"填充共有人 feature 失败！"+es);
             }
@@ -233,7 +233,7 @@ public class FeatureEditGYR extends FeatureEdit
                             AiDialog dialog = AiDialog.get(mapInstance.activity);
                             dialog.setHeaderView("确认解除此共有人吗?");
                             dialog.setContentView("此操作不可逆转，请谨慎执行！");
-                            dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+                            dialog.setFooterView(AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(final DialogInterface dialog, int which) {
                                     MapHelper.deleteFeature(item, new AiRunnable() {
@@ -246,7 +246,7 @@ public class FeatureEditGYR extends FeatureEdit
                                         }
                                     });
                                 }
-                            }, null, null, "取消", new DialogInterface.OnClickListener() {
+                            }, null, null, AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
@@ -274,7 +274,7 @@ public class FeatureEditGYR extends FeatureEdit
     public static void getAllGyrByQlr(final MapInstance mapInstance,final Feature feature_qlr,final AiRunnable callback)
     {
         try {
-            final String qlr_orid = feature_qlr.getAttributes().get("ORID").toString(); //获得权利人ORID
+            final String qlr_orid = feature_qlr.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID).toString(); //获得权利人ORID
             String where = "ORID_PATH like '%"+ qlr_orid +"%'";  //查询条件
             final FeatureTable table_gyr = mapInstance.getTable("GYRXX");
             MapHelper.Query(table_gyr, where, new AiRunnable(callback) {
@@ -297,12 +297,12 @@ public class FeatureEditGYR extends FeatureEdit
         try{
             if(features_gyr.size()>0)
             {
-                final FeatureTable table_qlr = mapInstance.getTable("QLRXX");
+                final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
                 new AiForEach<Feature>(features_gyr,callback)
                 {
                     public void exec()
                     {
-                        String where_qlr = "ORID ='"+FeatureHelper.Get(features_gyr.get(postion),"ORID_PATH")+"'";
+                        String where_qlr = "ORID ='"+FeatureHelper.Get(features_gyr.get(postion),FeatureHelper.TABLE_ATTR_ORID_PATH)+"'";
                         MapHelper.QueryOne(table_qlr, where_qlr, new AiRunnable(getNext()) {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -352,7 +352,7 @@ public class FeatureEditGYR extends FeatureEdit
                 }
                 features_gyr.removeAll(delete_list);
 
-                final FeatureTable table_qlr = mapInstance.getTable("QLRXX");
+                final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
                 new AiForEach<Feature>(features_gyr, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
@@ -381,7 +381,7 @@ public class FeatureEditGYR extends FeatureEdit
                     public void exec()
                     {
                         final Feature feature_gyr = features_gyr.get(postion);
-                        String where_qlr = "ORID ='"+FeatureHelper.Get(feature_gyr,"ORID_PATH")+"'";
+                        String where_qlr = "ORID ='"+FeatureHelper.Get(feature_gyr,FeatureHelper.TABLE_ATTR_ORID_PATH)+"'";
                         MapHelper.QueryOne(table_qlr, where_qlr, new AiRunnable(getNext()) {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -445,7 +445,7 @@ public class FeatureEditGYR extends FeatureEdit
     {
         try{
             final FeatureTable table_gyr = mapInstance.getTable("GYRXX");
-            String where_gyr = "ORID_PATH ='"+FeatureHelper.Get(feature_qlr,"ORID")+"'";
+            String where_gyr = "ORID_PATH ='"+FeatureHelper.Get(feature_qlr,FeatureHelper.TABLE_ATTR_ORID)+"'";
             MapHelper.Query(table_gyr, where_gyr, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {

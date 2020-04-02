@@ -145,12 +145,12 @@ public class MapInstance extends com.ovit.app.map.model.MapInstance {
     @Override
     public String getLabel(Feature feature) {
         String label = "";
-        if (feature.getFeatureTable().getTableName().equals("ZD")) {
+        if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_ZD)) {
             //[PRO_ZDDM_F]  & vbCrLf   & [YT] & vbCrLf  & [QLRXM]
             label = AiUtil.GetValue(feature.getAttributes().get("PRO_ZDDM_F"), "") + "\n"
                     + AiUtil.GetValue(feature.getAttributes().get("YT"), "") + "\n"
                     + AiUtil.GetValue(feature.getAttributes().get("QLRXM"), "");
-        } else if (feature.getFeatureTable().getTableName().equals("ZRZ")) {
+        } else if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_ZRZ)) {
             String fwjg = DicUtil.dic(activity,"fwjg",AiUtil.GetValue(feature.getAttributes().get("FWJG"), ""));
             fwjg = StringUtil.substr(fwjg,"[","]");
 
@@ -178,16 +178,16 @@ public class MapInstance extends com.ovit.app.map.model.MapInstance {
 
     public void registFeatureEditTypeMap(){
 
-        FeatureEdit.TypeMap.put("ZD",FeatureEditZD.class);
-        FeatureEdit.TypeMap.put("ZRZ",FeatureEditZRZ.class);
-        FeatureEdit.TypeMap.put("LJZ",FeatureEditLJZ.class);
-        FeatureEdit.TypeMap.put("ZRZ_C",FeatureEditC.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_ZD,FeatureEditZD.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_ZRZ,FeatureEditZRZ.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_LJZ,FeatureEditLJZ.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_ZRZ_C,FeatureEditC.class);
         FeatureEdit.TypeMap.put("GNQ",FeatureEditGNQ.class);
-        FeatureEdit.TypeMap.put("Z_FSJG",FeatureEditZ_FSJG.class);
-        FeatureEdit.TypeMap.put("H",FeatureEditH.class);
-        FeatureEdit.TypeMap.put("H_FSJG",FeatureEditH_FSJG.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_Z_FSJG,FeatureEditZ_FSJG.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_H,FeatureEditH.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_H_FSJG,FeatureEditH_FSJG.class);
 
-        FeatureEdit.TypeMap.put("QLRXX",FeatureEditQLR.class);
+        FeatureEdit.TypeMap.put(FeatureHelper.TABLE_NAME_QLRXX,FeatureEditQLR.class);
         FeatureEdit.TypeMap.put("GYRXX", FeatureEditGYR.class); //20180719
         FeatureEdit.TypeMap.put("HJXX", FeatureEditHJXX.class); //20180719
         FeatureEdit.TypeMap.put("FTQK", FeatureEditFTQK.class); //20180802
@@ -208,16 +208,16 @@ public class MapInstance extends com.ovit.app.map.model.MapInstance {
 
     public void registFeatureViewTypeMap(){
          // bdc
-        FeatureView.TypeMap.put("ZD",FeatureViewZD.class);
-        FeatureView.TypeMap.put("ZRZ",FeatureViewZRZ.class);
-        FeatureView.TypeMap.put("LJZ",FeatureViewLJZ.class);
-        FeatureView.TypeMap.put("ZRZ_C",FeatureViewC.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_ZD,FeatureViewZD.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_ZRZ,FeatureViewZRZ.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_LJZ,FeatureViewLJZ.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_ZRZ_C,FeatureViewC.class);
         FeatureView.TypeMap.put("GNQ",FeatureViewGNQ.class);
-        FeatureView.TypeMap.put("Z_FSJG",FeatureViewZ_FSJG.class);
-        FeatureView.TypeMap.put("H",FeatureViewH.class);
-        FeatureView.TypeMap.put("H_FSJG", FeatureViewH_FSJG.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_Z_FSJG,FeatureViewZ_FSJG.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_H,FeatureViewH.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_H_FSJG, FeatureViewH_FSJG.class);
 
-        FeatureView.TypeMap.put("QLRXX",FeatureViewQLR.class);
+        FeatureView.TypeMap.put(FeatureHelper.TABLE_NAME_QLRXX,FeatureViewQLR.class);
         FeatureView.TypeMap.put("GYRXX",FeatureViewGYR.class); //20180719
         FeatureView.TypeMap.put("HJXX",FeatureViewHJXX.class); //20180719
         FeatureView.TypeMap.put("FTQK",FeatureViewFTQK.class); //20180802

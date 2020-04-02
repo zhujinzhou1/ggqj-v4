@@ -113,7 +113,7 @@ public class FeatureEditJZD extends FeatureEdit {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         // 查出周围的宗地,其中可能包含本宗地
-                        MapHelper.Query(mapInstance.getTable("ZD"), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable(callback) {
+                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable(callback) {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 // 根据宗地去识别界址点
@@ -275,7 +275,7 @@ public class FeatureEditJZD extends FeatureEdit {
     // 根据界址点去识别宗地，然后填充其内容
     public static void  IndentyJZD(final MapInstance instance, final  Feature f_jzd, final List<Feature> fs_save,final List<Feature> fs_del,final AiRunnable callback) {
         Point p = (Point )f_jzd.getGeometry();
-        FeatureTable table = instance.getTable("ZD");
+        FeatureTable table = instance.getTable(FeatureHelper.TABLE_NAME_ZD);
         final List<Feature> fs_zd  = new ArrayList<>();
         MapHelper.Query(table, p, 0.01, fs_zd, new AiRunnable() {
             @Override

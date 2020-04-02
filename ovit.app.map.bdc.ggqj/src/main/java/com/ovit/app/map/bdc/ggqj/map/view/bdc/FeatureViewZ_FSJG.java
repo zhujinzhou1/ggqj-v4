@@ -54,7 +54,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
 
     public static FeatureViewZ_FSJG From(MapInstance mapInstance) {
         FeatureViewZ_FSJG fv = new FeatureViewZ_FSJG();
-        fv.set(mapInstance).set(mapInstance.getTable("Z_FSJG"));
+        fv.set(mapInstance).set(mapInstance.getTable(FeatureHelper.TABLE_NAME_Z_FSJG));
         return fv;
     }
     ///endregion
@@ -188,7 +188,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
 
     //region 公有函数
     public void queryFatherFeature(MapInstance mapInstance, String fathertable, String orid_, Feature feature, List<Feature> features, AiRunnable callback) {
-        String orid_path = FeatureHelper.Get(feature, "ORID_PATH", "");
+        String orid_path = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
         if (StringUtil.IsEmpty(orid_path)) {
             return;
         }
@@ -244,7 +244,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
     }
 
     public static FeatureTable GetTable(MapInstance mapInstance) {
-        return MapHelper.getLayer(mapInstance.map, "Z_FSJG", "幢附属结构").getFeatureTable();
+        return MapHelper.getLayer(mapInstance.map, FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.LAYER_NAME_Z_FSJG).getFeatureTable();
     }
 
     public static void LoadAll(final MapInstance mapInstance, Feature f, final List<Feature> fs, AiRunnable callback) {
@@ -252,11 +252,11 @@ public class FeatureViewZ_FSJG extends FeatureView {
     }
 
     public static void LoadAll(final MapInstance mapInstance, String orid, final List<Feature> fs, AiRunnable callback) {
-        mapInstance.newFeatureView().queryChildFeature("Z_FSJG", orid, "ID", "asc", fs, callback);
+        mapInstance.newFeatureView().queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG, orid, "ID", "asc", fs, callback);
     }
 
     public static void Load(MapInstance mapInstance, String orid, final AiRunnable callback) {
-        mapInstance.newFeatureView().findFeature("Z_FSJG", orid, callback);
+        mapInstance.newFeatureView().findFeature(FeatureHelper.TABLE_NAME_Z_FSJG, orid, callback);
     }
 
     // 获取id
@@ -313,7 +313,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
         mapInstance.command_draw(feature, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                List<Layer> layers = MapHelper.getLayers(mapInstance.map, "Z_FSJG", "H", "H_FSJG");
+                List<Layer> layers = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG);
                 List<Feature> fs_ref = new ArrayList<>();
                 final List<Feature> fs_update = new ArrayList<>();
                 MapHelper.Hollow(mapInstance.map, layers, (Polygon) feature.getGeometry(), fs_ref, fs_update, new AiRunnable(callback) {
@@ -359,8 +359,8 @@ public class FeatureViewZ_FSJG extends FeatureView {
         } else {
             feature = feature_fsjg;
         }
-        if (featureLJZ != null && featureLJZ.getFeatureTable() != mapInstance.getTable("LJZ")) {
-            String orid = mapInstance.getOrid_Match(feature, "LJZ");
+        if (featureLJZ != null && featureLJZ.getFeatureTable() != mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ)) {
+            String orid = mapInstance.getOrid_Match(feature, FeatureHelper.TABLE_NAME_LJZ);
             if (StringUtil.IsNotEmpty(orid)) {
                 CreateFeature(mapInstance, orid, feature, lc, callback);
                 return;
@@ -395,7 +395,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
 
     public static void ClearFeatureAll(final MapInstance mapInstance, final Feature featureLJZ, final AiRunnable callback) {
         if (featureLJZ != null) {
-            mapInstance.newFeatureView().delChildFeature("Z_FSJG", featureLJZ, callback);
+            mapInstance.newFeatureView().delChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG, featureLJZ, callback);
         } else {
             ToastMessage.Send("没有幢信息！");
             AiRunnable.No(callback, null);
@@ -408,7 +408,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
         final String zrzh = FeatureHelper.Get(f_ljz, "ZRZH", "");
         final int szc = FeatureHelper.Get(f_ljz, "SZC", 1);
         final int zcs = FeatureHelper.Get(f_ljz, "ZCS", 1);
-        final String oridLjz = FeatureHelper.Get(f_ljz, "ORID", "");
+        final String oridLjz = FeatureHelper.Get(f_ljz, FeatureHelper.TABLE_ATTR_ORID, "");
 
         if (StringUtil.IsNotEmpty(ljzh)) {
             final List<Feature> features_zfsjg = new ArrayList<Feature>();
@@ -423,11 +423,11 @@ public class FeatureViewZ_FSJG extends FeatureView {
                     for (Feature f : features_zfsjg) {
 
 
-                        String orid = FeatureHelper.GetOrid(FeatureHelper.Get(f, "ORID_PATH", ""), "LJZ");
+                        String orid = FeatureHelper.GetOrid(FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureHelper.TABLE_NAME_LJZ);
                         if (StringUtil.IsNotEmpty(oridLjz) && (TextUtils.isEmpty(orid) || oridLjz.equals(orid))) {
                             // 幢附属结构 orid 为空或者 或者包含 oridLjz
-                            String path = FeatureHelper.Get(f_ljz, "ORID_PATH", "") + "/" + FeatureHelper.Get(f_ljz, "ORID", "");
-                            FeatureHelper.Set(f, "ORID_PATH", path);
+                            String path = FeatureHelper.Get(f_ljz, FeatureHelper.TABLE_ATTR_ORID_PATH, "") + "/" + FeatureHelper.Get(f_ljz, FeatureHelper.TABLE_ATTR_ORID, "");
+                            FeatureHelper.Set(f, FeatureHelper.TABLE_ATTR_ORID_PATH, path);
                         }
                         final String h_id = FeatureHelper.Get(f, "ID", "");
                         final String h_ljzh = FeatureHelper.Get(f, "LJZH", "");
@@ -557,7 +557,7 @@ public class FeatureViewZ_FSJG extends FeatureView {
             Feature f_ = FeatureHelper.Copy(feature);
             f_.setGeometry(feature.getGeometry());
             FeatureHelper.Set(f_, "SZC", c);
-            FeatureHelper.Set(f_, "ORID_PATH", FeatureHelper.Get(feature, "ORID_PATH", ""));
+            FeatureHelper.Set(f_, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
             fsSave.add(f_);
         }
         MapHelper.saveFeature(fsSave, fsDel, new AiRunnable() {
@@ -580,13 +580,13 @@ public class FeatureViewZ_FSJG extends FeatureView {
                 .addContentView("如：3,5,7 将复制到3、5、7层")
                 .addContentView("如：3-7 将复制到3、4、5、6、7层")
                 .addContentView(aidialog.getEditView("请输入要复制到的楼层", map, "szc"))
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String szc = map.get("szc") + "";
                         final List<Integer> nubs = StringUtil.GetNumbers(szc);
                         aidialog.setContentView("输入的楼层为“" + szc + "”：将复制到" + StringUtil.Join(nubs) + "层");
-                        aidialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                        aidialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {

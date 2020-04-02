@@ -160,8 +160,8 @@ public class DxfZdct {
             // 单元格1-2
             x_ = x_ + w * 2 / 15;
             Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 4 / 15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_1_2, null, Get(f_zd, "ZDDM", ""), o_fontsize, null, false, 0, 0);
-            dxf.writeMText(cel_1_2.getCenter(),Get(f_zd, "ZDDM", ""));
+//            dxf.write(cel_1_2, null, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), o_fontsize, null, false, 0, 0);
+            dxf.writeMText(cel_1_2.getCenter(),Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""));
             // 单元格1-3
             x_ = x_ + w * 8/ 15;
             Envelope cel_1_3 = new Envelope(x_, y_, x_ + w * 2 /15, y_ - h, p_extend.getSpatialReference());

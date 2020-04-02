@@ -71,7 +71,7 @@ public class FeatureViewQLR extends FeatureView {
         final ViewGroup ll_list_item = helper.getView(R.id.ll_list_item);
         helper.setImageResource(com.ovit.R.id.v_icon, com.ovit.app.map.bdc.ggqj.R.mipmap.app_map_layer_qlrxx);
         helper.setText(R.id.tv_groupname, fv.getLayerName() + getOrid_Path());
-        helper.setText(R.id.tv_desc, FeatureHelper.Get(item, "BDCDYH", ""));
+        helper.setText(R.id.tv_desc, FeatureHelper.Get(item, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
         helper.setText(R.id.tv_name, FeatureHelper.Get(item, "XM", "无") + "[持证人]");
         helper.getView(R.id.ll_head).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,7 +151,7 @@ public class FeatureViewQLR extends FeatureView {
                                 AiDialog dialog = AiDialog.get(mapInstance.activity);
                                 dialog.setHeaderView("确认解除此不动产与权利人的绑定吗?");
                                 dialog.setContentView("此操作不可逆转，请谨慎执行！");
-                                dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+                                dialog.setFooterView(AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(final DialogInterface dialog, int which) {
                                         FeatureEditQLR.unassociateQlrAndBdc(mapInstance, item, true, new AiRunnable() {
@@ -163,7 +163,7 @@ public class FeatureViewQLR extends FeatureView {
                                             }
                                         });
                                     }
-                                }, null, null, "取消", new DialogInterface.OnClickListener() {
+                                }, null, null, AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
@@ -199,7 +199,7 @@ public class FeatureViewQLR extends FeatureView {
             ll_view.getChildAt(0).setVisibility(View.GONE); //隐藏第一个默认view以优化UI（后期如有需要也可重写该view为面板增添其他功能）
         }
 
-        FeatureTable table = mapInstance.getTable("ZD");
+        FeatureTable table = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD);
         final List<Feature> fs = new ArrayList<Feature>();
 
         final QuickAdapter<Feature> adapter = new QuickAdapter<Feature>(mapInstance.activity, listItemRes, fs) {
@@ -217,10 +217,10 @@ public class FeatureViewQLR extends FeatureView {
                         boolean flag = ll_list_item.getVisibility() == View.VISIBLE;
                         if (!flag) {
                             final List<Feature> fs = new ArrayList<>();
-                            fv_zd.queryChildFeature("ZRZ", item, fs, new AiRunnable() {
+                            fv_zd.queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, item, fs, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    final com.ovit.app.map.view.FeatureView fv_zrz = mapInstance.newFeatureView("ZRZ");
+                                    final com.ovit.app.map.view.FeatureView fv_zrz = mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_ZRZ);
 
                                     QuickAdapter<Feature> adapter = new QuickAdapter<Feature>(mapInstance.activity, listItemRes, fs) {
                                         @Override
@@ -236,10 +236,10 @@ public class FeatureViewQLR extends FeatureView {
                                                     boolean flag = ll_list_item.getVisibility() == View.VISIBLE;
                                                     if (!flag) {
                                                         final List<Feature> fs = new ArrayList<>();
-                                                        fv_zrz.queryChildFeature("LJZ", item, fs, new AiRunnable() {
+                                                        fv_zrz.queryChildFeature(FeatureHelper.TABLE_NAME_LJZ, item, fs, new AiRunnable() {
                                                             @Override
                                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                final com.ovit.app.map.view.FeatureView fv_ljz = mapInstance.newFeatureView("LJZ");
+                                                                final com.ovit.app.map.view.FeatureView fv_ljz = mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_LJZ);
 
                                                                 QuickAdapter<Feature> adapter = new QuickAdapter<Feature>(mapInstance.activity, listItemRes, fs) {
                                                                     @Override
@@ -255,10 +255,10 @@ public class FeatureViewQLR extends FeatureView {
                                                                                 boolean flag = ll_list_item.getVisibility() == View.VISIBLE;
                                                                                 if (!flag) {
                                                                                     final List<Feature> fs = new ArrayList<>();
-                                                                                    fv_ljz.queryChildFeature("H", item, fs, new AiRunnable() {
+                                                                                    fv_ljz.queryChildFeature(FeatureHelper.TABLE_NAME_H, item, fs, new AiRunnable() {
                                                                                         @Override
                                                                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                                            final com.ovit.app.map.view.FeatureView fv_h = mapInstance.newFeatureView("H");
+                                                                                            final com.ovit.app.map.view.FeatureView fv_h = mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_H);
                                                                                             QuickAdapter<Feature> adapter = new QuickAdapter<Feature>(mapInstance.activity, listItemRes, fs) {
                                                                                                 @Override
                                                                                                 protected void convert(BaseAdapterHelper helper, final Feature item) {
@@ -433,7 +433,7 @@ public class FeatureViewQLR extends FeatureView {
             feature_new_qlr.getAttributes().put("CSRQ", FeatureHelper.Get(feature_bdc, "CSRQ"));
             feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature_bdc, "DH"));
             feature_new_qlr.getAttributes().put("TDZH", FeatureHelper.Get(feature_bdc, "BDCQZH"));
-            feature_new_qlr.getAttributes().put("ORID_PATH", FeatureHelper.Get(feature_bdc, "ORID") + "/"); //权利人关联不动产单元
+            feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_ORID) + "/"); //权利人关联不动产单元
 
             //拷贝资料
             String f_zd_path = mapInstance.getpath_feature(feature_bdc); //     不动产d单元
@@ -570,9 +570,9 @@ public class FeatureViewQLR extends FeatureView {
                                 if (StringUtil.IsNotEmpty(qlrxm) && qlrxm.equals(FeatureHelper.Get(f_gyrxx, "XM", ""))) {
                                     //权利人存在 关联 宗地与权利人关联 TODO 需要解决一个用户多宗宅基地与附属宗地的冲突问题
                                     FeatureHelper.Set(f_gyrxx
-                                            , "ORID_PATH"
-                                            , FeatureHelper.Get(f_gyrxx, "ORID_PATH", "")
-                                                    + FeatureHelper.Get(feature, "ORID", "") + "/");
+                                            , FeatureHelper.TABLE_ATTR_ORID_PATH
+                                            , FeatureHelper.Get(f_gyrxx, FeatureHelper.TABLE_ATTR_ORID_PATH, "")
+                                                    + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID, "") + "/");
                                     MapHelper.saveFeature(f_gyrxx, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -619,7 +619,7 @@ public class FeatureViewQLR extends FeatureView {
                 final Feature f = (Feature) t_;
                 if (f != null && FeatureHelper.LAYER_NAME_ZD.equals(mapInstance.getLayerName(f))) {
                     // 不动产单元 与 宗地 关联
-                    DialogBuilder.confirm(activity, "添加附属宗地", "宗地是否关联该不动产单元？", null, "确定", new DialogInterface.OnClickListener() {
+                    DialogBuilder.confirm(activity, "添加附属宗地", "宗地是否关联该不动产单元？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
                             String orid_path = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
@@ -655,7 +655,7 @@ public class FeatureViewQLR extends FeatureView {
      */
     public void clearFszd(final AiRunnable callback) {
 
-        DialogBuilder.confirm(activity, "清除附属宗地", "确定清除该宗地的附属宗地？", null, "确定", new DialogInterface.OnClickListener() {
+        DialogBuilder.confirm(activity, "清除附属宗地", "确定清除该宗地的附属宗地？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface dialog, int which) {
                 String orid_path = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");

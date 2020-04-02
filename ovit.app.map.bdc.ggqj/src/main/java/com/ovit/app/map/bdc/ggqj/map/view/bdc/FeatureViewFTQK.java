@@ -129,10 +129,10 @@ public class FeatureViewFTQK extends FeatureView {
                             if (!flag) {
                                 final List<Feature> fs = new ArrayList<>();
                                 com.ovit.app.map.view.FeatureView fv_ljz=mapInstance.newFeatureView(item);
-                                fv_ljz.queryChildFeature("H", item, fs, new AiRunnable() {
+                                fv_ljz.queryChildFeature(FeatureHelper.TABLE_NAME_H, item, fs, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        final com.ovit.app.map.view.FeatureView fv_h = mapInstance.newFeatureView("H");
+                                        final com.ovit.app.map.view.FeatureView fv_h = mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_H);
                                         QuickAdapter<Feature> adapter = new QuickAdapter<Feature>(mapInstance.activity, listItemRes, fs) {
                                             @Override
                                             protected void convert(BaseAdapterHelper helper, final Feature item) {
@@ -165,7 +165,7 @@ public class FeatureViewFTQK extends FeatureView {
             ll_list_item.setTag(adapter);
             adapter.adpter(ll_list_item);
             FeatureViewZ_FSJG fv = (FeatureViewZ_FSJG) mapInstance.newFeatureView(feature_z_fsjg);
-            fv.queryFatherFeature(mapInstance,"LJZ","ZRZ",feature_z_fsjg,features_bdc,new AiRunnable(){
+            fv.queryFatherFeature(mapInstance,FeatureHelper.TABLE_NAME_LJZ,FeatureHelper.TABLE_NAME_ZRZ,feature_z_fsjg,features_bdc,new AiRunnable(){
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     adapter.notifyDataSetChanged();
@@ -173,12 +173,12 @@ public class FeatureViewFTQK extends FeatureView {
                 }
             });
 
-//            String z_fsjg_orid_path = FeatureHelper.Get(feature_z_fsjg,"ORID_PATH")+"";
+//            String z_fsjg_orid_path = FeatureHelper.Get(feature_z_fsjg,FeatureHelper.TABLE_ATTR_ORID_PATH)+"";
 //            String paths[] = z_fsjg_orid_path.split("/");
 ////            String ljz_orid = paths.length>1?paths[paths.length-1]:"";
 //            String zd_orid = paths.length>1?paths[1]:"";
 //            String where_zd = "ORID_PATH like '%"+zd_orid+"%'";
-//            FeatureTable table_bdc = mapInstance.getTable("QLRXX");
+//            FeatureTable table_bdc = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
 //            MapHelper.Query(table_bdc, where_zd,-1,features_bdc, new AiRunnable() {
 //                @Override
 //                public <T_> T_ ok(T_ t_, Object... objects) {
@@ -355,7 +355,7 @@ public class FeatureViewFTQK extends FeatureView {
                             @Override
                             public void exec() {
                                 final Feature feature = fs.get(postion);
-                                String where = "FTLY_ID='" + FeatureHelper.Get(feature,"ORID","") + "'";
+                                String where = "FTLY_ID='" + FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_ORID,"") + "'";
                                 MapHelper.QueryOne(mapInstance.getTable(FeatureHelper.TABLE_NAME_FTQK), where, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {

@@ -90,14 +90,14 @@ public class FeatureEditBDC extends FeatureEdit {
     @Override
     public void init() {
         super.init();
-        zddm = AiUtil.GetValue(feature.getAttributes().get("ZDDM"), "");
+        zddm = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDDM), "");
         zl = AiUtil.GetValue(feature.getAttributes().get("ZL"), "");
 
     }
 
     @Override
     public String getId() {
-        return FeatureHelper.Get(feature, "BDCDYH", "");
+        return FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
     }
 
     @Override
@@ -285,20 +285,20 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     public static void LoadZRZ(MapInstance mapInstance, String bdcdyh, List<Feature> fs_zrz, AiRunnable callback) {
-        MapHelper.Query(GetTable(mapInstance, "ZRZ"), StringUtil.WhereByIsEmpty(bdcdyh) + " BDCDYH like '" + GetWhere_dcdyh(bdcdyh) + "' ", "ZRZH", "asc", -1, fs_zrz, callback);
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(bdcdyh) + " BDCDYH like '" + GetWhere_dcdyh(bdcdyh) + "' ", "ZRZH", "asc", -1, fs_zrz, callback);
     }
 
     public static void LoadH(MapInstance mapInstance, String bdcdyh, List<Feature> fs_h, AiRunnable callback) {
-        //MapHelper.Query(GetTable(mapInstance, "H"), " BDCDYH like '" + GetWhere_dcdyh(bdcdyh) + "' ", "ID", "asc", -1, fs_h, callback);
-        MapHelper.Query(GetTable(mapInstance, "H"), StringUtil.WhereByIsEmpty(bdcdyh) + " BDCDYH like '" + GetWhere_dcdyh(bdcdyh) + "' ", "ID", "asc", -1, fs_h, callback);
+        //MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), " BDCDYH like '" + GetWhere_dcdyh(bdcdyh) + "' ", "ID", "asc", -1, fs_h, callback);
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(bdcdyh) + " BDCDYH like '" + GetWhere_dcdyh(bdcdyh) + "' ", "ID", "asc", -1, fs_h, callback);
     }
 
     public static void LoadZ_FSJG(MapInstance mapInstance, String bdcdyh, List<Feature> fs_z_fsjg, AiRunnable callback) {
-        MapHelper.Query(GetTable(mapInstance, "Z_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + " ZID like '" + GetZRZH(GetWhere_dcdyh(bdcdyh)) + "' ", "ZID", "asc", -1, fs_z_fsjg, callback);
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_Z_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + " ZID like '" + GetZRZH(GetWhere_dcdyh(bdcdyh)) + "' ", "ZID", "asc", -1, fs_z_fsjg, callback);
     }
 
     public static void LoadH_FSJG(MapInstance mapInstance, String bdcdyh, List<Feature> fs_h_fsjg, AiRunnable callback) {
-        MapHelper.Query(GetTable(mapInstance, "H_FSJG"), StringUtil.WhereByIsEmpty(bdcdyh) + " HID like '" + GetWhere_dcdyh(bdcdyh) + "' ", "HID", "asc", -1, fs_h_fsjg, callback);
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + " HID like '" + GetWhere_dcdyh(bdcdyh) + "' ", "HID", "asc", -1, fs_h_fsjg, callback);
     }
 
     public static void LoadAll(final MapInstance mapInstance, final String bdcdyh,
@@ -559,7 +559,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 final AiDialog aidialog = AiDialog.get(mapInstance.activity);
                 aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理")
                         .setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // 完成后的回掉
@@ -578,27 +578,27 @@ public class FeatureEditBDC extends FeatureEdit {
 
                                     @Override
                                     public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据失败！");
-                                        aidialog.setFooterView(null, "关闭", null);
+                                        aidialog.addContentView(AiRunnable.NO);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
                                         return null;
                                     }
 
                                     @Override
                                     public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据异常！");
-                                        aidialog.setFooterView(null, "关闭", null);
+                                        aidialog.addContentView(AiRunnable.ERROR);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
                                         return null;
                                     }
                                 };
                                 // 设置不可中断
                                 aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                aidialog.setContentView("开始处理数据" + "ZDDM=" + FeatureHelper.Get(feature, "ZDDM", ""));
+                                aidialog.setContentView("开始处理数据" + "ZDDM=" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, ""));
                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "查找所有的逻辑幢，并合成自然幢");
                                 Log.d(TAG, "智能处理:查找所有的逻辑幢，并合成自然幢");
                                 // 查询宗地范围内的逻辑幢
                                 final FeatureViewZD fv_zd = (FeatureViewZD) mapInstance.newFeatureView(feature);
                                 final List<Feature> featuresLJZ = new ArrayList<>();
-                                MapHelper.Query(mapInstance.getTable("LJZ"), feature.getGeometry(), featuresLJZ, new AiRunnable() {
+                                MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ), feature.getGeometry(), featuresLJZ, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         // 通过逻辑幢合成自然幢
@@ -667,9 +667,9 @@ public class FeatureEditBDC extends FeatureEdit {
 
 
     private void OutputAllBdcdyResultsToZD(Feature feature, final AiRunnable callback) {
-        if (feature.getFeatureTable().getTableName().equals("ZD")) {
-            String where = "ORID_PATH like'%" + FeatureHelper.Get(feature, "ORID") + "%'";
-            FeatureTable table = mapInstance.getTable("QLRXX");
+        if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_ZD)) {
+            String where = "ORID_PATH like'%" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID) + "%'";
+            FeatureTable table = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
             MapHelper.Query(table, where, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -727,7 +727,7 @@ public class FeatureEditBDC extends FeatureEdit {
     private void createBdcdyAndZncl(Feature featureZD, final AiRunnable callback) {
         final FeatureView fv = mapInstance.newFeatureView(featureZD);
         final List<Feature> featuresZRZ = new ArrayList<>();
-        fv.queryChildFeature("ZRZ", featureZD, featuresZRZ, new AiRunnable() {
+        fv.queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, featureZD, featuresZRZ, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 // 宗地与自然幢生成不动产单元
@@ -856,7 +856,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 int ps = polygonParts.size();
                 if (ps > 0) {
                     for (ImmutablePart segments : polygonParts) {
-                        Feature featureZrz = mapInstance.getTable("ZRZ").createFeature();
+                        Feature featureZrz = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ).createFeature();
                         Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
                         featureZrz.setGeometry(polygon);
                         featuresZRZ.add(featureZrz);
@@ -963,7 +963,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 @Override
                 public void run() {
                     try {
-                        String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                        String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                         Map<String, Object> map_ = new LinkedHashMap<>();
                         //  设置系统参数
                         Put_data_sys(map_);
@@ -1015,7 +1015,7 @@ public class FeatureEditBDC extends FeatureEdit {
     // 查询所有自然幢，识别户和幢附属
     public static void LaodAlLBDC_CreateDOCX(final MapInstance mapInstance, final boolean isReload, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
-        MapHelper.Query(GetTable(mapInstance, "ZD"), "", -1, fs, new AiRunnable(callback) {
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZD), "", -1, fs, new AiRunnable(callback) {
             // 递归调用，直到全部完成
             void create(final List<String> ids, final int index, final AiRunnable create_callback) {
                 if (index < ids.size()) {
@@ -1035,8 +1035,8 @@ public class FeatureEditBDC extends FeatureEdit {
             public <T_> T_ ok(T_ t_, Object... objects) {
                 List<String> bdcdyhs = new ArrayList<String>();
                 for (Feature f : fs) {
-                    String bdcdyh = FeatureHelper.Get(f, "BDCDYH", "");
-                    String zddm = FeatureHelper.Get(f, "ZDDM", "");
+                    String bdcdyh = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+                    String zddm = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, "");
                     // 保证宗地代码和不动产单元号有效
                     if (bdcdyh.length() == 28 && !bdcdyhs.contains(bdcdyh) && zddm.length() == 19) {
                         bdcdyhs.add(bdcdyh);
@@ -1056,7 +1056,7 @@ public class FeatureEditBDC extends FeatureEdit {
 
     // 查询所有自然幢，识别户和幢附属
     public static void LaodALLBDC_CreateDOCX(final MapInstance mapInstance, final boolean isReload, final AiRunnable callback) {
-        FeatureTable table = mapInstance.getTable("QLRXX");
+        FeatureTable table = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
         final List<Feature> fs = new ArrayList<>();
         MapHelper.Query(table, "", -1, fs, new AiRunnable() {
             @Override
@@ -1136,7 +1136,7 @@ public class FeatureEditBDC extends FeatureEdit {
     // 查询所有自然幢，识别户和幢附属
     public static void LaodALLBDC_Pack(final MapInstance mapInstance, final boolean isReload, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
-        MapHelper.Query(GetTable(mapInstance, "ZD"), "", -1, fs, new AiRunnable(callback) {
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZD), "", -1, fs, new AiRunnable(callback) {
             // 递归调用，直到全部完成
             void pack(final List<String> ids, final int index, final AiRunnable identy_callback) {
                 if (index < fs.size()) {
@@ -1156,8 +1156,8 @@ public class FeatureEditBDC extends FeatureEdit {
             public <T_> T_ ok(T_ t_, Object... objects) {
                 List<String> bdcdyhs = new ArrayList<String>();
                 for (Feature f : fs) {
-                    String bdcdyh = FeatureHelper.Get(f, "BDCDYH", "");
-                    String zddm = FeatureHelper.Get(f, "ZDDM", "");
+                    String bdcdyh = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+                    String zddm = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, "");
                     // 保证宗地代码和不动产单元号有效
                     if (bdcdyh.length() == 28 && !bdcdyhs.contains(bdcdyh) && zddm.length() == 19) {
                         bdcdyhs.add(bdcdyh);
@@ -1556,11 +1556,11 @@ public class FeatureEditBDC extends FeatureEdit {
     // 设置自然幢
     public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
-        final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "自然幢");
+        final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.LAYER_NAME_ZRZ);
         FileUtils.deleteFile(file_zrzs);
         // 自然幢最少1个
         if (fs_zrzs.size() < 1) {
-            fs_zrzs.add(GetTable(mapInstance, "ZRZ").createFeature());
+            fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
         }
         List<Map<String, Object>> maps_zrz = new ArrayList<>();
         List<String> hzszc = new ArrayList<>();
@@ -1606,11 +1606,11 @@ public class FeatureEditBDC extends FeatureEdit {
     //设置自然幢
     public static void Put_data_zrz_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, Feature featureBdc, String last_orid) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
-        final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "自然幢");
+        final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.LAYER_NAME_ZRZ);
         FileUtils.deleteFile(file_zrzs);
         // 自然幢最少1个
         if (fs_zrzs.size() < 1) {
-            fs_zrzs.add(GetTable(mapInstance, "ZRZ").createFeature());
+            fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
         }
         List<Map<String, Object>> maps_zrz = new ArrayList<>();
         List<String> hzszc = new ArrayList<>();
@@ -1618,7 +1618,7 @@ public class FeatureEditBDC extends FeatureEdit {
         List<String> hzjgrq = new ArrayList<>();
         for (Feature zrz : fs_zrzs) {
             // 幢基本信息  找到与不动产关联的幢
-            if (!last_orid.equals(FeatureHelper.Get(zrz, "ORID", ""))) {
+            if (!last_orid.equals(FeatureHelper.Get(zrz, FeatureHelper.TABLE_ATTR_ORID, ""))) {
                 continue;
             }
 
@@ -1665,11 +1665,11 @@ public class FeatureEditBDC extends FeatureEdit {
 
     public static void Put_data_h_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, Feature featureBdc, String last_orid) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
-        final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "自然幢");
+        final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.LAYER_NAME_ZRZ);
         FileUtils.deleteFile(file_zrzs);
         // 自然幢最少1个
         if (fs_zrzs.size() < 1) {
-            fs_zrzs.add(GetTable(mapInstance, "ZRZ").createFeature());
+            fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
         }
         List<Map<String, Object>> maps_zrz = new ArrayList<>();
         List<String> hzszc = new ArrayList<>();
@@ -1677,7 +1677,7 @@ public class FeatureEditBDC extends FeatureEdit {
         List<String> hzjgrq = new ArrayList<>();
         for (Feature zrz : fs_zrzs) {
             // 幢基本信息  找到与不动产关联的幢
-            if (!last_orid.equals(FeatureHelper.Get(zrz, "ORID", ""))) {
+            if (!last_orid.equals(FeatureHelper.Get(zrz, FeatureHelper.TABLE_ATTR_ORID, ""))) {
                 continue;
             }
             String z_zrzh = AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), "");
@@ -1730,7 +1730,7 @@ public class FeatureEditBDC extends FeatureEdit {
         // 设置单个幢信息
         // 提前防止覆盖
         map.put("ZRZ.ZHFF", AiUtil.GetValue(zrz.getAttributes().get("ZH"), 1) + "");
-        if ((zrz.getAttributes().get("BDCDYH") + "").contains("F99990001")) {
+        if ((zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH) + "").contains("F99990001")) {
 
         } else {
             map.put("ZRZ.ZHFS", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
@@ -1749,7 +1749,7 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_zrz) {
         Feature zrz = null;
         if (fs_zrz.size() < 1) {
-            zrz = GetTable(mapInstance, "ZRZ").createFeature();
+            zrz = GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature();
         } else {
             zrz = fs_zrz.get(0);
         }
@@ -1800,7 +1800,7 @@ public class FeatureEditBDC extends FeatureEdit {
         List<Feature> fs_hs = new ArrayList<>(fs_h);
         Feature h = null;
         if (fs_hs.size() < 1) {
-            h = GetTable(mapInstance, "H").createFeature();
+            h = GetTable(mapInstance, FeatureHelper.TABLE_NAME_H).createFeature();
         } else {
             h = fs_hs.get(0);
         }
@@ -2326,7 +2326,7 @@ public class FeatureEditBDC extends FeatureEdit {
             }
         }
         if (hs.size() < 1) {
-            hs.add(GetTable(mapInstance, "H").createFeature());
+            hs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H).createFeature());
         }
         return hs;
     }
@@ -2435,23 +2435,23 @@ public class FeatureEditBDC extends FeatureEdit {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
             // 导出shp 文件
-            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "宗地" + ".shp";
+            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_ZD + ".shp";
             ShapeUtil.writeShp(shpfile_zd, f_zd);
             final String shpfile_jzd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址点" + ".shp";
             ShapeUtil.writeShp(shpfile_jzd, fs_jzd);
             final String shpfile_jzx = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址线" + ".shp";
             ShapeUtil.writeShp(shpfile_jzx, fs_jzx);
-            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "自然幢" + ".shp";
+            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_ZRZ + ".shp";
             ShapeUtil.writeShp(shpfile_zrz, fs_zrz);
-            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户" + ".shp";
+            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_H + ".shp";
             ShapeUtil.writeShp(shpfile_h, fs_h);
-            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "幢附属结构" + ".shp";
+            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_Z_FSJG + ".shp";
             ShapeUtil.writeShp(shpfile_zfsjg, fs_z_fsjg);
-            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户附属结构" + ".shp";
+            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_H_FSJG + ".shp";
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
             final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "分层分户图.dxf"; //20180709
-            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), "BDCDYH", bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), FeatureHelper.TABLE_ATTR_ORID_PATH, bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
 
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
@@ -2471,23 +2471,23 @@ public class FeatureEditBDC extends FeatureEdit {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产地籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
             // 导出shp 文件
-            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "宗地" + ".shp";
+            final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_ZD + ".shp";
             ShapeUtil.writeShp(shpfile_zd, f_zd);
             final String shpfile_jzd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址点" + ".shp";
             ShapeUtil.writeShp(shpfile_jzd, fs_jzd);
             final String shpfile_jzx = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "界址线" + ".shp";
             ShapeUtil.writeShp(shpfile_jzx, fs_jzx);
-            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "自然幢" + ".shp";
+            final String shpfile_zrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_ZRZ + ".shp";
             ShapeUtil.writeShp(shpfile_zrz, fs_zrz);
-            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户" + ".shp";
+            final String shpfile_h = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_H + ".shp";
             ShapeUtil.writeShp(shpfile_h, fs_h);
-            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "幢附属结构" + ".shp";
+            final String shpfile_zfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_Z_FSJG + ".shp";
             ShapeUtil.writeShp(shpfile_zfsjg, fs_z_fsjg);
-            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + "户附属结构" + ".shp";
+            final String shpfile_hfsjg = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_H_FSJG + ".shp";
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
             final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "分层分户图.dxf"; //20180709
-            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), "BDCDYH", bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), FeatureHelper.TABLE_ATTR_ORID_PATH, bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
 
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
@@ -2558,17 +2558,17 @@ public class FeatureEditBDC extends FeatureEdit {
             QuickAdapter<Feature> adpter = new QuickAdapter<Feature>(mapInstance.activity, R.layout.app_ui_ai_aimap_bdc_item, new ArrayList<Feature>()) {
                 @Override
                 protected void convert(final BaseAdapterHelper helper, final Feature item) {
-                    final String id = AiUtil.GetValue(item.getAttributes().get("BDCDYH"), "");
-                    String zddm = AiUtil.GetValue(item.getAttributes().get("ZDDM"), "");
+                    final String id = AiUtil.GetValue(item.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH), "");
+                    String zddm = AiUtil.GetValue(item.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDDM), "");
 
                     final String name = id.length() > 19 ? id.substring(19) : id;
                     String desc = zddm.length() > 12 ? zddm.substring(12) : id;
 
                     int color = Color.BLUE;
-                    if ("ZD".equals(item.getFeatureTable().getTableName())) {
+                    if (FeatureHelper.TABLE_NAME_ZD.equals(item.getFeatureTable().getTableName())) {
                         desc += AiUtil.GetValue(item.getAttributes().get("ZL"), "") + AiUtil.GetValue(item.getAttributes().get("LPMC"), "");
                         color = Color.RED;
-                    } else if ("H".equals(item.getFeatureTable().getTableName())) {
+                    } else if (FeatureHelper.TABLE_NAME_H.equals(item.getFeatureTable().getTableName())) {
                         desc += AiUtil.GetValue(item.getAttributes().get("ZL"), "") + AiUtil.GetValue(item.getAttributes().get("HH"), "");
                         color = Color.BLUE;
                     } else {
@@ -2620,10 +2620,10 @@ public class FeatureEditBDC extends FeatureEdit {
         }
         final String where_ = where;
         final List<Feature> features = new ArrayList<Feature>();
-        MapHelper.Query(GetTable(mapInstance, "ZD", "宗地"), where_, 0, features, new AiRunnable() {
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), where_, 0, features, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                MapHelper.Query(GetTable(mapInstance, "H", "户"), "(" + where_ + ") and BDCDYH not like '%99990001' ", 0, features, new AiRunnable() {
+                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H, FeatureHelper.LAYER_NAME_H), "(" + where_ + ") and BDCDYH not like '%99990001' ", 0, features, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         ((QuickAdapter<Feature>) lv_list.getAdapter()).replaceAll(features);
@@ -2694,11 +2694,11 @@ public class FeatureEditBDC extends FeatureEdit {
         final List<Feature> fs_h = new ArrayList<>();
         final List<Feature> fs_zrz = new ArrayList<>();
         final List<Feature> fs_zd = new ArrayList<>();
-        MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, "ZD", "宗地"), "ZDDM='" + FeatureHelper.Get(feature_zrz, "ZDDM") + "'", new AiRunnable() {
+        MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "ZDDM='" + FeatureHelper.Get(feature_zrz, FeatureHelper.TABLE_ATTR_ZDDM) + "'", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 final Feature f_zd = (Feature) objects[0];
-                MapHelper.Query(MapHelper.getTable(mapInstance.map, "H", "户"), "ZDDM='" + FeatureHelper.Get(feature_zrz, "ZDDM") + "'", -1, fs_h, new AiRunnable() {
+                MapHelper.Query(MapHelper.getTable(mapInstance.map, FeatureHelper.TABLE_NAME_H, FeatureHelper.LAYER_NAME_H), "ZDDM='" + FeatureHelper.Get(feature_zrz, FeatureHelper.TABLE_ATTR_ZDDM) + "'", -1, fs_h, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         fs_zd.add(f_zd);
@@ -2723,11 +2723,11 @@ public class FeatureEditBDC extends FeatureEdit {
         final List<Feature> fs_zd = new ArrayList<>();
         Feature f_zd = null;
         final Feature f_zrz = null;
-        MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, "ZD", "宗地"), "ZDDM='" + FeatureHelper.Get(feature_h, "ZDDM") + "'", new AiRunnable() {
+        MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "ZDDM='" + FeatureHelper.Get(feature_h, FeatureHelper.TABLE_ATTR_ZDDM) + "'", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 final Feature f_zd = (Feature) objects[0];
-                MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, "ZRZ", "自然幢"), "ZRZH='" + FeatureHelper.Get(feature_h, "ZRZH") + "'", new AiRunnable() {
+                MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, FeatureHelper.TABLE_NAME_ZRZ, FeatureHelper.LAYER_NAME_ZRZ), "ZRZH='" + FeatureHelper.Get(feature_h, "ZRZH") + "'", new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         fs_zd.add(f_zd);
@@ -2750,7 +2750,7 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void completeSelectExcel(final MapInstance mapInstance, final Feature feature_zd, final List<String> selected_items, final AiRunnable callback) { //在这里处理用户选择
         try {
             if (selected_items.size() > 0) {
-                final String bdcdyh = FeatureHelper.Get(feature_zd, "BDCDYH") + "";
+                final String bdcdyh = FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
                 final List<Feature> features_ = new ArrayList<>();
                 new AiForEach<String>(selected_items, new AiRunnable() {
                     @Override
@@ -2838,7 +2838,7 @@ public class FeatureEditBDC extends FeatureEdit {
                     AiDialog dialog = AiDialog.get(mapInstance.activity);
                     dialog.setHeaderView("请选择Excel成果的类型");
                     dialog.addContentView(buildSelectExcel(mapInstance, select_items, selected_items, null));
-                    dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+                    dialog.setFooterView(AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             completeSelectExcel(mapInstance, (Feature) t_, selected_items, new AiRunnable() {
@@ -2854,7 +2854,7 @@ public class FeatureEditBDC extends FeatureEdit {
                             });
                             dialog.dismiss();
                         }
-                    }, null, null, "取消", new DialogInterface.OnClickListener() {
+                    }, null, null, AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -2879,7 +2879,7 @@ public class FeatureEditBDC extends FeatureEdit {
             @Override
             public void exec() {
                 final Feature f_zrz = fs_zrz.get(postion);
-                MapHelper.Query(mapInstance.getTable("ZRZ_C"), "ORID_PATH like '%" + FeatureHelper.Get(f_zrz, "ORID") + "%'", new AiRunnable() {
+                MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C), "ORID_PATH like '%" + FeatureHelper.Get(f_zrz, FeatureHelper.TABLE_ATTR_ORID) + "%'", new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         List<Feature> featuresC = (List<Feature>) t_;
@@ -2933,8 +2933,8 @@ public class FeatureEditBDC extends FeatureEdit {
             , final Feature f_zrz, final String szc
             , final LinkedHashMap<Feature, List<Feature>> features_c
             , final AiRunnable callback) {
-        MapHelper.QueryOne(mapInstance.getTable("ZRZ_C")
-                , " SJC=" + szc + " and " + "ORID_PATH like '%" + FeatureHelper.Get(f_zrz, "ORID") + "%'"
+        MapHelper.QueryOne(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C)
+                , " SJC=" + szc + " and " + "ORID_PATH like '%" + FeatureHelper.Get(f_zrz, FeatureHelper.TABLE_ATTR_ORID) + "%'"
                 , new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {

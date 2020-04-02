@@ -172,7 +172,7 @@ public class DxfZdt_zhuxi {
             // 单元格1-2
             x_ = x_ + w * 2 / 15;
             Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 4 / 15, y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_1_2, null, Get(f_zd, "ZDDM", ""), o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
+            dxf.write(cel_1_2, null, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
             // 单元格1-3
             x_ = x_ + w * 4 / 15;
             Envelope cel_1_3 = new Envelope(x_, y_, x_ + w * 2 /15, y_ - h, p_extend.getSpatialReference());
@@ -208,7 +208,7 @@ public class DxfZdt_zhuxi {
             Envelope cel_4_1 = new Envelope(x_, y_, x_ + w , y, p_extend.getSpatialReference());
             dxf.write(cel_4_1);
             List<Feature> fs=new ArrayList<>();
-            String zddm= FeatureHelper.Get(f_zd,"ZDDM","");
+            String zddm= FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"");
             fs.addAll(fs_jzd);
             fs.add(f_zd);
             for (Feature f_zrz : fs_zrz) {
@@ -229,7 +229,7 @@ public class DxfZdt_zhuxi {
                 }
             }
             for (Feature f_zd : fs_zd) {
-                if (!FeatureHelper.Get(f_zd,"ZDDM","").contains(zddm)) {
+                if (!FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"").contains(zddm)) {
                     Geometry g = MapHelper.geometry_get(f_zd.getGeometry(), spatialReference);
                     Point p = GeometryEngine.labelPoint((Polygon) g);
                     float ft = 0.5f;

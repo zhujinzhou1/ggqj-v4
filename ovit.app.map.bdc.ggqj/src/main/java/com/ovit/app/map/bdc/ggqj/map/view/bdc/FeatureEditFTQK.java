@@ -105,9 +105,9 @@ public class FeatureEditFTQK extends FeatureEdit {
     {
         switch(feature.getFeatureTable().getTableName())
         {
-            case "ZD":return "ZRZ";
-            case "ZRZ":return "LJZ";
-            case "LJZ":return "Z_FSJG";
+            case FeatureHelper.TABLE_NAME_ZD:return FeatureHelper.TABLE_NAME_ZRZ;
+            case FeatureHelper.TABLE_NAME_ZRZ:return FeatureHelper.TABLE_NAME_LJZ;
+            case FeatureHelper.TABLE_NAME_LJZ:return FeatureHelper.TABLE_NAME_Z_FSJG;
             default:return null;
         }
     }
@@ -127,7 +127,7 @@ public class FeatureEditFTQK extends FeatureEdit {
             int s = (int) (deep * mapInstance.activity.getResources().getDimension(com.ovit.R.dimen.app_size_smaller));
             helper.getView(com.ovit.R.id.v_split).getLayoutParams().width = s;
             //异步设置icon和name
-            MapHelper.QueryOne(mapInstance.getTable("H"), "ORID ='" + FeatureHelper.Get(item,"FTQX_ID") + "'", new AiRunnable() {
+            MapHelper.QueryOne(mapInstance.getTable(FeatureHelper.TABLE_NAME_H), "ORID ='" + FeatureHelper.Get(item,"FTQX_ID") + "'", new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     if(t_!=null){
@@ -182,23 +182,23 @@ public class FeatureEditFTQK extends FeatureEdit {
             switch(feature_source.getFeatureTable().getTableName())
             {
                 case "FTQK":{
-                        FeatureHelper.Set(feature_ft,"ORID_PATH",FeatureHelper.Get(feature_source,"ORID_PATH"));
+                        FeatureHelper.Set(feature_ft,FeatureHelper.TABLE_ATTR_ORID_PATH,FeatureHelper.Get(feature_source,FeatureHelper.TABLE_ATTR_ORID_PATH));
                         FeatureHelper.Set(feature_ft,"FTLY_NAME",FeatureHelper.Get(feature_source,"FTLY_NAME"));
                         FeatureHelper.Set(feature_ft,"FTLY_ID",FeatureHelper.Get(feature_source,"FTLY_ID"));
                         FeatureHelper.Set(feature_ft,"FTTDMJ",FeatureHelper.Get(feature_source,"FTTDMJ"));
                         break;
                 }
-                case "Z_FSJG":{
-                    FeatureHelper.Set(feature_ft,"ORID_PATH",FeatureHelper.Get(feature_source,"ORID"));
+                case FeatureHelper.TABLE_NAME_Z_FSJG:{
+                    FeatureHelper.Set(feature_ft,FeatureHelper.TABLE_ATTR_ORID_PATH,FeatureHelper.Get(feature_source,FeatureHelper.TABLE_ATTR_ORID));
                     FeatureHelper.Set(feature_ft,"FTLY_NAME",FeatureHelper.Get(feature_source,"MC"));
-                    FeatureHelper.Set(feature_ft,"FTLY_ID",FeatureHelper.Get(feature_source,"ORID"));
+                    FeatureHelper.Set(feature_ft,"FTLY_ID",FeatureHelper.Get(feature_source,FeatureHelper.TABLE_ATTR_ORID));
                     FeatureHelper.Set(feature_ft,"FTTDMJ",FeatureHelper.Get(feature_source,"HSMJ"));
                     FeatureHelper.Set(feature_ft,"FTXS","0");
                     FeatureHelper.Set(feature_ft,"FTJZMJ","0");
                     break;
                 }
                 default:{
-                    FeatureHelper.Set(feature_ft,"ORID_PATH",FeatureHelper.Get(feature_source,"ORID"));
+                    FeatureHelper.Set(feature_ft,FeatureHelper.TABLE_ATTR_ORID_PATH,FeatureHelper.Get(feature_source,FeatureHelper.TABLE_ATTR_ORID));
                     break;
                 }
             }
@@ -211,7 +211,7 @@ public class FeatureEditFTQK extends FeatureEdit {
         if(feature_ft!=null && feature_qx!=null)
         {
             FeatureHelper.Set(feature_ft,"FTQX_NAME",FeatureHelper.Get(feature_qx,"HH"));
-            FeatureHelper.Set(feature_ft,"FTQX_ID",FeatureHelper.Get(feature_qx,"ORID"));
+            FeatureHelper.Set(feature_ft,"FTQX_ID",FeatureHelper.Get(feature_qx,FeatureHelper.TABLE_ATTR_ORID));
         }
     }
 
@@ -222,7 +222,7 @@ public class FeatureEditFTQK extends FeatureEdit {
         AiDialog dialog = FeatureViewFTQK.getSelectFTQX_View(mapInstance,feature_z_fsjg,selected_feature_list);
         if(dialog!=null)
         {
-            dialog.setFooterView("确定", new DialogInterface.OnClickListener() {
+            dialog.setFooterView(AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     completeAddFt(mapInstance, selected_feature_list, feature_z_fsjg, new AiRunnable(callback) {
@@ -238,7 +238,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                     });
                     dialog.dismiss();
                 }
-            }, null, null, "取消", new DialogInterface.OnClickListener() {
+            }, null, null, AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Log.i(TAG, "用户取消选择分摊去向！");
@@ -272,7 +272,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                     });
                     dialog.dismiss();
                 }
-            }, null, null, "取消", new DialogInterface.OnClickListener() {
+            }, null, null, AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Log.i(TAG, "用户取消选择分摊去向！");
@@ -346,14 +346,14 @@ public class FeatureEditFTQK extends FeatureEdit {
                 {
                     Feature new_feature_ft = mapInstance.getTable("FTQK").createFeature();
 //                    initAddFt(new_feature_ft,feature);
-                    FeatureHelper.Set(new_feature_ft,"ORID_PATH",FeatureHelper.Get(feature,"ORID"));
+                    FeatureHelper.Set(new_feature_ft,FeatureHelper.TABLE_ATTR_ORID_PATH,FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_ORID));
                     FeatureHelper.Set(new_feature_ft,"FTLY_NAME",FeatureHelper.Get(feature,"MC"));
-                    FeatureHelper.Set(new_feature_ft,"FTLY_ID",FeatureHelper.Get(feature,"ORID"));
+                    FeatureHelper.Set(new_feature_ft,"FTLY_ID",FeatureHelper.Get(feature,FeatureHelper.TABLE_ATTR_ORID));
                     FeatureHelper.Set(new_feature_ft,"FTJZMJ",FeatureHelper.Get(feature,"HSMJ"));
                     FeatureHelper.Set(new_feature_ft,"FTXS","0");
 
-                    FeatureHelper.Set(new_feature_ft,"FTQX_NAME",FeatureHelper.Get(feature_zd,"ZDDM"));
-                    FeatureHelper.Set(new_feature_ft,"FTQX_ID",FeatureHelper.Get(feature_zd,"ORID"));
+                    FeatureHelper.Set(new_feature_ft,"FTQX_NAME",FeatureHelper.Get(feature_zd,FeatureHelper.TABLE_ATTR_ZDDM));
+                    FeatureHelper.Set(new_feature_ft,"FTQX_ID",FeatureHelper.Get(feature_zd,FeatureHelper.TABLE_ATTR_ORID));
                     mapInstance.featureView.fillFeature(new_feature_ft);
                     need_to_save.add(new_feature_ft);
                 }
@@ -370,9 +370,9 @@ public class FeatureEditFTQK extends FeatureEdit {
     public static void getZ_FSJG(final MapInstance mapInstance, final Feature feature_ft, final AiRunnable callback)
     {
         try{
-            String z_fsjg_orid = FeatureHelper.Get(feature_ft,"ORID_PATH")+"";
+            String z_fsjg_orid = FeatureHelper.Get(feature_ft,FeatureHelper.TABLE_ATTR_ORID_PATH)+"";
             String where = "ORID ='"+z_fsjg_orid+"'";
-            FeatureTable table_z_fsjg = mapInstance.getTable("Z_FSJG");
+            FeatureTable table_z_fsjg = mapInstance.getTable(FeatureHelper.TABLE_NAME_Z_FSJG);
             MapHelper.QueryOne(table_z_fsjg, where, new AiRunnable(callback) {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -456,9 +456,9 @@ public class FeatureEditFTQK extends FeatureEdit {
     public static void getAllFtFeaturesByBDC(final MapInstance mapInstance, final Feature feature_bdc, final List<Feature> features_ft,final AiRunnable callback)
     {
         try{
-            if(feature_bdc.getFeatureTable().getTableName().equals("Z_FSJG"))
+            if(feature_bdc.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_Z_FSJG))
             {
-                String where = "ORID_PATH like'%"+FeatureHelper.Get(feature_bdc,"ORID")+"%'";
+                String where = "ORID_PATH like'%"+FeatureHelper.Get(feature_bdc,FeatureHelper.TABLE_ATTR_ORID)+"%'";
                 FeatureTable table = mapInstance.getTable("FTQK");
                 MapHelper.Query(table, where, new AiRunnable(callback) {
                     @Override
@@ -541,7 +541,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                         final List<Feature> features_ft = new ArrayList<>();
                         features_ft.addAll((List<Feature>)t_);
                         final List<Feature> features_ftqx = new ArrayList<>();
-                        final FeatureTable table_h = mapInstance.getTable("H");
+                        final FeatureTable table_h = mapInstance.getTable(FeatureHelper.TABLE_NAME_H);
                         new AiForEach<Feature>(features_ft,callback){
                             public void exec(){
                                 String where_h = "ORID ='"+FeatureHelper.Get(features_ft.get(postion),"FTQX_ID")+"'";
@@ -625,7 +625,7 @@ public class FeatureEditFTQK extends FeatureEdit {
     {
         try{
             final BigDecimal bd_z_fsjg_mj = new BigDecimal(FeatureHelper.Get(featue_z_fsjg,"HSMJ").toString());
-            final String z_fsjg_orid = FeatureHelper.Get(featue_z_fsjg,"ORID").toString();
+            final String z_fsjg_orid = FeatureHelper.Get(featue_z_fsjg,FeatureHelper.TABLE_ATTR_ORID).toString();
             calculateUnitArea(mapInstance, featue_z_fsjg,update_h_info, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -647,7 +647,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                                                 ftxs_ = (new BigDecimal(ftjzmj)).divide(bd_z_fsjg_mj,10,BigDecimal.ROUND_HALF_DOWN).toString(); //分摊系数 四舍五入
                                             }
                                             final String ftxs = ftxs_;
-                                            String where_ftqk = "ORID_PATH like '%"+z_fsjg_orid+"%' and FTQX_ID = '"+FeatureHelper.Get(features_h.get(postion),"ORID")+"'";
+                                            String where_ftqk = "ORID_PATH like '%"+z_fsjg_orid+"%' and FTQX_ID = '"+FeatureHelper.Get(features_h.get(postion),FeatureHelper.TABLE_ATTR_ORID)+"'";
                                             MapHelper.QueryOne(table_ftqk, where_ftqk, new AiRunnable(getNext()) {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -707,8 +707,8 @@ public class FeatureEditFTQK extends FeatureEdit {
                                         final Map<String,String> orid_paths = new HashMap<>();
                                         for(Feature feature_hfft:features_ft)
                                         {
-                                            String orid_path = FeatureHelper.Get(feature_hfft,"ORID_PATH").toString();
-                                            orid_paths.put(orid_path,"ORID_PATH");
+                                            String orid_path = FeatureHelper.Get(feature_hfft,FeatureHelper.TABLE_ATTR_ORID_PATH).toString();
+                                            orid_paths.put(orid_path,FeatureHelper.TABLE_ATTR_ORID_PATH);
                                         }
                                         Iterator it = orid_paths.entrySet().iterator();
                                         final List<String> need_to_recalcu_paths = new ArrayList<>();
@@ -772,7 +772,7 @@ public class FeatureEditFTQK extends FeatureEdit {
                                     delete_list.add(features_ft.get(postion));
                                     AiRunnable.Ok(getNext(),true,true);
                                 }else{
-                                    String where_ftly = "ORID ='"+FeatureHelper.Get(features_ft.get(postion),"ORID_PATH")+"'";
+                                    String where_ftly = "ORID ='"+FeatureHelper.Get(features_ft.get(postion),FeatureHelper.TABLE_ATTR_ORID_PATH)+"'";
                                     MapHelper.QueryOne(table_ftly_name_feature, where_ftly, new AiRunnable(getNext()) {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -879,7 +879,7 @@ public class FeatureEditFTQK extends FeatureEdit {
         final AiDialog dialog = AiDialog.get(mapInstance.activity).setHeaderView(com.ovit.R.mipmap.app_icon_layer_z_fsjg, "生成分摊记录");
         dialog.setContentView(dialog.getProgressView("正在处理，请稍后..."));
 
-        delInvalidFTQK(mapInstance, feature_bdc, "Z_FSJG", "H", true, true, new AiRunnable() {
+        delInvalidFTQK(mapInstance, feature_bdc, FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, true, true, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 getAllFtFeaturesByBDC(mapInstance, feature_bdc, new ArrayList<Feature>(), new AiRunnable() {

@@ -171,7 +171,7 @@ public class FeatureEditJZX extends FeatureEdit {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         // 查出周围的宗地,其中可能包含本宗地
-                        MapHelper.Query(FeatureEditZD.GetTable(mapInstance,"ZD"), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable(callback) {
+                        MapHelper.Query(FeatureEditZD.GetTable(mapInstance,FeatureHelper.TABLE_NAME_ZD), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable(callback) {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 // 根据宗地去识别界址线
@@ -313,7 +313,7 @@ public class FeatureEditJZX extends FeatureEdit {
     }
     // 根据界址点去识别宗地，然后填充其内容
     public static void  IndentyJZX(final MapInstance instance, final  Feature f_jzx, final List<Feature> fs_save,final List<Feature> fs_del,final AiRunnable callback) {
-        FeatureTable table = FeatureEditZD.GetTable(instance,"ZD");
+        FeatureTable table = FeatureEditZD.GetTable(instance,FeatureHelper.TABLE_NAME_ZD);
         final List<Feature> fs_zd  = new ArrayList<>();
         MapHelper.Query(table, f_jzx.getGeometry(), 0.01, fs_zd, new AiRunnable() {
             @Override

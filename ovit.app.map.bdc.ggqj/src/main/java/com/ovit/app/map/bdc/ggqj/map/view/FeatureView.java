@@ -39,6 +39,7 @@ import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.AiWindow;
+import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
@@ -290,15 +291,15 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
         if(feature!=null){
             String name = feature.getFeatureTable().getFeatureLayer().getName();
 
-            if (mapInstance.bindZDFeature != null && "宗地".equals(name)) {
+            if (mapInstance.bindZDFeature != null && FeatureHelper.LAYER_NAME_ZD.equals(name)) {
                 String bindZDFeatureName = mapInstance.bindZDFeature.getFeatureTable().getFeatureLayer().getName();
                 // zrz 与 zd 关联
-                if ("自然幢".equals(bindZDFeatureName)){
-                    DialogBuilder.confirm(activity, "绑定宗地", "自然幢是否绑定该宗地？", null, "确定", new DialogInterface.OnClickListener() {
+                if (FeatureHelper.LAYER_NAME_ZRZ.equals(bindZDFeatureName)){
+                    DialogBuilder.confirm(activity, "绑定宗地", "自然幢是否绑定该宗地？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            final String zddm = FeatureHelper.Get(feature, "ZDDM", "");
-                            final String bdcdyh = FeatureHelper.Get(feature, "BDCDYH", "");
+                            final String zddm = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
+                            final String bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                             FeatureViewZRZ.From(mapInstance,feature).getMaxZrzh(zddm, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -337,7 +338,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     // 权利人 绑定宗地
                     //String filename = AiUtil.GetValue(civ_zjh.getContentDescription(), "材料");
                     //civ_zjh.setName(filename + "(正反面)").setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.Get(feature, "XM", "")+"/"+"附件材料/" + filename + "/"))
-                    DialogBuilder.confirm(activity, "关联宗地", "权利人是否关联该宗地？", null, "确定", new DialogInterface.OnClickListener() {
+                    DialogBuilder.confirm(activity, "关联宗地", "权利人是否关联该宗地？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             String qlrdm = (String) mapInstance.bindZDFeature.getAttributes().get("QLRDM");
@@ -444,7 +445,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                              }
                          };
                         if (fs_adds.size() > 0) {
-                            if (layer == MapHelper.getLayer(map, "ZD")) {
+                            if (layer == MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_ZD)) {
                                 Feature f = fs_adds.get(0);
                                 FeatureViewZD.GetMaxZddm(mapInstance,f, new AiRunnable() {
                                     @Override
@@ -455,7 +456,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                             int count = AiUtil.GetValue(objects[1], 0) + 1;
                                             for (Feature feature : fs_adds) {
                                                 String id = StringUtil.fill(String.format("%05d", count),maxid,true);
-                                                FeatureHelper.Set(feature,"ZDDM",id);
+                                                FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_ZDDM,id);
 
                                                 count++;
                                             }
@@ -467,8 +468,8 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                 return null;
                             } else {
                                 for (Feature f_a : fs_adds) {
-                                    FeatureHelper.Set(f_a,"ZDDM","");
-                                    FeatureHelper.Set(f_a,"BDCDYH","");
+                                    FeatureHelper.Set(f_a,FeatureHelper.TABLE_ATTR_ZDDM,"");
+                                    FeatureHelper.Set(f_a,FeatureHelper.TABLE_ATTR_ORID_PATH,"");
                                     FeatureHelper.Set(f_a,"ZRZH","");
                                     FeatureHelper.Set(f_a,"ZH","");
                                     FeatureHelper.Set(f_a,"ZID","");
@@ -681,7 +682,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public void draw_h_fsjg(Feature featureH,String type, final AiRunnable callback) {
         try {
             String lc = FeatureHelper.Get(featureH,"SZC","");
-            FeatureLayer layer = MapHelper.getLayer(map, "H_FSJG", "户附属结构");
+            FeatureLayer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_H_FSJG, FeatureHelper.LAYER_NAME_H_FSJG);
             Feature f = layer.getFeatureTable().createFeature();
             f.getAttributes().put("MC",type);
             f.getAttributes().put("TYPE", type);
@@ -702,7 +703,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
 
     public void draw_z_fsjg( Feature featureLJZ,String type,String lc, AiRunnable callback) {
         try {
-            FeatureLayer layer = mapInstance.getLayer( "Z_FSJG", "幢附属结构");
+            FeatureLayer layer = mapInstance.getLayer( FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.LAYER_NAME_Z_FSJG);
             Feature f = layer.getFeatureTable().createFeature();
             FeatureHelper.Set(f,"MC",type);
             FeatureHelper.Set(f,"TYPE",type);
@@ -1058,33 +1059,33 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
         }
     }
     public void loadZrzs(List<Feature> fs_zrz,AiRunnable callback){
-        queryChildFeature("ZRZ",getOrid(),"ZRZH","",fs_zrz,callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ,getOrid(),"ZRZH","",fs_zrz,callback);
     }
     public void loadCs(List<Feature> fs_c,AiRunnable callback){
-        queryChildFeature("ZRZ_C",getOrid(),"CH","",fs_c,callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ_C,getOrid(),"CH","",fs_c,callback);
     }
     public void loadLjz(List<Feature> fs_ljz,AiRunnable callback){
-        queryChildFeature("LJZ",getOrid(),"LJZH","",fs_ljz,callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_LJZ,getOrid(),"LJZH","",fs_ljz,callback);
     }
     public void loadFtqk(List<Feature> fs_ftqk,AiRunnable callback){
         queryChildFeature("FTQK",getOrid(),"","",fs_ftqk,callback);
     }
     public void loadBdcdy(List<Feature> fs_bdcdy,AiRunnable callback){
-        queryChildFeature("QLRXX",getOrid(),"ID","",fs_bdcdy,callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_QLRXX,getOrid(),"ID","",fs_bdcdy,callback);
     }
     public void loadHs(List<Feature> fs_h,AiRunnable callback){
-        queryChildFeature("H",getOrid(),"HH","",fs_h,callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_H,getOrid(),"HH","",fs_h,callback);
     }
 
     public void loadZ_FSJGs(List<Feature> fs_z_fsjg,AiRunnable callback){
-        queryChildFeature("Z_FSJG",getOrid(),"ID","",fs_z_fsjg,callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG,getOrid(),"ID","",fs_z_fsjg,callback);
     }
     public void loadH_FSJGs(List<Feature> fs_h_fsjg,AiRunnable callback){
-        queryChildFeature("H_FSJG",getOrid(),"ID","",fs_h_fsjg,callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_H_FSJG,getOrid(),"ID","",fs_h_fsjg,callback);
     }
 
     public static void LoadAllZD(final MapInstance mapInstance,  final List<Feature> fs_zd,AiRunnable callback){
-        MapHelper.Query(mapInstance.getTable("ZD"), "","ZDDM","", -1, fs_zd, callback);
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD), "",FeatureHelper.TABLE_ATTR_ZDDM,"", -1, fs_zd, callback);
     }
 
     // 适合 逻辑幢、自然幢 调用
@@ -1113,13 +1114,13 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                        final AiRunnable callback) {
         final FeatureView fv = mapInstance.newFeatureView(f);
         final String orid = fv.getOrid();
-        fv.queryChildFeature("H", orid, " and SZC = '"+lc+"' ","HH", "", fs_h, new AiRunnable() {
+        fv.queryChildFeature(FeatureHelper.TABLE_NAME_H, orid, " and SZC = '"+lc+"' ","HH", "", fs_h, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                fv.queryChildFeature("Z_FSJG",orid,"  and LC='"+lc+"' ","ID","",fs_z_fsjg,new AiRunnable() {
+                fv.queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG,orid,"  and LC='"+lc+"' ","ID","",fs_z_fsjg,new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        fv.queryChildFeature("H_FSJG",orid,"  and LC='"+lc+"'  ","ID","",fs_h_fsjg,callback);
+                        fv.queryChildFeature(FeatureHelper.TABLE_NAME_H_FSJG,orid,"  and LC='"+lc+"'  ","ID","",fs_h_fsjg,callback);
                         return  null;
                     }
                 });

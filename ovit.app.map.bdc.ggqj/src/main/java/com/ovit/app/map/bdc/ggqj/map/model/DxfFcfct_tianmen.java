@@ -286,7 +286,7 @@ public class DxfFcfct_tianmen {
 //                // 单元格1-2
                 x_ = x_ + w * 1 / 24;
                 Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 7 / 24, y_ - h, p_extend.getSpatialReference());
-                dxf.write(cel_1_2, null, FeatureHelper.Get(f_zd,"ZDDM",""), o_fontsize, null, false, 0, 0);
+                dxf.write(cel_1_2, null, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,""), o_fontsize, null, false, 0, 0);
                 // 单元格1-3
                 x_ = x_ + w * 7 / 24;
                 Envelope cel_1_3 = new Envelope(x_, y_, x_ + w * 1 / 24, y_ - h, p_extend.getSpatialReference());

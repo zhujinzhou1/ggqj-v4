@@ -741,7 +741,7 @@ public class Excel
                     label = new Label(4, index + 1, value);
                 }
 //                // 5宗地代码
-//                if ("ZDDM".equals(key)) {
+//                if (FeatureHelper.TABLE_ATTR_ZDDM.equals(key)) {
 //                    label = new Label(5, index + 1, value);
 //                }
                 // 6 小区名称
@@ -2188,7 +2188,7 @@ public class Excel
 
             for (Feature f_zd : fs_zd) {
                 int index=fs_zd.indexOf(f_zd)+1;
-                wSheet.addCell( new Label(0, index+1, FeatureHelper.Get(f_zd,"ZDDM","")));
+                wSheet.addCell( new Label(0, index+1, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"")));
                 wSheet.addCell( new Label(1, index+1, FeatureHelper.Get(f_zd,"QLRXM","")));
                 String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "权利人证件号";
                 String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "户口簿";
@@ -2324,8 +2324,8 @@ public class Excel
 
             for (Feature f_zd : fs_zd) {
                 int index = fs_zd.indexOf(f_zd) + 1;
-                String zddm=FeatureHelper.Get(f_zd, "ZDDM", "");
-                wSheet.addCell(new Label(0, index , FeatureHelper.Get(f_zd, "ZDDM", "")));
+                String zddm=FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
+                wSheet.addCell(new Label(0, index , FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "")));
                 wSheet.addCell(new Label(1, index , FeatureHelper.Get(f_zd, "QLRXM", "")));
                 String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "权利人证件号";
                 String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "户口簿";
@@ -2440,7 +2440,7 @@ public class Excel
             @Override
             public void exec() {
                 final Map<String, String> item = datas.get(postion);
-                MapHelper.QueryOne(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "ZDDM='" + item.get("ZDDM") + "'", new AiRunnable() {
+                MapHelper.QueryOne(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "ZDDM='" + item.get(FeatureHelper.TABLE_ATTR_ZDDM) + "'", new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         Feature f_zd= (Feature) t_;

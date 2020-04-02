@@ -179,22 +179,22 @@ public class FeatureViewC extends FeatureView {
                 boolean flag = ll_list_item.getVisibility() == View.VISIBLE;
                 if (!flag) {
                     final List<Feature> fs = new ArrayList<>();
-//                    String where="ORID_PATH like '%"+FeatureHelper.Get(item,"ORID_PATH","")+"%' and SZC= '"+FeatureHelper.Get(item,"SJC","")+"'";
+//                    String where="ORID_PATH like '%"+FeatureHelper.Get(item,FeatureHelper.TABLE_ATTR_ORID_PATH,"")+"%' and SZC= '"+FeatureHelper.Get(item,"SJC","")+"'";
                     String where = "and SZC= '" + szc + "'";
-                    queryChildFeature("H", FeatureHelper.Get(item, "ORID_PATH", ""), where, "HH", "asc", fs, new AiRunnable() {
+                    queryChildFeature(FeatureHelper.TABLE_NAME_H, FeatureHelper.Get(item, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), where, "HH", "asc", fs, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-//                            queryChildFeature("H_FSJG", FeatureHelper.Get(item, "ORID_PATH", ""), "and LC= '"+FeatureHelper.Get(item,"SJC","")+"'", "HH", "asc", fs, new AiRunnable() {
+//                            queryChildFeature("H_FSJG", FeatureHelper.Get(item, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), "and LC= '"+FeatureHelper.Get(item,"SJC","")+"'", "HH", "asc", fs, new AiRunnable() {
 //                                @Override
 //                                public <T_> T_ ok(T_ t_, Object... objects) {
 //
 //                                    return null;
 //                                }
 //                            });
-                            queryChildFeature("Z_FSJG", FeatureHelper.Get(item, "ORID_PATH", ""), "and LC= '" + szc + "'", "ID", "asc", fs, new AiRunnable() {
+                            queryChildFeature(FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.Get(item, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), "and LC= '" + szc + "'", "ID", "asc", fs, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    mapInstance.newFeatureView("H").buildListView(ll_list_item, fs, deep + 1);
+                                    mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_H).buildListView(ll_list_item, fs, deep + 1);
                                     return null;
                                 }
                             });
@@ -243,7 +243,7 @@ public class FeatureViewC extends FeatureView {
 
     public static FeatureViewC From(MapInstance mapInstance) {
         FeatureViewC fv = new FeatureViewC();
-        fv.set(mapInstance).set(mapInstance.getTable("ZRZ_C"));
+        fv.set(mapInstance).set(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C));
         return fv;
     }
 
@@ -265,9 +265,9 @@ public class FeatureViewC extends FeatureView {
 
     public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, Feature f, final AiRunnable callback) {
 
-        if (f_p != null && f_p.getFeatureTable() != mapInstance.getTable("ZRZ")) {
+        if (f_p != null && f_p.getFeatureTable() != mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ)) {
 
-            String orid = mapInstance.getOrid_Match(f, "ZRZ");
+            String orid = mapInstance.getOrid_Match(f, FeatureHelper.TABLE_NAME_ZRZ);
             if (StringUtil.IsNotEmpty(orid)) {
                 CreateFeature(mapInstance, orid, f, callback);
                 return;
@@ -330,7 +330,7 @@ public class FeatureViewC extends FeatureView {
             }
         };
         {
-            MapHelper.Query(mapInstance.getTable("ZRZ_C"), "ORID_PATH like '%" + FeatureHelper.Get(feature, "ORID") + "%'", new AiRunnable() {
+            MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C), "ORID_PATH like '%" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID) + "%'", new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     MapHelper.deleteFeature((List<Feature>) t_, new AiRunnable() {
@@ -342,7 +342,7 @@ public class FeatureViewC extends FeatureView {
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     final List<Feature> featuresC = new ArrayList<>();
                                     for (Map.Entry<String, List<Feature>> zrz_c : zrz_c_s) {
-                                        Feature feature_c = mapInstance.getTable("ZRZ_C").createFeature();
+                                        Feature feature_c = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C).createFeature();
                                         mapInstance.fillFeature(feature_c, feature);
                                         FeatureHelper.Set(feature_c, "CH", zrz_c.getKey());
                                         FeatureHelper.Set(feature_c, "SJC", zrz_c.getKey());
@@ -351,7 +351,7 @@ public class FeatureViewC extends FeatureView {
                                         FeatureHelper.Set(feature_c, "CFTJZMJ", calcuZrzcMj(zrz_c.getValue(), "CFTJZMJ"));
                                         List<Feature> featuresH = new ArrayList<>();
                                         for (Feature feature : zrz_c.getValue()) {
-                                            if ("H".equals(feature.getFeatureTable().getTableName())) {
+                                            if (FeatureHelper.TABLE_NAME_H.equals(feature.getFeatureTable().getTableName())) {
                                                 featuresH.add(feature);
                                             }
                                         }
@@ -381,13 +381,13 @@ public class FeatureViewC extends FeatureView {
     }
 
     public void createBdcdyFromC(final Feature f_c, final AiRunnable callback) {
-        String orid_path = FeatureHelper.Get(f_c, "ORID_PATH", "");
+        String orid_path = FeatureHelper.Get(f_c, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
         if (TextUtils.isEmpty(orid_path) || !orid_path.contains("[ZRZ]")) {
             ToastMessage.Send("缺少幢信息，请检查！");
             return;
         }
         String id = FeatureHelper.Get(f_c, "ZRZH", "");
-        MapHelper.QueryMax(mapInstance.getTable(FeatureConstants.QLRXX_TABLE_NAME), StringUtil.WhereByIsEmpty(FeatureHelper.Get(f_c, "ZRZH", "")) + "BDCDYH like '" + id + "____'", "BDCDYH", id.length(), 0, id + "0000", new AiRunnable() {
+        MapHelper.QueryMax(mapInstance.getTable(FeatureConstants.QLRXX_TABLE_NAME), StringUtil.WhereByIsEmpty(FeatureHelper.Get(f_c, "ZRZH", "")) + "BDCDYH like '" + id + "____'", FeatureHelper.TABLE_ATTR_ORID_PATH, id.length(), 0, id + "0000", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 String id = "";
@@ -397,9 +397,9 @@ public class FeatureViewC extends FeatureView {
                     int count = AiUtil.GetValue(objects[1], 0) + 1;
                     id = StringUtil.fill(String.format("%04d", count), maxid, true);
                 }
-                final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
+                final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
                 mapInstance.featureView.fillFeature(feature_new_qlr, f_c);
-                feature_new_qlr.getAttributes().put("BDCDYH", id);
+                feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, id);
 
                 MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
                     @Override
@@ -568,14 +568,14 @@ public class FeatureViewC extends FeatureView {
                         MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.FTQK_TABLE_NAME), StringUtil.WhereByIsEmpty(orid_bdc) + " FTQX_ID= '" + orid_bdc + "' ", -1, fs_ftqk, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.LJZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_c, "ORID_PATH", ""), FeatureConstants.LJZ_TABLE_NAME) + "' ", "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
+                                MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.LJZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_c, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureConstants.LJZ_TABLE_NAME) + "' ", "LJZH", "asc", -1, fs_ljz, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.ZRZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_c, "ORID_PATH", ""), FeatureConstants.ZRZ_TABLE_NAME) + "' ", "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
+                                        MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.ZRZ_TABLE_NAME), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID= '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_c, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureConstants.ZRZ_TABLE_NAME) + "' ", "ZRZH", "asc", -1, fs_zrz, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
 //                                                FeatureEditBDC.LoadAllCAndFsToH(mapInstance,fs_zrz.get(0),FeatureHelper.Get(f_c,"SZC",""),fs_c,callback);
-                                                String where = "ORID_PATH like '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_c, "ORID_PATH", ""), FeatureConstants.ZRZ_TABLE_NAME) + "' "
+                                                String where = "ORID_PATH like '" + FeatureHelper.GetOrid(FeatureHelper.Get(f_c, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureConstants.ZRZ_TABLE_NAME) + "' "
                                                         + "and CH='" + FeatureHelper.Get(f_c, "CH", "") + "'";
                                                 MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureConstants.H_TABLE_NAME), where, -1, fs_h, new AiRunnable() {
                                                     @Override
@@ -621,7 +621,7 @@ public class FeatureViewC extends FeatureView {
                 @Override
                 public void run() {
                     try {
-                        String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                        String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                         Map<String, Object> map_ = new LinkedHashMap<>();
                         //  设置系统参数
                         FeatureEditBDC.Put_data_sys(map_);

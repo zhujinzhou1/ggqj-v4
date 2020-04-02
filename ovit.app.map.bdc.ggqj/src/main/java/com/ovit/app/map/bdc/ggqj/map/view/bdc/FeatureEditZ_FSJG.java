@@ -118,7 +118,7 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
                         FeatureHelper.Set(feature, "ZH", "");
                         FeatureHelper.Set(feature, "ZID", "");
                         FeatureHelper.Set(feature, "LJZH", "");
-                        FeatureHelper.Set(feature, "ORID_PATH", "");
+                        FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                         ToastMessage.Send(activity, "保存后，该附属结构将解除与幢的关系！");
                     }
                 });

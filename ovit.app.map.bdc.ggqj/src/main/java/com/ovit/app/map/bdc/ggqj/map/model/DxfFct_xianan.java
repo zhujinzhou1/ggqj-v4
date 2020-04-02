@@ -166,7 +166,7 @@ public class DxfFct_xianan {
             // 单元格2-2
             x_ = x_ + w * 1 / 10+w*1/40;
             Envelope cel_2_2 = new Envelope(x_, y_, x_ + w * 1 / 4, y_ - h, p_extend.getSpatialReference());
-            write(dxf, cel_2_2, DxfHelper.LINETYPE_SOLID_LINE, Get(f_zd, "ZDDM", ""), o_fontsize, DxfHelper.FONT_WIDTH_ONE, o_fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
+            write(dxf, cel_2_2, DxfHelper.LINETYPE_SOLID_LINE, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), o_fontsize, DxfHelper.FONT_WIDTH_ONE, o_fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
 
             // 单元格2-3
             x_ = x_ + w * 1 / 4;

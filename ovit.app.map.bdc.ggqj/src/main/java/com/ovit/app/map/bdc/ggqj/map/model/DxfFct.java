@@ -147,7 +147,7 @@ public class DxfFct {
             // 单元格2-2
             x_ = x_ + w * 1 / 10;
             Envelope cel_2_2 = new Envelope(x_, y_, x_ + w * 1 / 4, y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_2_2, null, Get(f_zd, "ZDDM", ""), 0.5f, null, false, 0, 0);
+            dxf.write(cel_2_2, null, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), 0.5f, null, false, 0, 0);
 
             // 单元格2-3
             x_ = x_ + w * 1 / 4;

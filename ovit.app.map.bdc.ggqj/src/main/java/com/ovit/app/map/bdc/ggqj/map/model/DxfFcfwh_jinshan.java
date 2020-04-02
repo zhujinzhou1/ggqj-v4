@@ -298,7 +298,7 @@ public class DxfFcfwh_jinshan {
                 // 单元格5-2
                 x_ = x_+w* 1/6;
                 Envelope cel_5_2 = new Envelope(x_,y_,x+w* 1/2,y_-h,envelope.getSpatialReference()) ;
-                String bdcdyh = FeatureHelper.Get(fs_zrz.get(0), "BDCDYH", "");
+                String bdcdyh = FeatureHelper.Get(fs_zrz.get(0), FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                 dxf.write(cel_5_2,null,bdcdyh.contains("F9999")?"F9999":"F0001" ,o_fontsize,o_fontstyle,false, DxfHelper.COLOR_BYLAYER,0);
 
                 // 单元格5-3

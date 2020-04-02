@@ -137,7 +137,7 @@ public class FeatureEditZRZ extends FeatureEdit {
                     @Override
                     public void onClick(View v) {
                         ToastMessage.Send(activity, "请选择宗地！");
-                        Layer layer = MapHelper.getLayer(map, "ZD");
+                        Layer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_ZD);
                         mapInstance.setSelectLayer(layer, null, false);
                     }
                 });
@@ -148,7 +148,7 @@ public class FeatureEditZRZ extends FeatureEdit {
                         String zrzh = FeatureHelper.Get(feature, "ZRZH", "");
                         zrzh = StringUtil.substr_last(zrzh, 5);
                         FeatureHelper.Set(feature, "ZRZH", zrzh);
-                        FeatureHelper.Set(feature, "ORID_PATH", "");
+                        FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                         mapInstance.fillFeature(feature);
                         mapInstance.viewFeature(feature);
                         ToastMessage.Send(activity, "与宗地关系已经解除！");
@@ -191,7 +191,7 @@ public class FeatureEditZRZ extends FeatureEdit {
                 setMenuItem(R.id.ll_info);
             }
         });
-        addMenu("逻辑幢", new View.OnClickListener() {
+        addMenu(FeatureHelper.LAYER_NAME_LJZ, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setMenuItem(R.id.ll_ljz);
@@ -239,7 +239,7 @@ public class FeatureEditZRZ extends FeatureEdit {
 //            }
 //        });
 
-        addAction("逻辑幢", R.mipmap.app_map_layer_h, new View.OnClickListener() {
+        addAction(FeatureHelper.LAYER_NAME_LJZ, R.mipmap.app_map_layer_h, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 update(new AiRunnable() {
@@ -271,7 +271,7 @@ public class FeatureEditZRZ extends FeatureEdit {
                     if (t_ != null) {
                         //可以设定不动产单元
                         aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该自然幢共同设定一个不动产单元！");
-                        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog, int which) {
                                 // 加载界面
@@ -288,7 +288,7 @@ public class FeatureEditZRZ extends FeatureEdit {
 
                     } else {
                         aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
-                        aiDialog.setFooterView("取消", "确定", null).show();
+                        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
                     }
 
                     return null;
@@ -296,7 +296,7 @@ public class FeatureEditZRZ extends FeatureEdit {
             });
         } else {
             aiDialog.addContentView("不能设定不动产单元", "自然幢没有与宗地关联，请识别自然幢！");
-            aiDialog.setFooterView("取消", "确定", null).show();
+            aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
         }
 
     }
@@ -350,7 +350,7 @@ public class FeatureEditZRZ extends FeatureEdit {
         if (view_bdcdy == null) {
             ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
             bdcdy_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view,fv.queryChildWhere());
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_QLRXX).buildListView(bdcdy_view,fv.queryChildWhere());
             view_bdcdy = bdcdy_view;
         }
     }
@@ -372,7 +372,7 @@ public class FeatureEditZRZ extends FeatureEdit {
         if (view_ljz == null) {
             ViewGroup ll_ljz_content = (ViewGroup) view.findViewById(R.id.ll_ljz_content);
             ll_ljz_content.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView("LJZ").buildListView(ll_ljz_content, fv.queryChildWhere());
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_LJZ).buildListView(ll_ljz_content, fv.queryChildWhere());
             view_ljz = ll_ljz_content;
         }
     }
@@ -391,7 +391,7 @@ public class FeatureEditZRZ extends FeatureEdit {
         {
             AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "快速生成层")
                     .addContentView("确定要给该自然幢生成层么?", "该操作将根据自然幢的形状给每层都绘制一个层结构。操作不可逆转，请根据需要处理！")
-                    .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
                             fv.c_init(new AiRunnable() {

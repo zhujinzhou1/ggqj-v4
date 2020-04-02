@@ -32,6 +32,7 @@ import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
+import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.ImageUtil;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.StringUtil;
@@ -64,7 +65,7 @@ public class FeatureViewLJZ extends FeatureView {
 
     public static FeatureViewLJZ From(MapInstance mapInstance) {
         FeatureViewLJZ fv = new FeatureViewLJZ();
-        fv.set(mapInstance).set(mapInstance.getTable("LJZ"));
+        fv.set(mapInstance).set(mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ));
         return fv;
     }
 
@@ -83,12 +84,13 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+
     //    绘制逻辑幢
     public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, Feature f, final AiRunnable callback) {
 
-        if (f_p != null && f_p.getFeatureTable() != mapInstance.getTable("ZRZ")) {
+        if (f_p != null && f_p.getFeatureTable() != mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ)) {
             // 如果不是自然幢
-            String orid = mapInstance.getOrid_Match(f, "ZRZ");
+            String orid = mapInstance.getOrid_Match(f, FeatureHelper.TABLE_NAME_ZRZ);
             if (StringUtil.IsNotEmpty(orid)) {
                 CreateFeature(mapInstance, orid, f, callback);
                 return;
@@ -111,7 +113,7 @@ public class FeatureViewLJZ extends FeatureView {
         }
 
         final List<Feature> fs_update = new ArrayList<>();
-        final String zddm = FeatureHelper.Get(f_p, "ZDDM", "");
+        final String zddm = FeatureHelper.Get(f_p, FeatureHelper.TABLE_ATTR_ZDDM, "");
         final String zrzh = FeatureHelper.Get(f_p, "ZRZH", "");
         // 绘图
         fv.drawAndAutoCompelet(feature, fs_update, new AiRunnable(callback) {
@@ -159,7 +161,7 @@ public class FeatureViewLJZ extends FeatureView {
         if (feature_zrz != null) {
             String zrzh = FeatureHelper.Get(feature_zrz, "ZRZH", "");
             FeatureHelper.Set(feature, "ZRZH", zrzh);
-            FeatureHelper.Set(feature, "BDCDYH", FeatureHelper.Get(feature_zrz, "BDCDYH", ""));
+            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_zrz, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
             FeatureHelper.Set(feature, "ZCS", FeatureHelper.Get(feature_zrz, "ZCS", "1"));
         }
         FeatureHelper.Set(feature, "MPH", FeatureHelper.Get(feature, "MPH", getMph(ljzh))); //  门牌号
@@ -183,70 +185,22 @@ public class FeatureViewLJZ extends FeatureView {
                 }
             });
             //提取自然幢
-            boolean isCanDrawDraw = true;//是否可以提取自然幢
-            final List<Feature> fs = new ArrayList<>(mapInstance.features_sel);
-            for (Feature f : fs) {
-                String orid_path = mapInstance.getOrid_Path(f);
-                if (StringUtil.IsNotEmpty(orid_path)) {
-                    isCanDrawDraw = false;
-                    break;
-                }
-            }
+            final List<Feature> fs = mapInstance.getSelFeature();
+            boolean isCanDrawDraw = isCanExtract(fs);
             if (isCanDrawDraw) {
                 mapInstance.addAction(groupname, "提取自然幢", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final AiDialog aiDialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz, "提取自然幢");
-                        aiDialog.addContentView("确定要提取选中的逻辑幢图形合并后，创建自然幢么？", "该操作不会对现有的逻辑幢进行修改，提取自然幢成功后进行关联。")
-                                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        List<Geometry> gs = MapHelper.geometry_get(fs);
-                                        final Geometry g = GeometryEngine.union(gs);
-
-                                        if (g instanceof Polygon) {
-                                            int ps = ((Polygon) g).getParts().size();
-                                            if (ps == 0) {
-                                                aiDialog.setContentView("合并后的图型是空的！").setFooterView(AiDialog.CENCEL, null, null);
-                                                return;
-                                            } else if (ps == 1) {
-                                                aiDialog.setContentView("合并后的图型是一整块，确定要继续提取么？", "接下来将提取成逻辑幢，并关联。");
-                                            } else if (ps > 1) {
-                                                aiDialog.setContentView("合并后的图型并非是一整块，确定要继续提取么？", "合并后的图层可能存在多个圈，根据实际情况选择。");
-                                            }
-                                            final Bitmap bitmap = new MapImage(100, 100).setColor(Color.BLACK).setSw(1).draw(gs).setColor(Color.RED).setSw(2).draw(g).getValue();
-                                            aiDialog.addContentView(aiDialog.getView(bitmap)).setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-
-                                                    Feature f = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ).createFeature();
-                                                    f.setGeometry(g);
-                                                    f.getAttributes().put("ZCS", getMaxFloor(fs, "ZCS"));
-                                                    f.getAttributes().put("FWJG", getZrzStructure(fs));
-                                                    FeatureViewZRZ.CreateFeature(mapInstance, (Feature) null, f, null);
-                                                    ImageUtil.recycle(bitmap);
-                                                    dialog.dismiss();
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
+                        extratGraph(fs, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                mapInstance.canSelectMilu = false; // 设置为单选
+                                return null;
+                            }
+                        });
                     }
                 });
             }
-//                mapInstance.addAction(groupname, "加层", R.mipmap.app_map_h, new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        draw_c(feature, "1", null);
-//                    }
-//                });
-//
-//            mapInstance.addAction(groupname, "画户", R.mipmap.app_map_layer_h, new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    draw_h(feature, "1", null);
-//                }
-//            });
         }
         // 推荐
         mapInstance.addAction(groupname, "画逻辑幢", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
@@ -257,7 +211,7 @@ public class FeatureViewLJZ extends FeatureView {
         });
 
         addActionTY(groupname);
-        addActionPZ(groupname);
+//        addActionPZ(groupname);
         addActionSJ(groupname);
 
         groupname = "操作";
@@ -356,12 +310,12 @@ public class FeatureViewLJZ extends FeatureView {
 
     //region 公有函数
     public void loadCs(List<Feature> fs_c, AiRunnable callback) {
-        String orid_zrzh = mapInstance.getOrid_Match(feature, "ZRZ");
+        String orid_zrzh = mapInstance.getOrid_Match(feature, FeatureHelper.TABLE_NAME_ZRZ);
         List<Feature> fs = new ArrayList<>();
         int szc = FeatureHelper.Get(feature, "SZC", 1);
         int zcs = FeatureHelper.Get(feature, "ZCS", 1);
         String where = " SJC > '" + (szc - 1) + "'  and  SJC < '" + (szc + zcs) + "' ";
-        queryChildFeature("ZRZ_C", orid_zrzh, "", "CH", "", fs, callback);
+        queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ_C, orid_zrzh, "", "CH", "", fs, callback);
     }
 
     // 快速绘制户
@@ -378,7 +332,7 @@ public class FeatureViewLJZ extends FeatureView {
     // 绘制天井
     public void draw_tj(Feature feature, AiRunnable callback) {
         String type = "天井";
-        FeatureLayer layer = MapHelper.getLayer(map, "Z_FSJG", "幢附属结构");
+        FeatureLayer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.LAYER_NAME_Z_FSJG);
         final Feature f = layer.getFeatureTable().createFeature();
         f.getAttributes().put("LC", "1");
         f.getAttributes().put("MC", type);
@@ -387,13 +341,14 @@ public class FeatureViewLJZ extends FeatureView {
         mapInstance.fillFeature(f);
         CreateFeatureHollow(mapInstance, feature, f, "1", callback);
     }
+
     // 实例化户
     public void InitFeatureLjz(final AiRunnable callback) {
         FeaturePojo featurePojo = new FeaturePojo(feature, "BZ");
         List<String> lcs = featurePojo.getLc();
         List<Feature> fs_h = new ArrayList<>();
         for (String lc : lcs) {
-            Feature f_h = mapInstance.getTable("H").createFeature();
+            Feature f_h = mapInstance.getTable(FeatureHelper.TABLE_NAME_H).createFeature();
             f_h.setGeometry(feature.getGeometry());
             FeatureHelper.Set(f_h, "SZC", lc);
             FeatureHelper.Set(f_h, "LJZH", featurePojo.getLjzh());
@@ -405,6 +360,7 @@ public class FeatureViewLJZ extends FeatureView {
         }
         AiRunnable.Ok(callback, fs_h);
     }
+
     // 实例化附属结构
     public void init_fsjg(String fsjg_lx, final String tableName) {
         setFsjgAttribute(fsjg_lx, new AiRunnable() {
@@ -457,6 +413,19 @@ public class FeatureViewLJZ extends FeatureView {
 
     }
 
+    public String getFwjg(String typeName, String key) {
+        String fwjg = DicUtil.dic(mapInstance.activity, typeName, key);
+        return StringUtil.substr(fwjg, "[", "]");
+    }
+
+    public String getFwjg() {
+        String fwjg = DicUtil.dic(mapInstance.activity
+                , "fwjg"
+                , AiUtil.GetValue(feature.getAttributes().get("FWJG1"), ""));
+
+        return StringUtil.substr(fwjg, "[", "]");
+    }
+
     public static void IdentyLJZ_HAndZFSJG(final MapInstance mapInstance, final Feature f_ljz, final AiRunnable callback) {
         String ljzh = FeatureHelper.Get(f_ljz, "ZRZH", "");
         if (StringUtil.IsEmpty(ljzh)) {
@@ -472,9 +441,10 @@ public class FeatureViewLJZ extends FeatureView {
         });
     }
 
+
     ///endregion
 
-    //region 私有函数
+    //region 私有方法
     private void setFsjgAttribute(final String resname, final AiRunnable callback) {
         String desc = "该操作主要是绘制幢附属结构到指定楼层！";
         final Map<String, Object> map = new LinkedHashMap<>();
@@ -486,8 +456,11 @@ public class FeatureViewLJZ extends FeatureView {
         aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
         aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
         aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
-                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc));
-        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc))
+                .addContentView("请输入需要复制到的层数，多层使用“,”、“-”隔开：如：3,5,7 或是 2-7 层")
+                .addContentView("如：3,5,7 将复制到3、5、7层")
+                .addContentView("如：3-7 将复制到3、4、5、6、7层");
+        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 AiRunnable.Ok(callback, aiDialog, map, dataconfig);
@@ -495,8 +468,20 @@ public class FeatureViewLJZ extends FeatureView {
         });
     }
 
+    private boolean isCanExtract(List<Feature> fs) {
+        Boolean flag = true;
+        for (Feature f : fs) {
+            String orid_path = mapInstance.getOrid_Path(f);
+            if (StringUtil.IsNotEmpty(orid_path)) {
+                flag = false;
+            }
+        }
+        return flag;
+    }
+
     /**
      * 附属结构列表
+     *
      * @param view
      */
     private void drawFsjg(final View view) {
@@ -512,9 +497,9 @@ public class FeatureViewLJZ extends FeatureView {
                     @Override
                     public void onClick(View v) {
                         try {
-                            if (v.getId()==R.id.ll_zfsjg_yl){
+                            if (v.getId() == R.id.ll_zfsjg_yl) {
                                 init_fsjg("z_fsjg_lx", FeatureHelper.LAYER_NAME_Z_FSJG);
-                            }else if (v.getId()==R.id.ll_hfsjg_yt){
+                            } else if (v.getId() == R.id.ll_hfsjg_yt) {
                                 init_fsjg("h_fsjg_lx", FeatureHelper.TABLE_NAME_H_FSJG);
                             }
                             command_change(v);
@@ -596,7 +581,7 @@ public class FeatureViewLJZ extends FeatureView {
             }
             ) {
                 public void exec() {
-                    String where_ft = "ftqx_name ='" + FeatureHelper.Get(f_hs.get(postion), "ORID") + "'";
+                    String where_ft = "ftqx_name ='" + FeatureHelper.Get(f_hs.get(postion), FeatureHelper.TABLE_ATTR_ORID) + "'";
                     MapHelper.Query(mapInstance.getTable("分摊情况", "FTQK"), where_ft, new AiRunnable(getNext()) {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -624,6 +609,7 @@ public class FeatureViewLJZ extends FeatureView {
 
         }
     }
+
     // 核算宗地 占地面积、建筑面积
     public void update_Area(final AiRunnable callback) {
         final List<Feature> fs_z_fsjg = new ArrayList<>();
@@ -647,12 +633,14 @@ public class FeatureViewLJZ extends FeatureView {
 
     //region 图形识别
     public void identyH(List<Feature> fs_h, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("H"), feature.getGeometry(), -1, fs_h, callback);
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_H), feature.getGeometry(), -1, fs_h, callback);
     }
+
     // 默认识别保存
     public void identyH(final AiRunnable callback) {
         identyH(true, callback);
     }
+
     // 识别显示结果返回
     public void identyH(final boolean isShow, final AiRunnable callback) {
         final List<Feature> fs_h = new ArrayList<>();
@@ -666,7 +654,7 @@ public class FeatureViewLJZ extends FeatureView {
                     QuickAdapter<Feature> adapter = fv_.getListAdapter(fs_h, 0);
                     AiDialog dialog = AiDialog.get(mapInstance.activity, adapter);
                     dialog.setHeaderView(R.mipmap.app_map_layer_zrz, "识别到" + fs_h.size() + "个户属");
-                    dialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    dialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
                             fv_.fillFeature(fs_h, feature);
@@ -713,11 +701,11 @@ public class FeatureViewLJZ extends FeatureView {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 FeatureViewZ_FSJG fv_ = FeatureViewZ_FSJG.From(mapInstance);
-                Geometry mG=feature.getGeometry();
+                Geometry mG = feature.getGeometry();
                 for (Feature f : fs_z_fsjg) {
                     Geometry bufferHfsjg = GeometryEngine.buffer(f.getGeometry(), 0.02);
                     Geometry g = GeometryEngine.intersection(mG, bufferHfsjg);
-                    if (MapHelper.getArea(mapInstance,g)>1.5*0.02){
+                    if (MapHelper.getArea(mapInstance, g) > 1.5 * 0.02) {
                         fv_.fillFeature(f, feature);
                     }
                 }
@@ -755,6 +743,7 @@ public class FeatureViewLJZ extends FeatureView {
         }.start();
 
     }
+
     // 查询所有逻辑幢，识别户和幢附属
     public static void LaodAllLJZ_IdentyHAndZFSJG(final MapInstance mapInstance, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
@@ -793,7 +782,7 @@ public class FeatureViewLJZ extends FeatureView {
     //转幢附属
     public void featureConversionToZfsjg(final AiRunnable callback) {
         String type = "沿廊";
-        FeatureLayer layer = MapHelper.getLayer(map, "Z_FSJG", "幢附属结构");
+        FeatureLayer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.LAYER_NAME_Z_FSJG);
         final Feature f = layer.getFeatureTable().createFeature();
         //   f.getAttributes().put("ZID", AiUtil.GetValue(feature.getAttributes().get("ZRZH"), ""));
         // f.getAttributes().put("ZH", AiUtil.GetValue(feature.getAttributes().get("ZH"), ""));
@@ -811,10 +800,11 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+
     //转户附属
     public void featureConversionToHfsjg(final AiRunnable callback) {
         String type = "阳台";
-        FeatureLayer layer = MapHelper.getLayer(map, "H_FSJG", "户附属结构");
+        FeatureLayer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_H_FSJG, FeatureHelper.LAYER_NAME_H_FSJG);
         final Feature f = layer.getFeatureTable().createFeature();
 //                                f.getAttributes().put("HID",AiUtil.GetValue(featureH.getAttributes().get("ID"),""));
 //                                f.getAttributes().put("HH",AiUtil.GetValue(featureH.getAttributes().get("HH"),""));
@@ -880,6 +870,49 @@ public class FeatureViewLJZ extends FeatureView {
 
     public void loadByLjzh(String ljzh, AiRunnable callback) {
         MapHelper.QueryOne(table, StringUtil.WhereByIsEmpty(ljzh) + " LJZH like '%'" + ljzh + "%' ", callback);
+    }
+
+    /**
+     * 通过逻辑幢提取自然幢
+     *
+     * @param fs_ljz   逻辑幢Feature集合
+     * @param callback 提取自然幢成功后回调
+     */
+    private void extratGraph(final List<Feature> fs_ljz, final AiRunnable callback) {
+        final AiDialog aiDialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz, "提取自然幢");
+        aiDialog.addContentView("确定要提取选中的逻辑幢图形合并后，创建自然幢么？", "该操作不会对现有的逻辑幢进行修改，提取自然幢成功后进行关联。")
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        List<Geometry> gs = MapHelper.geometry_get(fs_ljz);
+                        final Geometry g = GeometryEngine.union(gs);
+
+                        if (g instanceof Polygon) {
+                            int ps = ((Polygon) g).getParts().size();
+                            if (ps == 0) {
+                                aiDialog.setContentView("合并后的图型是空的！").setFooterView(AiDialog.CENCEL, null, null);
+                                return;
+                            } else if (ps == 1) {
+                                aiDialog.setContentView("合并后的图型是一整块，确定要继续提取么？", "接下来将提取成逻辑幢，并关联。");
+                            } else if (ps > 1) {
+                                aiDialog.setContentView("合并后的图型并非是一整块，确定要继续提取么？", "合并后的图层可能存在多个圈，根据实际情况选择。");
+                            }
+                            final Bitmap bitmap = new MapImage(100, 100).setColor(Color.BLACK).setSw(1).draw(gs).setColor(Color.RED).setSw(2).draw(g).getValue();
+                            aiDialog.addContentView(aiDialog.getView(bitmap)).setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Feature f = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ).createFeature();
+                                    f.setGeometry(g);
+                                    f.getAttributes().put("ZCS", getMaxFloor(fs_ljz, "ZCS"));
+                                    f.getAttributes().put("FWJG", getZrzStructure(fs_ljz));
+                                    ImageUtil.recycle(bitmap);
+                                    dialog.dismiss();
+                                    FeatureViewZRZ.CreateFeature(mapInstance, (Feature) null, f, callback);
+                                }
+                            });
+                        }
+                    }
+                });
     }
 
     ///endregion

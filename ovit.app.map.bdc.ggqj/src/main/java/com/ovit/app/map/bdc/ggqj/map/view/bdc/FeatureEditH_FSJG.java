@@ -129,7 +129,7 @@ public class FeatureEditH_FSJG extends FeatureEdit {
                         feature.getAttributes().put("ID", "");
                         feature.getAttributes().put("HH", "");
                         feature.getAttributes().put("HID", "");
-                        feature.getAttributes().put("ORID_PATH", "");
+                        feature.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                         ToastMessage.Send(activity, "保存后，该附属结构将解除与户的关系！");
                     }
                 });
@@ -192,7 +192,7 @@ public class FeatureEditH_FSJG extends FeatureEdit {
 
     //region 公有函数
     public static FeatureTable GetTable(MapInstance mapInstance) {
-        return MapHelper.getLayer(mapInstance.map, "H_FSJG", "户附属结构").getFeatureTable();
+        return MapHelper.getLayer(mapInstance.map, FeatureHelper.TABLE_NAME_H_FSJG, FeatureHelper.LAYER_NAME_H_FSJG).getFeatureTable();
     }
 
     public static void LoadAll(final MapInstance mapInstance, Feature f, final List<Feature> fs, AiRunnable callback) {
@@ -200,11 +200,11 @@ public class FeatureEditH_FSJG extends FeatureEdit {
     }
 
     public static void LoadAll(final MapInstance mapInstance, String orid, final List<Feature> fs, AiRunnable callback) {
-        mapInstance.newFeatureView().queryChildFeature("H_FSJG", orid, "ID", "asc", fs, callback);
+        mapInstance.newFeatureView().queryChildFeature(FeatureHelper.TABLE_NAME_H_FSJG, orid, "ID", "asc", fs, callback);
     }
 
     public static void Load(MapInstance mapInstance, String orid, final AiRunnable callback) {
-        mapInstance.newFeatureView().findFeature("H_FSJG", orid, callback);
+        mapInstance.newFeatureView().findFeature(FeatureHelper.TABLE_NAME_H_FSJG, orid, callback);
     }
 
     // 获取id
@@ -253,8 +253,8 @@ public class FeatureEditH_FSJG extends FeatureEdit {
         } else {
             feature = feature_fsjg;
         }
-        if (featureH != null && featureH.getFeatureTable() != mapInstance.getTable("H")) {
-            String orid = mapInstance.getOrid_Match(feature, "H");
+        if (featureH != null && featureH.getFeatureTable() != mapInstance.getTable(FeatureHelper.TABLE_NAME_H)) {
+            String orid = mapInstance.getOrid_Match(feature, FeatureHelper.TABLE_NAME_H);
             if (StringUtil.IsNotEmpty(orid)) {
                 CreateFeature(mapInstance, orid, feature, lc, callback);
                 return;
@@ -312,7 +312,7 @@ public class FeatureEditH_FSJG extends FeatureEdit {
                     for (Feature f : features_hfsjg) {
                         final String f_id = FeatureHelper.Get(f, "ID", "");
                         final String f_hid = FeatureHelper.Get(f, "HID", "");
-                        final String orid_path = FeatureHelper.Get(f, "ORID_PATH", "");
+                        final String orid_path = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                         final String f_hh = FeatureHelper.Get(f, "HH", "");
                         int f_lc = FeatureHelper.Get(f, "LC", 0);
                         double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
@@ -360,10 +360,10 @@ public class FeatureEditH_FSJG extends FeatureEdit {
     public static void IdentyH_FSJG_(final MapInstance mapInstance, final Feature f_h, final AiRunnable callback) {
         final String hid = FeatureHelper.Get(f_h, "ID", "");
         final int hch = FeatureHelper.Get(f_h, "SZC", 1);
-        final String orid_path = FeatureHelper.Get(f_h, "ORID_PATH", "");
+        final String orid_path = FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
         String orid = orid_path.substring(orid_path.lastIndexOf("/"));
         String ljzOrid = "";
-        if (orid.contains("LJZ")) {
+        if (orid.contains(FeatureHelper.TABLE_NAME_LJZ)) {
             ljzOrid = orid;
         }
         final List<Feature> features_hfsjg = new ArrayList<Feature>();
@@ -381,7 +381,7 @@ public class FeatureEditH_FSJG extends FeatureEdit {
                     final String f_id = FeatureHelper.Get(f, "ID", "");
                     final String f_hid = FeatureHelper.Get(f, "HID", "");
                     final String f_hh = FeatureHelper.Get(f, "HH", "");
-                    final String f_orid = FeatureHelper.Get(f, "ORID_PATH", "");
+                    final String f_orid = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                     if (TextUtils.isEmpty(f_orid) || !f_orid.contains("/")) {
                         break;
                     }
@@ -477,7 +477,7 @@ public class FeatureEditH_FSJG extends FeatureEdit {
             }
         });
 
-//            MapHelper.Query(GetTable(mapInstance,"H_FSJG", "户附属结构"), StringUtil.WhereByIsEmpty(hid)+" HID ='" + hid + "' ", 0, features, new AiRunnable() {
+//            MapHelper.Query(GetTable(mapInstance,"H_FSJG", FeatureHelper.LAYER_NAME_H_FSJG), StringUtil.WhereByIsEmpty(hid)+" HID ='" + hid + "' ", 0, features, new AiRunnable() {
 //                @Override
 //                public <T_> T_ ok(T_ t_, Object... objects) {
 //                    QuickAdapter<Feature> adpter = (QuickAdapter<Feature>) ll_list.getTag();
@@ -499,13 +499,13 @@ public class FeatureEditH_FSJG extends FeatureEdit {
                 .addContentView("如：3,5,7 将复制到3、5、7层")
                 .addContentView("如：3-7 将复制到3、4、5、6、7层")
                 .addContentView(aidialog.getEditView("请输入要复制到的楼层", map, "szc"))
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String szc = map.get("szc") + "";
                         final List<Integer> nubs = StringUtil.GetNumbers(szc);
                         aidialog.setContentView("输入的楼层为“" + szc + "”：将复制到" + StringUtil.Join(nubs) + "层");
-                        aidialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                        aidialog.setFooterView("取消", AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 try {

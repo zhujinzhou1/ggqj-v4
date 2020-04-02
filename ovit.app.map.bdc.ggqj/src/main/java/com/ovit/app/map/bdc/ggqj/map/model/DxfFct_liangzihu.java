@@ -133,7 +133,7 @@ public class DxfFct_liangzihu {
             // 单元格1-2
             x_ = x_ + w * 2 / 15;
             Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 4 / 15, y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_1_2, null, Get(f_zd, "ZDDM", ""), 0.5f, null, false, 0, 0);
+            dxf.write(cel_1_2, null, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), 0.5f, null, false, 0, 0);
             // 单元格1-3
             x_ = x_ + w * 4 / 15;
             Envelope cel_1_3 = new Envelope(x_, y_, x_ + w * 2 /15, y_ - h, p_extend.getSpatialReference());
@@ -287,7 +287,7 @@ public class DxfFct_liangzihu {
             x_=e_.getXMin();
             y_=y_-h;
             Envelope cel_02_1 = new Envelope(x_, y_, x_+p_width*2/15, y_-zcs*h, p_extend.getSpatialReference());
-            dxf.write(cel_02_1, null, Get(f_zd,"ZDDM","").substring(12), 0.5f, null, false, 0, 0);
+            dxf.write(cel_02_1, null, Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"").substring(12), 0.5f, null, false, 0, 0);
 
             // 单元格2—2
             x_=x_+p_width*2/15;

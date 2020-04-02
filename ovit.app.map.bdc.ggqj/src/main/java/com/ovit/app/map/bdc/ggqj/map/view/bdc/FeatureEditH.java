@@ -77,7 +77,7 @@ public class FeatureEditH extends FeatureEdit {
     public void init() {
         super.init();
         // 必填字段
-//        requiredFileds.addAll(Arrays.asList(new String[]{"BDCDYH", "ZDDM", "ZRZH", "SZC", "HH", "QLRXM"}));
+//        requiredFileds.addAll(Arrays.asList(new String[]{FeatureHelper.TABLE_ATTR_ORID_PATH, "ZDDM", "ZRZH", "SZC", "HH", "QLRXM"}));
         // 菜单
         menus = new int[]{R.id.ll_info, R.id.ll_zdinfo, R.id.ll_fsjginfo, R.id.ll_ct, R.id.ll_ftqk, R.id.ll_bdcdy};
     }
@@ -338,7 +338,7 @@ public class FeatureEditH extends FeatureEdit {
         if (view_bdcdy == null) {
             ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
             bdcdy_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view, fv.queryChildWhere());
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_QLRXX).buildListView(bdcdy_view, fv.queryChildWhere());
             view_bdcdy = bdcdy_view;
         }
     }
@@ -406,7 +406,7 @@ public class FeatureEditH extends FeatureEdit {
 
     public static void hsmj(Feature feature, MapInstance mapInstance, List<Feature> f_h_fsjgs) {
 //        String id = AiUtil.GetValue(feature.getAttributes().get("ID"));
-        String id = AiUtil.GetValue(feature.getAttributes().get("ORID"));
+        String id = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID));
         Geometry g = feature.getGeometry();
         double area = 0;
         double hsmj = 0;
@@ -417,9 +417,9 @@ public class FeatureEditH extends FeatureEdit {
             }
         }
         for (Feature f : f_h_fsjgs) {
-//            String hid = AiUtil.GetValue(f.getAttributes().get("ORID_PATH"), "");
+//            String hid = AiUtil.GetValue(f.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH), "");
 //            if (id.equals(hid)) {
-            String hid = AiUtil.GetValue(f.getAttributes().get("ORID_PATH"), "");
+            String hid = AiUtil.GetValue(f.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH), "");
             if (hid.contains(id)) {
                 double f_hsmj = AiUtil.GetValue(f.getAttributes().get("HSMJ"), 0d);
                 hsmj += f_hsmj;
@@ -534,7 +534,7 @@ public class FeatureEditH extends FeatureEdit {
             final List<Feature> features_h = new ArrayList<Feature>();
             final List<Feature> features_update = new ArrayList<Feature>();
             final List<Feature> features_save = new ArrayList<Feature>();
-            MapHelper.Query(GetTable(mapInstance, "H", "户"), f_ljz.getGeometry(), features_h, new AiRunnable(callback) {
+            MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H, FeatureHelper.LAYER_NAME_H), f_ljz.getGeometry(), features_h, new AiRunnable(callback) {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     double area = MapHelper.getArea(mapInstance, f_ljz.getGeometry()) * FeatureHelper.Get(f_ljz, "ZCS", 1);
@@ -761,7 +761,7 @@ public class FeatureEditH extends FeatureEdit {
         }
         final List<Feature> features = new ArrayList<Feature>();
         String where = StringUtil.IsEmpty(cs) ? "" : " and SZC='" + cs + "'";
-        mapInstance.newFeatureView().queryChildFeature("H", mapInstance.getOrid(f_ljz), where, "HH", "asc", features, new AiRunnable() {
+        mapInstance.newFeatureView().queryChildFeature(FeatureHelper.TABLE_NAME_H, mapInstance.getOrid(f_ljz), where, "HH", "asc", features, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 QuickAdapter<Feature> adpter = (QuickAdapter<Feature>) ll_list.getTag();
@@ -794,7 +794,7 @@ public class FeatureEditH extends FeatureEdit {
 //                        final ListView lv_list_item = (ListView) helper.getView(R.id.lv_list_item);
                 helper.setText(R.id.tv_name, name);
                 helper.setText(R.id.tv_desc, desc);
-                int color = item.getFeatureTable().getTableName().toUpperCase().equals("H") ? Color.GREEN : Color.GRAY;
+                int color = item.getFeatureTable().getTableName().toUpperCase().equals(FeatureHelper.TABLE_NAME_H) ? Color.GREEN : Color.GRAY;
 //                    Bitmap bm = MapHelper.geometry_icon(item.getGeometry(), 100, 100, color, 5);
                 Bitmap bm = MapHelper.geometry_icon(new Feature[]{f_ljz, item}, 100, 100, new int[]{R.color.app_theme_fore, color}, new int[]{1, 5});
 
@@ -813,7 +813,7 @@ public class FeatureEditH extends FeatureEdit {
                 helper.getView().setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        DialogBuilder.confirm(mapInstance.activity, "提示", "确定要删除改图形么？", null, "确定", new DialogInterface.OnClickListener() {
+                        DialogBuilder.confirm(mapInstance.activity, "提示", "确定要删除改图形么？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 MapHelper.deleteFeature(item, new AiRunnable() {
@@ -825,7 +825,7 @@ public class FeatureEditH extends FeatureEdit {
                                     }
                                 });
                             }
-                        }, "取消", null).show();
+                        }, AiDialog.CENCEL, null).show();
                         return true;
                     }
                 });
@@ -842,7 +842,7 @@ public class FeatureEditH extends FeatureEdit {
                 final AiDialog aidialog = AiDialog.get(mapinstance.activity);
                 aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "")
                         .setContentView("注意：属于不可逆操作，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // 完成后的回掉
@@ -850,21 +850,21 @@ public class FeatureEditH extends FeatureEdit {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null, "关闭", null);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
                                         return null;
                                     }
 
                                     @Override
                                     public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据失败！");
-                                        aidialog.setFooterView(null, "关闭", null);
+                                        aidialog.addContentView(AiRunnable.NO);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
                                         return null;
                                     }
 
                                     @Override
                                     public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据异常！");
-                                        aidialog.setFooterView(null, "关闭", null);
+                                        aidialog.addContentView(AiRunnable.ERROR);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
                                         return null;
                                     }
                                 };
@@ -882,7 +882,7 @@ public class FeatureEditH extends FeatureEdit {
                                 final String where = " QTGSD = '" + value + "' or  QTGSX = '" + value + "'or  QTGSN = '" + value + "'or  QTGSB = '" + value + "'";
                                 //" QTGSD = '" + qlrxm + "' or  ZJH = '" + qlrzjh + "'  "
                                 //String where=" QTGSD = '共有墙' or  QTGSX = '共有墙' or  QTGSN = '共有墙' or  QTGSB = '共有墙' ";
-                                MapHelper.Query(FeatureEdit.GetTable(mapinstance, "H", "户"), "", -1, fs_h, new AiRunnable() {
+                                MapHelper.Query(FeatureEdit.GetTable(mapinstance, FeatureHelper.TABLE_NAME_H, FeatureHelper.LAYER_NAME_H), "", -1, fs_h, new AiRunnable() {
 
                                     void zljc_h(final List<Feature> fs, final int i, final AiRunnable identy_callback) {
                                         if (fs.size() > i) {
@@ -968,11 +968,11 @@ public class FeatureEditH extends FeatureEdit {
         final List<Feature> fs_zd = new ArrayList<>();
         Feature f_zd = null;
         final Feature f_zrz = null;
-        MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, "ZD", "宗地"), "ZDDM='" + FeatureHelper.Get(feature, "ZDDM") + "'", new AiRunnable() {
+        MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "ZDDM='" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM) + "'", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 final Feature f_zd = (Feature) objects[0];
-                MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, "ZRZ", "自然幢"), "ZRZH='" + FeatureHelper.Get(feature, "ZRZH") + "'", new AiRunnable() {
+                MapHelper.QueryOne(MapHelper.getTable(mapInstance.map, FeatureHelper.TABLE_NAME_ZRZ, FeatureHelper.LAYER_NAME_ZRZ), "ZRZH='" + FeatureHelper.Get(feature, "ZRZH") + "'", new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         fs_zd.add(f_zd);
@@ -998,7 +998,7 @@ public class FeatureEditH extends FeatureEdit {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     String id = t_ + "";
-                    final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
+                    final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
 
                     feature_new_qlr.getAttributes().put("QLRDM", id);
                     feature_new_qlr.getAttributes().put("YHZGX", "户主");
@@ -1007,7 +1007,7 @@ public class FeatureEditH extends FeatureEdit {
                     feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature_h, "QLRZJZL"));
                     feature_new_qlr.getAttributes().put("DZ", FeatureHelper.Get(feature_h, "QLRTXDZ"));
                     feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature_h, "QLRDH"));
-                    feature_new_qlr.getAttributes().put("ORID_PATH", FeatureHelper.Get(feature_h, "ORID") + "/"); //关联权利人和户
+                    feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_h, FeatureHelper.TABLE_ATTR_ORID) + "/"); //关联权利人和户
                     mapInstance.featureView.fillFeature(feature_new_qlr);
 
                     //拷贝资料

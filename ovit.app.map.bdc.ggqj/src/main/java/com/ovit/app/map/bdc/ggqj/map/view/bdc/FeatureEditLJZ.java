@@ -13,6 +13,7 @@ import com.esri.arcgisruntime.data.Feature;
 import com.ovit.R;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
+import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.ai.component.custom.CustomImagesView;
 import com.ovit.app.ui.dialog.AiDialog;
@@ -20,7 +21,9 @@ import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
+import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
+import com.ovit.app.util.StringUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -278,6 +281,7 @@ public class FeatureEditLJZ extends FeatureEdit {
     @Override
     public void update(final AiRunnable callback) {
         try {
+            FeatureHelper.Set(feature,"FWJG",fv.getFwjg());
             super.update(callback);
         } catch (Exception es) {
             ToastMessage.Send(activity, "更新属性失败!", TAG, es);
@@ -314,7 +318,7 @@ public class FeatureEditLJZ extends FeatureEdit {
         {
             AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "快速绘制户")
                     .addContentView("确定要给该逻辑幢绘制户么?", "该操作将根据逻辑幢的形状给每一层都绘制一个户。操作不可逆转，请根据需要处理！")
-                    .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
                             fv.h_init(new AiRunnable() {
@@ -337,7 +341,7 @@ public class FeatureEditLJZ extends FeatureEdit {
     private void clearAll() {
         AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "清除所有的户和附属")
                 .addContentView("确定要清除该逻辑幢所有的户么?", "该操作将根据逻辑幢的所有的户和幢的附属结构。操作不可逆转，请根据需要处理！")
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mapInstance.newFeatureView().delChildFeature("H,H_FSJG,Z_FSJG".split(","), feature, new AiRunnable() {
@@ -358,7 +362,7 @@ public class FeatureEditLJZ extends FeatureEdit {
         AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "绘制天井")
                 .addContentView("确定要绘制天井么，建议绘制完成户后再绘制天井（该操作不可逆）",
                         "绘制天井时，会挖空天井范围内所有幢、户、附属的图形，建议绘制完户相关结构后最后绘制天井。操作不可逆转，请谨慎处理！")
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         fv.draw_tj(feature, new AiRunnable() {
@@ -376,7 +380,7 @@ public class FeatureEditLJZ extends FeatureEdit {
 
     // 逻辑幢转为幢附属结构
     private void conversionToZfsjg() {
-        DialogBuilder.confirm(activity, "图形转换提示", "确定要转幢附属结构？幢附属结构根据（全、半、无）三类去核算建筑面积。", null, "确定", new DialogInterface.OnClickListener() {
+        DialogBuilder.confirm(activity, "图形转换提示", "确定要转幢附属结构？幢附属结构根据（全、半、无）三类去核算建筑面积。", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 fv.featureConversionToZfsjg(new AiRunnable() {
@@ -388,13 +392,13 @@ public class FeatureEditLJZ extends FeatureEdit {
                     }
                 });
             }
-        }, "取消", null).show();
+        }, AiDialog.CENCEL, null).show();
 
     }
 
     // 逻辑幢转为户附属结构
     private void conversionToHfsjg() {
-        DialogBuilder.confirm(activity, "图形转换提示", "确定要转幢附属结构？幢附属结构根据（全、半、无）三类去核算建筑面积。", null, "确定", new DialogInterface.OnClickListener() {
+        DialogBuilder.confirm(activity, "图形转换提示", "确定要转幢附属结构？幢附属结构根据（全、半、无）三类去核算建筑面积。", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 fv.featureConversionToHfsjg(new AiRunnable() {
@@ -406,7 +410,7 @@ public class FeatureEditLJZ extends FeatureEdit {
                     }
                 });
             }
-        }, "取消", null).show();
+        }, AiDialog.CENCEL, null).show();
     }
 
     // 分户信息
@@ -462,7 +466,7 @@ public class FeatureEditLJZ extends FeatureEdit {
         aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
         aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
                 .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc));
-        aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+        aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 AiRunnable.Ok(callback, aiDialog, map, dataconfig);

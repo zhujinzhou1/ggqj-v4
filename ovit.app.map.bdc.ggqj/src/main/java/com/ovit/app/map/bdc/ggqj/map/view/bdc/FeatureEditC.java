@@ -147,11 +147,11 @@ public class FeatureEditC extends FeatureEdit {
     }
 
     public static void LoadAll(final MapInstance mapInstance, String orid, final List<Feature> fs, AiRunnable callback) {
-        mapInstance.newFeatureView().queryChildFeature("ZRZ_C", orid, "SJC", "asc", fs, callback);
+        mapInstance.newFeatureView().queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ_C, orid, "SJC", "asc", fs, callback);
     }
 
     public static void Load(MapInstance mapInstance, String orid, final AiRunnable callback) {
-        mapInstance.newFeatureView().findFeature("ZRZ_C", orid, callback);
+        mapInstance.newFeatureView().findFeature(FeatureHelper.TABLE_NAME_ZRZ_C, orid, callback);
     }
 
     public static void Load_FsAndH_GroupbyC(final MapInstance mapInstance, Feature feature, final LinkedHashMap<String, List<Feature>> keys, final AiRunnable callback) {
@@ -618,15 +618,15 @@ public class FeatureEditC extends FeatureEdit {
         switch (mode) {
             case "CJZMJ": {
                 for (Feature feature : features) {
-                    if (feature.getFeatureTable().getTableName().equals("H")) {
+                    if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_H)) {
 
                         result = result.add(new BigDecimal(StringUtil.IsEmpty(FeatureHelper.Get(feature, "YCJZMJ")) ? "0" : FeatureHelper.Get(feature, "YCJZMJ", "")));
 
-                    } else if (feature.getFeatureTable().getTableName().equals("H_FSJG")) {
+                    } else if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_H_FSJG)) {
 
                         result = result.add(new BigDecimal(StringUtil.IsEmpty(FeatureHelper.Get(feature, "HSMJ")) ? "0" : FeatureHelper.Get(feature, "HSMJ", "")));
 
-                    } else if (feature.getFeatureTable().getTableName().equals("Z_FSJG")) {
+                    } else if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_Z_FSJG)) {
 
                         result = result.add(new BigDecimal(StringUtil.IsEmpty(FeatureHelper.Get(feature, "HSMJ")) ? "0" : FeatureHelper.Get(feature, "HSMJ", "")));
                     }
@@ -635,7 +635,7 @@ public class FeatureEditC extends FeatureEdit {
             }
             case "CFTJZMJ": {
                 for (Feature feature : features) {
-                    if (feature.getFeatureTable().getTableName().equals("H")) {
+                    if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_H)) {
                         result = result.add(new BigDecimal(StringUtil.IsEmpty(FeatureHelper.Get(feature, "SCFTJZMJ")) ? "0" : FeatureHelper.Get(feature, "SCFTJZMJ").toString()));
                     }
                 }
@@ -647,7 +647,7 @@ public class FeatureEditC extends FeatureEdit {
 
     //根据自然幢提取 ZRZ_C feature 20180820
     public static void extractZRZ_C(final MapInstance mapInstance, final Feature feature, final boolean save, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("ZRZ_C"), "ORID_PATH like '%" + FeatureHelper.Get(feature, "ORID") + "%'", new AiRunnable() {
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C), "ORID_PATH like '%" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID) + "%'", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 MapHelper.deleteFeature((List<Feature>) t_, new AiRunnable() {
@@ -659,7 +659,7 @@ public class FeatureEditC extends FeatureEdit {
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 final LinkedHashMap<Feature, List<Feature>> features_c = new LinkedHashMap();
                                 for (Map.Entry<String, List<Feature>> zrz_c : zrz_c_s) {
-                                    Feature feature_c = mapInstance.getTable("ZRZ_C").createFeature();
+                                    Feature feature_c = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C).createFeature();
                                     mapInstance.fillFeature(feature_c, feature);
                                     FeatureHelper.Set(feature_c, "CH", zrz_c.getKey());
                                     FeatureHelper.Set(feature_c, "SJC", zrz_c.getKey());
@@ -722,7 +722,7 @@ public class FeatureEditC extends FeatureEdit {
                                     FeatureHelper.Set(feature_c, "CFTJZMJ", calcuZrzcMj(zrz_c.getValue(), "CFTJZMJ"));
                                     List<Feature> featuresH = new ArrayList<>();
                                     for (Feature feature : zrz_c.getValue()) {
-                                        if ("H".equals(feature.getFeatureTable().getTableName())) {
+                                        if (FeatureHelper.TABLE_NAME_H.equals(feature.getFeatureTable().getTableName())) {
                                             featuresH.add(feature);
                                         }
                                     }
@@ -817,7 +817,7 @@ public class FeatureEditC extends FeatureEdit {
     }
 
     public static void loadZrzc(final MapInstance mapInstance, final Feature featureZrz, final ViewGroup zrzc_view, final AiRunnable callback) {
-        MapHelper.Query(mapInstance.getTable("ZRZ_C"), "ORID_PATH like '%" + FeatureHelper.Get(featureZrz, "ORID") + "%'", new AiRunnable() {
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C), "ORID_PATH like '%" + FeatureHelper.Get(featureZrz, FeatureHelper.TABLE_ATTR_ORID) + "%'", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 List<Feature> featuresC = (List<Feature>) t_;
@@ -858,7 +858,7 @@ public class FeatureEditC extends FeatureEdit {
             }
         };
         {
-            MapHelper.Query(mapInstance.getTable("ZRZ_C"), "ORID_PATH like '%" + FeatureHelper.Get(feature, "ORID") + "%'", new AiRunnable() {
+            MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C), "ORID_PATH like '%" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID) + "%'", new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     MapHelper.deleteFeature((List<Feature>) t_, new AiRunnable() {
@@ -870,7 +870,7 @@ public class FeatureEditC extends FeatureEdit {
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     final List<Feature> featuresC = new ArrayList<>();
                                     for (Map.Entry<String, List<Feature>> zrz_c : zrz_c_s) {
-                                        Feature feature_c = mapInstance.getTable("ZRZ_C").createFeature();
+                                        Feature feature_c = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZRZ_C).createFeature();
                                         mapInstance.fillFeature(feature_c, feature);
                                         FeatureHelper.Set(feature_c, "CH", zrz_c.getKey());
                                         FeatureHelper.Set(feature_c, "SJC", zrz_c.getKey());
@@ -879,7 +879,7 @@ public class FeatureEditC extends FeatureEdit {
                                         FeatureHelper.Set(feature_c, "CFTJZMJ", calcuZrzcMj(zrz_c.getValue(), "CFTJZMJ"));
                                         List<Feature> featuresH = new ArrayList<>();
                                         for (Feature feature : zrz_c.getValue()) {
-                                            if ("H".equals(feature.getFeatureTable().getTableName())) {
+                                            if (FeatureHelper.TABLE_NAME_H.equals(feature.getFeatureTable().getTableName())) {
                                                 featuresH.add(feature);
                                             }
                                         }
@@ -962,7 +962,7 @@ public class FeatureEditC extends FeatureEdit {
         if (view_bdcdy == null) {
             ViewGroup bdcdy_view = (ViewGroup) view.findViewById(R.id.ll_bdcdy_list);
             bdcdy_view.setTag(null); //强制重新生成adapter
-            mapInstance.newFeatureView("QLRXX").buildListView(bdcdy_view, fv.queryChildWhere());
+            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_QLRXX).buildListView(bdcdy_view, fv.queryChildWhere());
             view_bdcdy = bdcdy_view;
         }
     }
@@ -1024,12 +1024,12 @@ public class FeatureEditC extends FeatureEdit {
                                                                     // 将倒数地3、4位，替换位新的层
                                                                     FeatureHelper.Set(f_, "HH", text_replace_lc(FeatureHelper.Get(f, "HH", ""), lc_f, szc));
                                                                     FeatureHelper.Set(f_, "HID", text_replace_lc(FeatureHelper.Get(f, "HH", ""), lc_f, szc));
-                                                                    FeatureHelper.Set(f_, "BDCDYH", text_replace_lc(FeatureHelper.Get(f, "BDCDYH", ""), lc_f, szc));
+                                                                    FeatureHelper.Set(f_, FeatureHelper.TABLE_ATTR_ORID_PATH, text_replace_lc(FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), lc_f, szc));
                                                                     FeatureHelper.Set(f_, "FWDM", text_replace_lc(FeatureHelper.Get(f, "FWDM", ""), lc_f, szc));
 
                                                                     if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.H_FSJG_TABLE_NAME)) {
                                                                         FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc, 8));
-                                                                        FeatureHelper.Set(f_, "ORID_PATH", "");
+                                                                        FeatureHelper.Set(f_, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                                                                     } else if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.Z_FSJG_TABLE_NAME)) {
                                                                         FeatureHelper.Set(f_, "ID", text_replace_lc(FeatureHelper.Get(f, "ID", ""), lc_f, szc));
                                                                     } else if (f_.getFeatureTable().getTableName().equalsIgnoreCase(FeatureConstants.H_TABLE_NAME)) {

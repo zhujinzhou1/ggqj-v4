@@ -100,7 +100,7 @@ public class FeatureViewBZ_TY extends FeatureView {
                 public void onClick(View v) {
                     AiDialog.get(mapInstance.activity).setHeaderView("删除提示")
                             .setContentView("确定删除么？", "该操作不可恢复")
-                            .setFooterView("取消", "删除", new DialogInterface.OnClickListener() {
+                            .setFooterView(AiDialog.CENCEL, AiDialog.DELETE, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     MapHelper.deleteFeature(feature, null);

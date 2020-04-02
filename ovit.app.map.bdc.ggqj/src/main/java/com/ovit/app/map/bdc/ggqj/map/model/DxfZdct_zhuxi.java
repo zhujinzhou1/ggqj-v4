@@ -156,7 +156,7 @@ public class DxfZdct_zhuxi {
             // 单元格1-2
             x_ = x_ + w * 3 / 15;
             Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 4 / 15, y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_1_2, DxfHelper.LINETYPE_SOLID_LINE, Get(f_zd, "ZDDM", ""), o_fontsize, o_fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
+            dxf.write(cel_1_2, DxfHelper.LINETYPE_SOLID_LINE, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), o_fontsize, o_fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
             // 单元格1-3
             x_ = x_ + w * 4/ 15;
             Envelope cel_1_3 = new Envelope(x_, y_, x_ + w * 3 /15, y_ - h, p_extend.getSpatialReference());

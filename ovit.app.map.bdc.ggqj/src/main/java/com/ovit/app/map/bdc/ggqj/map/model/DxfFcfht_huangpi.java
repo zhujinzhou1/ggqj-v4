@@ -239,7 +239,7 @@ public class DxfFcfht_huangpi {
                     // 单元格1-2
                     x_ = x_ + w * 2/ 18;
                     Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 11 / 18, y_ - h, p_extend.getSpatialReference());
-                    dxf.write(cel_1_2, DxfHelper.LINETYPE_SOLID_LINE, Get(f_zd, "ZDDM", ""), o_fontsize,  DxfHelper.FONT_STYLE_SONGTI, false, DxfHelper.COLOR_BYLAYER, 0);
+                    dxf.write(cel_1_2, DxfHelper.LINETYPE_SOLID_LINE, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), o_fontsize,  DxfHelper.FONT_STYLE_SONGTI, false, DxfHelper.COLOR_BYLAYER, 0);
                     // 单元格1-3
                     x_ = x_ + w * 11 / 18;
                     Envelope cel_1_3 = new Envelope(x_, y_, x_ + w * 3 /18, y_ - h, p_extend.getSpatialReference());

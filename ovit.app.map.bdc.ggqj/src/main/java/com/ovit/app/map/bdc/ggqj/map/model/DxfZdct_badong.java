@@ -190,7 +190,7 @@ public class DxfZdct_badong {
 
 
             List<Feature> fs=new ArrayList<>();
-            String zddm= FeatureHelper.Get(f_zd,"ZDDM","");
+            String zddm= FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"");
             fs.addAll(fs_jzd);
             fs.add(f_zd);
             for (Feature f_zrz : fs_zrz) {
@@ -211,7 +211,7 @@ public class DxfZdct_badong {
                  }
             }
             for (Feature f_zd : fs_zd) {
-                if (!FeatureHelper.Get(f_zd,"ZDDM","").contains(zddm)) {
+                if (!FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"").contains(zddm)) {
                     Geometry g = MapHelper.geometry_get(f_zd.getGeometry(), spatialReference);
                     Point p = GeometryEngine.labelPoint((Polygon) g);
                     float ft = 0.5f;

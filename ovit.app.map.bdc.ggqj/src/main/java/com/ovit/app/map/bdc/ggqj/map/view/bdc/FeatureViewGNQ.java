@@ -33,7 +33,7 @@ public class FeatureViewGNQ extends FeatureView {
     public void fillFeature(Feature feature, Feature feature_zd){
         super.fillFeature(feature,feature_zd);
         if(feature_zd!=null) {
-            String zddm = FeatureHelper.Get(feature_zd, "ZDDM", "");
+            String zddm = FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
             String zrzh = FeatureHelper.Get(feature, "ZRZH", "");
             zrzh = zddm + StringUtil.substr(zrzh, zddm.length());
             FeatureHelper.Set(feature, "ZRZH", zrzh);
@@ -87,12 +87,12 @@ public class FeatureViewGNQ extends FeatureView {
                 boolean flag = ll_list_item.getVisibility() == View.VISIBLE;
                 if (!flag) {
                     final List<Feature> fs = new ArrayList<>();
-                    queryChildFeature("LJZ", item, fs, new AiRunnable() {
+                    queryChildFeature(FeatureHelper.TABLE_NAME_LJZ, item, fs, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
                             List<Feature> fs_p = new ArrayList<>();
                             fs_p.add(item);
-                            mapInstance.newFeatureView("LJZ").buildListView(ll_list_item,fs,deep+1);
+                            mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_LJZ).buildListView(ll_list_item,fs,deep+1);
                             return  null;
                         }
                     });

@@ -148,8 +148,8 @@ public class FeatureEditZD extends FeatureEdit {
             }
             feature.getAttributes().put("GLBLC", "1:" + scale);
             mapInstance.fillFeature(feature);
-            old_bdcdyh = FeatureHelper.Get(feature, "BDCDYH", "");
-            old_zddm = FeatureHelper.Get(feature, "ZDDM", "");
+            old_bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+            old_zddm = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
             old_qlrxm = FeatureHelper.Get(feature, "QLRXM", "");
             old_qlrzjh = FeatureHelper.Get(feature, "QLRZJH", "");
             // 填充控件
@@ -434,7 +434,7 @@ public class FeatureEditZD extends FeatureEdit {
                 setMenuItem(R.id.ll_info);
             }
         });
-        addMenu("自然幢", new View.OnClickListener() {
+        addMenu(FeatureHelper.LAYER_NAME_ZRZ, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setMenuItem(R.id.ll_zrz);
@@ -522,7 +522,7 @@ public class FeatureEditZD extends FeatureEdit {
     //region 公用方法
 
     public static String GetID(Feature feature) {
-        return FeatureHelper.Get(feature, "ZDDM", "");
+        return FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
     }
 
     //通过ZD创建新权利人，可选是否解除已有关联
@@ -534,7 +534,7 @@ public class FeatureEditZD extends FeatureEdit {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     String id = t_ + "";
-                    final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
+                    final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
 
                     feature_new_qlr.getAttributes().put("QLRDM", id);
 
@@ -605,7 +605,7 @@ public class FeatureEditZD extends FeatureEdit {
     private void addFtqk() {
         AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "新增宗地分摊")
                 .addContentView("确定要新增宗地分摊吗?", "该操作将根据宗地选择的分摊计算分摊系数！")
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         // 加载界面
@@ -635,7 +635,7 @@ public class FeatureEditZD extends FeatureEdit {
                 if (t_!=null){
                     //可以设定不动产单元
                     aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该宗地上所有定着物共同设定一个不动产单元！");
-                    aiDialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                    aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
                             // 加载界面
@@ -661,7 +661,7 @@ public class FeatureEditZD extends FeatureEdit {
 
                 }else {
                     aiDialog.addContentView("不能设定不动产单元", (String) objects[0]+"已经设定了不动产单元！");
-                    aiDialog.setFooterView("取消", "确定",null).show();
+                    aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM,null).show();
                 }
 
                 return null;
@@ -670,8 +670,8 @@ public class FeatureEditZD extends FeatureEdit {
     }
 
     private void update_zddm(final AiRunnable callback) {
-        final String bdcdyh = AiUtil.GetValue(feature.getAttributes().get("BDCDYH"), "");
-        final String zddm = AiUtil.GetValue(feature.getAttributes().get("ZDDM"), "");
+        final String bdcdyh = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH), "");
+        final String zddm = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDDM), "");
 
         // 如果不动产单元号或是宗地代码发生变化的 需要级联更新
         if ((bdcdyh != null && !bdcdyh.equals(old_bdcdyh)) || (zddm != null && !zddm.equals(old_zddm))) {
@@ -769,7 +769,7 @@ public class FeatureEditZD extends FeatureEdit {
     private void update_zrzh() {
         final List<Feature> features_zrz = new ArrayList<>();
         String where = StringUtil.WhereByIsEmpty(id) + " ZDDM ='" + id + "'  ";
-        MapHelper.Query(GetTable(mapInstance, "ZRZ", "自然幢"), where, 0, features_zrz, new AiRunnable() {
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ, FeatureHelper.LAYER_NAME_ZRZ), where, 0, features_zrz, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
 
@@ -784,7 +784,7 @@ public class FeatureEditZD extends FeatureEdit {
                 }).show();
 
                 dialog.setHeaderView(R.mipmap.app_icon_folder_blue, "获取到" + features_zrz.size() + "个自然幢");
-                dialog.setFooterView("取消", "修改", new DialogInterface.OnClickListener() {
+                dialog.setFooterView(AiDialog.CENCEL, "修改", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -841,7 +841,7 @@ public class FeatureEditZD extends FeatureEdit {
             String resname = AiUtil.GetValue(et_bz.getContentDescription(), "");
             final CharSequence[] items = DicUtil.getArray(activity, resname);
 //                            final CharSequence[] items = activity.getResources().getTextArray(ResourceUtil.getResourceId(activity, resname, "array"));
-            DialogBuilder.confirm(activity, "权属说明", null, null, "确定", new DialogInterface.OnClickListener() {
+            DialogBuilder.confirm(activity, "权属说明", null, null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     // 确定
@@ -853,7 +853,7 @@ public class FeatureEditZD extends FeatureEdit {
                     }
                     et_bz.setText(text);
                 }
-            }, "取消", null).setMultiChoiceItems(items, checkdItems, new DialogInterface.OnMultiChoiceClickListener() {
+            }, AiDialog.CENCEL, null).setMultiChoiceItems(items, checkdItems, new DialogInterface.OnMultiChoiceClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i, boolean b) {
 
@@ -894,7 +894,10 @@ public class FeatureEditZD extends FeatureEdit {
         }
     }
 
-    //自动计算宗地面积
+    /**
+     * 计算宗地：宗地面积，建筑占地面积，建筑面积
+     * @param v_feature
+     */
     private void hsjzmj(final LinearLayout v_feature) {
         AiDialog.get(activity, "自动计算面积", "是否要重新计算该宗地面积、建筑占地面积、建筑面积么？", null, "否，取消", "是，重新计算", new DialogInterface.OnClickListener() {
             @Override
@@ -902,29 +905,11 @@ public class FeatureEditZD extends FeatureEdit {
                 fv.update_Area(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_FTQK), "FTQX_ID='" + fv.getOrid() + "'", new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                List<Feature> fs = (ArrayList<Feature>) t_;
-                                if (FeatureHelper.isExistElement(fs)) {
-                                    double ftmj = 0.0;
-                                    for (Feature f : fs) {
-                                        ftmj += FeatureHelper.Get(f, "FTJZMJ", 0.0);
-                                    }
-                                    Double jzmj = FeatureHelper.Get(feature, "JZMJ", 0.0);
-                                    double ftxs = ftmj / (jzmj - ftmj);
-                                    FeatureHelper.Set(feature, FeatureViewZD.TABLE_ATTR_FTXS_ZD, ftxs);
-                                    fillView(v_feature, feature, FeatureViewZD.TABLE_ATTR_FTXS_ZD);
-                                }
-                                fillView(v_feature, feature, "ZDMJ");
-                                fillView(v_feature, feature, "JZMJ");
-                                fillView(v_feature, feature, "JZZDMJ");
-                                ToastMessage.Send(activity, "自动计算面积完成！");
-                                dialog.dismiss();
-
-                                return null;
-                            }
-                        });
+                        fillView(v_feature, feature, "ZDMJ");
+                        fillView(v_feature, feature, "JZMJ");
+                        fillView(v_feature, feature, "JZZDMJ");
+                        ToastMessage.Send(activity, "自动计算面积完成！");
+                        dialog.dismiss();
                         return null;
                     }
                 });
@@ -1054,7 +1039,7 @@ public class FeatureEditZD extends FeatureEdit {
         final AiDialog aidialog = AiDialog.get(activity);
         aidialog.setHeaderView(R.mipmap.app_icon_warning_red, "不可逆操作提醒")
                 .addContentView("确定要重新编号么？", desc)
-                .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         fv.newZddm(new AiRunnable() {
@@ -1065,7 +1050,7 @@ public class FeatureEditZD extends FeatureEdit {
                                 map.put("zddm", zddm);
                                 aidialog.setContentView("重新获取的宗地代码为：")
                                         .addContentView(aidialog.getEditView("宗地代码", map, "zddm"))
-                                        .setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                        .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
                                                 et_zddm.setText(AiUtil.GetValue(map.get("zddm")));
