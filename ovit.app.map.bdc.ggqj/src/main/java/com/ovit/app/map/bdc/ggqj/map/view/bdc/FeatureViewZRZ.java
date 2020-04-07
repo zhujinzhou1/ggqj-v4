@@ -76,7 +76,7 @@ public class FeatureViewZRZ extends FeatureView {
             zrzh = zddm + StringUtil.substr(zrzh, zddm.length());
             FeatureHelper.Set(feature, "ZRZH", zrzh);
         }
-        String bdcdyh = FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
+        String bdcdyh = FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_BDCDYH, FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_BDCDYH, ""));
         fillFeature(feature, bdcdyh.endsWith("F99990001"));
     }
 
@@ -215,9 +215,9 @@ public class FeatureViewZRZ extends FeatureView {
         }
 
         if (isF99990001) {
-            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, zddm + "F99990001");
+            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_BDCDYH, zddm + "F99990001");
         } else {
-            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, zrzh + "0000");
+            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_BDCDYH, zrzh + "0001");
         }
         if (StringUtil.IsNotEmpty(zh) && StringUtil.IsEmpty(AiUtil.GetValue(feature.getAttributes().get("JZWMC"), ""))) {
             FeatureHelper.Set(feature, "JZWMC", AiUtil.GetValue(zh, 1) + "");
@@ -435,13 +435,6 @@ public class FeatureViewZRZ extends FeatureView {
             }
         });
     }
-
-
-
-
-
-
-
 
 
     public void loadByZrzh(String zrzh, AiRunnable callback) {

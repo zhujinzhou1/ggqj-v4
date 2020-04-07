@@ -319,6 +319,356 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
         return tool_view;
     }
+    /**
+     * 项目管理
+     *
+     * @return
+     */
+    public View getView_ProjectList() {
+        return MapProject.ListView(mapInstance);
+    }
+
+    public String getName() {
+        return project.getCurrent().NAME;
+    }
+
+    public String getId() {
+        return project.getCurrent().ID;
+    }
+
+    // 智能处理
+    public static void Zlcl(final MapInstance mapInstance) {
+        final String funcdesc = "该功能将逐一对项目中所有宗地进行处理："
+                + "\n 1、宗地范围内幢、户、附属等自动识别；"
+                + "\n 2、重新核算建筑面积；"
+                + "\n 3、重新生成宗地草图、房产图、分层分户图。";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理")
+                        .setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
+                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
+                                        aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                                Cgsc(mapInstance, true);
+                                            }
+                                        }, null, null, "完成", null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView(AiRunnable.NO);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView(AiRunnable.ERROR);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+                                };
+                                // 设置不可中断
+//                                aidialog.setCancelable(false).setFooterView("正在数据处理，可能需要一段时间，暂时不允许操作！");
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据");
+
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并识别幢");
+                                Log.d(TAG, "智能处理:查找所有宗地，并识别幢");
+                                FeatureViewZD.LaodAllZD_IdentyZrz(mapInstance, new AiRunnable(callback) {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗地。");
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有幢，并识别户、幢附属");
+
+//                                        Log.d(TAG, "智能处理:查找所有幢，并识别户、幢附属");
+//                                        FeatureEditZRZ.LaodAllZRZ_IdentyHAndZFSJG(mapInstance, new AiRunnable(callback) {
+//                                            @Override
+//                                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 已完成"+objects[0]+"幢。");
+//                                                aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查找所有户，并识别户附属");
+                                        Log.d(TAG, "智能处理:查找所有户，并识别户附属");
+                                        FeatureEditH.LaodAllH_IdentyHFSJG(mapInstance, new AiRunnable(callback) {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "户。");
+                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，重新算建筑面积");
+                                                Log.d(TAG, "智能处理:查找所有宗地，重新算建筑面积");
+                                                FeatureViewZD.LaodAllZDAndUpdateArea(mapInstance, new AiRunnable(callback) {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗地。");
+                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有幢，重新生成分层分户图");
+                                                        Log.d(TAG, "智能处理:查找所有幢，重新生成分层分户图");
+                                                        FeatureViewZRZ.LaodAllZRZ_CreateFCFHT(mapInstance, new AiRunnable(callback) {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "幢。");
+                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，重新生成宗地草图、房产图");
+                                                                Log.d(TAG, "智能处理:查找所有宗地，重新生成宗地草图、房产图");
+                                                                FeatureViewZD.LaodAllZDCreateCTAddFCT(mapInstance, new AiRunnable(callback) {
+                                                                    @Override
+                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗。");
+                                                                        Log.d(TAG, "智能处理:已完成" + objects[0] + "宗。");
+                                                                        AiRunnable.Ok(callback, null);
+                                                                        return null;
+                                                                    }
+                                                                });
+                                                                return null;
+                                                            }
+                                                        });
+
+                                                        return null;
+                                                    }
+                                                });
+                                                return null;
+                                            }
+                                        });
+//                                                return  null;
+//                                            }
+//                                        });
+                                        return null;
+                                    }
+                                });
+
+
+                            }
+                        }).show();
+                ;
+
+                return null;
+            }
+        });
+    }
+
+    // 成果输出
+    public static void Cgsc(final MapInstance mapinstance, final boolean isReload) {
+        final String funcdesc = "该功能将逐一对项目中所有不动产单元" + (isReload ? "重新" : "") + "生成word成果。";
+        License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapinstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "生成资料")
+                        .setContentView("注意：属于不可逆操作，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
+                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成。");
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView(AiRunnable.NO);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView(AiRunnable.ERROR);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+                                };
+                                // 设置不可中断
+//                                aidialog.setCancelable(false).setFooterView("正在处理中，可能需要一段时间，暂时不允许操作！");
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据");
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
+                                try {
+                                    FeatureEditBDC.LaodALLBDC_CreateDOCX(mapinstance, isReload, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "户。");
+                                            AiRunnable.Ok(callback, null);
+                                            return null;
+                                        }
+                                    });
+                                } catch (Exception e) {
+                                    callback.error(e, "");
+                                }
+
+                            }
+                        }).show();
+
+                return null;
+            }
+        });
+    }
+
+    // 数据检查
+    public void Sjjc(final MapInstance mapinstance) {
+        final String funcdesc = "该功能将逐一对项目中所有宗地的代码进行更新。";
+        License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapinstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "")
+                        .setContentView("注意：属于不可逆操作，请注意备份谨慎处理！", funcdesc)
+                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成。");
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView(AiRunnable.NO);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView(AiRunnable.ERROR);
+                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        return null;
+                                    }
+                                };
+                                // 设置不可中断
+//                                aidialog.setCancelable(false).setFooterView("正在处理中，可能需要一段时间，暂时不允许操作！");
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据");
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并生成资料");
+
+//                                FeatureEditBDC.LaodAlLBDC_CreateDOCX(mapinstance, isReload, new AiRunnable() {
+//                                    @Override
+//                                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                                        aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 已完成"+objects[0]+"宗。");
+//                                        AiRunnable.Ok(callback,null);
+//                                        return  null;
+//                                    } 15527836688
+//                                });
+
+
+                                // 查看列表
+
+                                final List<Feature> fs_zd = new ArrayList<Feature>();
+                                MapHelper.Query(FeatureEdit.GetTable(mapinstance, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", -1, fs_zd, new AiRunnable() {
+
+                                    void zljc_zd(final List<Feature> fs, final int i, final AiRunnable identy_callback) {
+                                        if (fs.size() > i) {
+                                            mapinstance.newFeatureView().load_djzq(fs.get(i).getGeometry(), new AiRunnable() {
+                                                @Override
+                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                    String djzq = t_ + "";
+
+                                                    ZnjcUpdateZd(mapinstance, djzq, fs.get(i), new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            zljc_zd(fs, i + 1, identy_callback);
+                                                            return null;
+                                                        }
+                                                    });
+
+                                                    return null;
+                                                }
+                                            });
+                                        } else {
+                                            AiRunnable.Ok(identy_callback, i);
+                                        }
+                                    }
+
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        zljc_zd(fs_zd, 0, new AiRunnable() {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                AiRunnable.Ok(callback,null);
+//                                                return super.ok(t_, objects);
+                                                AiRunnable.Ok(callback, t_, objects);
+                                                return null;
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                });
+
+
+                            }
+                        }).show();
+                ;
+
+                return null;
+            }
+        });
+    }
+
+    // 智能检测宗地代码
+    public void ZnjcUpdateZd(final MapInstance mapInstance, final String djzq, final Feature f_zd, final AiRunnable callback) {
+        String zddm_zd = (String) f_zd.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDDM);
+        final List<Feature> update_fs = new ArrayList<>();
+        if (djzq.equals(zddm_zd.substring(0, 12))) {
+            MapHelper.saveFeature(update_fs, callback);
+            return;
+        }
+        final List<Feature> f_zrzs = new ArrayList<>();
+        final List<Feature> f_zrz_fsjgs = new ArrayList<>();
+        final List<Feature> f_zrz_hs = new ArrayList<>();
+        final List<Feature> f_zrz_h_fsjgs = new ArrayList<>();
+
+        FeatureView.LoadZ_H_And_Fsjg(mapInstance, f_zd, f_zrzs, f_zrz_fsjgs, f_zrz_hs, f_zrz_h_fsjgs, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                String zddm = djzq + mapInstance.getId(f_zd).substring(12);
+                for (Feature f : f_zrzs) {
+                    String oldDirZrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f));
+                    String bdcdyh_zrz = (String) f.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH);
+
+                    if (!TextUtils.isEmpty(bdcdyh_zrz) && bdcdyh_zrz.length() > 12) {
+                        f.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, djzq + bdcdyh_zrz.substring(12));
+                    }
+                    String zrzh = (String) f.getAttributes().get("ZRZH");
+                    if (!TextUtils.isEmpty(zrzh) && zrzh.length() > 12) {
+                        f.getAttributes().put("ZRZH", djzq + zrzh.substring(12));
+                    }
+                    f.getAttributes().put(FeatureHelper.TABLE_ATTR_ZDDM, zddm);
+                    String newDirZrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f));
+                    FileUtils.renameToNewFile(oldDirZrz, newDirZrz);
+                    update_fs.add(f);
+                }
+
+                String bdcdyh = (String) f_zd.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH);
+                if (!TextUtils.isEmpty(bdcdyh) && bdcdyh.length() > 12) {
+                    f_zd.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, djzq + bdcdyh.substring(12));
+                }
+                String oldDirZD = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd));
+
+                f_zd.getAttributes().put(FeatureHelper.TABLE_ATTR_ZDDM, zddm);
+                String newDirZD = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd));
+                FileUtils.renameToNewFile(oldDirZD, newDirZD);
+                update_fs.add(f_zd);
+                MapHelper.saveFeature(update_fs, callback);
+                return null;
+            }
+        });
+    }
+
     ///endregion
 
     //region 私有函数
@@ -1339,6 +1689,11 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
     }
 
+   ///endregion
+    //region 内部类或接口
+    ///endregion
+
+    //region 导入dxf
     // 导入两权数据
     private void show_lqsj_items() {
 
@@ -1430,7 +1785,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     final int wkid = AiUtil.GetValue(sel_zbx, map.getSpatialReference().getWkid());
 
                                     final String encode = AiUtil.GetValue(dataconfig.get("encode"), "");
-                                     mapStbm = new HashMap<>();
+                                    mapStbm = new HashMap<>();
                                     if (path.toLowerCase().endsWith(".dxf")) {
                                         dialog.setCancelable(false)
                                                 .setFooterView(dialog.getProgressView("正在导入数据..."))
@@ -1573,416 +1928,20 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         }
         return false;
     }
-    ///endregion
-    //region 内部类或接口
-    ///endregion
-
-    /**
-     * 项目管理
-     *
-     * @return
-     */
-    public View getView_ProjectList() {
-        return MapProject.ListView(mapInstance);
-    }
-
-    public String getName() {
-        return project.getCurrent().NAME;
-    }
-
-    public String getId() {
-        return project.getCurrent().ID;
-    }
-
-    // 智能处理
-    public static void Zlcl(final MapInstance mapInstance) {
-        final String funcdesc = "该功能将逐一对项目中所有宗地进行处理："
-                + "\n 1、宗地范围内幢、户、附属等自动识别；"
-                + "\n 2、重新核算建筑面积；"
-                + "\n 3、重新生成宗地草图、房产图、分层分户图。";
-        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
-                aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理")
-                        .setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // 完成后的回掉
-                                final AiRunnable callback = new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
-                                        aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                                Cgsc(mapInstance, true);
-                                            }
-                                        }, null, null, "完成", null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.NO);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.ERROR);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-                                };
-                                // 设置不可中断
-//                                aidialog.setCancelable(false).setFooterView("正在数据处理，可能需要一段时间，暂时不允许操作！");
-                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                aidialog.setContentView("开始处理数据");
-
-                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并识别幢");
-                                Log.d(TAG, "智能处理:查找所有宗地，并识别幢");
-                                FeatureViewZD.LaodAllZD_IdentyZrz(mapInstance, new AiRunnable(callback) {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗地。");
-                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有幢，并识别户、幢附属");
-
-//                                        Log.d(TAG, "智能处理:查找所有幢，并识别户、幢附属");
-//                                        FeatureEditZRZ.LaodAllZRZ_IdentyHAndZFSJG(mapInstance, new AiRunnable(callback) {
-//                                            @Override
-//                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 已完成"+objects[0]+"幢。");
-//                                                aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查找所有户，并识别户附属");
-                                        Log.d(TAG, "智能处理:查找所有户，并识别户附属");
-                                        FeatureEditH.LaodAllH_IdentyHFSJG(mapInstance, new AiRunnable(callback) {
-                                            @Override
-                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "户。");
-                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，重新算建筑面积");
-                                                Log.d(TAG, "智能处理:查找所有宗地，重新算建筑面积");
-                                                FeatureViewZD.LaodAllZDAndUpdateArea(mapInstance, new AiRunnable(callback) {
-                                                    @Override
-                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗地。");
-                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有幢，重新生成分层分户图");
-                                                        Log.d(TAG, "智能处理:查找所有幢，重新生成分层分户图");
-                                                        FeatureViewZRZ.LaodAllZRZ_CreateFCFHT(mapInstance, new AiRunnable(callback) {
-                                                            @Override
-                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "幢。");
-                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，重新生成宗地草图、房产图");
-                                                                Log.d(TAG, "智能处理:查找所有宗地，重新生成宗地草图、房产图");
-                                                                FeatureViewZD.LaodAllZDCreateCTAddFCT(mapInstance, new AiRunnable(callback) {
-                                                                    @Override
-                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗。");
-                                                                        Log.d(TAG, "智能处理:已完成" + objects[0] + "宗。");
-                                                                        AiRunnable.Ok(callback, null);
-                                                                        return null;
-                                                                    }
-                                                                });
-                                                                return null;
-                                                            }
-                                                        });
-
-                                                        return null;
-                                                    }
-                                                });
-                                                return null;
-                                            }
-                                        });
-//                                                return  null;
-//                                            }
-//                                        });
-                                        return null;
-                                    }
-                                });
-
-
-                            }
-                        }).show();
-                ;
-
-                return null;
+    private boolean isLc(String value) {
+        try {
+            if (value.contains(".")){
+                if (Float.parseFloat(value)<99){
+                    return true;
+                }
+            }else {
+                if (Integer.parseInt(value)<99){
+                    return true;
+                }
             }
-        });
-    }
-
-    // 成果输出
-    public static void Cgsc(final MapInstance mapinstance, final boolean isReload) {
-        final String funcdesc = "该功能将逐一对项目中所有不动产单元" + (isReload ? "重新" : "") + "生成word成果。";
-        License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                final AiDialog aidialog = AiDialog.get(mapinstance.activity);
-                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "生成资料")
-                        .setContentView("注意：属于不可逆操作，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // 完成后的回掉
-                                final AiRunnable callback = new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.NO);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.ERROR);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-                                };
-                                // 设置不可中断
-//                                aidialog.setCancelable(false).setFooterView("正在处理中，可能需要一段时间，暂时不允许操作！");
-                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                aidialog.setContentView("开始处理数据");
-                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
-                                try {
-                                    FeatureEditBDC.LaodALLBDC_CreateDOCX(mapinstance, isReload, new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "户。");
-                                            AiRunnable.Ok(callback, null);
-                                            return null;
-                                        }
-                                    });
-                                } catch (Exception e) {
-                                    callback.error(e, "");
-                                }
-
-                            }
-                        }).show();
-
-                return null;
-            }
-        });
-    }
-
-    // 成果输出
-    public static void Cgsc4(final MapInstance mapinstance, final boolean isReload) {
-        final String funcdesc = "该功能将逐一对项目中所有不动产单元" + (isReload ? "重新" : "") + "生成word成果。";
-        License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                final AiDialog aidialog = AiDialog.get(mapinstance.activity);
-                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "生成资料")
-                        .setContentView("注意：属于不可逆操作，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // 完成后的回掉
-                                final AiRunnable callback = new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.NO);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.ERROR);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-                                };
-                                // 设置不可中断
-//                                aidialog.setCancelable(false).setFooterView("正在处理中，可能需要一段时间，暂时不允许操作！");
-                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                aidialog.setContentView("开始处理数据");
-                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
-                                FeatureEditBDC.LaodAlLBDC_CreateDOCX(mapinstance, isReload, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗。");
-                                        AiRunnable.Ok(callback, null);
-                                        return null;
-                                    }
-                                });
-
-                            }
-                        }).show();
-                ;
-
-                return null;
-            }
-        });
-    }
-
-    // 数据检查
-    public void Sjjc(final MapInstance mapinstance) {
-        final String funcdesc = "该功能将逐一对项目中所有宗地的代码进行更新。";
-        License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                final AiDialog aidialog = AiDialog.get(mapinstance.activity);
-                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "")
-                        .setContentView("注意：属于不可逆操作，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // 完成后的回掉
-                                final AiRunnable callback = new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.NO);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.ERROR);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-                                };
-                                // 设置不可中断
-//                                aidialog.setCancelable(false).setFooterView("正在处理中，可能需要一段时间，暂时不允许操作！");
-                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                aidialog.setContentView("开始处理数据");
-                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并生成资料");
-
-//                                FeatureEditBDC.LaodAlLBDC_CreateDOCX(mapinstance, isReload, new AiRunnable() {
-//                                    @Override
-//                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                        aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 已完成"+objects[0]+"宗。");
-//                                        AiRunnable.Ok(callback,null);
-//                                        return  null;
-//                                    } 15527836688
-//                                });
-
-
-                                // 查看列表
-
-                                final List<Feature> fs_zd = new ArrayList<Feature>();
-                                MapHelper.Query(FeatureEdit.GetTable(mapinstance, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", -1, fs_zd, new AiRunnable() {
-
-                                    void zljc_zd(final List<Feature> fs, final int i, final AiRunnable identy_callback) {
-                                        if (fs.size() > i) {
-                                            mapinstance.newFeatureView().load_djzq(fs.get(i).getGeometry(), new AiRunnable() {
-                                                @Override
-                                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                                    String djzq = t_ + "";
-
-                                                    ZnjcUpdateZd(mapinstance, djzq, fs.get(i), new AiRunnable() {
-                                                        @Override
-                                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            zljc_zd(fs, i + 1, identy_callback);
-                                                            return null;
-                                                        }
-                                                    });
-
-                                                    return null;
-                                                }
-                                            });
-                                        } else {
-                                            AiRunnable.Ok(identy_callback, i);
-                                        }
-                                    }
-
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        zljc_zd(fs_zd, 0, new AiRunnable() {
-                                            @Override
-                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                AiRunnable.Ok(callback,null);
-//                                                return super.ok(t_, objects);
-                                                AiRunnable.Ok(callback, t_, objects);
-                                                return null;
-                                            }
-                                        });
-                                        return null;
-                                    }
-                                });
-
-
-                            }
-                        }).show();
-                ;
-
-                return null;
-            }
-        });
-    }
-
-    // 智能检测宗地代码
-    public void ZnjcUpdateZd(final MapInstance mapInstance, final String djzq, final Feature f_zd, final AiRunnable callback) {
-        String zddm_zd = (String) f_zd.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDDM);
-        final List<Feature> update_fs = new ArrayList<>();
-        if (djzq.equals(zddm_zd.substring(0, 12))) {
-            MapHelper.saveFeature(update_fs, callback);
-            return;
+        } catch (NumberFormatException e) {
         }
-        final List<Feature> f_zrzs = new ArrayList<>();
-        final List<Feature> f_zrz_fsjgs = new ArrayList<>();
-        final List<Feature> f_zrz_hs = new ArrayList<>();
-        final List<Feature> f_zrz_h_fsjgs = new ArrayList<>();
-
-        FeatureView.LoadZ_H_And_Fsjg(mapInstance, f_zd, f_zrzs, f_zrz_fsjgs, f_zrz_hs, f_zrz_h_fsjgs, new AiRunnable(callback) {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                String zddm = djzq + mapInstance.getId(f_zd).substring(12);
-                for (Feature f : f_zrzs) {
-                    String oldDirZrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f));
-                    String bdcdyh_zrz = (String) f.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH);
-
-                    if (!TextUtils.isEmpty(bdcdyh_zrz) && bdcdyh_zrz.length() > 12) {
-                        f.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, djzq + bdcdyh_zrz.substring(12));
-                    }
-                    String zrzh = (String) f.getAttributes().get("ZRZH");
-                    if (!TextUtils.isEmpty(zrzh) && zrzh.length() > 12) {
-                        f.getAttributes().put("ZRZH", djzq + zrzh.substring(12));
-                    }
-                    f.getAttributes().put(FeatureHelper.TABLE_ATTR_ZDDM, zddm);
-                    String newDirZrz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f));
-                    FileUtils.renameToNewFile(oldDirZrz, newDirZrz);
-                    update_fs.add(f);
-                }
-
-                String bdcdyh = (String) f_zd.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH);
-                if (!TextUtils.isEmpty(bdcdyh) && bdcdyh.length() > 12) {
-                    f_zd.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, djzq + bdcdyh.substring(12));
-                }
-                String oldDirZD = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd));
-
-                f_zd.getAttributes().put(FeatureHelper.TABLE_ATTR_ZDDM, zddm);
-                String newDirZD = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd));
-                FileUtils.renameToNewFile(oldDirZD, newDirZD);
-                update_fs.add(f_zd);
-                MapHelper.saveFeature(update_fs, callback);
-                return null;
-            }
-        });
+        return false;
     }
 
     public boolean readZd(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
@@ -2382,19 +2341,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    private boolean isLc(String value) {
-        try {
-            if (value.contains(".")){
-                if (Float.parseFloat(value)<99){
-                    return true;
-                }
-            }else {
-                if (Integer.parseInt(value)<99){
-                    return true;
-                }
-            }
-        } catch (NumberFormatException e) {
-        }
-        return false;
-    }
+    ///endregion
+
 }

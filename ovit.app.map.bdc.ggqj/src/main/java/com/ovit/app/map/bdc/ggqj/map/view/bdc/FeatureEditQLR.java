@@ -1478,7 +1478,7 @@ public class FeatureEditQLR extends FeatureEdit {
             //关联权利人和宗地
             String qlr_orid_path = FeatureHelper.Get(feature_qlr, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
             qlr_orid_path += FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_ORID) + "/";
-            feature_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, qlr_orid_path);
+            FeatureHelper.Set(feature_qlr,FeatureHelper.TABLE_ATTR_ORID_PATH, qlr_orid_path);
 
             //拷贝资料
             String f_zd_path = mapInstance.getpath_feature(feature_zd);

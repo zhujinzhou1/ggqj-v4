@@ -154,10 +154,10 @@ public class FeatureViewH extends FeatureView {
         String zddm = StringUtil.substr_last(zrzh, 0, FeatureHelper.FEATURE_ZD_ZDDM_LENG);
         FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_ZDDM, zddm);
 
-        String bdcdyh = FeatureHelper.Get(feature_ljz, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH,"" ));
+        String bdcdyh = FeatureHelper.Get(feature_ljz, FeatureHelper.TABLE_ATTR_BDCDYH, FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_BDCDYH,"" ));
         boolean isF99990001 = bdcdyh.endsWith("F99990001");
         bdcdyh = isF99990001 ? (zddm + "F99990001") :(zrzh+  StringUtil.substr_last(id, 4));
-        FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_ORID_PATH, bdcdyh);
+        FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
         FeatureHelper.Set(feature,"FWBM", StringUtil.substr_last(bdcdyh, 9));
 
         int lc = FeatureHelper.Get(feature,"SZC", 1);
@@ -480,7 +480,7 @@ public class FeatureViewH extends FeatureView {
             }
         }
         for (Feature f : f_h_fsjgs) {
-            String hid =FeatureHelper.Get(f,FeatureHelper.TABLE_ATTR_ORID_PATH,"");
+            String hid =FeatureHelper.Get(f,FeatureHelper.TABLE_ATTR_BDCDYH,"");
             if (hid.contains(id)) {
                 double f_hsmj = AiUtil.GetValue(f.getAttributes().get("HSMJ"), 0d);
                 hsmj += f_hsmj;

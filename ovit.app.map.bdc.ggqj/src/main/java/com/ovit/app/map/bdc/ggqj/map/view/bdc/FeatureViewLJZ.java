@@ -161,7 +161,7 @@ public class FeatureViewLJZ extends FeatureView {
         if (feature_zrz != null) {
             String zrzh = FeatureHelper.Get(feature_zrz, "ZRZH", "");
             FeatureHelper.Set(feature, "ZRZH", zrzh);
-            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_zrz, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
+//            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_zrz, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
             FeatureHelper.Set(feature, "ZCS", FeatureHelper.Get(feature_zrz, "ZCS", "1"));
         }
         FeatureHelper.Set(feature, "MPH", FeatureHelper.Get(feature, "MPH", getMph(ljzh))); //  门牌号

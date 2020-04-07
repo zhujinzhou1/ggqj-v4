@@ -2202,7 +2202,7 @@ public class Excel
 
                 wSheet.addCell( new Label(2, index+1, sfzzmcl));
                 wSheet.addCell( new Label(3, index+1, FeatureHelper.Get(f_zd,"JZMJ",0.00)+""));
-                wSheet.addCell( new Label(4, index+1, FeatureHelper.Get(f_zd,"ZDMJ",0.00)+""));
+                wSheet.addCell( new Label(4, index+1, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+""));
 //                wSheet.addCell( new Label(5, index+1, FeatureHelper.Get(f_zd,"ZDDM","")));
 //                wSheet.addCell( new Label(6, index+1, FeatureHelper.Get(f_zd,"ZDDM","")));
             }

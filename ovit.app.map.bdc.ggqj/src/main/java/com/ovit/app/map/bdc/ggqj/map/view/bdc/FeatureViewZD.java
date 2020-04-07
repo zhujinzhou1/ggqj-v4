@@ -231,37 +231,24 @@ public class FeatureViewZD extends FeatureView {
     public void fillFeature(Feature feature) {
         super.fillFeature(feature);
         String zddm = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
-        if (FeatureHelper.isZDDMHValid(zddm)) {
+        if (!FeatureHelper.isZDDMHValid(zddm)) {
             if (StringUtil.IsNotEmpty(zddm) && !zddm.contains("JC") && !zddm.contains("JB") && !zddm.contains("GB")) {
                 // 宗地代码不包含特征码
                 zddm = StringUtil.substr(zddm, 0, zddm.length() - 5) + "JC" + StringUtil.substr_last(zddm, 5);
             }
-            if (FeatureHelper.isZDDMHValid(zddm)) {
+            if (!FeatureHelper.isZDDMHValid(zddm)) {
                 String xmbm = getXmbm();
                 zddm = StringUtil.substr(xmbm, 0, 19 - zddm.length()) + zddm;
             }
             FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDDM, zddm);
             FeatureHelper.Set(feature, "YBZDDM", zddm);
         }
-//        FeatureHelper.Set(feature, "YBZDDM", zddm, true, false);
         FeatureHelper.Set(feature, "PRO_ZDDM_F", StringUtil.substr_last(zddm, 7));
-
-        String bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
-        if ((zddm + "F00000000").equals(bdcdyh) || (zddm + "F99990001").equals(bdcdyh)) {
-            // 不动产单元有效
-        } else {
-            if (bdcdyh.endsWith("F99990001")) {
-                bdcdyh = zddm + "F99990001";
-            } else {
-                bdcdyh = zddm + "F00000000";
-            }
-            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, bdcdyh);
-        }
         FeatureHelper.Set(feature, "PZYT", "072", true, false);
         FeatureHelper.Set(feature, "YT", "072", true, false);
 
-        if (feature.getGeometry() != null && 0d == FeatureHelper.Get(feature, "ZDMJ", 0d)) {
-            FeatureHelper.Set(feature, "ZDMJ", MapHelper.getArea(feature.getGeometry()));
+        if (feature.getGeometry() != null && 0d == FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDMJ, 0d)) {
+            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDMJ, MapHelper.getArea(feature.getGeometry()));
         }
         int scale = 200;
         FeatureHelper.Set(feature, "GLBLC", "1:" + scale);
@@ -551,7 +538,7 @@ public class FeatureViewZD extends FeatureView {
     private void newBdcdyToH(Feature f_h, final AiRunnable callback) {
         final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
         mapInstance.featureView.fillFeature(feature_new_qlr, f_h);
-        feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, f_h.getAttributes().get("ID"));
+        feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, f_h.getAttributes().get("ID"));
 //        feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH,f_h.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID));
         MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
             @Override
@@ -566,7 +553,7 @@ public class FeatureViewZD extends FeatureView {
     private void newBdcdyToC(Feature f_C, final AiRunnable callback) {
         final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
         mapInstance.featureView.fillFeature(feature_new_qlr, f_C);
-        feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, f_C.getAttributes().get("ID"));
+        feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, f_C.getAttributes().get("ID"));
         MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -1595,22 +1582,22 @@ public class FeatureViewZD extends FeatureView {
         identyZrz(fs_zrz, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                final FeatureViewZRZ fv_ = FeatureViewZRZ.From(mapInstance);
+                final FeatureViewZRZ fv_zrz = FeatureViewZRZ.From(mapInstance);
                 if (isShow) {
-                    fv_.fs_ref = ListUtil.asList(feature);
-                    QuickAdapter<Feature> adapter = fv_.getListAdapter(fs_zrz, 0);
+                    fv_zrz.fs_ref = ListUtil.asList(feature);
+                    QuickAdapter<Feature> adapter = fv_zrz.getListAdapter(fs_zrz, 0);
                     AiDialog dialog = AiDialog.get(mapInstance.activity, adapter);
                     dialog.setHeaderView(R.mipmap.app_map_layer_zrz, "识别到" + fs_zrz.size() + "个自然幢");
                     dialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            fv_.fillFeature(fs_zrz, feature);
+                            fv_zrz.fillFeature(fs_zrz, feature);
                             identyZrzFromZD(mapInstance, feature, fs_zrz, callback);
                             dialog.dismiss();
                         }
                     });
                 } else {
-                    fv_.fillFeature(fs_zrz, feature);
+                    fv_zrz.fillFeature(fs_zrz, feature);
                     identyZrzFromZD(mapInstance, feature, fs_zrz, callback);
                 }
                 return null;
@@ -1665,7 +1652,7 @@ public class FeatureViewZD extends FeatureView {
         }
         f_zd.getAttributes().put("JZMJ", AiUtil.Scale(area_jzmj, 2));
         f_zd.getAttributes().put("JZZDMJ", AiUtil.Scale(area_jzzdmj, 2));
-        f_zd.getAttributes().put("ZDMJ", AiUtil.Scale(zd_area, 2));
+        f_zd.getAttributes().put(FeatureHelper.TABLE_ATTR_ZDMJ, AiUtil.Scale(zd_area, 2));
         features_update.clear();
         if (StringUtil.IsNotEmpty(zddm)) {
             features_update.addAll(features_zrz);
@@ -1923,7 +1910,7 @@ public class FeatureViewZD extends FeatureView {
         if (Math.abs(hsmj - area) < 0.05) {
             hsmj = area;
         }
-        FeatureHelper.Set(feature, "ZDMJ", AiUtil.Scale(area, 2));
+        FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDMJ, AiUtil.Scale(area, 2));
         FeatureHelper.Set(feature, "JZZDMJ", AiUtil.Scale(jzzdmj, 2));
         FeatureHelper.Set(feature, "JZMJ", AiUtil.Scale(hsmj, 2));
     }
@@ -2094,7 +2081,7 @@ public class FeatureViewZD extends FeatureView {
             double jzmj = 0.0d;
             double jzzdmj = 0.0d;
             for (Feature feature : fs_zd) {
-                zdmj += FeatureHelper.Get(feature, "ZDMJ", 0.00d);
+                zdmj += FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDMJ, 0.00d);
                 jzzdmj += FeatureHelper.Get(feature, "JZZDMJ", 0.00d);
                 jzmj += FeatureHelper.Get(feature, "JZMJ", 0.00d);
             }

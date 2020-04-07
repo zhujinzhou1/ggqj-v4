@@ -186,7 +186,7 @@ public class DxfZdct_zhuxi {
             // 单元格2-4
             x_ = x_ + w * 3 / 15;
             Envelope cel_2_4 = new Envelope(x_, y_, x + w , y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_2_4, DxfHelper.LINETYPE_SOLID_LINE, FeatureHelper.Get(f_zd,"ZDMJ",0.00)+"", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
+            dxf.write(cel_2_4, DxfHelper.LINETYPE_SOLID_LINE, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+"", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
 
             // 单元格3-1
             x_ = x;

@@ -149,7 +149,7 @@ public class DxfZdt_shannan {
             // 单元格3-2
             x_ = x_ + w * 2 / 15;
             Envelope cel_3_2 = new Envelope(x_, y_, x_ + w * 4 / 15, y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_3_2, null, FeatureHelper.Get(f_zd,"ZDMJ",0.00)+"", 0.5f, null, false, 0, 0);
+            dxf.write(cel_3_2, null, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+"", 0.5f, null, false, 0, 0);
 
             // 单元格3-3
             x_ = x_ + w * 4 / 15;
@@ -163,7 +163,7 @@ public class DxfZdt_shannan {
             // 单元格3-5
             x_ = x_ + w * 1 / 10;
             Envelope cel_3_5 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_3_5, null, FeatureHelper.Get(f_zd,"ZDMJ",0.00)+"", 0.5f, null, false, 0, 0);
+            dxf.write(cel_3_5, null, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+"", 0.5f, null, false, 0, 0);
             // 单元格3-6
             x_ = x_ + w * 2 / 15;
             Envelope cel_3_6 = new Envelope(x_, y_, x_ + w * 1 / 10, y_ - h, p_extend.getSpatialReference());

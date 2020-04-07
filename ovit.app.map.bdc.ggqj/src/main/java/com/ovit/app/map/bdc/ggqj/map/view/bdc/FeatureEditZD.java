@@ -143,12 +143,12 @@ public class FeatureEditZD extends FeatureEdit {
             if (0d == AiUtil.GetValue(feature.getAttributes().get("YBZDDM"), 0d)) {
                 feature.getAttributes().put("YBZDDM", id);
             }
-            if (0d == AiUtil.GetValue(feature.getAttributes().get("ZDMJ"), 0d)) {
-                feature.getAttributes().put("ZDMJ", area);
+            if (0d == AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDMJ), 0d)) {
+                feature.getAttributes().put(FeatureHelper.TABLE_ATTR_ZDMJ, area);
             }
             feature.getAttributes().put("GLBLC", "1:" + scale);
             mapInstance.fillFeature(feature);
-            old_bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+            old_bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_BDCDYH, "");
             old_zddm = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
             old_qlrxm = FeatureHelper.Get(feature, "QLRXM", "");
             old_qlrzjh = FeatureHelper.Get(feature, "QLRZJH", "");
@@ -670,7 +670,7 @@ public class FeatureEditZD extends FeatureEdit {
     }
 
     private void update_zddm(final AiRunnable callback) {
-        final String bdcdyh = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH), "");
+        final String bdcdyh = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH), "");
         final String zddm = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDDM), "");
 
         // 如果不动产单元号或是宗地代码发生变化的 需要级联更新
@@ -905,7 +905,7 @@ public class FeatureEditZD extends FeatureEdit {
                 fv.update_Area(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        fillView(v_feature, feature, "ZDMJ");
+                        fillView(v_feature, feature, FeatureHelper.TABLE_ATTR_ZDMJ);
                         fillView(v_feature, feature, "JZMJ");
                         fillView(v_feature, feature, "JZZDMJ");
                         ToastMessage.Send(activity, "自动计算面积完成！");

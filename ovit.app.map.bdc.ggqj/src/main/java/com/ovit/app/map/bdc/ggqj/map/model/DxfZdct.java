@@ -197,7 +197,7 @@ public class DxfZdct {
             x_ = x_ + w * 2 / 15;
             Envelope cel_2_4 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
 //            dxf.write(cel_2_4, null, FeatureHelper.Get(f_zd,"ZDMJ",0.00)+"", o_fontsize, null, false, 0, 0);
-            dxf.writeMText(cel_2_4.getCenter(), FeatureHelper.Get(f_zd,"ZDMJ",0.00)+"");
+            dxf.writeMText(cel_2_4.getCenter(), FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+"");
 
             // 单元格4-1
             x_ = x;

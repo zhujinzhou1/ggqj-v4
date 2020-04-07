@@ -1035,10 +1035,10 @@ public class FeatureEditBDC extends FeatureEdit {
             public <T_> T_ ok(T_ t_, Object... objects) {
                 List<String> bdcdyhs = new ArrayList<String>();
                 for (Feature f : fs) {
-                    String bdcdyh = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+                    String bdcdyh = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_BDCDYH, "");
                     String zddm = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, "");
                     // 保证宗地代码和不动产单元号有效
-                    if (bdcdyh.length() == 28 && !bdcdyhs.contains(bdcdyh) && zddm.length() == 19) {
+                    if (FeatureHelper.isBDCDYHValid(bdcdyh)&& !bdcdyhs.contains(bdcdyh) && FeatureHelper.isZDDMHValid(zddm)) {
                         bdcdyhs.add(bdcdyh);
                     }
                 }
@@ -1156,10 +1156,10 @@ public class FeatureEditBDC extends FeatureEdit {
             public <T_> T_ ok(T_ t_, Object... objects) {
                 List<String> bdcdyhs = new ArrayList<String>();
                 for (Feature f : fs) {
-                    String bdcdyh = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+                    String bdcdyh = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_BDCDYH, "");
                     String zddm = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, "");
                     // 保证宗地代码和不动产单元号有效
-                    if (bdcdyh.length() == 28 && !bdcdyhs.contains(bdcdyh) && zddm.length() == 19) {
+                    if (FeatureHelper.isBDCDYHValid(bdcdyh) && !bdcdyhs.contains(bdcdyh) &&FeatureHelper.isZDDMHValid(zddm)) {
                         bdcdyhs.add(bdcdyh);
                     }
                 }
@@ -1730,7 +1730,7 @@ public class FeatureEditBDC extends FeatureEdit {
         // 设置单个幢信息
         // 提前防止覆盖
         map.put("ZRZ.ZHFF", AiUtil.GetValue(zrz.getAttributes().get("ZH"), 1) + "");
-        if ((zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID_PATH) + "").contains("F99990001")) {
+        if ((zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH) + "").contains("F99990001")) {
 
         } else {
             map.put("ZRZ.ZHFS", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
@@ -2451,7 +2451,7 @@ public class FeatureEditBDC extends FeatureEdit {
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
             final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "分层分户图.dxf"; //20180709
-            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), FeatureHelper.TABLE_ATTR_ORID_PATH, bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
 
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
@@ -2487,7 +2487,7 @@ public class FeatureEditBDC extends FeatureEdit {
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg);
 
             final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "分层分户图.dxf"; //20180709
-            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), FeatureHelper.TABLE_ATTR_ORID_PATH, bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            new DxfFcfwh(mapInstance).set(dxf_fcfht).set(FeatureHelper.Get(fs_zrz.get(0), FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh), f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
 
         } catch (Exception es) {
             Log.e(TAG, "导出数据失败", es);
@@ -2750,7 +2750,7 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void completeSelectExcel(final MapInstance mapInstance, final Feature feature_zd, final List<String> selected_items, final AiRunnable callback) { //在这里处理用户选择
         try {
             if (selected_items.size() > 0) {
-                final String bdcdyh = FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_ORID_PATH) + "";
+                final String bdcdyh = FeatureHelper.Get(feature_zd, FeatureHelper.TABLE_ATTR_BDCDYH) + "";
                 final List<Feature> features_ = new ArrayList<>();
                 new AiForEach<String>(selected_items, new AiRunnable() {
                     @Override

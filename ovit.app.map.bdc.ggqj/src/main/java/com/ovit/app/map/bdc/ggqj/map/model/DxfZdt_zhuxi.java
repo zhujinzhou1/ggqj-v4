@@ -200,7 +200,7 @@ public class DxfZdt_zhuxi {
             // 单元格2-4
             x_ = x_ + w * 2 / 15;
             Envelope cel_2_4 = new Envelope(x_, y_, x+w, y_ - h, p_extend.getSpatialReference());
-            dxf.write(cel_2_4, null, FeatureHelper.Get(f_zd,"ZDMJ",0.00)+"", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
+            dxf.write(cel_2_4, null, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+"", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
 
             // 单元格4-1
             x_ = x;
@@ -237,7 +237,7 @@ public class DxfZdt_zhuxi {
                     dxf.writeText(new Point(p.getX() - 1.5 * ft, p.getY() + 0.1 * ft), FeatureHelper.Get(f_zd, "PRO_ZDDM_F", ""), 0.5f * ft, DxfHelper.FONT_WIDTH_DEFULT, "", 0, 1, 1, DxfHelper.COLOR_RED, "JZD", "302002");
                     dxf.writeLine(Arrays.asList(new Point[]{new Point(p.getX() - 3 * ft, p.getY()), new Point(p.getX() - 0.1 * ft, p.getY())}), "", false, DxfHelper.COLOR_RED, 0);
                     dxf.writeText(new Point(p.getX() - 1.5 * ft, p.getY() - 0.1 * ft), FeatureHelper.Get(f_zd, "PZYT", ""), 0.5f * ft, DxfHelper.FONT_WIDTH_DEFULT, "", 0, 1, 3, DxfHelper.COLOR_RED, "JZD", "302003");
-                    dxf.writeText(new Point(p.getX(), p.getY()), AiUtil.Scale(FeatureHelper.Get(f_zd, "ZDMJ", 0d), 2) + "", 0.5f * ft, DxfHelper.FONT_WIDTH_DEFULT, "", 0, 0, 2, DxfHelper.COLOR_RED, "JZD", "302005");
+                    dxf.writeText(new Point(p.getX(), p.getY()), AiUtil.Scale(FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDMJ, 0d), 2) + "", 0.5f * ft, DxfHelper.FONT_WIDTH_DEFULT, "", 0, 0, 2, DxfHelper.COLOR_RED, "JZD", "302005");
 
                 }
             }

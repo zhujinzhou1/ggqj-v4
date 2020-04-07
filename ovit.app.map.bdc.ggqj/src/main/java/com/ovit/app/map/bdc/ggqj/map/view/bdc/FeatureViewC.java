@@ -387,7 +387,7 @@ public class FeatureViewC extends FeatureView {
             return;
         }
         String id = FeatureHelper.Get(f_c, "ZRZH", "");
-        MapHelper.QueryMax(mapInstance.getTable(FeatureConstants.QLRXX_TABLE_NAME), StringUtil.WhereByIsEmpty(FeatureHelper.Get(f_c, "ZRZH", "")) + "BDCDYH like '" + id + "____'", FeatureHelper.TABLE_ATTR_ORID_PATH, id.length(), 0, id + "0000", new AiRunnable() {
+        MapHelper.QueryMax(mapInstance.getTable(FeatureConstants.QLRXX_TABLE_NAME), StringUtil.WhereByIsEmpty(FeatureHelper.Get(f_c, "ZRZH", "")) + "BDCDYH like '" + id + "____'", FeatureHelper.TABLE_ATTR_BDCDYH, id.length(), 0, id + "0000", new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 String id = "";
@@ -399,7 +399,7 @@ public class FeatureViewC extends FeatureView {
                 }
                 final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
                 mapInstance.featureView.fillFeature(feature_new_qlr, f_c);
-                feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, id);
+                feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, id);
 
                 MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
                     @Override

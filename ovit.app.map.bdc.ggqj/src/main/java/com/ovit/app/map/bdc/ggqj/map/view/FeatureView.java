@@ -299,7 +299,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             final String zddm = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
-                            final String bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                             FeatureViewZRZ.From(mapInstance,feature).getMaxZrzh(zddm, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -311,7 +310,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                     }
                                     mapInstance.bindZDFeature.getAttributes().put("ZRZH", id);
                                     mapInstance.fillFeature(mapInstance.bindZDFeature);
-//                                    FeatureEditZRZ.FillFeature(mapInstance.bindZDFeature, bdcdyh.endsWith("F99990001"));
                                     MapHelper.saveFeature(mapInstance.bindZDFeature, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
@@ -319,8 +317,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                             if (feature != null) {
                                                 mapInstance.viewFeature(feature);
                                             }
-//                                            return super.ok(t_, objects);
-//                                            AiRunnable.Ok(callback,t_,objects);
                                             return  null;
                                         }
                                     });
@@ -336,8 +332,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     },"继续",null).create().show();
                 }else if ("权利人".equals(bindZDFeatureName)){
                     // 权利人 绑定宗地
-                    //String filename = AiUtil.GetValue(civ_zjh.getContentDescription(), "材料");
-                    //civ_zjh.setName(filename + "(正反面)").setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.Get(feature, "XM", "")+"/"+"附件材料/" + filename + "/"))
                     DialogBuilder.confirm(activity, "关联宗地", "权利人是否关联该宗地？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -369,9 +363,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                             if (StringUtil.IsNotEmpty(bdcqzh)){
                                 feature.getAttributes().put("TDZH",bdcqzh);
                             }
-// 写身份证照片
-//                                String filename = AiUtil.GetValue(civ_zjh.getContentDescription(), "材料");
-//                                civ_zjh.setName(filename + "(正反面)").setDir(FileUtils.getAppDirAndMK(getpath_root() +"附件材料/" + filename + "/"))
                             String f_path = mapInstance.getpath_feature(mapInstance.bindZDFeature);
                             String fzd_path = mapInstance.getpath_feature(feature);
 
@@ -394,8 +385,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                     if (feature != null) {
                                         mapInstance.viewFeature(feature);
                                     }
-//                                        return super.ok(t_, objects);
-//                                        AiRunnable.Ok(callback,t_,objects);
                                     return  null;
                                 }
                             });
@@ -410,7 +399,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                 }
 
             } else {
-                //tool.map_opt_showfeature("map_opt_showfeature", MapHelper.getLayerName(feature), feature);
                 mapInstance.viewFeature(feature);
             }
 

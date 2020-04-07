@@ -36,6 +36,7 @@ import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.StringUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +72,7 @@ public class FeatureViewQLR extends FeatureView {
         final ViewGroup ll_list_item = helper.getView(R.id.ll_list_item);
         helper.setImageResource(com.ovit.R.id.v_icon, com.ovit.app.map.bdc.ggqj.R.mipmap.app_map_layer_qlrxx);
         helper.setText(R.id.tv_groupname, fv.getLayerName() + getOrid_Path());
-        helper.setText(R.id.tv_desc, FeatureHelper.Get(item, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
+        helper.setText(R.id.tv_desc, FeatureHelper.Get(item, FeatureHelper.TABLE_ATTR_BDCDYH, ""));
         helper.setText(R.id.tv_name, FeatureHelper.Get(item, "XM", "无") + "[持证人]");
         helper.getView(R.id.ll_head).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -433,7 +434,7 @@ public class FeatureViewQLR extends FeatureView {
             feature_new_qlr.getAttributes().put("CSRQ", FeatureHelper.Get(feature_bdc, "CSRQ"));
             feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature_bdc, "DH"));
             feature_new_qlr.getAttributes().put("TDZH", FeatureHelper.Get(feature_bdc, "BDCQZH"));
-            feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_ORID) + "/"); //权利人关联不动产单元
+            feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_ORID) + File.separator); //权利人关联不动产单元
 
             //拷贝资料
             String f_zd_path = mapInstance.getpath_feature(feature_bdc); //     不动产d单元
