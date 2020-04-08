@@ -508,8 +508,6 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-
-
     /**
      * 拷贝身份镇，户口簿，土地权源资料等附件材料
      *
@@ -550,10 +548,10 @@ public class FeatureViewZD extends FeatureView {
     }
 
     // 通过宗地与层设定不动产单元
-    private void newBdcdyToC(Feature f_C, final AiRunnable callback) {
+    private void newBdcdyToC(Feature f_c, final AiRunnable callback) {
         final Feature feature_new_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX).createFeature();
-        mapInstance.featureView.fillFeature(feature_new_qlr, f_C);
-        feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, f_C.getAttributes().get("ID"));
+        mapInstance.featureView.fillFeature(feature_new_qlr, f_c);
+        feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, f_c.getAttributes().get("ID"));
         MapHelper.saveFeature(feature_new_qlr, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -808,6 +806,18 @@ public class FeatureViewZD extends FeatureView {
 
 
         return ll_view;
+    }
+
+    public void update_ftxs(final AiRunnable callback) {
+
+        List<Feature> fs = new ArrayList<>();
+        queryFeature(mapInstance.getTable(FeatureHelper.TABLE_NAME_FTQK), "FTQX_ID='" + fv.getOrid() + "'", fs, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                AiRunnable.Ok(callback, t_, objects);
+                return null;
+            }
+        });
     }
 
     ///endregion
@@ -2225,6 +2235,8 @@ public class FeatureViewZD extends FeatureView {
             Log.e(TAG, "导出数据失败", es);
         }
     }
+
+
 
     ///endregion
 

@@ -905,11 +905,26 @@ public class FeatureEditZD extends FeatureEdit {
                 fv.update_Area(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        fillView(v_feature, feature, FeatureHelper.TABLE_ATTR_ZDMJ);
-                        fillView(v_feature, feature, "JZMJ");
-                        fillView(v_feature, feature, "JZZDMJ");
-                        ToastMessage.Send(activity, "自动计算面积完成！");
-                        dialog.dismiss();
+                        if(FeatureHelper.Get(feature,FeatureViewZD.TABLE_ATTR_FTXS_ZD,0.0d)>0){
+                            fv.update_ftxs(new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    fillView(v_feature, feature, FeatureHelper.TABLE_ATTR_ZDMJ);
+                                    fillView(v_feature, feature, "JZMJ");
+                                    fillView(v_feature, feature, "JZZDMJ");
+                                    fillView(v_feature, feature, FeatureViewZD.TABLE_ATTR_FTXS_ZD);
+                                    ToastMessage.Send(activity, "自动计算面积完成！");
+                                    dialog.dismiss();
+                                    return null;
+                                }
+                            });
+                        }else {
+                            fillView(v_feature, feature, FeatureHelper.TABLE_ATTR_ZDMJ);
+                            fillView(v_feature, feature, "JZMJ");
+                            fillView(v_feature, feature, "JZZDMJ");
+                            ToastMessage.Send(activity, "自动计算面积完成！");
+                            dialog.dismiss();
+                        }
                         return null;
                     }
                 });
