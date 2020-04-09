@@ -256,6 +256,35 @@ public class FeatureViewZRZ extends FeatureView {
      * @param fs_zrz
      */
     public void ipug(final List<Feature> fs_zrz, final AiRunnable callback) {
+        new AiForEach<Feature>(fs_zrz, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                creatCFromZrz(fs_zrz, callback);
+                return null;
+            }
+        }) {
+            @Override
+            public void exec() {
+                final List<Feature> fs_ljz = new ArrayList<>();
+                FeatureView fv_zrz = mapInstance.newFeatureView(fs_zrz.get(postion));
+                fv_zrz.queryChildFeature(FeatureHelper.TABLE_NAME_LJZ, fs_ljz, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        initAllFeatureHFromLjz(fs_ljz, getNext());
+                        return null;
+                    }
+                });
+
+            }
+        }.start();
+    }
+
+    /**
+     * 层,户智能生成
+     *
+     * @param fs_zrz
+     */
+    public void ipug(final List<Feature> fs_zrz) {
 
         final String funcdesc = " 1、自然幢生成层。"
                 + "\n 2、逻辑幢快速生成户。"
@@ -323,6 +352,7 @@ public class FeatureViewZRZ extends FeatureView {
 
     }
 
+
     /**
      * 通过逻辑幢初始化户
      *
@@ -374,7 +404,7 @@ public class FeatureViewZRZ extends FeatureView {
                                     }.start();
                                 } else {
                                     //逻辑幢还没有生成户
-                                    FeatureViewH.InitFeatureAll(mapInstance, featureLjz, new AiRunnable() {
+                                    FeatureViewH.InitFeatureAll(mapInstance, featureLjz,fs_h, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                             // 户识别户附属结构

@@ -131,7 +131,9 @@ public class FeatureViewZD extends FeatureView {
                 mapInstance.addAction(groupname, "提取幢", R.mipmap.app_icon_map_znsb, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        zntq(feature);
+//                        zntq(feature);
+                        zncl(feature,null);
+
                     }
                 });
 
@@ -335,7 +337,7 @@ public class FeatureViewZD extends FeatureView {
                                     public void onClick(final DialogInterface dialog, int which) {
                                         aidialog.dismiss();
                                         FeatureViewZRZ fv_zrz = FeatureViewZRZ.From(mapInstance);
-                                        fv_zrz.ipug(fs_zrz, null);
+                                        fv_zrz.ipug(fs_zrz);
                                     }
                                 }, null, null, AiDialog.COMFIRM, null);
 
@@ -390,6 +392,36 @@ public class FeatureViewZD extends FeatureView {
                 }).show();
 
     }
+
+    private void txsb(final Feature f_zd, final AiRunnable callback)
+    {
+        final FeatureViewZD fv_zd = (FeatureViewZD) mapInstance.newFeatureView(f_zd);
+        final List<Feature> featuresZrz = new ArrayList<>();
+        identyZrz(featuresZrz, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                fv_zd.identyZrzFromZD(mapInstance, feature, featuresZrz, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        // 自然幢识别逻辑幢
+                        FeatureViewZRZ fv_zrz = (FeatureViewZRZ) mapInstance.newFeatureView(FeatureHelper.TABLE_NAME_ZRZ);
+                        fv_zrz.indentyLjzFromZrzs(featuresZrz, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                AiRunnable.Ok(callback, featuresZrz, objects);
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                });
+                return null;
+            }
+        });
+
+    }
+
+
 
     /**
      * 通过宗地智能提取自然幢
@@ -467,6 +499,104 @@ public class FeatureViewZD extends FeatureView {
                                     //宗地内有自然幢
                                     aidialog.addContentView("操作中断", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "该宗地内已存在自然幢。");
                                     AiRunnable.Ok(callback, t_, objects);
+                                }
+
+                                return null;
+                            }
+                        });
+                    }
+                }).show();
+    }
+
+    /**
+     * 通过宗地智能提取自然幢
+     * @param f_zd
+     */
+    private void zncl(Feature f_zd, final AiRunnable callback) {
+        final String funcdesc = "该功能将逐宗地内逻辑幢提取为自然幢。";
+        final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+        aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "提取幢")
+                .setContentView("注意：属于不可逆操作，将识别宗地范围内的逻辑幢合成自然幢", funcdesc)
+                .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 完成后的回掉
+                        aidialog.setCancelable(false);// 设置不可中断
+                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "查找所有的逻辑幢，并合成自然幢");
+                        Log.d(TAG, "智能处理:查找所有的逻辑幢，并合成自然幢");
+                        // 查询宗地范围内的逻辑幢
+                        final List<Feature> fs_zrz = new ArrayList<>();
+                        final List<Feature> fs_ljz = new ArrayList<>();
+                        queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, fs_zrz, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                // 通过逻辑幢合成自然幢
+                                if (!FeatureHelper.isExistElement(fs_zrz)) {
+                                    queryChildFeature(FeatureHelper.TABLE_NAME_LJZ, fs_ljz, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            // 通过逻辑幢合成自然幢
+                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查询到" + fs_ljz.size() + "个逻辑幢。");
+                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 通过逻辑幢合成自然幢。");
+                                            final List<Feature> featuresZRZ = new ArrayList<>();
+                                            creatZrzToLjzUnion(fs_ljz, featuresZRZ, new AiRunnable() {
+                                                @Override
+                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                    ToastMessage.Send("通过逻辑幢合成自然幢");
+                                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已合成" + featuresZRZ.size() + "自然幢。");
+                                                    MapHelper.saveFeature(featuresZRZ, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 开始图形识别");
+                                                            txsb(feature, new AiRunnable() {
+                                                                @Override
+                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 图形识别成功");
+                                                                    FeatureViewZRZ fv_zrz = FeatureViewZRZ.From(mapInstance);
+                                                                    aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "开始生成户与层");
+                                                                    final List<Feature> mfs_zrz = (List<Feature>) t_;
+                                                                    fv_zrz.ipug(mfs_zrz, new AiRunnable() {
+                                                                        @Override
+                                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "户和层绘制成功。");
+
+                                                                            aidialog.addContentView("处理数据完成，你可能还需要进行图形识别。");
+                                                                            aidialog.setFooterView("取消", new DialogInterface.OnClickListener() {
+                                                                                @Override
+                                                                                public void onClick(DialogInterface dialog, int which) {
+                                                                                    dialog.dismiss();
+                                                                                }
+                                                                            }, null, null, "完成", null);
+
+                                                                            return null;
+                                                                        }
+                                                                    });
+                                                                    return null;
+                                                                }
+                                                            });
+                                                            return super.ok(t_, objects);
+                                                        }
+                                                    });
+
+
+                                                    return null;
+                                                }
+                                            });
+                                            return null;
+                                        }
+                                    });
+
+                                } else {
+                                    //宗地内有自然幢
+                                    aidialog.addContentView("操作中断", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "该宗地内已存在自然幢。");
+//
+                                    aidialog.setFooterView("取消", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    }, null, null, "确定", null);
+
                                 }
 
                                 return null;
