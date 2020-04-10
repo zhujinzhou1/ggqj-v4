@@ -292,7 +292,7 @@ public class FeatureViewZRZ extends FeatureView {
         final AiDialog aidialog = AiDialog.get(mapInstance.activity);
         aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "快速生成")
                 .setContentView("注意：属于不可逆操作，请谨慎处理！", funcdesc)
-                .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.EXECUTE_NEXT, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
                         // 完成后的回掉
@@ -301,7 +301,7 @@ public class FeatureViewZRZ extends FeatureView {
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "快速生成自然幢层完成。");
                                 aidialog.addContentView("处理数据完成！");
-                                aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                aidialog.setFooterView(null, AiDialog.COMPLET, null);
                                 return null;
                             }
 
@@ -375,70 +375,71 @@ public class FeatureViewZRZ extends FeatureView {
                         MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_H), featureLjz.getGeometry(), -0.2, fs_h, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                if (fs_h.size() > 0) {
-                                    //逻辑幢已经生成了户 ,户识别附属结构
-                                    new AiForEach<Feature>(fs_h, that.getNext()) {
-                                        @Override
-                                        public void exec() {
-                                            final Feature featureH = this.getValue();
-                                            FeatureViewH fv_h = (FeatureViewH) mapInstance.newFeatureView(featureH);
-                                            final AiForEach<Feature> that_h = this;
-                                            Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
-                                            {
-                                                fv_h.identyH_FSJG(featureH, false, new AiRunnable() {
-                                                    //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
-                                                    @Override
-                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                        FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
-                                                            @Override
-                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                AiRunnable.Ok(that_h.getNext(), t_, t_);
-                                                                return null;
-                                                            }
-                                                        });
-                                                        return null;
-                                                    }
-                                                });
-                                            }
-                                        }
-                                    }.start();
-                                } else {
-                                    //逻辑幢还没有生成户
-                                    FeatureViewH.InitFeatureAll(mapInstance, featureLjz,fs_h, new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            // 户识别户附属结构
-                                            final List<Feature> featuresH = (List<Feature>) t_;
-                                            new AiForEach<Feature>(featuresH, that.getNext()) {
-                                                @Override
-                                                public void exec() {
-                                                    final Feature featureH = this.getValue();
-                                                    FeatureViewH featureViewH = (FeatureViewH) mapInstance.newFeatureView(featureH);
-                                                    final AiForEach<Feature> that_h = this;
-                                                    Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
-                                                    {
-                                                        featureViewH.identyH_FSJG(featureH, false, new AiRunnable() {
-                                                            //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
-                                                            @Override
-                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
-                                                                    @Override
-                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                        AiRunnable.Ok(that_h.getNext(), t_, t_);
-                                                                        return null;
-                                                                    }
-                                                                });
-                                                                return null;
-                                                            }
-                                                        });
-                                                    }
+//                                if (fs_h.size() > 0) {
+//                                    //逻辑幢已经生成了户 ,户识别附属结构
+//                                    new AiForEach<Feature>(fs_h, that.getNext()) {
+//                                        @Override
+//                                        public void exec() {
+//                                            final Feature featureH = this.getValue();
+//                                            FeatureViewH fv_h = (FeatureViewH) mapInstance.newFeatureView(featureH);
+//                                            final AiForEach<Feature> that_h = this;
+//                                            Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
+//                                            {
+//                                                fv_h.identyH_FSJG(featureH, false, new AiRunnable() {
+//                                                    //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
+//                                                    @Override
+//                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                        FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
+//                                                            @Override
+//                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                                AiRunnable.Ok(that_h.getNext(), t_, t_);
+//                                                                return null;
+//                                                            }
+//                                                        });
+//                                                        return null;
+//                                                    }
+//                                                });
+//                                            }
+//                                        }
+//                                    }.start();
+//                                } else {
+//                                    //逻辑幢还没有生成户
+//
+//                                }
+                                FeatureViewH.InitFeatureAll(mapInstance, featureLjz,fs_h, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        // 户识别户附属结构
+                                        final List<Feature> featuresH = (List<Feature>) t_;
+                                        new AiForEach<Feature>(featuresH, that.getNext()) {
+                                            @Override
+                                            public void exec() {
+                                                final Feature featureH = this.getValue();
+                                                FeatureViewH featureViewH = (FeatureViewH) mapInstance.newFeatureView(featureH);
+                                                final AiForEach<Feature> that_h = this;
+                                                Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
+                                                {
+                                                    featureViewH.identyH_FSJG(featureH, false, new AiRunnable() {
+                                                        //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
+                                                                @Override
+                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                    AiRunnable.Ok(that_h.getNext(), t_, t_);
+                                                                    return null;
+                                                                }
+                                                            });
+                                                            return null;
+                                                        }
+                                                    });
                                                 }
-                                            }.start();
-                                            return null;
-                                        }
-                                    });
+                                            }
+                                        }.start();
+                                        return null;
+                                    }
+                                });
 
-                                }
                                 return null;
                             }
                         });

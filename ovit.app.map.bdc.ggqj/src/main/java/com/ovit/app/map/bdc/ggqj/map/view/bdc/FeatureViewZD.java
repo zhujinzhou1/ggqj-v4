@@ -128,7 +128,7 @@ public class FeatureViewZD extends FeatureView {
         // 根据画宗地推荐
         if (feature != null && feature.getFeatureTable() == table) {
             if (count > 0) {
-                mapInstance.addAction(groupname, "提取幢", R.mipmap.app_icon_map_znsb, new View.OnClickListener() {
+                mapInstance.addAction(groupname, "一键处理", R.mipmap.app_icon_map_znsb, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 //                        zntq(feature);
@@ -137,7 +137,7 @@ public class FeatureViewZD extends FeatureView {
                     }
                 });
 
-                mapInstance.addAction(groupname, "图形关联", R.mipmap.app_icon_map_txgl, new View.OnClickListener() {
+                mapInstance.addAction(groupname, "图形识别", R.mipmap.app_icon_map_txgl, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         txsb(feature);
@@ -332,14 +332,14 @@ public class FeatureViewZD extends FeatureView {
                                 final List<Feature> fs_zrz = (List<Feature>) t_;
 
                                 aidialog.addContentView("识别成功，您可能需要快速生成户、层。");
-                                aidialog.setFooterView("继续处理", new DialogInterface.OnClickListener() {
+                                aidialog.setFooterView(AiDialog.COMPLET,null, null, null, AiDialog.EXECUTE_NEXT,  new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(final DialogInterface dialog, int which) {
                                         aidialog.dismiss();
                                         FeatureViewZRZ fv_zrz = FeatureViewZRZ.From(mapInstance);
                                         fv_zrz.ipug(fs_zrz);
                                     }
-                                }, null, null, AiDialog.COMFIRM, null);
+                                });
 
                                 return null;
                             }
@@ -512,12 +512,12 @@ public class FeatureViewZD extends FeatureView {
      * 通过宗地智能提取自然幢
      * @param f_zd
      */
-    private void zncl(Feature f_zd, final AiRunnable callback) {
-        final String funcdesc = "该功能将逐宗地内逻辑幢提取为自然幢。";
+    private void zncl(final Feature f_zd, final AiRunnable callback) {
+        final String funcdesc = "该功能将逐宗地内图形识别绘制。";
         final AiDialog aidialog = AiDialog.get(mapInstance.activity);
-        aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "提取幢")
+        aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "一键处理")
                 .setContentView("注意：属于不可逆操作，将识别宗地范围内的逻辑幢合成自然幢", funcdesc)
-                .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                .setFooterView(AiDialog.CENCEL, AiDialog.EXECUTE_NEXT, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // 完成后的回掉
@@ -548,7 +548,7 @@ public class FeatureViewZD extends FeatureView {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                                             aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 开始图形识别");
-                                                            txsb(feature, new AiRunnable() {
+                                                            txsb(f_zd, new AiRunnable() {
                                                                 @Override
                                                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                                                     aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 图形识别成功");
@@ -560,13 +560,13 @@ public class FeatureViewZD extends FeatureView {
                                                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                                                             aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "户和层绘制成功。");
 
-                                                                            aidialog.addContentView("处理数据完成，你可能还需要进行图形识别。");
-                                                                            aidialog.setFooterView("取消", new DialogInterface.OnClickListener() {
+                                                                            aidialog.addContentView("数据一键处理成功。");
+                                                                            aidialog.setFooterView(AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                                                                                 @Override
                                                                                 public void onClick(DialogInterface dialog, int which) {
                                                                                     dialog.dismiss();
                                                                                 }
-                                                                            }, null, null, "完成", null);
+                                                                            }, null, null, AiDialog.COMPLET, null);
 
                                                                             return null;
                                                                         }
@@ -577,8 +577,6 @@ public class FeatureViewZD extends FeatureView {
                                                             return super.ok(t_, objects);
                                                         }
                                                     });
-
-
                                                     return null;
                                                 }
                                             });
@@ -588,14 +586,15 @@ public class FeatureViewZD extends FeatureView {
 
                                 } else {
                                     //宗地内有自然幢
-                                    aidialog.addContentView("操作中断", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "该宗地内已存在自然幢。");
+                                    aidialog.addContentView("数据一键处理中断", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "该宗地内已存在自然幢，您可能需要进行图形识别功能。");
 //
-                                    aidialog.setFooterView("取消", new DialogInterface.OnClickListener() {
+                                    aidialog.setFooterView(AiDialog.COMPLET, null, null, null, AiDialog.EXECUTE_NEXT, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             dialog.dismiss();
+                                            txsb(f_zd);
                                         }
-                                    }, null, null, "确定", null);
+                                    });
 
                                 }
 
