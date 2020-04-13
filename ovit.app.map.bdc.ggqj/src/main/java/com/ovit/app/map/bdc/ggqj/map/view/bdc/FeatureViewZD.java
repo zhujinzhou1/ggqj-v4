@@ -619,7 +619,7 @@ public class FeatureViewZD extends FeatureView {
                         featureZrz.setGeometry(polygon);
                         List<Feature> myLjz = new ArrayList<>();
                         for (Feature f_ljz : featuresLJZ) {
-                            if (MapHelper.geometry_contains(polygon, featureZrz.getGeometry())) {
+                            if (MapHelper.geometry_contains(polygon, f_ljz.getGeometry())) {
                                 myLjz.add(f_ljz);
                             }
                         }

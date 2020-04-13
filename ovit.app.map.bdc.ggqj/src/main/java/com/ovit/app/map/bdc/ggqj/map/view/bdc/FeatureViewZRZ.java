@@ -250,6 +250,7 @@ public class FeatureViewZRZ extends FeatureView {
             }
         });
     }
+
     /**
      * 层,户智能生成
      *
@@ -367,50 +368,20 @@ public class FeatureViewZRZ extends FeatureView {
                 final Feature featureLjz = this.getValue();
                 final AiForEach<Feature> that = this;
                 // 逻辑幢识别幢附属结构
-                FeatureViewLJZ fv_ljz = (FeatureViewLJZ) mapInstance.newFeatureView(featureLjz);
+                final FeatureViewLJZ fv_ljz = (FeatureViewLJZ) mapInstance.newFeatureView(featureLjz);
                 fv_ljz.identyZ_Fsjg(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        final List<Feature> fs_h = new ArrayList<>();
-                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_H), featureLjz.getGeometry(), -0.2, fs_h, new AiRunnable() {
+                        fv_ljz.identyH(false, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-//                                if (fs_h.size() > 0) {
-//                                    //逻辑幢已经生成了户 ,户识别附属结构
-//                                    new AiForEach<Feature>(fs_h, that.getNext()) {
-//                                        @Override
-//                                        public void exec() {
-//                                            final Feature featureH = this.getValue();
-//                                            FeatureViewH fv_h = (FeatureViewH) mapInstance.newFeatureView(featureH);
-//                                            final AiForEach<Feature> that_h = this;
-//                                            Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
-//                                            {
-//                                                fv_h.identyH_FSJG(featureH, false, new AiRunnable() {
-//                                                    //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
-//                                                    @Override
-//                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                        FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
-//                                                            @Override
-//                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                AiRunnable.Ok(that_h.getNext(), t_, t_);
-//                                                                return null;
-//                                                            }
-//                                                        });
-//                                                        return null;
-//                                                    }
-//                                                });
-//                                            }
-//                                        }
-//                                    }.start();
-//                                } else {
-//                                    //逻辑幢还没有生成户
-//
-//                                }
-                                FeatureViewH.InitFeatureAll(mapInstance, featureLjz,fs_h, new AiRunnable() {
+                                final List<Feature> fs_h = (List<Feature>) t_;
+                                FeatureViewH.InitFeatureAll(mapInstance, featureLjz, fs_h, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         // 户识别户附属结构
                                         final List<Feature> featuresH = (List<Feature>) t_;
+                                        featuresH.addAll(fs_h);
                                         new AiForEach<Feature>(featuresH, that.getNext()) {
                                             @Override
                                             public void exec() {
@@ -713,6 +684,7 @@ public class FeatureViewZRZ extends FeatureView {
             }
         });
     }
+
     public void c_init(final AiRunnable callback) {
         FeatureViewC.InitFeatureAll(mapInstance, feature, new AiRunnable() {
             @Override
@@ -722,12 +694,14 @@ public class FeatureViewZRZ extends FeatureView {
             }
         });
     }
+
     public void queryLjzs(List<Feature> features_zrz, final AiRunnable callback) {
         MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ), GeometryEngine.buffer(feature.getGeometry(), -0.5), features_zrz, callback);
     }
 
     /**
      * 自然幢根据范围识别逻辑幢,默认弹出提示框。
+     *
      * @param callback 识别完成回调。
      */
     public void identyLjz(final AiRunnable callback) {
@@ -736,7 +710,8 @@ public class FeatureViewZRZ extends FeatureView {
 
     /**
      * 自然幢根据范围识别逻辑幢。
-     * @param isShow 参数传入true 显示提示框，传入false 不显示。
+     *
+     * @param isShow   参数传入true 显示提示框，传入false 不显示。
      * @param callback 识别完成回调。
      */
     public void identyLjz(final boolean isShow, final AiRunnable callback) {
@@ -782,7 +757,7 @@ public class FeatureViewZRZ extends FeatureView {
         double area_jzmj = 0;
         double area_jzzdmj = 0;
         String zddm = FeatureHelper.Get(f_zrz, FeatureHelper.TABLE_ATTR_ZDDM, "");
-        int zh=AiUtil.GetValue(FeatureHelper.Get(f_zrz, "ZH", ""), 0);
+        int zh = AiUtil.GetValue(FeatureHelper.Get(f_zrz, "ZH", ""), 0);
         String ljzhPrefix = StringUtil.substr_last(zddm, FeatureHelper.FEATURE_ZD_ZDDM_F_LENG) + "F" + FeatureHelper.Get(f_zrz, "ZH", "");
         String zrzh = FeatureHelper.Get(f_zrz, "ZRZH", "");
         List<Feature> features_update = new ArrayList<>();
@@ -811,10 +786,10 @@ public class FeatureViewZRZ extends FeatureView {
         }
         // 来更新逻辑幢其他字段内容
         for (Feature f : fs_ljz) {
-            int ljzh = AiUtil.GetValue(StringUtil.substr_last(FeatureHelper.Get(f,"LJZH",""), 2), 0);
+            int ljzh = AiUtil.GetValue(StringUtil.substr_last(FeatureHelper.Get(f, "LJZH", ""), 2), 0);
             FeatureHelper.Set(f, FeatureHelper.TABLE_ATTR_ZDDM, zddm);
             FeatureHelper.Set(f, "ZRZH", zrzh);
-            FeatureHelper.Set(f, "MPH", zh+"-"+ljzh);
+            FeatureHelper.Set(f, "MPH", zh + "-" + ljzh);
             double z_zcs = AiUtil.GetValue(f.getAttributes().get("ZCS"), 1d);
             double z_area = MapHelper.getArea(mapInstance, f.getGeometry());
             double z_scjzmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
@@ -1269,7 +1244,7 @@ public class FeatureViewZRZ extends FeatureView {
     //endregion 楼盘表
     //region 输出成果
 
-    public  void createDOCX(final MapInstance mapInstance, final Feature f_bdc, final boolean isRelaod, final AiRunnable callback) {
+    public void createDOCX(final MapInstance mapInstance, final Feature f_bdc, final boolean isRelaod, final AiRunnable callback) {
         final String bdcdyh = FeatureEditQLR.GetBdcdyh(f_bdc);
         String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
         if (FileUtils.exsit(file_dcb_doc) && !isRelaod) {
@@ -1295,16 +1270,16 @@ public class FeatureViewZRZ extends FeatureView {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
 
-                                        createDOCX(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
-                                            @Override
-                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                // 数据归集
+                                    createDOCX(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable(callback) {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            // 数据归集
 //                                                outputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg,fs_c_all);
-                                                outputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
-                                                AiRunnable.Ok(callback, t_, objects);
-                                                return null;
-                                            }
-                                        });
+                                            outputData(mapInstance, f_bdc, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
+                                            AiRunnable.Ok(callback, t_, objects);
+                                            return null;
+                                        }
+                                    });
 
                                     return null;
                                 }
@@ -1317,20 +1292,20 @@ public class FeatureViewZRZ extends FeatureView {
     }
 
 
-    public  void loadAll(final MapInstance mapInstance, final String bdcdyh,
-                               final Feature featureBdcdy,
-                               final Feature f_zd,
-                               final List<Feature> fs_jzd,
-                               final List<Feature> fs_jzx,
-                               final Map<String, Feature> map_jzx,
-                               final List<Map<String, Object>> fs_jzqz,
-                               final List<Feature> fs_zrz,
-                               final List<Feature> fs_ljz,
-                               final List<Feature> fs_zrz_c,
-                               final List<Feature> fs_z_fsjg,
-                               final List<Feature> fs_h,
-                               final List<Feature> fs_h_fsjg,
-                               final AiRunnable callback) {
+    public void loadAll(final MapInstance mapInstance, final String bdcdyh,
+                        final Feature featureBdcdy,
+                        final Feature f_zd,
+                        final List<Feature> fs_jzd,
+                        final List<Feature> fs_jzx,
+                        final Map<String, Feature> map_jzx,
+                        final List<Map<String, Object>> fs_jzqz,
+                        final List<Feature> fs_zrz,
+                        final List<Feature> fs_ljz,
+                        final List<Feature> fs_zrz_c,
+                        final List<Feature> fs_z_fsjg,
+                        final List<Feature> fs_h,
+                        final List<Feature> fs_h_fsjg,
+                        final AiRunnable callback) {
         final String orid_bdc = FeatureHelper.GetLastOrid(featureBdcdy);
         FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
             @Override
@@ -1371,17 +1346,17 @@ public class FeatureViewZRZ extends FeatureView {
         });
     }
 
-    public  void createDOCX(final MapInstance mapInstance, final Feature f_bdc, final Feature f_zd,
-                                  final List<Feature> fs_jzd,
-                                  final List<Feature> fs_jzx,
-                                  final Map<String, Feature> map_jzx,
-                                  final List<Map<String, Object>> fs_jzqz,
-                                  final List<Feature> fs_zrz,
-                                  final List<Feature> fs_ljz,
-                                  final List<Feature> fs_c,
-                                  final List<Feature> fs_z_fsjg,
-                                  final List<Feature> fs_h,
-                                  final List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
+    public void createDOCX(final MapInstance mapInstance, final Feature f_bdc, final Feature f_zd,
+                           final List<Feature> fs_jzd,
+                           final List<Feature> fs_jzx,
+                           final Map<String, Feature> map_jzx,
+                           final List<Map<String, Object>> fs_jzqz,
+                           final List<Feature> fs_zrz,
+                           final List<Feature> fs_ljz,
+                           final List<Feature> fs_c,
+                           final List<Feature> fs_z_fsjg,
+                           final List<Feature> fs_h,
+                           final List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
 
         final String bdcdyh = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
         String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
@@ -1443,15 +1418,15 @@ public class FeatureViewZRZ extends FeatureView {
     }
 
 
-    public  void outputData(final MapInstance mapInstance,
-                            final Feature f_bdc,
-                            final Feature f_zd,
-                            final List<Feature> fs_jzd,
-                            final List<Feature> fs_jzx,
-                            final List<Feature> fs_zrz,
-                            final List<Feature> fs_z_fsjg,
-                            final List<Feature> fs_h,
-                            final List<Feature> fs_h_fsjg) {
+    public void outputData(final MapInstance mapInstance,
+                           final Feature f_bdc,
+                           final Feature f_zd,
+                           final List<Feature> fs_jzd,
+                           final List<Feature> fs_jzx,
+                           final List<Feature> fs_zrz,
+                           final List<Feature> fs_z_fsjg,
+                           final List<Feature> fs_h,
+                           final List<Feature> fs_h_fsjg) {
         try {
             MapHelper.selectAddCenterFeature(mapInstance.map, f_zd);
             String bdcdyh = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
