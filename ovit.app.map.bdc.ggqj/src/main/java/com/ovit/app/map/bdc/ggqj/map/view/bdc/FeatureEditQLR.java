@@ -106,8 +106,8 @@ public class FeatureEditQLR extends FeatureEdit {
 
                 CustomImagesView civ_zjh = (CustomImagesView) v_feature.findViewById(R.id.civ_zjh);
                 //   String filename = dir + "/" + FeatureHelper.Get(feature, "XM", "")+"/"+FeatureHelper.Get(feature, "ZJH", "")+"/" + AiUtil.GetValue(new Date(), "") + ".jpg";
-                String filename = AiUtil.GetValue(civ_zjh.getContentDescription(), "材料");
-                civ_zjh.setName(filename + "(正反面)").setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
+                String filename = AiUtil.GetValue(civ_zjh.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+                civ_zjh.setName(filename + "(正反面)").setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         Map<String, String> datas = (Map<String, String>) t_;
@@ -128,18 +128,18 @@ public class FeatureEditQLR extends FeatureEdit {
                 });
 
                 CustomImagesView civ_hkb = (CustomImagesView) v_feature.findViewById(R.id.civ_hkb);
-                filename = AiUtil.GetValue(civ_hkb.getContentDescription(), "材料");
+                filename = AiUtil.GetValue(civ_hkb.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
                 String s = getpath_root();
-                civ_hkb.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/"));
+                civ_hkb.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/"));
 
                 CustomImagesView civ_tdqslyzm = (CustomImagesView) v_feature.findViewById(R.id.civ_tdqslyzm);
-                filename = AiUtil.GetValue(civ_tdqslyzm.getContentDescription(), "材料");
-                civ_tdqslyzm.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "/" + "附件材料/" + filename + "/"));
+                filename = AiUtil.GetValue(civ_tdqslyzm.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+                civ_tdqslyzm.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "/" + FeatureHelper.FJCL + filename + "/"));
                 fillView(v_feature);
 
                 CustomImagesView civ_fwzp = (CustomImagesView) v_feature.findViewById(R.id.civ_fwzp);
-                String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), "材料");
-                civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
+                String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+                civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + fileDescription + "/"));
 
                 //新增附属宗地
                 v_feature.findViewById(R.id.tv_add_fszd).setOnClickListener(new View.OnClickListener() {
@@ -1139,7 +1139,7 @@ public class FeatureEditQLR extends FeatureEdit {
                                         mapInstance.newFeatureView(feature).fillFeatureAddSave(feature, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                //FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.Get(feature, "XM", "")+"/"+"附件材料/" + filename + "/"
+                                                //FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.Get(feature, "XM", "")+"/"+FeatureHelper.FJCL + filename + "/"
                                                 // String dir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + FeatureHelper.Get(feature, "XM", "")+"/"+"附件材料/证件号/");
                                                 String dir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "/" + "附件材料/证件号/");
                                                 String filename = dir + "/" + FeatureHelper.Get(feature, "XM", "") + AiUtil.GetValue(new Date(), "") + ".jpg";

@@ -94,9 +94,9 @@ public class FeatureEditH extends FeatureEdit {
                 fillView(v_feature);
 
                 CustomImagesView civ_qlrzjh = (CustomImagesView) v_feature.findViewById(R.id.civ_qlrzjh);
-                final String filename = AiUtil.GetValue(civ_qlrzjh.getContentDescription(), "材料");
+                final String filename = AiUtil.GetValue(civ_qlrzjh.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
                 // String hh = AiUtil.GetValue((String) feature.getAttributes().get("HH"), "0000");
-                civ_qlrzjh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
+                civ_qlrzjh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         Map<String, String> datas = (Map<String, String>) t_;

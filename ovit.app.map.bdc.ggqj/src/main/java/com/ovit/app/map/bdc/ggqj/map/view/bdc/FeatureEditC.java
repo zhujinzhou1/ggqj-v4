@@ -391,7 +391,7 @@ public class FeatureEditC extends FeatureEdit {
                         helper.setImageResource(R.id.iv_extend, flag ? R.mipmap.app_icon_opt_to_right : R.mipmap.app_icon_opt_to_bottom);
                     }
                 });
-                final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/" + jpg_type + "/") + jpg_type + "_" + id + ".jpg";
+                final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + FeatureHelper.FJCL + jpg_type + "/") + jpg_type + "_" + id + ".jpg";
                 ImageUtil.set(iv_image, filename);
             }
         };
@@ -415,18 +415,18 @@ public class FeatureEditC extends FeatureEdit {
                         helper.setImageResource(R.id.iv_extend, flag ? R.mipmap.app_icon_opt_to_right : R.mipmap.app_icon_opt_to_bottom);
                     }
                 });
-                final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/" + jpg_type + "/") + jpg_type + "_" + id + ".jpg";
+                final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + FeatureHelper.FJCL + jpg_type + "/") + jpg_type + "_" + id + ".jpg";
                 ImageUtil.set(iv_image, filename);
             }
         };
     }
 
     public static String getpath(final MapInstance mapInstance, final Feature feature, String type, String cs, String dex) {
-        return FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/" + type + "/") + type + "_" + cs + dex;
+        return FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + FeatureHelper.FJCL + type + "/") + type + "_" + cs + dex;
     }
 
     public static void clearpath(final MapInstance mapInstance, final Feature feature, String type) {
-        FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/" + type + "/", true);
+        FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + FeatureHelper.FJCL + type + "/", true);
     }
 
     public String getpath_FCFHT_DXF(final MapInstance mapInstance, final Feature feature, String cs) {

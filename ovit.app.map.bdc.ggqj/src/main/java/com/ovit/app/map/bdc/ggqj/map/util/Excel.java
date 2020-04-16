@@ -5,9 +5,6 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.esri.arcgisruntime.data.Feature;
-import com.esri.arcgisruntime.data.FeatureTable;
-import com.ovit.app.map.bdc.ggqj.map.MapInstance;
-import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.util.AiForEach;
@@ -28,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.WorkbookSettings;
@@ -2190,8 +2186,8 @@ public class Excel
                 int index=fs_zd.indexOf(f_zd)+1;
                 wSheet.addCell( new Label(0, index+1, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"")));
                 wSheet.addCell( new Label(1, index+1, FeatureHelper.Get(f_zd,"QLRXM","")));
-                String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "权利人证件号";
-                String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "户口簿";
+                String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "权利人证件号";
+                String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "户口簿";
                 String sfzzmcl="";
                 if (FileUtils.getFileCount(image_sfzmcl) > 0){
                     sfzzmcl="身份证";
@@ -2327,8 +2323,8 @@ public class Excel
                 String zddm=FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                 wSheet.addCell(new Label(0, index , FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "")));
                 wSheet.addCell(new Label(1, index , FeatureHelper.Get(f_zd, "QLRXM", "")));
-                String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "权利人证件号";
-                String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "户口簿";
+                String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "权利人证件号";
+                String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "户口簿";
                 String sfzzmcl = "";
                 if (FileUtils.getFileCount(image_sfzmcl) > 0) {
                     sfzzmcl = "身份证";

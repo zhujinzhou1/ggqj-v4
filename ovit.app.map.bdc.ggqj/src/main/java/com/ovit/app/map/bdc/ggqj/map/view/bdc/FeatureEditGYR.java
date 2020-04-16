@@ -70,8 +70,8 @@ public class FeatureEditGYR extends FeatureEdit
             {
                 mapInstance.fillFeature(feature);
                 CustomImagesView civ_zjh = (CustomImagesView) v_feature.findViewById(R.id.civ_zjh);
-                String filename = AiUtil.GetValue(civ_zjh.getContentDescription(), "材料");
-                civ_zjh.setName(filename + "(正反面)").setDir(FileUtils.getAppDirAndMK(getpath_root() +"附件材料/" + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
+                String filename = AiUtil.GetValue(civ_zjh.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+                civ_zjh.setName(filename + "(正反面)").setDir(FileUtils.getAppDirAndMK(getpath_root() +FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         Map<String, String> datas = (Map<String, String>) t_;

@@ -1028,6 +1028,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     map.put("ZDZHDM", zddm);
                     map.put("JZXQDH", jzxqdh);
                     map.put("XLZDQLR", xlzdqlr);
+                    map.put("XLZDZDDM", xlzdqlr);
                     ps = new PointCollection(f_jzd1.getGeometry().getSpatialReference());
                     ps.add((Point) f_jzd1.getGeometry());
                 }

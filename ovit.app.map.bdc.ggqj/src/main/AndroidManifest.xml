@@ -133,6 +133,7 @@
         <activity
             android:name="com.ovit.app.im.activity.MessageIM_RecordActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
+        <activity android:name="com.ovit.app.signature.SignActivity"/>
         <!-- 注册该插件 -->
         <receiver android:name="com.ovit.app.widget.DeskIconWidgetProvider">
             <intent-filter>

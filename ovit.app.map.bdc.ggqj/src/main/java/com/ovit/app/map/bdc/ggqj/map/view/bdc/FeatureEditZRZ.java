@@ -71,10 +71,10 @@ public class FeatureEditZRZ extends FeatureEdit {
                 fillView(v_feature);
 
                 CustomImagesView civ_fwzp = (CustomImagesView) v_feature.findViewById(R.id.civ_fwzp);
-                String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), "材料");
+                String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
                 old_zrzh = AiUtil.GetValue(feature.getAttributes().get("ZRZH"), "");
 
-                civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
+                civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + fileDescription + "/"));
                 ((TextView) v_feature.findViewById(R.id.et_zcs)).setText(AiUtil.GetValue(FeatureHelper.Get(feature, "ZCS"), "1", "#.##"));
                 if (AppConfig.PHSZ_DSDXC_OPEN.equals(AppConfig.get(AppConfig.APP_BDCQJDC_PHSZ_DSDXC, AppConfig.PHSZ_DSDXC_CLOSE))) {
                     v_feature.findViewById(R.id.ll_dscs).setVisibility(View.VISIBLE);

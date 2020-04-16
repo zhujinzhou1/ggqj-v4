@@ -683,10 +683,10 @@ public class FeatureViewC extends FeatureView {
                             final List<Feature> fs_c_all) {
         try {
             String bdcdyh = FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
-            String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh ;
+            String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + bdcdyh ;
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
                 // 内蒙 城镇 陈总
                 String dxf_fcfht = dxfDir + "房产分层图.dxf";// fs_zrz =0

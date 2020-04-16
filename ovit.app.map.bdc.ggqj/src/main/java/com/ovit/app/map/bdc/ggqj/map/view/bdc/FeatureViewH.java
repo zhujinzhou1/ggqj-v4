@@ -949,15 +949,15 @@ public class FeatureViewH extends FeatureView {
                            final List<Feature> fs_c_all) {
         try {
             String bdcdyh = FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
                 // 内蒙 城镇 陈总
-                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + bdcdyh + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfht_neimeng(mapInstance).set(dxf_fcfht).set(feature_bdc, f_h, f_zd, fs_zrz, fs_c_all).write().save();
             } else {
-                String dxfDefault = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分户图.dxf";
+                String dxfDefault = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + bdcdyh + "房产分户图.dxf";
                 new DxfFcfhtDefault(mapInstance).set(dxfDefault).set(feature_bdc, f_h, f_zd, fs_zrz, fs_c_all).write().save();
             }
 

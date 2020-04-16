@@ -119,8 +119,8 @@ public class FeatureEditLJZ extends FeatureEdit {
                 });
 
                 CustomImagesView civ_fwzp = (CustomImagesView) v_feature.findViewById(R.id.civ_fwzp);
-                String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), "材料");
-                civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + fileDescription + "/"));
+                String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+                civ_fwzp.setName(fileDescription, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + fileDescription + "/"));
 
                 v_feature.findViewById(R.id.et_tv_autodrawh).setOnClickListener(new View.OnClickListener() {
                     @Override

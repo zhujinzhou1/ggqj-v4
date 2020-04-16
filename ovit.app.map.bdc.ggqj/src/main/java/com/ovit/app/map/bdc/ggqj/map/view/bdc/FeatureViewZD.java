@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -56,6 +58,7 @@ import com.ovit.app.map.custom.LayerConfig;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.map.custom.shape.ShapeUtil;
 import com.ovit.app.map.model.FwPc;
+import com.ovit.app.signature.SignActivity;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
@@ -132,7 +135,7 @@ public class FeatureViewZD extends FeatureView {
                     @Override
                     public void onClick(View v) {
 //                        zntq(feature);
-                        zncl(feature,null);
+                        zncl(feature, null);
 
                     }
                 });
@@ -332,7 +335,7 @@ public class FeatureViewZD extends FeatureView {
                                 final List<Feature> fs_zrz = (List<Feature>) t_;
 
                                 aidialog.addContentView("识别成功，您可能需要快速生成户、层。");
-                                aidialog.setFooterView(AiDialog.COMPLET,null, null, null, AiDialog.EXECUTE_NEXT,  new DialogInterface.OnClickListener() {
+                                aidialog.setFooterView(AiDialog.COMPLET, null, null, null, AiDialog.EXECUTE_NEXT, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(final DialogInterface dialog, int which) {
                                         aidialog.dismiss();
@@ -393,8 +396,7 @@ public class FeatureViewZD extends FeatureView {
 
     }
 
-    private void txsb(final Feature f_zd, final AiRunnable callback)
-    {
+    private void txsb(final Feature f_zd, final AiRunnable callback) {
         final FeatureViewZD fv_zd = (FeatureViewZD) mapInstance.newFeatureView(f_zd);
         final List<Feature> featuresZrz = new ArrayList<>();
         identyZrz(featuresZrz, new AiRunnable() {
@@ -422,12 +424,12 @@ public class FeatureViewZD extends FeatureView {
     }
 
 
-
     /**
      * 通过宗地智能提取自然幢
+     *
      * @param f_zd
      */
-    private void zntq( Feature f_zd) {
+    private void zntq(Feature f_zd) {
         final String funcdesc = "该功能将逐宗地内逻辑幢提取为自然幢。";
         final AiDialog aidialog = AiDialog.get(mapInstance.activity);
         aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "提取幢")
@@ -470,7 +472,7 @@ public class FeatureViewZD extends FeatureView {
                         // 查询宗地范围内的逻辑幢
                         final List<Feature> fs_zrz = new ArrayList<>();
                         final List<Feature> fs_ljz = new ArrayList<>();
-                         queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, fs_zrz, new AiRunnable() {
+                        queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, fs_zrz, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 // 通过逻辑幢合成自然幢
@@ -510,6 +512,7 @@ public class FeatureViewZD extends FeatureView {
 
     /**
      * 通过宗地智能提取自然幢
+     *
      * @param f_zd
      */
     private void zncl(final Feature f_zd, final AiRunnable callback) {
@@ -2318,7 +2321,7 @@ public class FeatureViewZD extends FeatureView {
                             final List<Feature> fs_h,
                             final List<Feature> fs_h_fsjg) {
         try {
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
             // 导出shp 文件
             final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_ZD + ".shp";
@@ -2339,24 +2342,24 @@ public class FeatureViewZD extends FeatureView {
             String dxf_bdcdyh = bdcdyh;
             if (DxfHelper.TYPE == DxfHelper.TYPE_JINSAN) {
                 // 京山 十堰 郧阳 冀保书
-                final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "分层分户图.dxf";// fs_zrz =0
+                final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "分层分户图.dxf";// fs_zrz =0
                 new DxfFcfwh_jinshan(mapInstance).set(dxf_fcfht).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_BADONG) {
                 // 巴东 王总
-                final String dxf_fcfht_enshi = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分户图.dxf";// fs_zrz =0
+                final String dxf_fcfht_enshi = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfht_badong(mapInstance).set(dxf_fcfht_enshi).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_TIANMEN || DxfHelper.TYPE == DxfHelper.TYPE_HONGHU) {
                 // 天门 乔向阳
-                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
+                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
                 new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN) {
                 // 咸安
-                final String dxf_fc_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
+                final String dxf_fc_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
                 new DxfFcfct_xianan(mapInstance).set(dxf_fc_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-                final String dxf_fcfht_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产图.dxf";// fs_zrz =0
+                final String dxf_fcfht_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产图.dxf";// fs_zrz =0
                 new DxfFct_xianan(mapInstance).set(dxf_fcfht_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else {
-                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
+                final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
 //                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
                 new DxfZdctDefult(mapInstance).set(dxf_fcfht_tianmen).set(f_zd).save();
             }
@@ -2365,6 +2368,38 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
+    public void setSign(TextView tv_sign, final ImageView iv_sign, final String signDirPath, String name) {
+
+        if (tv_sign != null && iv_sign != null) {
+            final String signName = AiUtil.GetValue(tv_sign.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+            final String signPath = FileUtils.getAppDirAndMK(signDirPath + "/" + signName + "签章举证/") + "/" + signName +name+ "电子签章.jpg";
+
+            if (FileUtils.exsit(signPath)) {
+                iv_sign.setVisibility(View.VISIBLE);
+                SignActivity.LoadImg(activity, signPath, iv_sign);
+            }
+            tv_sign.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SignActivity.Sign(activity, signPath, new AiRunnable() {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            if ((Integer) t_ == 1) {
+                                if (iv_sign.getVisibility() != View.VISIBLE) {
+                                    iv_sign.setVisibility(View.VISIBLE);
+                                }
+                                SignActivity.LoadImg(activity, signPath, iv_sign);
+                            }
+                            String path = FileUtils.getAppDirAndMK(signDirPath + "/" + signName + "签章举证/") + "/缩放" + signName + "电子签章.jpg";
+                            MapImage.getZoomBitmap(signPath, path);
+                            return null;
+                        }
+                    });
+                }
+            });
+        }
+
+    }
 
 
     ///endregion

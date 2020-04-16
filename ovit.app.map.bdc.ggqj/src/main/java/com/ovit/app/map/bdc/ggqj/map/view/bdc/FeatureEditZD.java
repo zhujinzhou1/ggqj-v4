@@ -125,7 +125,7 @@ public class FeatureEditZD extends FeatureEdit {
     public void init() {
         super.init();
         // 菜单 基本信息 界址情况 界址签字 宗地草图 自然幢 分摊情况 不动产单元
-        menus = new int[]{R.id.ll_info, R.id.ll_jzd, R.id.ll_jzx, R.id.ll_zdct, R.id.ll_zrz, R.id.ll_ft, R.id.ll_bdcdy};
+        menus = new int[]{R.id.ll_info, R.id.ll_jzd, R.id.ll_jzx, R.id.ll_zdct, R.id.ll_zrz, R.id.ll_ft, R.id.ll_bdcdy,R.id.ll_dzqz};
     }
 
     // 填充界面
@@ -208,8 +208,8 @@ public class FeatureEditZD extends FeatureEdit {
             });
 
             CustomImagesView civ_qlrzjh = (CustomImagesView) v_feature.findViewById(R.id.civ_qlrzjh);
-            String filename = AiUtil.GetValue(civ_qlrzjh.getContentDescription(), "材料");
-            civ_qlrzjh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
+            String filename = AiUtil.GetValue(civ_qlrzjh.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+            civ_qlrzjh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     updateQlr((Map<String, String>) t_, v_feature);
@@ -218,8 +218,8 @@ public class FeatureEditZD extends FeatureEdit {
             });
 
             CustomImagesView civ_fzrzjbh = (CustomImagesView) v_feature.findViewById(R.id.civ_fzrzjbh);
-            filename = AiUtil.GetValue(civ_fzrzjbh.getContentDescription(), "材料");
-            civ_fzrzjbh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
+            filename = AiUtil.GetValue(civ_fzrzjbh.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+            civ_fzrzjbh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     updateFr((Map<String, String>) t_, v_feature);
@@ -228,12 +228,12 @@ public class FeatureEditZD extends FeatureEdit {
             });
 
             CustomImagesView civ_hkb = (CustomImagesView) v_feature.findViewById(R.id.civ_hkb);
-            filename = AiUtil.GetValue(civ_hkb.getContentDescription(), "材料");
-            civ_hkb.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/"));
+            filename = AiUtil.GetValue(civ_hkb.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+            civ_hkb.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/"));
 
             CustomImagesView civ_dlrzjbh = (CustomImagesView) v_feature.findViewById(R.id.civ_dlrzjbh);
-            filename = AiUtil.GetValue(civ_dlrzjbh.getContentDescription(), "材料");
-            civ_dlrzjbh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
+            filename = AiUtil.GetValue(civ_dlrzjbh.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+            civ_dlrzjbh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     updateDlr((Map<String, String>) t_, v_feature);
@@ -242,8 +242,8 @@ public class FeatureEditZD extends FeatureEdit {
             });
 
             CustomImagesView civ_tdqslyzm = (CustomImagesView) v_feature.findViewById(R.id.civ_tdqslyzm);
-            filename = AiUtil.GetValue(civ_tdqslyzm.getContentDescription(), "材料");
-            civ_tdqslyzm.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + "附件材料/" + filename + "/"));
+            filename = AiUtil.GetValue(civ_tdqslyzm.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+            civ_tdqslyzm.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/"));
 
             v_feature.findViewById(R.id.tv_autojzd).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -462,6 +462,14 @@ public class FeatureEditZD extends FeatureEdit {
                 load_jzdxqx();
             }
         });
+        addMenu("电子手签", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMenuItem(R.id.ll_dzqz);
+                load_dzsq();
+            }
+        });
+
         addMenu("宗地草图", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1175,7 +1183,7 @@ public class FeatureEditZD extends FeatureEdit {
         });
     }
 
-    // 加载界址点线签字
+    // 加载界址点线签章
     private void load_jzdxqx() {
         if (fs_jzd.size() > 0) {
             return;
@@ -1287,6 +1295,13 @@ public class FeatureEditZD extends FeatureEdit {
                             MapHelper.showCallout(mapInstance.map, name, g);
                         }
                     });
+
+                    ImageView iv_zjrqz = (ImageView) helper.getView().findViewById(R.id.iv_zjrqz);
+                    TextView tv_zjrqz = (TextView) helper.getView().findViewById(R.id.tv_zjrqz);
+                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人/") ;
+                    fv.setSign(tv_zjrqz,iv_zjrqz,path, AiUtil.GetValue(f_jzqz.get("XLZDZDDM"), ""));
+
+
                 }
             };
             adapter_jzqz.adpter(ll_list_jzqz);
@@ -1294,6 +1309,54 @@ public class FeatureEditZD extends FeatureEdit {
             return adapter_jzqz;
         }
     }
+
+    // 电子手签
+    private void load_dzsq() {
+        LinearLayout ll_dzqz = (LinearLayout) view.findViewById(R.id.ll_qlrqz);
+        LinearLayout ll_zz = (LinearLayout) view.findViewById(R.id.ll_zz);
+        LinearLayout ll_clr = (LinearLayout) view.findViewById(R.id.ll_clr);
+        LinearLayout ll_dcr = (LinearLayout) view.findViewById(R.id.ll_dcr);
+        //权利人拍照
+        CustomImagesView civ_qlrpz = (CustomImagesView) ll_dzqz.findViewById(R.id.civ_qlrpz);
+        String filename = AiUtil.GetValue(civ_qlrpz.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+        final String signDirPath = mapInstance.getpath_root()+"资料库/电子签章/";
+        String qlrsignDirPath = getpath_root()+"附件材料/电子签章/";
+        civ_qlrpz.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(qlrsignDirPath + filename + "/"));
+        //组长拍照
+        CustomImagesView civ_zz = (CustomImagesView) ll_zz.findViewById(R.id.civ_zz);
+        String filezz = AiUtil.GetValue(civ_zz.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+        civ_zz.setName(filezz, activity).setDir(FileUtils.getAppDirAndMK(signDirPath + filezz + "/"));
+        //测量人拍照
+        CustomImagesView civClr = (CustomImagesView) ll_clr.findViewById(R.id.civ_clr);
+        String fileClr = AiUtil.GetValue(civClr.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+        civClr.setName(fileClr, activity).setDir(FileUtils.getAppDirAndMK(signDirPath + fileClr + "/"));
+        //调查人拍照
+        CustomImagesView civDcr = (CustomImagesView) ll_dcr.findViewById(R.id.civ_dcr);
+        String fileDcr = AiUtil.GetValue(civDcr.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+        civDcr.setName(fileDcr, activity).setDir(FileUtils.getAppDirAndMK(signDirPath + fileDcr + "/"));
+        //权利人电子签章
+        TextView tv_sign = (TextView) ll_dzqz.findViewById(R.id.tv_sign);
+        final ImageView iv_sign = (ImageView) ll_dzqz.findViewById(R.id.iv_sign);
+        // 权利人
+        fv.setSign(tv_sign,iv_sign,qlrsignDirPath, "");
+
+        //组长电子签章
+        TextView tvZz = (TextView) ll_zz.findViewById(R.id.tv_zz);
+        ImageView ivZz = (ImageView) ll_zz.findViewById(R.id.iv_zz);
+        fv.setSign(tvZz,ivZz,signDirPath, "");
+        //测量人电子签章
+        TextView tvClr = (TextView) ll_clr.findViewById(R.id.tv_clr);
+        ImageView ivClr = (ImageView) ll_clr.findViewById(R.id.iv_clr);
+        fv.setSign(tvClr,ivClr,signDirPath, "");
+
+        //调查人电子签章
+        TextView tvDcr = (TextView) ll_dcr.findViewById(R.id.tv_dcr);
+        final ImageView ivDcr = (ImageView) ll_dcr.findViewById(R.id.iv_dcr);
+        fv.setSign(tvDcr,ivDcr,signDirPath, "");
+
+    }
+
+
 
     //endregion 界址点线签字
 

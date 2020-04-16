@@ -1430,12 +1430,12 @@ public class FeatureViewZRZ extends FeatureView {
         try {
             MapHelper.selectAddCenterFeature(mapInstance.map, f_zd);
             String bdcdyh = FeatureHelper.Get(f_bdc, FeatureHelper.TABLE_ATTR_BDCDYH, "");
-            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "不动产权籍调查表" + bdcdyh + ".docx";
+            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
             FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
 
             if (DxfHelper.TYPE == DxfHelper.TYPE_DEFULT) {
                 //以自然幢生成房产分层分户图。
-                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + bdcdyh + "房产分层分户图.dxf";// fs_zrz =0
+                String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + bdcdyh + "房产分层分户图.dxf";// fs_zrz =0
                 new DxfFcfhtDefaultZ(mapInstance).set(dxf_fcfht).set(f_bdc, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }
 
