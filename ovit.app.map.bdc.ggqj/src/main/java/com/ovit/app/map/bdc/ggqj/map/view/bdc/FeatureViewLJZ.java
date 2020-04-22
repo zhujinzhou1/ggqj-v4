@@ -200,6 +200,21 @@ public class FeatureViewLJZ extends FeatureView {
                         });
                     }
                 });
+
+                mapInstance.addAction(groupname, "提取宗地", R.mipmap.app_map_layer_zd, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                         FeatureViewZD.From(mapInstance).extratGraph(fs, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                mapInstance.canSelectMilu = false; // 设置为单选
+                                return null;
+                            }
+                        });
+                    }
+                });
+
+
             }
         }
         // 推荐

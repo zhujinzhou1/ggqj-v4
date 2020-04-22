@@ -1557,7 +1557,9 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
         final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.LAYER_NAME_ZRZ);
-        FileUtils.deleteFile(file_zrzs);
+        if (StringUtil.IsNotEmpty(FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ORID, ""))) {
+            FileUtils.deleteFile(file_zrzs);
+        }
         // 自然幢最少1个
         if (fs_zrzs.size() < 1) {
             fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
@@ -1603,65 +1605,6 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("list.zrz", maps_zrz);
     }
 
-    //设置自然幢
-    public static void Put_data_zrz_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, Feature featureBdc, String last_orid) {
-        List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
-        final String file_zrzs = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.LAYER_NAME_ZRZ);
-        FileUtils.deleteFile(file_zrzs);
-        // 自然幢最少1个
-        if (fs_zrzs.size() < 1) {
-            fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
-        }
-        List<Map<String, Object>> maps_zrz = new ArrayList<>();
-        List<String> hzszc = new ArrayList<>();
-        List<String> hzfwjgff = new ArrayList<>();
-        List<String> hzjgrq = new ArrayList<>();
-        for (Feature zrz : fs_zrzs) {
-            // 幢基本信息  找到与不动产关联的幢
-            if (!last_orid.equals(FeatureHelper.Get(zrz, FeatureHelper.TABLE_ATTR_ORID, ""))) {
-                continue;
-            }
-
-            String z_zrzh = AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), "");
-            if (AiUtil.GetValue(zrz.getAttributes().get("JZWMC"), "").equals("主房")) {
-                map_.put("ZRZ.ZFZH", AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""));
-            }
-            Map<String, Object> map_zrz = new LinkedHashMap<>();
-            Put_data_zrz(mapInstance, map_zrz, zrz);
-            hzszc.add(map_zrz.get("ZRZ.CSHZ") + "/" + map_zrz.get("ZRZ.ZCS"));
-            hzfwjgff.add(map_zrz.get("ZRZ.FWJGFF") + "");
-            hzjgrq.add(map_zrz.get("ZRZ.JGRQ") + "");
-
-            // 设置户
-            Put_data_hs(mapInstance, map_zrz, z_zrzh, fs_h);
-            //  层
-            Put_data_cs(mapInstance, map_zrz, z_zrzh, zrz, fs_z_fsjg, fs_h);
-
-
-            //  层的分页
-//            Put_data_cps(mapInstance, map_zrz, bdcdyh, z_zrzh, zrz, 6, fs_z_fsjg, fs_h);
-//            Put_data_cps_hz(mapInstance, map_zrz, bdcdyh, z_zrzh, zrz, 2, fs_z_fsjg, fs_h);
-
-            String image_fwzp = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz) + FeatureHelper.FJCL) + "房屋照片";
-            map_zrz.put("img.fwzp", image_fwzp);
-            maps_zrz.add(map_zrz);
-            // 拷贝自然幢的内容
-            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));
-
-            // 宗地与只一个zrz 设定不动产单元的情况
-            fs_zrz.clear();
-            fs_zrz.add(zrz);
-            fs_h = GetHbyZrzh(mapInstance, z_zrzh, fs_h);
-            break;
-        }
-        Put_data_all_cps(mapInstance, map_, bdcdyh, fs_zrzs, 4, fs_z_fsjg, fs_h);
-        map_.put("ZRZ.HZSZC", StringUtil.Join(hzszc, true));
-        map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
-        map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
-
-        map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
-        map_.put("list.zrz", maps_zrz);
-    }
 
     public static void Put_data_h_(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, Feature featureBdc, String last_orid) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);

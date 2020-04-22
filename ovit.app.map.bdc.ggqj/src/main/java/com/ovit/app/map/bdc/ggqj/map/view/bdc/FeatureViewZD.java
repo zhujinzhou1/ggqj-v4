@@ -97,7 +97,7 @@ public class FeatureViewZD extends FeatureView {
 
     //region 常量
     final static String TAG = "FeatureViewZD";
-    final public static String TABLE_ATTR_FTXS_ZD = "MPHM";
+    final public static String TABLE_ATTR_FTXS_ZD = "FTXS";
     ///endregion
 
     //region 字段
@@ -309,6 +309,47 @@ public class FeatureViewZD extends FeatureView {
     ///endregion
 
     //region 公有函数
+    /**
+     * 通过逻辑幢提取自然幢
+     *
+     * @param fs_ljz   逻辑幢Feature集合
+     * @param callback 提取自然幢成功后回调
+     */
+    public void extratGraph(final List<Feature> fs_ljz, final AiRunnable callback) {
+        final AiDialog aiDialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_zrz, "提取自然幢");
+        aiDialog.addContentView("确定要提取选中的逻辑幢图形合并后，创建宗地么？", "该操作不会对现有的宗地进行修改，提取宗地成功后进行关联。")
+                .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        List<Geometry> gs = MapHelper.geometry_get(fs_ljz);
+                        final Geometry g = GeometryEngine.union(gs);
+
+                        if (g instanceof Polygon) {
+                            int ps = ((Polygon) g).getParts().size();
+                            if (ps == 0) {
+                                aiDialog.setContentView("合并后的图型是空的！").setFooterView(AiDialog.CENCEL, null, null);
+                                return;
+                            } else if (ps == 1) {
+                                aiDialog.setContentView("合并后的图型是一整块，确定要继续提取么？", "接下来将提取成逻辑幢，并关联。");
+                            } else if (ps > 1) {
+                                aiDialog.setContentView("合并后的图型并非是一整块，确定要继续提取么？", "合并后的图层可能存在多个圈，根据实际情况选择。");
+                            }
+                            final Bitmap bitmap = new MapImage(100, 100).setColor(Color.BLACK).setSw(1).draw(gs).setColor(Color.RED).setSw(2).draw(g).getValue();
+                            aiDialog.addContentView(aiDialog.getView(bitmap)).setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Feature f = mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD).createFeature();
+                                    f.setGeometry(g);
+                                    ImageUtil.recycle(bitmap);
+                                    dialog.dismiss();
+                                    FeatureViewZD.CreateFeature(mapInstance, f, callback);
+                                }
+                            });
+                        }
+                    }
+                });
+    }
+
     ///endregion
 
     //region 私有函数
@@ -561,8 +602,8 @@ public class FeatureViewZD extends FeatureView {
                                                                     fv_zrz.ipug(mfs_zrz, new AiRunnable() {
                                                                         @Override
                                                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "户和层绘制成功。");
 
+                                                                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "户和层绘制成功。");
                                                                             aidialog.addContentView("数据一键处理成功。");
                                                                             aidialog.setFooterView(AiDialog.CENCEL, new DialogInterface.OnClickListener() {
                                                                                 @Override
@@ -600,7 +641,6 @@ public class FeatureViewZD extends FeatureView {
                                     });
 
                                 }
-
                                 return null;
                             }
                         });
@@ -610,34 +650,70 @@ public class FeatureViewZD extends FeatureView {
 
     private void creatZrzToLjzUnion(List<Feature> featuresLJZ, final List<Feature> featuresZRZ, final AiRunnable callback) {
         if (featuresLJZ.size() > 0) {
-            List<Geometry> gs = MapHelper.geometry_get(featuresLJZ);
-            Geometry g = GeometryEngine.union(gs);
-            if (g instanceof Polygon) {
-                ImmutablePartCollection polygonParts = ((Polygon) g).getParts();
-                int ps = polygonParts.size();
-                if (ps > 0) {
-                    for (ImmutablePart segments : polygonParts) {
-                        Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
-                        Feature featureZrz = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
-                        featureZrz.setGeometry(polygon);
-                        List<Feature> myLjz = new ArrayList<>();
-                        for (Feature f_ljz : featuresLJZ) {
-                            if (MapHelper.geometry_contains(polygon, f_ljz.getGeometry())) {
-                                myLjz.add(f_ljz);
+            List<List<Feature>> ls = new ArrayList<>();
+            final Map<String, List<Feature>> fs_map = getLsFromFeatureLjz(featuresLJZ, "FWJG1");
+            final List<String> keys = new ArrayList<>(fs_map.keySet());
+            new AiForEach<String>(keys, null) {
+
+                @Override
+                public void exec() {
+                    List<Feature> fs = fs_map.get(keys.get(postion));
+                    List<Geometry> gs = MapHelper.geometry_get(fs);
+                    Geometry g = GeometryEngine.union(gs);
+                    if (g instanceof Polygon) {
+                        ImmutablePartCollection polygonParts = ((Polygon) g).getParts();
+                        int ps = polygonParts.size();
+                        if (ps > 0) {
+                            for (ImmutablePart segments : polygonParts) {
+                                Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
+                                Feature featureZrz = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
+                                featureZrz.setGeometry(polygon);
+                                List<Feature> myLjz = new ArrayList<>();
+                                for (Feature f_ljz : fs) {
+                                    if (MapHelper.geometry_contains(polygon, f_ljz.getGeometry())) {
+                                        myLjz.add(f_ljz);
+                                    }
+                                }
+                                featureZrz.getAttributes().put("ZCS", Double.valueOf(getMaxFloor(myLjz, "ZCS")));
+                                featureZrz.getAttributes().put("FWJG", getZrzStructure(myLjz));
+                                featuresZRZ.add(featureZrz);
                             }
                         }
-                        featureZrz.getAttributes().put("ZCS", Double.valueOf(getMaxFloor(myLjz, "ZCS")));
-                        featureZrz.getAttributes().put("FWJG", getZrzStructure(myLjz));
-                        featuresZRZ.add(featureZrz);
                     }
-                    AiRunnable.Ok(callback, featuresZRZ);
-                } else {
+                    AiRunnable.Ok(getNext(), null,   null);
+                }
+
+                @Override
+                public void complet() {
                     AiRunnable.Ok(callback, featuresZRZ);
                 }
-            }
+            }.start();
+
+
         } else {
             AiRunnable.Ok(callback, featuresZRZ);
         }
+    }
+
+
+    private Map<String, List<Feature>> getLsFromFeatureLjz(List<Feature> fs, String attr) {
+        Map<String, List<Feature>> map = null;
+        if (FeatureHelper.isExistElement(fs) && StringUtil.IsNotEmpty(attr)) {
+            map = new HashMap<>();
+            for (Feature f : fs) {
+                String attrValue = FeatureHelper.Get(f, attr, "");
+                if (StringUtil.IsNotEmpty(attrValue )){
+                    List<Feature> mfs = map.get(attrValue);
+                    if (mfs == null) {
+                        mfs = new ArrayList<>();
+                        map.put(attrValue, mfs);
+                    }
+                    mfs.add(f);
+                }
+            }
+        }
+        return map;
+
     }
 
     /**
@@ -1930,49 +2006,6 @@ public class FeatureViewZD extends FeatureView {
                 }
             });
 
-
-//            FeatureEditQLR.NewID(mapInstance, pid, "", new AiRunnable() {
-//                @Override
-//                public <T_> T_ ok(T_ t_, Object... objects) {
-//                    String id = t_ + "";
-//                    String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs);
-//                    final Feature feature_new_qlr = mapInstance.getTable("QLRXX").createFeature();
-//                    //关联权利人和宗地
-//                   fv.fillFeature(feature_new_qlr);
-//
-//
-//                    feature_new_qlr.getAttributes().put("QLRDM", id);
-//                    feature_new_qlr.getAttributes().put("YHZGX", "户主");
-//                    feature_new_qlr.getAttributes().put("XM", FeatureHelper.Get(feature, "QLRXM"));
-//                    feature_new_qlr.getAttributes().put("ZJH", FeatureHelper.Get(feature, "QLRZJH"));
-//                    feature_new_qlr.getAttributes().put("ZJZL", FeatureHelper.Get(feature, "QLRZJZL"));
-//                    feature_new_qlr.getAttributes().put("DZ", FeatureHelper.Get(feature, "QLRTXDZ"));
-//                    feature_new_qlr.getAttributes().put("DH", FeatureHelper.Get(feature, "QLRDH"));
-//                    feature_new_qlr.getAttributes().put("BDCQZH", FeatureHelper.Get(feature, "TDZH"));
-//                    mapInstance.newFeatureView().fillFeature(feature_new_qlr, feature);
-//                    feature_new_qlr.getAttributes().put("BDCDYH", bdcdyh);
-//                    capyAttachments(feature, feature_new_qlr);// 拷贝附件材料
-//
-//                    if (fs.size()>0){
-//                        for (Feature f_zrz : fs) {
-//                            FeatureHelper.Set(f_zrz,"BDCDYH",bdcdyh);
-//                        }
-//                    }
-//
-//                    fs_upt.addAll(fs);
-//                    fs_upt.add(feature_new_qlr);
-//
-//                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
-//                        @Override
-//                        public <T_> T_ ok(T_ t_, Object... objects) {
-//                            AiRunnable.Ok(callback, feature_new_qlr);
-//                            return null;
-//                        }
-//                    });
-//
-//                    return null;
-//                }
-//            });
         } catch (Exception es) {
             Log.e(TAG, "通过与自然幢设定不动产单元!" + es);
         }
@@ -2348,10 +2381,12 @@ public class FeatureViewZD extends FeatureView {
                 // 巴东 王总
                 final String dxf_fcfht_enshi = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分户图.dxf";// fs_zrz =0
                 new DxfFcfht_badong(mapInstance).set(dxf_fcfht_enshi).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-            } else if (DxfHelper.TYPE == DxfHelper.TYPE_TIANMEN || DxfHelper.TYPE == DxfHelper.TYPE_HONGHU) {
+            } else if (DxfHelper.TYPE == DxfHelper.TYPE_TIANMEN || DxfHelper.TYPE == DxfHelper.TYPE_HONGHU|| DxfHelper.TYPE == DxfHelper.TYPE_LIZHI) {
                 // 天门 乔向阳
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
-                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+//                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+
+                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg,null,fs_jzd).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN) {
                 // 咸安
                 final String dxf_fc_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
@@ -2360,7 +2395,6 @@ public class FeatureViewZD extends FeatureView {
                 new DxfFct_xianan(mapInstance).set(dxf_fcfht_xianan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
-//                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
                 new DxfZdctDefult(mapInstance).set(dxf_fcfht_tianmen).set(f_zd).save();
             }
         } catch (Exception es) {

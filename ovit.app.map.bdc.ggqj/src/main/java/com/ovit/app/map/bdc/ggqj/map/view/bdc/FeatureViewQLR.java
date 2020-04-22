@@ -33,7 +33,6 @@ import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
-import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.StringUtil;
 
 import java.io.File;
@@ -436,22 +435,19 @@ public class FeatureViewQLR extends FeatureView {
             feature_new_qlr.getAttributes().put("TDZH", FeatureHelper.Get(feature_bdc, "BDCQZH"));
             feature_new_qlr.getAttributes().put(FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_bdc, FeatureHelper.TABLE_ATTR_ORID) + File.separator); //权利人关联不动产单元
 
-            //拷贝资料
-            String f_zd_path = mapInstance.getpath_feature(feature_bdc); //     不动产d单元
-            String f_qlr_path = mapInstance.getpath_feature(feature_new_qlr);// 权利人 gyrxx
-
-            String f_zd_zjh_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/证件号/");
-            String f_qlr_zjh_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/证件号/");
-            FileUtils.copyFile(f_zd_zjh_path, f_qlr_zjh_path);
-
-            String f_zd_zmcl_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/土地权属来源证明材料/");
-            String f_qlr_zmcl_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/土地权属来源证明材料/");
-            FileUtils.copyFile(f_zd_zmcl_path, f_qlr_zmcl_path);
-
-            String f_zd_hkb_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/户口簿/");
-            String f_qlr_hkb_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/户口簿/");
-
-            FileUtils.copyFile(f_zd_hkb_path, f_qlr_hkb_path);
+            mapInstance.fillFeature(feature_new_qlr);
+//            String f_zd_zjh_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/证件号/");
+//            String f_qlr_zjh_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/证件号/");
+//            FileUtils.copyFile(f_zd_zjh_path, f_qlr_zjh_path);
+//
+//            String f_zd_zmcl_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/土地权属来源证明材料/");
+//            String f_qlr_zmcl_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/土地权属来源证明材料/");
+//            FileUtils.copyFile(f_zd_zmcl_path, f_qlr_zmcl_path);
+//
+//            String f_zd_hkb_path = FileUtils.getAppDirAndMK(f_zd_path + "/" + "附件材料/户口簿/");
+//            String f_qlr_hkb_path = FileUtils.getAppDirAndMK(f_qlr_path + "/" + "附件材料/户口簿/");
+//
+//            FileUtils.copyFile(f_zd_hkb_path, f_qlr_hkb_path);
             MapHelper.saveFeature(feature_new_qlr, callback);
 
         } catch (Exception es) {

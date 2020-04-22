@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -145,8 +144,7 @@ public class FeatureEditHJXX extends FeatureEdit
     {
         try {
             final Feature feature = GetTable(mapInstance, "HJXX", "户籍信息").createFeature();
-            initFeatureHJXX(feature,qlr_feature);
-//            mapInstance.fillFeature(feature,qlr_feature);
+            mapInstance.fillFeature(feature,qlr_feature);
             mapInstance.newFeatureView(feature).fillFeatureAddSave(feature, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {

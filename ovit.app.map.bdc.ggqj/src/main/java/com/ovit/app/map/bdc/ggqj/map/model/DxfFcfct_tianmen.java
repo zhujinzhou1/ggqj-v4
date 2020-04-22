@@ -11,6 +11,9 @@ import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReference;
+import com.ovit.app.emoticonskeyboard.db.DBHelper;
+import com.ovit.app.lzdb.DbTemplet;
+import com.ovit.app.lzdb.bean.STAnno;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZRZ;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
@@ -18,8 +21,11 @@ import com.ovit.app.map.model.LineLabel;
 import com.ovit.app.map.model.MapInstance;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.DicUtil;
+import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.StringUtil;
+import com.ovit.app.util.db.DB;
+import com.ovit.app.util.db.DBManager;
 import com.ovit.app.util.gdal.cad.DxfAdapter;
 import com.ovit.app.util.gdal.cad.DxfHelper;
 import com.ovit.app.util.gdal.cad.DxfTemplet;
@@ -63,6 +69,14 @@ public class DxfFcfct_tianmen {
     private List<Feature> fs_zrz;
     private String jgrq;
     private Envelope o_extend_1;
+    private ArrayList<Map.Entry<String, List<Feature>>> fs_map_croup;
+
+    Map<String,List> dbMap =null;
+    private List<Feature> fs_h;
+    private List<Feature> fs_z_fsjg;
+    private List<Feature> fs_h_fsjg;
+    private List<Feature> fs_hjxx;
+    private List<Feature> fs_jzd;
 
     public DxfFcfct_tianmen(MapInstance mapInstance) {
         this.mapInstance = mapInstance;
@@ -79,10 +93,17 @@ public class DxfFcfct_tianmen {
         return this;
     }
 
-    public DxfFcfct_tianmen set(String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, List<Feature> fs_h_fsjg) {
+    public DxfFcfct_tianmen set(String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg
+            , List<Feature> fs_h, List<Feature> fs_h_fsjg,List<Feature> fs_hjxx,List<Feature> fs_jzd) {
         this.bdcdyh = bdcdyh;
         this.f_zd = f_zd;
         this.fs_zrz=fs_zrz;
+        this.fs_h=fs_h;
+        this.fs_z_fsjg=fs_z_fsjg;
+        this.fs_h_fsjg=fs_h_fsjg;
+        this.fs_jzd=fs_jzd;
+        this.fs_hjxx=fs_hjxx;
+
         fs_hAndFs = new ArrayList<>();
 
         fs_hAndFs.addAll(fs_z_fsjg);
@@ -208,10 +229,26 @@ public class DxfFcfct_tianmen {
         ArrayList<Map.Entry<String, List<Feature>>> fs_map_croup = FeatureViewZRZ.GroupbyC_Sort(fs_hAndFs);
 
         if (dxf == null) {
-            dxf = new DxfAdapter();
-            // 创建dxf
+            dxf=new DxfAdapter();
             dxf.create(dxfpath, p_extend, spatialReference).setFontSize(o_fontsize);
+            // 创建dxf
+            if (DBManager.Template.getLiteOrm()!=null){
+                dbMap= DbTemplet.GetDbMap();
+                dxf.setDbMap(dbMap);
+            }
         }
+
+        fs_map_croup = FeatureViewZRZ.GroupbyC_Sort(fs_hAndFs);
+        dbMap.get(DbTemplet.DB_C_CALLAYERS).addAll(DbTemplet.GetalLayer(fs_map_croup));
+        dbMap.get(DbTemplet.DB_ZD).add(DbTemplet.GetDbZds(f_zd));
+//        dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_hjxx));
+        dbMap.get(DbTemplet.DB_JZD).addAll(DbTemplet.GetDbJzd(fs_jzd));
+        dbMap.get(DbTemplet.DB_SVMETADATA).addAll(DbTemplet.GetSvMetadata(fs_zrz,f_zd,mapInstance));
+        dbMap.get(DbTemplet.DB_TDOOR).addAll(DbTemplet.GetTDoor(fs_h,f_zd,fs_h_fsjg));
+        dbMap.get(DbTemplet.DB_TLAYER).addAll(DbTemplet.GetTLayer(fs_h,fs_h_fsjg));
+
+
+
         try {
             List<String[]> list_z=new ArrayList<>();
             Map<String,String> map_lable=new HashMap<>();
@@ -468,6 +505,16 @@ public class DxfFcfct_tianmen {
                 Envelope cel_5_1 = new Envelope(x_, y_, x+ w/2, y-p_height+3*h, p_extend.getSpatialReference());
                 dxf.write(cel_5_1, null, "", o_fontsize, null, false, 0, 0);
 
+                Point p_m = new Point(cel_5_1.getCenter().getX(),cel_5_1.getYMin() + 2*o_split);
+                if (dbMap != null) {
+                    STAnno sTAnno = new STAnno();
+                    sTAnno.Geometry = DbTemplet.GetStAnnoGeometry(p_m,s_pmt_1,0,DxfHelper.FONT_WIDTH_DEFULT
+                            ,o_fontsize*1.5f,DxfHelper.COLOR_BYLAYER,DxfHelper.FONT_STYLE_SONGTI,1);
+                    dbMap.get(DbTemplet.DB_TEXT_STANNOS).add(sTAnno);
+
+                }
+
+
                 dxf.write(mapInstance, cs.get(0).fs, null, DxfHelper.getDistanceMove(cs.get(0).fs,cel_5_1,spatialReference),2, DxfHelper.LINE_LABEL_OUTSIDE,new LineLabel());
 
                 double y_o_1=y-p_height+3*h+list_z.size()*h;
@@ -529,6 +576,15 @@ public class DxfFcfct_tianmen {
                     // 二层描述
                     double y_o_2 = y_ - p_height / 2 + list_z.size() * h ;
                     String dsc_2 = "";
+
+                    Point p = new Point(cel_1_1_right.getCenter().getX(),cel_1_1_right.getYMin() + 2*o_split);
+                    if (dbMap != null) {
+                        STAnno sTAnno = new STAnno();
+                        sTAnno.Geometry = DbTemplet.GetStAnnoGeometry(p,s_pmt_2,0,DxfHelper.FONT_WIDTH_DEFULT
+                                ,o_fontsize*1.5f,DxfHelper.COLOR_BYLAYER,DxfHelper.FONT_STYLE_SONGTI,1);
+                        dbMap.get(DbTemplet.DB_TEXT_STANNOS).add(sTAnno);
+
+
                     for (int i = 0; i < list_z.size(); i++) {
                         if (TextUtils.isEmpty(dsc_2) && StringUtil.IsNotEmpty(list_z.get(i)[3 + (1 + (page - 1) * 3)])) {
                             dsc_2 += list_z.get(i)[0] + "幢" + StringUtil.GetFormatNumber2(2 + (page - 1) * 3 + "") + "层建筑面积" + list_z.get(i)[4+(page-1)*3] + "㎡";
@@ -556,6 +612,17 @@ public class DxfFcfct_tianmen {
                     // 三层描述
                     double y_o_3 = y_ - p_height / 2 + list_z.size() * h;
                     String dsc_3 = "";
+
+                    Point p2 = new Point(cel_2_1_right.getCenter().getX(),cel_2_1_right.getYMin() + 3*o_split);
+                    if (dbMap != null) {
+                        STAnno sTAnno = new STAnno();
+                        sTAnno.Geometry = DbTemplet.GetStAnnoGeometry(p2,s_pmt_3,0,DxfHelper.FONT_WIDTH_DEFULT
+                                ,o_fontsize*1.5f,DxfHelper.COLOR_BYLAYER,DxfHelper.FONT_STYLE_SONGTI,1);
+                        dbMap.get(DbTemplet.DB_TEXT_STANNOS).add(sTAnno);
+
+                    }
+
+
                     for (int i = 0; i < list_z.size(); i++) {
                         if (TextUtils.isEmpty(dsc_3) && StringUtil.IsNotEmpty(list_z.get(i)[4 + (1 + (page - 1) * 3)])) {
                             dsc_3 += list_z.get(i)[0] + "幢" + StringUtil.GetFormatNumber2(3 + (page - 1) * 3 + "") + "层建筑面积" + list_z.get(i)[5+(page-1)*3] + "㎡";
@@ -607,8 +674,33 @@ public class DxfFcfct_tianmen {
                 Point p_shr = cel_shr.getCenter();
                 dxf.writeText(p_shr, sShr, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
 
+                    if(page==1) {
+                        double e_height = cel_5_1.getHeight();
+                        Point point_d = new Point(cel_5_1.getXMax() - o_split, cel_5_1.getYMin() + e_height / 2, cel_5_1.getSpatialReference());
+                        Point point_x = new Point(cel_5_1.getXMin() + o_split, cel_5_1.getYMin() + e_height / 2, cel_5_1.getSpatialReference());
+                        Point point_b = new Point(cel_5_1.getCenter().getX(), cel_5_1.getYMax() - 3 * o_split, cel_5_1.getSpatialReference());
+                        Point point_n = new Point(cel_5_1.getCenter().getX(), cel_5_1.getYMin() + 3 * o_split, cel_5_1.getSpatialReference());
+                        if (dbMap != null) {
+                            STAnno sTAnnod = new STAnno();
+                            STAnno stAnnox = new STAnno();
+                            STAnno stAnnon = new STAnno();
+                            STAnno stAnnob = new STAnno();
+                            sTAnnod.Geometry = DbTemplet.GetStAnnoGeometry(point_d, FeatureHelper.Get(f_zd, "ZDSZD", ""), 0, DxfHelper.FONT_WIDTH_DEFULT
+                                    , o_fontsize, DxfHelper.COLOR_BYLAYER, DxfHelper.FONT_STYLE_SONGTI, 1);
+                            dbMap.get(DbTemplet.DB_TEXT_STANNOS).add(sTAnnod);
+                            stAnnox.Geometry = DbTemplet.GetStAnnoGeometry(point_x, FeatureHelper.Get(f_zd, "ZDSZX", ""), 0, DxfHelper.FONT_WIDTH_DEFULT
+                                    , o_fontsize, DxfHelper.COLOR_BYLAYER, DxfHelper.FONT_STYLE_SONGTI, 1);
+                            dbMap.get(DbTemplet.DB_TEXT_STANNOS).add(stAnnox);
+                            stAnnon.Geometry = DbTemplet.GetStAnnoGeometry(point_b, FeatureHelper.Get(f_zd, "ZDSZB", ""), 0, DxfHelper.FONT_WIDTH_DEFULT
+                                    , o_fontsize, DxfHelper.COLOR_BYLAYER, DxfHelper.FONT_STYLE_SONGTI, 1);
+                            dbMap.get(DbTemplet.DB_TEXT_STANNOS).add(stAnnon);
+                            stAnnob.Geometry = DbTemplet.GetStAnnoGeometry(point_n, FeatureHelper.Get(f_zd, "ZDSZN", ""), 0, DxfHelper.FONT_WIDTH_DEFULT
+                                    , o_fontsize, DxfHelper.COLOR_BYLAYER, DxfHelper.FONT_STYLE_SONGTI, 1);
+                            dbMap.get(DbTemplet.DB_TEXT_STANNOS).add(stAnnob);
+                        }
+                    }
+                }
             }
-
 
         } catch (Exception es) {
             dxf.error("生成失败", es, true);
@@ -648,6 +740,22 @@ public class DxfFcfct_tianmen {
     public DxfFcfct_tianmen save() throws Exception {
         if (dxf != null) {
             dxf.save();
+            dxf=null;
+
+            String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/db") ;
+            if(FileUtils.exsit(path + DBHelper.DB_NAME)){
+                FileUtils.deleteFile(path);
+            }
+            DB db = new DB(DBHelper.DB_NAME,path);
+            db.save(dbMap.get(DbTemplet.DB_JZD));
+            db.save(dbMap.get(DbTemplet.DB_QLRXX));
+            db.save(dbMap.get(DbTemplet.DB_C_CALLAYERS));
+            db.save(dbMap.get(DbTemplet.DB_ZD));
+            db.save(dbMap.get(DbTemplet.DB_TDOOR));
+            db.save(dbMap.get(DbTemplet.DB_SVMETADATA));
+            db.save(dbMap.get(DbTemplet.DB_TEXT_STANNOS));
+            db.save(dbMap.get(DbTemplet.DB_SHAPE_STREGIONS));
+            db.save(dbMap.get(DbTemplet.DB_TLAYER));
         }
         return this;
     }

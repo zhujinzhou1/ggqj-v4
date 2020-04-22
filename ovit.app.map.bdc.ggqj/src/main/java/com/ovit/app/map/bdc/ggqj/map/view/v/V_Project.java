@@ -139,7 +139,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 final String fundesc = "生成两权数据！";
-                FeatureHelper.vaildfunc(mapInstance, fundesc, true, new AiRunnable() {
+                FeatureHelper.vaildfunc(mapInstance, fundesc, false, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         Geometry g = null;
@@ -2148,6 +2148,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             if (g != null) {
                 Feature f_ljz = table.createFeature();
                 String fwjg1= "FWJG1";
+                String fwjg= "FWJG";
                 for (String value : f.getExtendeds()) {
                     if (isLc(value)){
                         FeatureHelper.Set(f_ljz, "ZCS",value); // 层数
@@ -2158,33 +2159,46 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 if ("141111".equalsIgnoreCase(stdm)) {
                     // 砼 房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "3");// 房屋结构 [A][砼]钢筋混凝土结构
+                    FeatureHelper.Set(f_ljz,"FWJG","砼");
                 } else if ("141121".equalsIgnoreCase(stdm)) {
                     // 砖 房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "5");// 房屋结构 [C][砖]砖木结构
+                    FeatureHelper.Set(f_ljz,"FWJG","砖");
                 } else if ("141131".equalsIgnoreCase(stdm)) {
                     //  铁房子
                     FeatureHelper.Set(f_ljz, fwjg1, "铁");// 房屋结构 [铁][铁]铁结构
+                    FeatureHelper.Set(f_ljz,"FWJG","铁");
+
                 } else if ("141141".equalsIgnoreCase(stdm)) {
                     //  钢房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "1");// 房屋结构 [1][钢]铁结构
-                } else if ("141151".equalsIgnoreCase(stdm)) {
+                    FeatureHelper.Set(f_ljz, "FWJG", "钢");
+
+                }else if ("141151".equalsIgnoreCase(stdm)) {
                     //  木房子
                     FeatureHelper.Set(f_ljz, fwjg1, "木");// [T][土]土木结构
+                    FeatureHelper.Set(f_ljz,"FWJG","木");
                 } else if ("141161".equalsIgnoreCase(stdm)) {
                     //  混房子
                     FeatureHelper.Set(f_ljz, fwjg1, "4");// [B][混]混合结构
-                } else if ("141200".equalsIgnoreCase(stdm)) {
+                    FeatureHelper.Set(f_ljz,"FWJG","");
+
+                    } else if ("141200".equalsIgnoreCase(stdm)) {
                     // 简 房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "简");// 房屋结构 [简][简]简单房屋
+                    FeatureHelper.Set(f_ljz,"FWJG","简");
                 } else if ("141300".equalsIgnoreCase(stdm)) {
                     // 建筑中房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "建");// [建][建]建筑中房屋
+                    FeatureHelper.Set(f_ljz,"FWJG","建");
                 } else if ("141400".equalsIgnoreCase(stdm)) {
                     // 破坏房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "破");// 房屋结构 [破][破]破坏房屋
+                    FeatureHelper.Set(f_ljz,"FWJG","破");
                 } else {
                     //141101	0	一般房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "6");// 其他房屋
+                    FeatureHelper.Set(f_ljz,"FWJG","其");
                 }
                 f_ljz.setGeometry(g);
                 mapInstance.fillFeature(f_ljz);

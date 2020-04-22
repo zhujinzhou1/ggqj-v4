@@ -345,8 +345,6 @@ public class FeatureViewH extends FeatureView {
                 String szc = FeatureHelper.Get(feature, "SZC", "");
                 if ((c + "").equals(szc)) {
                     return true;
-                } else {
-                    return false;
                 }
             }
 

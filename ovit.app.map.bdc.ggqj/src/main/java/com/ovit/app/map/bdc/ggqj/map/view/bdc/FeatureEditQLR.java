@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -99,6 +100,9 @@ public class FeatureEditQLR extends FeatureEdit {
         try {
             if (feature != null) {
                 mapInstance.fillFeature(feature);
+                TextView tv_path = (TextView) v_feature.findViewById(R.id.tv_path);
+                tv_path.setText(fv.getOrid());
+
                 et_xm = (EditText) v_feature.findViewById(R.id.et_xm);
                 EditText et_zjh = (EditText) v_feature.findViewById(R.id.et_zjh);
                 old_qlrzjh = et_zjh.getText().toString();

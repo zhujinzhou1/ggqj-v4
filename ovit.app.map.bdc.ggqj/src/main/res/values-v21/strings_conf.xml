@@ -1,6 +1,7 @@
 <resources>
     <string name="app_c">MAP-BDCQJDC</string>
-    <string name="app_n">光谷权籍4.0</string>
+    <!--<string name="app_n">光谷权籍4.0</string>-->
+    <string name="app_n">权籍调查4.0</string> // 权籍调查4.0 力智
     <string name="app_name_en">OvitBDCQJDC</string>
     <string name="app_name_discription">光谷信息不动产权籍调查外业采集系统v4.0</string>
 </resources>

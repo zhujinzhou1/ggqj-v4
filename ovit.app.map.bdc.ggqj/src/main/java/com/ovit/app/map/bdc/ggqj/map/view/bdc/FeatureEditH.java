@@ -642,19 +642,24 @@ public class FeatureEditH extends FeatureEdit {
     public static void IdentyH_Area(final MapInstance mapInstance, final Feature f_h, final AiRunnable callback) {
 //        final String hid =FeatureHelper.Get(f_h,"HID", "");
         final String hid = FeatureHelper.Get(f_h, FeatureHelper.TABLE_ATTR_ORID, "");
-        final List<Feature> f_zrz_h_fsjgs = new ArrayList<>();
+        final List<Feature> f_h_fsjgs = new ArrayList<>();
         final List<Feature> update_fs = new ArrayList<>();
 
-        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(hid) + " ORID_PATH like '%" + hid + "%' ", "LC", "asc", -1, f_zrz_h_fsjgs, new AiRunnable(callback) {
+        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(hid) + " ORID_PATH like '%" + hid + "%' ", "LC", "asc", -1, f_h_fsjgs, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                for (Feature f : f_zrz_h_fsjgs) {
+                for (Feature f : f_h_fsjgs) {
                     FeatureEditH_FSJG.hsmj(f, mapInstance);
                     update_fs.add(f);
                 }
-                FeatureEditH.hsmj(f_h, mapInstance, f_zrz_h_fsjgs);
-                update_fs.add(f_h);
-                MapHelper.saveFeature(update_fs, callback);
+                FeatureEditH.hsmj(f_h, mapInstance, f_h_fsjgs);
+                MapHelper.updateFeature(update_fs, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        MapHelper.saveFeature(f_h,callback);
+                        return null;
+                    }
+                });
                 return null;
             }
         });
