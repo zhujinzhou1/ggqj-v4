@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -1298,10 +1299,12 @@ public class FeatureEditZD extends FeatureEdit {
 
                     ImageView iv_zjrqz = (ImageView) helper.getView().findViewById(R.id.iv_zjrqz);
                     TextView tv_zjrqz = (TextView) helper.getView().findViewById(R.id.tv_zjrqz);
-                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人/") ;
-                    fv.setSign(tv_zjrqz,iv_zjrqz,path, AiUtil.GetValue(f_jzqz.get("XLZDZDDM"), ""));
-
-
+                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/") ;
+                    String signName = AiUtil.GetValue(f_jzqz.get("JZQZ.XLZDZDDM"), "");
+                    if (TextUtils.isEmpty(signName)){
+                        signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ZDZHDM"), "");
+                    }
+                    fv.setSign(tv_zjrqz,iv_zjrqz,path, signName);
                 }
             };
             adapter_jzqz.adpter(ll_list_jzqz);

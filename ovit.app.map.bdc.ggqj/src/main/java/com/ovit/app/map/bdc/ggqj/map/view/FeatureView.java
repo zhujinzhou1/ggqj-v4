@@ -25,6 +25,7 @@ import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.bdc.ggqj.R;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
+import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditH_FSJG;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditJZD;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditJZX;
@@ -42,6 +43,7 @@ import com.ovit.app.ui.ai.component.AiWindow;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
+import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.AppConfig;
@@ -988,7 +990,8 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     }
     // 获取界址线
     public void loadJzqzs(final List<Feature> fs_jzd , final List<Map<String,Object>> fs_jzqz ) {
-        String zddm = getZddm();
+        final String zddm = getZddm();
+        String orid = getOrid();
         if (fs_jzd.size() > 0) {
             Map<String, Object> map = null;
             String xlzdqlr = "";
@@ -1025,10 +1028,14 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     jzxzdh = "";
                     map = new ArrayMap<>();
                     jsxzjh = new ArrayList<>();
-                    map.put("ZDZHDM", zddm);
-                    map.put("JZXQDH", jzxqdh);
-                    map.put("XLZDQLR", xlzdqlr);
-                    map.put("XLZDZDDM", xlzdqlr);
+//                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人签章举证/") + "指界人签章举证"+ zddm +".jpg";
+                    String qlrPath =  FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/权利人签章举证/") + "缩放权利人电子签章.jpg";
+                    map.put("img.qlr",qlrPath);
+                    map.put("JZQZ.ZDZHDM", zddm);
+                    map.put("JZQZ.JZXQDH", jzxqdh);
+                    map.put("JZQZ.XLZDQLR", xlzdqlr);
+                    map.put("JZQZ.XLZDZDDM", xlzdqlr);
+                    map.put("JZQZ.ORID", orid);
                     ps = new PointCollection(f_jzd1.getGeometry().getSpatialReference());
                     ps.add((Point) f_jzd1.getGeometry());
                 }
@@ -1037,13 +1044,46 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                 // 与下面的是同一个
                 jsxzjh.add(jzxzdh);
                 jzxzdh = jzdh2;
-                map.put("JZXZJH", StringUtil.Join(jsxzjh, ",", false));
-                map.put("JZXZDH", jzxzdh);
+                map.put("JZQZ.JZXZJH", StringUtil.Join(jsxzjh, ",", false));
+                map.put("JZQZ.JZXZDH", jzxzdh);
 //                }
                 ps.add((Point) f_jzd2.getGeometry());
             }
             Polyline line = new Polyline(ps,ps.getSpatialReference());
             map.put("Geometry", line);
+            if (fs_jzqz.size() > 0) {
+                new AiForEach<Map<String, Object>>(fs_jzqz, null) {
+                    @Override
+                    public void exec() {
+                        final Map<String, Object> map = fs_jzqz.get(postion);
+                        final String xlzdzddm = (String) map.get("JZQZ.XLZDZDDM");
+                        if (StringUtil.IsNotEmpty(xlzdzddm)) {
+                            FeatureEditBDC.LoadZD(mapInstance, xlzdzddm + "F99990001", new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    Feature f_zd = (Feature) t_;
+                                    String mzddm = mapInstance.getId(f_zd) ;
+                                    String mOrid = mapInstance.getOrid(f_zd) ;
+                                    if (StringUtil.IsNotEmpty(mzddm)) {
+                                        final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人签章举证/") + "缩放指界人"+ zddm +"电子签章.jpg";
+                                        map.put("JZQZ.LZDZJR", mzddm);
+                                        map.put("img.lzzjqz",path);
+                                    } else {
+                                        map.put("JZQZ.LZDZJR", " ");
+                                        map.put("img.lzzjqz"," ");
+                                    }
+                                    AiRunnable.Ok(getNext(), null);
+                                    return null;
+                                }
+                            });
+                        } else {
+                            map.put("JZQZ.LZDZJR", " ");
+                            map.put("img.lzzjqz","");
+                            AiRunnable.Ok(getNext(), null);
+                        }
+                    }
+                }.start();
+            }
             fs_jzqz.add(map);
         }
     }

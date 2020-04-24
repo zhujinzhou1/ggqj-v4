@@ -33,6 +33,7 @@ import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.core.License;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh;
 import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -48,12 +49,14 @@ import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.AppConfig;
 import com.ovit.app.util.FileUtils;
+import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.SharedUtils;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.Zip;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh;
+import com.ovit.app.util.gdal.cad.DxfHelper;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -893,6 +896,7 @@ public class FeatureEditBDC extends FeatureEdit {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
                             final Feature f_zd = (Feature) t_;
+                            final List<Feature> fs_hjxx = new ArrayList<Feature>();
                             final List<Feature> fs_zrz = new ArrayList<Feature>();
                             final List<Feature> fs_z_fsjg = new ArrayList<Feature>();
                             final List<Feature> fs_h = new ArrayList<Feature>();
@@ -973,6 +977,7 @@ public class FeatureEditBDC extends FeatureEdit {
                         Put_data_jzqz(map_, fs_jzd, fs_jzqz);
                         // 界址点
                         Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
+
                         // 设置界址线
                         Put_data_jzx(mapInstance, map_, fs_jzx);
                         // 自然幢
@@ -1186,13 +1191,22 @@ public class FeatureEditBDC extends FeatureEdit {
         map_sys.put("M", c.get(Calendar.MONTH) + 1);
         map_sys.put("D", c.get(Calendar.DAY_OF_MONTH));
         String date = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DAY_OF_MONTH);
+        String date_= c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + c.get(Calendar.DAY_OF_MONTH)+"日";
         map_sys.put("DATE", date);
+        map_.put("SYS.FFDATE",date_);
         GetReplecData(map_, "SYS", map_sys);
     }
 
     // 设置不动产单元的内容
     public static void Put_data_bdcdy(MapInstance mapInstance, Map<String, Object> map_, Feature featureBdc) {
         GetReplecData(mapInstance.activity, map_, featureBdc, "", "ZJZL", "XB", "");
+    }
+    public static void Put_data_hjxx(com.ovit.app.map.model.MapInstance mapInstance, Map<String,Object> map_, List<Feature> fs_hjxx){
+        List<Feature> mfs_hjxx=new ArrayList<>(fs_hjxx);
+        for (int i = mfs_hjxx.size(); i < 4; i++) {
+            mfs_hjxx.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_HJXX).createFeature());
+        }
+        GetReplecData(mapInstance.activity, map_, "list.hjxx", mfs_hjxx, "");
     }
 
     // 设置宗地的内容
@@ -1201,7 +1215,6 @@ public class FeatureEditBDC extends FeatureEdit {
         // 优先设置，避免key冲突
         map.put("ZD.ZLZ", "");
         map.put("ZD.ZLRQ", "");
-//        if (id.length() >= 28) {
         map.put("ZD.XZQDM", StringUtil.substr_last(bdcdyh, 6, 22));
 
         map.put("ZD.DJQDMFF", StringUtil.substr_last(bdcdyh, 3, 19));
@@ -1213,21 +1226,12 @@ public class FeatureEditBDC extends FeatureEdit {
         map.put("ZD.DZWDM", StringUtil.substr_last(bdcdyh, 9));
         map.put("ZD.ZDDMFF", StringUtil.substr_last(bdcdyh, 7, 9));
 
-//        }
+        map.put("ZD.HZR", GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR",""));
+        map.put("ZD.SHR", GsonUtil.GetValue(mapInstance.aiMap.JsonData,"SHR",""));
+        map.put("ZD.HZDW", GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZDW",""));
 
         // 设置宗地参数
         GetReplecData(mapInstance.activity, map, f_zd, "", "QLRLX", "QLRZJZL:zjzl", "QLLX", "QLXZ", "FZRZJLX:zjzl", "DLRZJLX:zjzl", "PZYT:tdyt", "SJYT:tdyt");
-
-//        map.put("ZD.TDSYKSSJ",AiUtil.GetValue(AiUtil.GetValue(map.get("ZD.TDSYKSSJ"),(Date)null),"",AiUtil.F_DATE));
-//        map.put("ZD.TDSYJSSJ",AiUtil.GetValue(AiUtil.GetValue(map.get("ZD.TDSYJSSJ"),(Date)null),"",AiUtil.F_DATE));
-//        String kssj= (String) map.get("ZD.TDSYKSSJ");
-//        if (!TextUtils.isEmpty(kssj)&&kssj.length()>10){
-//            map_.put("ZD.TDSYKSSJ",kssj.substring(0,10));
-//        }
-//        String jssj= (String) map_.get("ZD.TDSYJSSJ");
-//        if (!TextUtils.isEmpty(kssj)&&jssj.length()>10){
-//            map_.put("ZD.TDSYJSSJ",jssj.substring(0,10));
-//        }
         GetReplecData(map_, "", map);
         // 设置出表时间
         String qzrq = (String) map_.get("ZD.QZRQ");
@@ -1241,118 +1245,8 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZD.Y", map_.get("SYS.Y"));
         map_.put("ZD.M", map_.get("SYS.M"));
         map_.put("ZD.D", map_.get("SYS.D"));
-    }
 
-//    public static void Put_data_jzqz(Map<String, Object> map_, List<Feature> f_jzd, List<Map<String, Object>> fs_jzqz) {
-//
-//        // 界址签字数，只留一条
-//        List<Map<String, Object>> f_jzqzs = new ArrayList<Map<String, Object>>();
-//        f_jzqzs.addAll(fs_jzqz);
-//        if (f_jzqzs.size() < 1) {
-//            Map<String, Object> f_jzqz_def = new LinkedHashMap<>();
-//            f_jzqz_def.put("JZQZ.JZXQDH", "");
-//            f_jzqz_def.put("JZQZ.JZXZJDH", "");
-//            f_jzqz_def.put("JZQZ.JZXZDH", "");
-//            f_jzqz_def.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
-//            f_jzqz_def.put("JZX.JZQZBRQ", map_.get("SYS.DATE"));
-//            f_jzqzs.add(f_jzqz_def);
-//        }
-//        map_.put("list.jzqz", f_jzqzs);
-//
-//    }
-//
-//    public static void Put_data_jzdx(MapInstance mapInstance, Map<String, Object> map_, String zddm, List<Feature> f_jzds, List<Feature> f_jzxs, Map<String, Feature> map_jzx) {
-//        List<Feature> fs_jzd = new ArrayList<>(f_jzds);
-//
-//        if (fs_jzd.size() > 0) {
-//            // 界址点首位相连
-//            Feature f_jzd_ = GetTable(mapInstance, "JZD").createFeature();
-//            f_jzd_.getAttributes().put("JZDH", fs_jzd.get(0).getAttributes().get("JZDH"));
-//            f_jzd_.getAttributes().put("JBLX", fs_jzd.get(0).getAttributes().get("JBLX"));
-////                                                                       f_jzd_.getAttributes().put("JZJG", f_jzd.get(0).getAttributes().get("JZJG"));
-//            fs_jzd.add(f_jzd_);
-//        }
-//        // 界址点最少14个
-//        if (fs_jzd.size() < 14) {
-//            for (int i = fs_jzd.size(); i < 14; i++) {
-//                fs_jzd.add(GetTable(mapInstance, "JZD").createFeature());
-//            }
-//        }
-//
-//        // 设置界址点数据，添加在指定值域打勾
-//        List<Map<String, Object>> maps_jzd = new ArrayList<>();
-//        int i = 0;
-//        for (Feature f_jzd : fs_jzd) {
-//            int j = (i + 1 < f_jzds.size()) ? i + 1 : 0;
-//            Feature f_jzd2 = fs_jzd.get(j);
-//            Feature f_jzx = FeatureEditJZX.Get(map_jzx, f_jzd, f_jzd2);
-//            String jzx_zdzhdm = FeatureHelper.Get(f_jzx, "ZDZHDM", "");
-//
-//            Map<String, Object> v = GetReplecData(mapInstance.activity, new LinkedHashMap<String, Object>(), f_jzd, "", "JBLX", "JZXLB", "JZXWZ");
-//            v = GetReplecData(mapInstance.activity, v, f_jzx, "", "JBLX", "JZXLB", "JZXWZ");
-//
-////            AppConfig.set("APP_ZD_JZD_FSSYJM",true+"");
-//            if (AiUtil.GetValue(AppConfig.get("APP_ZD_JZD_FSSYJM"), true)) {
-//                if (i == f_jzds.size() - 1) {
-//                    v.put("JZD.JZDH", "J1");
-//                } else {
-//                    v.put("JZD.JZDH", "J" + i);
-//                }
-//            }
-//
-//            String jblx = AiUtil.GetValue(v.get("JZD.JBLXFF"), "");
-//            v.put("JZD.JBLXFFGD", jblx.equals("钢钉") ? "√" : "");
-//            v.put("JZD.JBLXFFSNZ", jblx.equals("水泥桩") ? "√" : "");
-//            v.put("JZD.JBLXFFPT", jblx.equals("喷涂") ? "√" : "");
-//            v.put("JZD.JBLXFFQT", Arrays.asList(new String[]{"钢钉", "水泥桩", "喷涂"}).contains(jblx) ? "" : (StringUtil.IsNotEmpty(jblx) ? "√" : ""));
-//            MoveToEnd(v, "JZD.JBLXFF", "JZD.JBLX");
-//
-//            String jzxlb = AiUtil.GetValue(v.get("JZX.JZXLBFF"), v.get("JZD.JZXLBFF") + "");
-//            v.put("JZD.JZXLBFFDL", jzxlb.equals("道路") ? "√" : "");
-//            v.put("JZD.JZXLBFFGQ", jzxlb.equals("沟渠") ? "√" : "");
-//            v.put("JZD.JZXLBFFWQ", jzxlb.equals("围墙") ? "√" : "");
-//            v.put("JZD.JZXLBFFWL", jzxlb.equals("围栏") ? "√" : "");
-//            v.put("JZD.JZXLBFFTG", jzxlb.equals("田埂") ? "√" : "");
-//            v.put("JZD.JZXLBFFQB", jzxlb.equals("墙壁") ? "√" : "");
-//            v.put("JZD.JZXLBFFQT", Arrays.asList(new String[]{"道路", "沟渠", "围墙", "围栏", "田埂", "墙壁"}).contains(jzxlb) ? "" : jzxlb);
-//            MoveToEnd(v, "JZD.JZXLBFF", "JZD.JZXLB");
-//
-//            String jzxwz = AiUtil.GetValue(v.get("JZX.JZXWZFF"), v.get("JZD.JZXWZFF") + "");
-//
-//            if (!TextUtils.isEmpty(jzx_zdzhdm) && !jzx_zdzhdm.startsWith(zddm)) {
-//                // 相邻宗地 对调内外
-//                if (jzxwz.equals("内")) {
-//                    jzxwz = "外";
-//                } else if (jzxwz.equals("外")) {
-//                    jzxwz = "内";
-//                }
-//            }
-//            v.put("JZD.JZXWZFFN", jzxwz.equals("内") ? "√" : "");
-//            v.put("JZD.JZXWZFFZ", jzxwz.equals("中") ? "√" : "");
-//            v.put("JZD.JZXWZFFW", jzxwz.equals("外") ? "√" : "");
-//            v.put("JZD.FFXZBZ", f_jzd.getAttributes().get("XZBZ") == null ? "" : f_jzd.getAttributes().get("XZBZ") + "");
-//            v.put("JZD.FFYZBZ", f_jzd.getAttributes().get("YZBZ") == null ? "" : f_jzd.getAttributes().get("YZBZ") + "");
-//            if (f_jzd.getGeometry() == null) {
-//                v.put("JZX.JZXCD", "");
-//            }
-//            MoveToEnd(v, "JZD.JZXWZFF", "JZD.JZXWZ");
-//            maps_jzd.add(v);
-//            i++;
-//        }
-//        map_.put("list.jzd", maps_jzd);
-//    }
-//
-//    public static void Put_data_jzx(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_jzx) {
-//        List<Feature> f_jzxs = new ArrayList<>(fs_jzx);
-//        // 界址点最少20个
-//        if (f_jzxs.size() < 20) {
-//            for (int i = f_jzxs.size(); i < 20; i++) {
-//                f_jzxs.add(GetTable(mapInstance, "JZX").createFeature());
-//            }
-//        }
-//        // 设置界址线
-//        GetReplecData(mapInstance.activity, map_, "list.jzx", f_jzxs, "");
-//    }
+    }
 
     public static void Put_data_jzqz(Map<String, Object> map_, List<Feature> f_jzd, List<Map<String, Object>> fs_jzqz) {
 
@@ -1368,38 +1262,6 @@ public class FeatureEditBDC extends FeatureEdit {
             f_jzqz_def.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
             f_jzqzs.add(f_jzqz_def);
         }
-//        LinkedHashMap<String, Object> f_jzqz = new LinkedHashMap<String, Object>();
-//
-//        if (f_jzd.size() <= 2) {
-//            f_jzqz.put("JZQZ.JZXQDH", "");
-//            f_jzqz.put("JZQZ.JZXZJDH", "");
-//            f_jzqz.put("JZQZ.JZXZDH", "");
-//        } else {
-//            f_jzqz.put("JZQZ.JZXQDH", AiUtil.GetValue(f_jzd.get(0).getAttributes().get("JZDH"), ""));
-////            List<String> zjds = new ArrayList<>();
-////            for (int i = 1; i < f_jzd.size() - 1; i++) {
-////                zjds.add(AiUtil.GetValue(f_jzd.get(i).getAttributes().get("JZDH"), ""));
-////            }
-////            f_jzqz.put("JZQZ.JZXZJDH", StringUtil.Join(zjds));
-//            f_jzqz.put("JZQZ.JZXZJDH", AiUtil.GetValue(f_jzd.get(1).getAttributes().get("JZDH"), ""));
-//            if (f_jzd.size() > 3) {
-//                f_jzqz.put("JZQZ.JZXZJDH", AiUtil.GetValue(f_jzd.get(1).getAttributes().get("JZDH"), "") + "-" + AiUtil.GetValue(f_jzd.get(f_jzd.size() - 2).getAttributes().get("JZDH"), ""));
-//            }
-//            f_jzqz.put("JZQZ.JZXZDH", AiUtil.GetValue(f_jzd.get(f_jzd.size() - 1).getAttributes().get("JZDH"), ""));
-//        }
-////        if (f_jzd.size() > 2) {
-////            f_jzqz.put("JZQZ.JZXQDH", "J1");
-////            f_jzqz.put("JZQZ.JZXZJDH", "J2");
-////            f_jzqz.put("JZQZ.JZXZDH", "J" + f_jzd.size());
-////        }
-////        if (f_jzd.size() > 3) {
-////            f_jzqz.put("JZQZ.JZXQDH", "J1");
-////            f_jzqz.put("JZQZ.JZXZJDH", "J2-J" + (f_jzd.size() - 1));
-////            f_jzqz.put("JZQZ.JZXZDH", "J" + f_jzd.size());
-////        }
-//        f_jzqz.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
-//        f_jzqz.put("JZX.JZQZBRQ", map_.get("SYS.DATE"));
-//        f_jzqzs.add(f_jzqz);
         map_.put("list.jzqz", f_jzqzs);
 
     }
@@ -1455,32 +1317,31 @@ public class FeatureEditBDC extends FeatureEdit {
 
 //            String jzxlb = AiUtil.GetValue(v.get("JZX.JZXLBFF"), v.get("JZD.JZXLBFF")+"");
             String jzxlb = AiUtil.GetValue(v.get("JZD.JZXLBFF"), v.get("JZD.JZXLBFF") + "");
-            v.put("JZD.JZXLBFFDL", jzxlb.equals("道路") ? "√" : "");
-            v.put("JZD.JZXLBFFGQ", jzxlb.equals("沟渠") ? "√" : "");
+            v.put("JZD.JZXLBFFQB", jzxlb.equals("墙壁") ? "√" : "");
             v.put("JZD.JZXLBFFWQ", jzxlb.equals("围墙") ? "√" : "");
             v.put("JZD.JZXLBFFWL", jzxlb.equals("围栏") ? "√" : "");
-            v.put("JZD.JZXLBFFTG", jzxlb.equals("田埂") ? "√" : "");
-            v.put("JZD.JZXLBFFQB", jzxlb.equals("墙壁") ? "√" : "");
-            v.put("JZD.JZXLBFFZXX", jzxlb.equals("中心线") ? "√" : "");
-            v.put("JZD.JZXLBFFLX", jzxlb.equals("两点连线") ? "√" : "");
+            v.put("JZD.JZXLBFFZL",jzxlb.equals("栅栏") ? "√" : "");
+            v.put("JZD.JZXLBFFTSW", jzxlb.equals("铁丝网") ? "√" : "");
             v.put("JZD.JZXLBFFDSX", jzxlb.equals("滴水线") ? "√" : "");
+            v.put("JZD.JZXLBFFLYX", jzxlb.equals("路涯线") ? "√" : "");
+            v.put("JZD.JZXLBFFLX", jzxlb.equals("两点连线") ? "√" : "");
+            v.put("JZD.JZXLBFFZXX", jzxlb.equals("中心线") ? "√" : "");
             v.put("JZD.JZXLBFFFY", jzxlb.equals("飞檐") ? "√" : "");
-            v.put("JZD.JZXLBFFPL", jzxlb.equals("飘楼") ? "√" : "");
             v.put("JZD.JZXLBFFYZ", jzxlb.equals("阳台") ? "√" : "");
-            v.put("JZD.JZXLBFFQT", Arrays.asList(new String[]{"道路", "沟渠", "围墙", "围栏", "田埂", "墙壁", "中心线", "两点连线", "滴水线", "飞檐", "飘楼", "阳台"}).contains(jzxlb) ? "" : jzxlb);
+            v.put("JZD.JZXLBFFPL", jzxlb.equals("飘楼") ? "√" : "");
+            v.put("JZD.JZXLBFFDL", jzxlb.equals("道路") ? "√" : "");
+            v.put("JZD.JZXLBFFGQ", jzxlb.equals("沟渠") ? "√" : "");
+            v.put("JZD.JZXLBFFTG", jzxlb.equals("田埂") ? "√" : "");
+            v.put("JZD.JZXLBFFJJ", jzxlb.equals("基脚")?  "√" : "");
+            v.put("JZD.JZXLBFFBK", jzxlb.equals("堡坎")?  "√" : "");
+            v.put("JZD.JZXLBFFTK", jzxlb.equals("土坎")?  "√" : "");
+            v.put("JZD.JZXLBFFYK", jzxlb.equals("岩坎")?  "√" : "");
+            //   v.put("JZD.JZXLBFFQT", jzxlb.equals("其他") ? "√" : "");
+            v.put("JZD.JZXLBFFQT", Arrays.asList(new String[]{"墙壁","围墙", "围栏","铁丝网","滴水线","路涯线","两点连线","中心线","飞檐","阳台" ,"飘楼","道路", "沟渠", "田埂","基脚","堡坎","土坎","岩坎"}).contains(jzxlb) ? "" : (StringUtil.IsNotEmpty(jzxlb) ? "√" : ""));
             MoveToEnd(v, "JZD.JZXLBFF", "JZD.JZXLB");
 
-//            String jzxwz = AiUtil.GetValue(v.get("JZX.JZXWZFF"), v.get("JZD.JZXWZFF")+"");
             String jzxwz = AiUtil.GetValue(v.get("JZD.JZXWZFF"), v.get("JZD.JZXWZFF") + "");
 
-//            if(!TextUtils.isEmpty(jzx_zdzhdm)&&!jzx_zdzhdm.startsWith(zddm)) {
-//                // 相邻宗地 对调内外
-//                if(jzxwz.equals("内")) {
-//                    jzxwz = "外";
-//                }else if(jzxwz.equals("外")) {
-//                    jzxwz = "内";
-//                }
-//            }
             v.put("JZD.JZXWZFFN", jzxwz.equals("内") ? "√" : "");
             v.put("JZD.JZXWZFFZ", jzxwz.equals("中") ? "√" : "");
             v.put("JZD.JZXWZFFW", jzxwz.equals("外") ? "√" : "");
@@ -1516,6 +1377,52 @@ public class FeatureEditBDC extends FeatureEdit {
 
     }
 
+    public static void Put_changsha_jzd(Map<String, Object> map_, List<Feature> f_jzds, Map<String, Feature> map_jzx) {
+
+        List<Map<String, Object>> maps_jzd = new ArrayList<>();
+        Map<String, Object> map_jzd = new LinkedHashMap<>();
+        String jzlx = AiUtil.GetValue(map_.get("ZD.JXLX"), "J");
+
+        for (int i = 0; i < f_jzds.size(); i++) {
+
+            int index = (i+1) % 3;
+            Feature f_jzd = f_jzds.get(i);
+            int j = i + 1 >= f_jzds.size() ? 0 : i + 1;
+
+            Feature f_next_jzd = f_jzds.get(j);
+            Feature f_jzx = FeatureEditJZX.Get(map_jzx, f_jzd, f_next_jzd);
+            String jzxcd = AiUtil.Scale(FeatureHelper.Get(f_jzx, "JZXCD", 0d), 2, 0);
+
+            if (index == 0 ) {//第一行
+                map_jzd.put("CSD.DH" + 3, jzlx + (i + 1));
+                map_jzd.put("CSX.CD" +3, jzxcd);
+                map_jzd.put("CSD.DH" + 4, jzlx + (j + 1));
+                maps_jzd.add(map_jzd);
+                map_jzd=null;
+                map_jzd = new LinkedHashMap<>();
+
+            }else {
+                if ((i+1) == f_jzds.size()){
+                    map_jzd.put("CSD.DH" + index, jzlx + (i + 1));
+                    map_jzd.put("CSX.CD" +index, jzxcd);
+                    map_jzd.put("CSD.DH" +(index+1), jzlx + (j + 1));
+
+                    for (int n = index + 1; n < 4; n++) {
+                        map_jzd.put("CSX.CD"+n ," ");
+                        map_jzd.put("CSD.DH"+(n+1) ," ");
+                    }
+                    maps_jzd.add(map_jzd);
+                }else {
+                    map_jzd.put("CSD.DH" + index, jzlx + (i + 1));
+                    map_jzd.put("CSX.CD" +index, jzxcd);
+                }
+            }
+        }
+
+        map_.put("list.csjzd", maps_jzd);
+
+    }
+
     public static void Put_data_zdct(MapInstance mapInstance, Map<String, Object> map_, Feature f_zd) {
         // 设置宗地草图
         String image_zdct = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + "宗地草图.jpg";
@@ -1525,33 +1432,154 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     public static void Put_data_fjcl(MapInstance mapInstance, Map<String, Object> map_, Feature f_zd) {
+        //设置电子签章照片
+        String signDirPath = mapInstance.getpath_root() + "资料库/电子签章/";
 
-        String image_fjcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL);
+        String img_dzqz = FileUtils.getAppDirAndMK(signDirPath + "/权利人签章举证/") + "权利人电子签章.jpg";
+        String image_fjcl = FileUtils.getAppDirAndMK(signDirPath);
+        //力智
+        String imgClrqm = FileUtils.getAppDirAndMK(signDirPath + "/测量人签章举证/") + "缩放测量人电子签章.jpg";
+        String imgDcrqm = FileUtils.getAppDirAndMK(signDirPath + "/调查人签章举证/") + "缩放调查人电子签章.jpg";
+        String imgZz = FileUtils.getAppDirAndMK(signDirPath + "/组长签章举证/") + "缩放组长电子签章.jpg";
+//        String imgQlr = FileUtils.getAppDirAndMK(signDirPath + "/权利人签章举证/") + "缩放权利人电子签章.jpg";
+        String imgQlr =  FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/"+ "权利人签章举证/") + "缩放权利人电子签章.jpg";
+
+
+        map_.put("img.clrqm", imgClrqm);
+        map_.put("img.dcrqm", imgDcrqm);
+        map_.put("img.zzqm", imgZz);
+        map_.put("img.qlrqm", imgQlr);
+
+        List<Map<String, Object>> maps_dzqz = new ArrayList<>();
+        File file = new File(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/指界人签章举证/"));
+        File[] tempList = file.listFiles();
+        for (int i = 0; i < tempList.length; i++) {
+            String zjPath = tempList[i].toString();
+            if (zjPath.endsWith(".jpg") && zjPath.contains("缩放")) {
+                Map<String, Object> map_dzqz = new LinkedHashMap<>();
+                map_dzqz.put("img.slqz", zjPath);
+                maps_dzqz.add(map_dzqz);
+            }
+        }
+        map_.put("list.dzqz", maps_dzqz);
+        map_.put("img.dzqz", img_dzqz);
         map_.put("img.fjcl", image_fjcl);
-        String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "权利人证件号";
+        String image_sfzmcl = "";
+        if (DxfHelper.TYPE == DxfHelper.TYPE_HUANGPI) {
+            image_sfzmcl = FeatureHelper.Get(f_zd, "FZRXM", "").isEmpty() ? FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "权利人证件号" : FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "法人证件号";
+        } else {
+            image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "权利人证件号";
+        }
+
+        // 身份证
+        File file_zjh = new File(image_sfzmcl);
+
+        File[] files_zjh = file_zjh.listFiles();
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TIANMEN && files_zjh != null) {
+            for (int i = 0; i < files_zjh.length; i++) {
+                FileUtils.rename(files_zjh[i].getAbsolutePath(), files_zjh + "/身份证" + (i + 1) + ".temp");
+            }
+
+            files_zjh = file_zjh.listFiles();
+            for (int i = 0; i < files_zjh.length; i++) {
+                FileUtils.rename(files_zjh[i].getAbsolutePath(), files_zjh + "/身份证" + (i + 1) + ".jpg");
+            }
+        }
+        List<String> sfz = new ArrayList<>();
+        sfz.addAll(FileUtils.getAllImgePath(image_sfzmcl));
+        if (sfz.size() > 0) {
+            map_.put("img.sfzz", sfz.get(0));
+        }
         map_.put("img.sfzmcl", image_sfzmcl);
-        String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "户口簿";
+
+        String image_qzjz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "权利人签章举证";
+        map_.put("img.qlrqzjz", image_qzjz);
+        // 户口本
+        String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "户口簿";
+        File file_hkb = new File(image_hkb);
+
+        File[] files = file_hkb.listFiles();
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TIANMEN && files != null) {
+            for (int i = 0; i < files.length; i++) {
+                FileUtils.rename(files[i].getAbsolutePath(), image_hkb + "/户口簿" + (i + 1) + ".temp");
+            }
+
+            files = file_hkb.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                FileUtils.rename(files[i].getAbsolutePath(), image_hkb + "/户口簿" + (i + 1) + ".jpg");
+            }
+        }
         map_.put("img.hkb", image_hkb);
-        List<String> fjqd = new ArrayList<>();
-        fjqd.add("申请书");
-        fjqd.add("审批表");
-        // 有身份证、户口簿
-        if (FileUtils.getFileCount(image_sfzmcl) > 0) {
-            fjqd.add("身份证");
-        }
-        if (FileUtils.getFileCount(image_hkb) > 0) {
-            fjqd.add("户口簿");
-        }
-        String sfzmcl_s = "";
-        for (int i = 1; i <= fjqd.size(); i++) {
-            sfzmcl_s += i + "、" + fjqd.get(i - 1) + "SYS.ENTER";
+        Put_data_hkbs(map_, image_hkb, 2);
+        Put_data_hkbs(map_, image_hkb, 4);
+
+        String sfzmcl_s = "1、申请书" + "SYS.ENTER" + "2、调查表" + "SYS.ENTER";
+        if (FileUtils.getFileCount(image_sfzmcl) > 0 && FileUtils.getFileCount(image_hkb) > 0) {
+            sfzmcl_s += "3、户口簿" + "SYS.ENTER" + "4、身份证";
+        } else if (FileUtils.getFileCount(image_sfzmcl) > 0) {
+            sfzmcl_s += "3、身份证";
+        } else if (FileUtils.getFileCount(image_hkb) > 0) {
+            sfzmcl_s += "3、户口簿";
         }
         map_.put("ZD.FJQDFF", sfzmcl_s);
-        map_.put("ZD.FJHKBFF", FileUtils.getFileCount(image_hkb) > 0 ? "2、户口簿" : "");
-        String image_qslyzm = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "土地权属来源证明材料";
+        String image_qslyzm = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/") + "土地权属来源证明材料";
         map_.put("img.qslyzm", image_qslyzm);
+//        String qjdcjs=  "经现场核实，申请书上有关栏目与实地情况一致。本宗地权利人" + map_.get("ZD.QLRXM") + " 按规定到现场指界，界址清楚、无争议，并履行了签章手续。\n" +
+//                "     调查人员根据现状在实地设置了" + map_.get("ZD.JZDS") + "个界址点，喷涂了" + map_.get("ZD.JZDS") + "个界址点，采用钢尺丈量了" + map_.get("ZD.JZDS") + "条界址边长，可进行细部测量。";
+//        String djdcjs= "经检查"
+//                + map_.get("ZD.JZDS") +"个界标保存完好，采用瑞得RTS-822R型全站仪。"
+//                + "用极坐标法采集了"+ map_.get("ZD.JZDS") +"个界址点，界址点采用边长交会法获得。";
+//        if(DxfHelper.TYPE==DxfHelper.TYPE_TIANMEN){
+//            qjdcjs="权属调查记事：该宗地系于"
+//                    +map_.get("ZRZ.SJGRQ") +"年开始占用，现未收集到该宗地任何权属来源资料。本宗地指界人"
+//                    + map_.get("ZD.QLRXM") +""
+//                    + "按规定到现场指界，界址清楚、无争议，并履行了签章手续。调查人根据现状实地设置了"
+//                    + map_.get("ZD.JZDS") + "个界址点，"
+//                    +"喷涂了"+map_.get("ZD.JZDS") + "个界址点。采用钢尺丈量了"
+//                    + map_.get("ZD.JZDS") + "条界址边长，可进行细部测量。面积为"
+//                    + map_.get("ZD.ZDMJ") + "㎡。\n" ;
+//            map_.put("DCJS.QSDCJS", qjdcjs);
+//        } else if(DxfHelper.TYPE==DxfHelper.TYPE_BADONG){
+//            qjdcjs=  "经现场核实，申请书上有关栏目与实地情况一致。本宗地权利人" + map_.get("ZD.QLRXM") + " 按规定到现场指界，界址清楚、无争议。" +
+//                    "调查人员根据现状在实地设置了" + map_.get("ZD.JZDS") + "个界址点，采用钢尺或测距仪丈量了相邻界址边长，经检查可进行细部测量。";
+//            String jxlx = map_.get("ZD.JXLX").toString().contains("J")?"解析法":"图解法";
+//            djdcjs= "本宗地采用" + jxlx + "测量，经检查，界址清楚，并利用钢尺、激光测距仪或全站仪等测量工具测量界址点的坐标。";
+//        } else if(DxfHelper.TYPE == DxfHelper.TYPE_LIZHI){
+//            qjdcjs = "   经现场核实，申请书上有关栏目填写与实地情况一致；本宗地及相邻宗地指界人均到现场指界。调查员对"+ map_.get("ZD.JZDS") +"个界址点均设置了"+ "界址标志。采用激光测距仪实地丈量了"+ map_.get("ZD.JZDS") +"条界址边长。\n" ;
+//            djdcjs = "   根据权属调查的实际情况，经检查，"+ map_.get("ZD.JZDS") +"个界标保存完好。使用徕卡全站仪，采用解析法测绘界址点，使用不动产权籍调查测绘软件计算出宗地面积为"+ map_.get("ZD.ZDMJ") +"平方米。";
+//        }
+//
+//        map_.put("ZD.QJDXJSFF", qjdcjs);
+//        map_.put("DCJS.DJCLJS", djdcjs);
     }
 
+    public static void Put_data_hkbs(Map<String, Object> map_, String image_hkb, int base) {
+        Map<String, Object> map_hkbzp_p= new LinkedHashMap<>();
+        List<Map<String, Object>> map_hkbzp_ps = new ArrayList<>();
+        File file=new File(image_hkb);
+        if (file.exists()&&file.isDirectory()){
+            File[] files = file.listFiles();
+            if (files!=null){
+                for (int i = 0; i < files.length; i++) {
+                    File f=files[i];
+                    if (f.isFile()&&FileUtils.isImage(f)){
+                        map_hkbzp_p.put("img."+base+"hkb"+((i%base)+1),f.getPath());
+                        if (((i%base)+1)==base){
+                            map_hkbzp_ps.add(map_hkbzp_p);
+                            map_hkbzp_p=new LinkedHashMap<>();
+                        }else if (i+1>=files.length){
+                            for (int j = (i+1)%base; j < base; j++) {
+                                map_hkbzp_p.put("img."+base+"hkb"+(j+1),"");
+                            }
+                            map_hkbzp_ps.add(map_hkbzp_p);
+                        }
+                    }
+                }
+            }
+        }
+        map_.put("list."+base+"hkb",map_hkbzp_ps);
+
+    }
 
     // 设置自然幢
     public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h) {

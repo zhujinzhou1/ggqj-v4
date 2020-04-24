@@ -631,7 +631,6 @@ public class FeatureViewZD extends FeatureView {
                                 } else {
                                     //宗地内有自然幢
                                     aidialog.addContentView("数据一键处理中断", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "该宗地内已存在自然幢，您可能需要进行图形识别功能。");
-//
                                     aidialog.setFooterView(AiDialog.COMPLET, null, null, null, AiDialog.EXECUTE_NEXT, new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
@@ -2123,6 +2122,7 @@ public class FeatureViewZD extends FeatureView {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     final Feature f_zd = (Feature) t_;
+                    final List<Feature> fs_hjxx = new ArrayList<Feature>();
                     final List<Feature> fs_zrz = new ArrayList<Feature>();
                     final List<Feature> fs_ljz = new ArrayList<Feature>();
                     final List<Feature> fs_c = new ArrayList<Feature>();
@@ -2146,10 +2146,10 @@ public class FeatureViewZD extends FeatureView {
                         }
                     }
 
-                    loadAll(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, where, new AiRunnable() {
+                    loadall(mapInstance, bdcdyh, featureBdcdy,fs_hjxx, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, where, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            createDOCX(mapInstance, bdcdyh, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
+                            createDOCX(mapInstance, bdcdyh, f_zd,fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     outputData(mapInstance, bdcdyh, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
@@ -2166,7 +2166,7 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_zd, final List<Feature> fs_zd,
+    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_zd,final List<Feature> fs_hjxx, final List<Feature> fs_zd,
                             final List<Feature> fs_jzd, final List<Feature> fs_jzx, final Map<String, Feature> map_jzx,
                             final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, List<Feature> fs_ljz
             , List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
@@ -2187,10 +2187,14 @@ public class FeatureViewZD extends FeatureView {
                             FeatureEditBDC.Put_data_sys(map_);
                             //  设置宗地参数
                             FeatureEditBDC.Put_data_zd(mapInstance, map_, bdcdyh, f_zd);
+                            FeatureEditBDC.Put_data_hjxx(mapInstance, map_,fs_hjxx);
                             // 界址签字
                             FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
                             // 界址点
                             FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
+                            if(DxfHelper.TYPE==DxfHelper.TYPE_LIZHI){
+                                FeatureEditBDC.Put_changsha_jzd(map_,fs_jzd,map_jzx);
+                            }
                             // 设置界址线
                             FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
                             // 自然幢
@@ -2266,8 +2270,8 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    private void loadAll(final MapInstance mapInstance, final String bdcdyh, final Feature featureBdcdy
-            , Feature f_zd, List<Feature> fs_zd, List<Feature> fs_jzd, List<Feature> fs_jzx
+    private void loadall(final MapInstance mapInstance, final String orid, final Feature featureBdcdy
+            , final List<Feature> fs_hjxx, Feature f_zd, List<Feature> fs_zd, List<Feature> fs_jzd, List<Feature> fs_jzx
             , Map<String, Feature> map_jzx, List<Map<String, Object>> fs_jzqz
             , final List<Feature> fs_zrz, final List<Feature> fs_ljz, List<Feature> fs_c
             , final List<Feature> fs_z_fsjg, final List<Feature> fs_h
@@ -2275,23 +2279,32 @@ public class FeatureViewZD extends FeatureView {
         FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(bdcdyh) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
+                final FeatureView fv = mapInstance.newFeatureView(feature);
+
+                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(bdcdyh) + where, FeatureHelper.TABLE_ATTR_LJZH, "asc", -1, fs_ljz, new AiRunnable() {
+                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_LJZH, "asc", -1, fs_ljz, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h, new AiRunnable() {
+                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(orid) + where, "ID", "asc", -1, fs_h, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_Z_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {
+                                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_Z_FSJG), StringUtil.WhereByIsEmpty(orid) + where, "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(bdcdyh) + where, "ID", "asc", -1, fs_h_fsjg, new AiRunnable() {
+                                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H_FSJG), StringUtil.WhereByIsEmpty(orid) + where, "ID", "asc", -1, fs_h_fsjg, new AiRunnable() {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                        MapHelper.Query(GetTable(mapInstance, "ZRZ_C"), StringUtil.WhereByIsEmpty(bdcdyh) + " ORID_PATH like '%" + orid_bdc + "%' ", "LC", "asc", -1, fs_zrz_c, callback);
-                                                        AiRunnable.Ok(callback, t_, objects);
+                                                        String orid_hjxx = mapInstance.getOrid(featureBdcdy);
+                                                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_HJXX), StringUtil.WhereByIsEmpty(orid_hjxx) + " ORID_PATH like '%" + orid_hjxx + "%' ",  -1, fs_hjxx, new AiRunnable() {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                AiRunnable.Ok(callback, t_, objects);
+                                                                return super.ok(t_, objects);
+                                                            }
+                                                        });
+
                                                         return null;
                                                     }
                                                 });
@@ -2402,11 +2415,11 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    public void setSign(TextView tv_sign, final ImageView iv_sign, final String signDirPath, String name) {
+    public void setSign(TextView tv_sign, final ImageView iv_sign, final String signDirPath, final String name) {
 
         if (tv_sign != null && iv_sign != null) {
             final String signName = AiUtil.GetValue(tv_sign.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
-            final String signPath = FileUtils.getAppDirAndMK(signDirPath + "/" + signName + "签章举证/") + "/" + signName +name+ "电子签章.jpg";
+            final String signPath = FileUtils.getAppDirAndMK(signDirPath + "/" + signName + "签章举证/") + signName +name+ "电子签章.jpg";
 
             if (FileUtils.exsit(signPath)) {
                 iv_sign.setVisibility(View.VISIBLE);
@@ -2424,7 +2437,7 @@ public class FeatureViewZD extends FeatureView {
                                 }
                                 SignActivity.LoadImg(activity, signPath, iv_sign);
                             }
-                            String path = FileUtils.getAppDirAndMK(signDirPath + "/" + signName + "签章举证/") + "/缩放" + signName + "电子签章.jpg";
+                            String path = FileUtils.getAppDirAndMK(signDirPath + "/" + signName + "签章举证/") + "/缩放" + signName +name+ "电子签章.jpg";
                             MapImage.getZoomBitmap(signPath, path);
                             return null;
                         }
