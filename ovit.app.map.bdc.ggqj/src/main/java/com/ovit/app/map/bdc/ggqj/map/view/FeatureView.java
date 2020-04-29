@@ -29,6 +29,7 @@ import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditH_FSJG;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditJZD;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditJZX;
+import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewFSSS;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewH;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewLJZ;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZD;
@@ -646,13 +647,15 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
 }
     public void draw_zrz( Feature featureZD, final AiRunnable callback) {
         FeatureViewZRZ.CreateFeature(mapInstance,featureZD,null,callback);
-
     }
     public void draw_ljz(String orid, final String cs, final AiRunnable callback) {
         FeatureViewLJZ.CreateFeature(mapInstance,orid,null,callback);
     }
     public void draw_ljz(Feature featureZRZ, final String cs, final AiRunnable callback) {
         FeatureViewLJZ.CreateFeature(mapInstance,featureZRZ,null,callback);
+    }
+    public void draw_fsss(Feature f_zd, final String cs, final AiRunnable callback) {
+        FeatureViewFSSS.CreateFeature(mapInstance,f_zd,null,callback);
     }
 
 //    public void draw_h(String ljzh, final String cs, final AiRunnable callback) {
@@ -1057,6 +1060,8 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     public void exec() {
                         final Map<String, Object> map = fs_jzqz.get(postion);
                         final String xlzdzddm = (String) map.get("JZQZ.XLZDZDDM");
+                        map.put("JZQZ.LZDZJR", " ");
+                        map.put("img.lzzjqz"," ");
                         if (StringUtil.IsNotEmpty(xlzdzddm)) {
                             FeatureEditBDC.LoadZD(mapInstance, xlzdzddm + "F99990001", new AiRunnable() {
                                 @Override
@@ -1065,20 +1070,15 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                     String mzddm = mapInstance.getId(f_zd) ;
                                     String mOrid = mapInstance.getOrid(f_zd) ;
                                     if (StringUtil.IsNotEmpty(mzddm)) {
-                                        final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人签章举证/") + "缩放指界人"+ zddm +"电子签章.jpg";
+                                        final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人签章举证/") + "缩放指界人"+ mzddm +"电子签章.jpg";
                                         map.put("JZQZ.LZDZJR", mzddm);
                                         map.put("img.lzzjqz",path);
-                                    } else {
-                                        map.put("JZQZ.LZDZJR", " ");
-                                        map.put("img.lzzjqz"," ");
                                     }
                                     AiRunnable.Ok(getNext(), null);
                                     return null;
                                 }
                             });
                         } else {
-                            map.put("JZQZ.LZDZJR", " ");
-                            map.put("img.lzzjqz","");
                             AiRunnable.Ok(getNext(), null);
                         }
                     }

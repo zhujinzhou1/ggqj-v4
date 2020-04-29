@@ -118,7 +118,7 @@ public class FeatureViewBZ_TY extends FeatureView {
     public static SketchTY DrawTy (MapInstance mapInstance, AiRunnable callback){
        return SketchTY.Draw(mapInstance,mapInstance.getLayer("BZ_TY"),null,true,callback).start();
     }
-    public static SketchTY DrawTy (MapInstance mapInstance,Feature feature, AiRunnable callback){
+    public static SketchTY DrawTy (MapInstance mapInstance, Feature feature, AiRunnable callback){
         return SketchTY.Draw(mapInstance,mapInstance.getLayer("BZ_TY"),feature,true,callback).start();
     }
 

@@ -176,6 +176,13 @@ public class FeatureViewZD extends FeatureView {
                 draw_ljz("", "1", null);
             }
         });
+        mapInstance.addAction(groupname, "画附属设施", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                draw_fsss(feature, "1", null);
+            }
+        });
+
 
         addActionTY(groupname);// 涂鸦
         addActionPZ(groupname);// 拍照
@@ -2192,9 +2199,9 @@ public class FeatureViewZD extends FeatureView {
                             FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
                             // 界址点
                             FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
-                            if(DxfHelper.TYPE==DxfHelper.TYPE_LIZHI){
-                                FeatureEditBDC.Put_changsha_jzd(map_,fs_jzd,map_jzx);
-                            }
+
+                            FeatureEditBDC.Put_changsha_jzd(map_,fs_jzd,map_jzx);
+
                             // 设置界址线
                             FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
                             // 自然幢

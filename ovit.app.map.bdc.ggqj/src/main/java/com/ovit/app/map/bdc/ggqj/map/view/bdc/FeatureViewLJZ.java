@@ -461,7 +461,7 @@ public class FeatureViewLJZ extends FeatureView {
 
     //region 私有方法
     private void setFsjgAttribute(final String resname, final AiRunnable callback) {
-        String desc = "该操作主要是绘制幢附属结构到指定楼层！";
+        String desc = "该操作主要是绘制"+resname+"结构到指定楼层！";
         final Map<String, Object> map = new LinkedHashMap<>();
         final Map<String, String> dataconfig = new LinkedHashMap<>();
         final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
@@ -471,10 +471,10 @@ public class FeatureViewLJZ extends FeatureView {
         aiDialog.addContentView(aiDialog.getSelectView("类型", resname, dataconfig, "FHMC"));
         aiDialog.addContentView(aiDialog.getSelectView("面积计算", "hsmjlx", dataconfig, "TYPE"));
         aiDialog.setHeaderView(R.mipmap.app_icon_warning_red, desc)
-                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc))
-                .addContentView("请输入需要复制到的层数，多层使用“,”、“-”隔开：如：3,5,7 或是 2-7 层")
-                .addContentView("如：3,5,7 将复制到3、5、7层")
-                .addContentView("如：3-7 将复制到3、4、5、6、7层");
+                .addContentView("","请输入需要复制到的层数，多层使用“,”、“-”隔开：如：3,5,7 或是 2-7 层")
+                .addContentView("","如：3,5,7 将复制到3、5、7层")
+                .addContentView("","如：3-7 将复制到3、4、5、6、7层")
+                .addContentView(aiDialog.getEditView("请输入附属结构所在的楼层", map, szc));
         aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

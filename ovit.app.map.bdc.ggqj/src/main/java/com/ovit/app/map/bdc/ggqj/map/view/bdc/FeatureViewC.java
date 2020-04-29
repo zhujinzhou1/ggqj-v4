@@ -15,7 +15,6 @@ import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfhtDefault;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfht_neimeng;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
