@@ -68,6 +68,29 @@
                 android:entries="@array/yhzgx"
                 android:gravity="right" />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/app_item_center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Theme.App.Ai.AiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="是否本村村民"
+                android:textColor="@color/app_fore_requed" />
+
+            <Spinner
+                android:id="@+id/spn_sfbccm"
+                style="@style/Theme.App.Ai.AiEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:contentDescription="sfgxb"
+                android:gravity="right" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

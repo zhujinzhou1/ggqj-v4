@@ -293,7 +293,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public void command_info() {
         if(feature!=null){
             String name = feature.getFeatureTable().getFeatureLayer().getName();
-
             if (mapInstance.bindZDFeature != null && FeatureHelper.LAYER_NAME_ZD.equals(name)) {
                 String bindZDFeatureName = mapInstance.bindZDFeature.getFeatureTable().getFeatureLayer().getName();
                 // zrz 与 zd 关联
@@ -401,7 +400,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
 
                 }
 
-            } else {
+            }else {
                 mapInstance.viewFeature(feature);
             }
 
@@ -657,6 +656,10 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public void draw_fsss(Feature f_zd, final String cs, final AiRunnable callback) {
         FeatureViewFSSS.CreateFeature(mapInstance,f_zd,null,callback);
     }
+    public void draw_fsss() {
+        FeatureViewFSSS.CreateFeature(mapInstance,null,null);
+    }
+
 
 //    public void draw_h(String ljzh, final String cs, final AiRunnable callback) {
 //        FeatureEditH.CreateFeature(mapInstance,ljzh,cs,null,callback);
@@ -739,10 +742,10 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
         }
     }
 
-    public void to_bdc(Feature featureZDorH){
-        String name = FeatureHelper.Get(featureZDorH,"QLRXM","");
-        mapInstance.tool.map_opt_showfeature_bdc(activity, "map_opt_showfeature_bdc", "[" + name + "]", feature, null);
-    }
+//    public void to_bdc(Feature featureZDorH){
+//        String name = FeatureHelper.Get(featureZDorH,"QLRXM","");
+//        mapInstance.tool.map_opt_showfeature_bdc(activity, "map_opt_showfeature_bdc", "[" + name + "]", feature, null);
+//    }
 
     // 地籍子区
     public  void load_djzq (Geometry geometry , final AiRunnable callback){
@@ -1012,10 +1015,9 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                 String jzdh1 = FeatureHelper.Get(f_jzd1, "JZDH", "");
                 String jzdh2 = FeatureHelper.Get(f_jzd2, "JZDH", "");
 
-                if(AiUtil.GetValue(AppConfig.get("APP_ZD_JZD_FSSYJM"),true)){
-                    jzdh1 = "J"+i;
-                    jzdh2 = "J"+j;
-                }
+                String jxlx = StringUtil.substr(jzdh1, 0, 1);
+                jzdh1 = jxlx + (i + 1);
+                jzdh2 = jxlx + (j + 1);
 
                 if (map != null && !xlzdqlr.equalsIgnoreCase(key)) {
                     Polyline line = new Polyline(ps);
@@ -1031,7 +1033,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     jzxzdh = "";
                     map = new ArrayMap<>();
                     jsxzjh = new ArrayList<>();
-//                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人签章举证/") + "指界人签章举证"+ zddm +".jpg";
                     String qlrPath =  FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/权利人签章举证/") + "缩放权利人电子签章.jpg";
                     map.put("img.qlr",qlrPath);
                     map.put("JZQZ.ZDZHDM", zddm);
@@ -1070,7 +1071,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                     String mzddm = mapInstance.getId(f_zd) ;
                                     String mOrid = mapInstance.getOrid(f_zd) ;
                                     if (StringUtil.IsNotEmpty(mzddm)) {
-                                        final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/指界人签章举证/") + "缩放指界人"+ mzddm +"电子签章.jpg";
+                                        final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/指界人签章举证/") + "缩放指界人"+ mzddm +"电子签章.jpg";
                                         map.put("JZQZ.LZDZJR", mzddm);
                                         map.put("img.lzzjqz",path);
                                     }

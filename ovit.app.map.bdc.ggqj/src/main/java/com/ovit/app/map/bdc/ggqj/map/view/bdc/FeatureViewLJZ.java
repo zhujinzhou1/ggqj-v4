@@ -837,6 +837,22 @@ public class FeatureViewLJZ extends FeatureView {
             }
         });
     }
+
+    //转户附属
+    public void featureConversionToFsss(final AiRunnable callback) {
+        FeatureLayer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_FSSS, FeatureHelper.LAYER_NAME_FSSS);
+        final Feature f = layer.getFeatureTable().createFeature();
+        f.setGeometry(feature.getGeometry());
+        mapInstance.fillFeature(f);
+        MapHelper.saveFeature(Arrays.asList(new Feature[]{f}), Arrays.asList(feature), new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                AiRunnable.Ok(callback, f, objects);
+                return null;
+            }
+        });
+    }
+
     ///endregion
 
     //region 基础方法

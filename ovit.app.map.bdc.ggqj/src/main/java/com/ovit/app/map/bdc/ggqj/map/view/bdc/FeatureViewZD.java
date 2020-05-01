@@ -60,6 +60,7 @@ import com.ovit.app.map.custom.shape.ShapeUtil;
 import com.ovit.app.map.model.FwPc;
 import com.ovit.app.signature.SignActivity;
 import com.ovit.app.ui.dialog.AiDialog;
+import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
@@ -150,7 +151,7 @@ public class FeatureViewZD extends FeatureView {
                 mapInstance.addAction(groupname, "权属", R.mipmap.app_map_user, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        to_bdc(feature);
+//                        to_bdc(feature);
                     }
                 });
 
@@ -176,13 +177,6 @@ public class FeatureViewZD extends FeatureView {
                 draw_ljz("", "1", null);
             }
         });
-        mapInstance.addAction(groupname, "画附属设施", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                draw_fsss(feature, "1", null);
-            }
-        });
-
 
         addActionTY(groupname);// 涂鸦
         addActionPZ(groupname);// 拍照
@@ -236,6 +230,44 @@ public class FeatureViewZD extends FeatureView {
         addActionDW(""); // 地物
         addActionBZ("", false);// 标注
         return groupname;
+    }
+
+    private void connect_fsss(final AiRunnable callback) {
+        ToastMessage.Send(activity, "请谨慎选择附属设施！");
+        Layer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_FSSS);
+        mapInstance.setSelectLayer(layer, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final Feature f = (Feature) t_;
+                if (f != null && FeatureHelper.LAYER_NAME_FSSS.equals(mapInstance.getLayerName(f))) {
+                    // 不动产单元 与 宗地 关联
+                    DialogBuilder.confirm(activity, "添加附属附属设施", "宗地是否关联该附属设施？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialog, int which) {
+                           FeatureViewFSSS fvFSSS = FeatureViewFSSS.From(mapInstance, f);
+                            fvFSSS.fillFeature(f, feature);
+                            MapHelper.saveFeature(f, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    dialog.dismiss();
+                                    ToastMessage.Send("新增附属设施成功。");
+                                    mapInstance.setBindCallback(null);
+                                    AiRunnable.Ok(callback, t_, objects);
+                                    return null;
+                                }
+                            });
+                        }
+                    }, "放弃", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            mapInstance.setBindCallback(null);
+                        }
+                    }, "继续", null).create().show();
+                }
+                return null;
+            }
+        }, false);
     }
 
     // 填充
@@ -686,7 +718,7 @@ public class FeatureViewZD extends FeatureView {
                             }
                         }
                     }
-                    AiRunnable.Ok(getNext(), null,   null);
+                    AiRunnable.Ok(getNext(), null,    null);
                 }
 
                 @Override
@@ -1272,6 +1304,7 @@ public class FeatureViewZD extends FeatureView {
                                 final int scale = (Integer) objects[4];
                                 final List<Feature> fs_zd = new ArrayList<Feature>();
                                 final List<Feature> fs_zrz = new ArrayList<Feature>();
+                                final List<Feature> fs_ljz = new ArrayList<Feature>();
                                 final List<Feature> fs_h_fsjg = new ArrayList<Feature>();
                                 final List<Feature> fs_z_fsjg = new ArrayList<Feature>();
                                 final List<Feature> fs_zj_x = new ArrayList<Feature>();
@@ -1287,6 +1320,9 @@ public class FeatureViewZD extends FeatureView {
                                         MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_ZRZ, g, buffer, fs_zrz, new AiRunnable(runnable) {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
+                                                MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_LJZ, g, buffer, fs_ljz, new AiRunnable(runnable) {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
                                                 MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_H_FSJG, g, buffer, fs_h_fsjg, new AiRunnable(runnable) {
                                                     @Override
                                                     public <T_> T_ ok(T_ t_, Object... objects) {
@@ -1304,6 +1340,7 @@ public class FeatureViewZD extends FeatureView {
                                                                                 MapHelper.Query(mapInstance.map, "XZDW", g, buffer, fs_xzdw, new AiRunnable(runnable) {
                                                                                     @Override
                                                                                     public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                        List<Geometry> lablePoints = new ArrayList<>();
                                                                                         String jxlx = FeatureHelper.Get(feature, "JXLX", "J");
                                                                                         if (true) {
                                                                                             for (Feature feature : features_jzd) {
@@ -1313,7 +1350,7 @@ public class FeatureViewZD extends FeatureView {
                                                                                         //生成dxf
                                                                                         loadZdct_Dxf(mapInstance, feature, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, features_jzd, fs_zj_x, fs_xzdw, fs_mzdw);
                                                                                         //这些图层是要隐藏的
-                                                                                        List<Layer> ls = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.TABLE_NAME_ZRZ, "JZD", "JZX", FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG, "KZD");
+                                                                                        List<Layer> ls = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.TABLE_NAME_ZRZ,"LJZ", "JZD", "JZX", FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG, "KZD");
                                                                                         for (Layer l : ls) {
                                                                                             if (l.isVisible()) {
                                                                                                 l.setVisible(false);
@@ -1324,14 +1361,8 @@ public class FeatureViewZD extends FeatureView {
                                                                                         Geometry g = feature.getGeometry();
                                                                                         TextSymbol symbol_t_ = new TextSymbol(7, "", Color.BLACK, TextSymbol.HorizontalAlignment.CENTER, TextSymbol.VerticalAlignment.MIDDLE);
                                                                                         symbol_t_.setAngleAlignment(MarkerSymbol.AngleAlignment.MAP);
-//
                                                                                         glayer.getGraphics().clear();
-                                                                                        for (Feature f : fs_zrz) {
-                                                                                            if (!FeatureHelper.isPolygonFeatureValid(f)) {
-                                                                                                continue;
-                                                                                            }
-                                                                                            glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 1)));
-                                                                                        }
+
                                                                                         for (Feature f : fs_zd) {
                                                                                             if (!FeatureHelper.isPolygonFeatureValid(f)) {
                                                                                                 continue;
@@ -1367,46 +1398,7 @@ public class FeatureViewZD extends FeatureView {
                                                                                             textSymbol.setText(mapInstance.getLabel(f));
                                                                                             glayer.getGraphics().add(new Graphic(GeometryEngine.labelPoint((Polygon) f.getGeometry()), textSymbol));
                                                                                         }
-                                                                                        for (Feature f : fs_zrz) {
-                                                                                            // 天门
-                                                                                            if (!FeatureHelper.isPolygonFeatureValid(f)) {
-                                                                                                CrashHandler.WriteLog("自然幢图形异常",
-                                                                                                        "  自然幢号：" + FeatureHelper.Get(f, "ZRZH", ""));
-                                                                                                continue;
-                                                                                            }
-                                                                                            Geometry intersection_fzrz_g = GeometryEngine.intersection(f.getGeometry(), e);
-                                                                                            if (intersection_fzrz_g == null || MapHelper.getArea(mapInstance, intersection_fzrz_g) < 0.0001d) {
-                                                                                                continue;
-                                                                                            }
-                                                                                            TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-                                                                                            textSymbol.setColor(Color.BLUE);
-                                                                                            textSymbol.setHorizontalAlignment(TextSymbol.HorizontalAlignment.LEFT);
-                                                                                            textSymbol.setSize(7);
-                                                                                            String textLable = mapInstance.getLabel(f, DxfHelper.TYPE);
-                                                                                            textSymbol.setText(textLable);
-                                                                                            Point p_z_lable = GeometryEngine.labelPoint((Polygon) f.getGeometry());
-                                                                                            float x_offset = textSymbol.getSize() * 2f * scale / 10000;
-                                                                                            glayer.getGraphics().add(new Graphic(new Point(p_z_lable.getX() + x_offset, p_z_lable.getY(), p_z_lable.getSpatialReference()), textSymbol));
 
-                                                                                            // 幢号  河南
-                                                                                            TextSymbol textSymbol1 = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-                                                                                            textSymbol1.setColor(Color.BLUE);
-                                                                                            textSymbol1.setHorizontalAlignment(TextSymbol.HorizontalAlignment.CENTER);
-                                                                                            textSymbol1.setSize(7);
-                                                                                            String label = "";
-                                                                                            String zrzh = FeatureHelper.Get(f, "ZRZH", "");
-                                                                                            if (StringUtil.IsNotEmpty(zrzh) && zrzh.length() > 4) {
-                                                                                                label = "(" + AiUtil.GetValue(zrzh.substring(zrzh.length() - 4), 1) + ") ";
-                                                                                            }
-                                                                                            textSymbol1.setText(label);
-                                                                                            Point lastPoint = MapHelper.Geometry_get(intersection_fzrz_g, DxfHelper.POINT_TYPE_LEFT_BOTTOM);
-                                                                                            if (lastPoint != null) {
-                                                                                                Geometry buffer = GeometryEngine.buffer(lastPoint, scale / 100d);
-                                                                                                Geometry intersectionG = GeometryEngine.intersection(intersection_fzrz_g, buffer);
-                                                                                                glayer.getGraphics().add(new Graphic(intersectionG.getExtent().getCenter(), textSymbol1));
-                                                                                            }
-
-                                                                                        }
                                                                                         for (Feature f : fs_zd) {
                                                                                             if (!FeatureHelper.isPolygonFeatureValid(f)) {
                                                                                                 CrashHandler.WriteLog("出宗地图异常", "宗地图形异常：编号："
@@ -1425,6 +1417,8 @@ public class FeatureViewZD extends FeatureView {
                                                                                             textSymbol.setText(mapInstance.getLabel(f));
                                                                                             float x_deviation = 0f;
                                                                                             Point p = GeometryEngine.labelPoint((Polygon) intersectionGeometry);
+                                                                                            lablePoints.add(intersectionGeometry);
+
                                                                                             if (DxfHelper.TYPE == DxfHelper.TYPE_BADONG) {
                                                                                                 String qlrxm = FeatureHelper.Get(f, "QLRXM", "");
                                                                                                 String zddm_f = FeatureHelper.Get(feature, "PRO_ZDDM_F", "");
@@ -1476,7 +1470,7 @@ public class FeatureViewZD extends FeatureView {
                                                                                             TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_sz.toJson());
                                                                                             textSymbol.setText(zdsz);
                                                                                             textSymbol.getHaloWidth();
-                                                                                            textSymbol.setOffsetY(-offset);
+                                                                                            textSymbol.setOffsetX(-offset);
                                                                                             textSymbol.setAngle(-90);
                                                                                             glayer.getGraphics().add(new Graphic(p_mid, textSymbol));
                                                                                         }
@@ -1487,6 +1481,38 @@ public class FeatureViewZD extends FeatureView {
                                                                                             textSymbol.setText(zdsz);
                                                                                             glayer.getGraphics().add(new Graphic(p_mid, textSymbol));
                                                                                         }
+
+                                                                                        // 逻辑幢
+                                                                                        for (Feature f : fs_ljz) {
+                                                                                            if (!FeatureHelper.isPolygonFeatureValid(f)) {
+                                                                                                continue;
+                                                                                            }
+                                                                                            glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 1)));
+                                                                                        }
+                                                                                        for (Feature f : fs_ljz) {
+                                                                                            // 天门
+                                                                                            if (!FeatureHelper.isPolygonFeatureValid(f)) {
+                                                                                                CrashHandler.WriteLog("逻辑幢图形异常",
+                                                                                                        "  逻辑幢号：" + FeatureHelper.Get(f, "LJZH", ""));
+                                                                                                continue;
+                                                                                            }
+                                                                                            Geometry intersectionGeometry = GeometryEngine.intersection(e, f.getGeometry());
+                                                                                            if (intersectionGeometry == null || MapHelper.getArea(intersectionGeometry) < 0.0001d) {
+                                                                                                continue;
+                                                                                            }
+                                                                                            TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
+                                                                                            textSymbol.setColor(Color.BLUE);
+                                                                                            textSymbol.setHorizontalAlignment(TextSymbol.HorizontalAlignment.LEFT);
+                                                                                            textSymbol.setSize(7);
+                                                                                            String textLable = mapInstance.getLabel(f, DxfHelper.TYPE);
+                                                                                            textSymbol.setText(textLable);
+                                                                                            Point p_z_lable = MapHelper.getNiceLablePoint(intersectionGeometry,lablePoints);
+                                                                                             if(p_z_lable == null){
+                                                                                                 p_z_lable = GeometryEngine.labelPoint((Polygon) intersectionGeometry);
+                                                                                             }
+                                                                                            glayer.getGraphics().add(new Graphic(p_z_lable, textSymbol));
+                                                                                        }
+
 
                                                                                         if (g instanceof Multipoint) {
                                                                                             //  不做操作
@@ -1561,6 +1587,9 @@ public class FeatureViewZD extends FeatureView {
                                                         return null;
                                                     }
                                                 });
+                                                        return null;
+                                                    }
+                                                });
                                                 return null;
                                             }
                                         });
@@ -1579,6 +1608,7 @@ public class FeatureViewZD extends FeatureView {
                                 if (bitmap != null) {
                                     try {
                                         FileUtils.writeFile(filename, ConvertUtil.convert(bitmap));
+                                        MapImage.getZoomBitmap(filename, filename,600,600);
                                         AiRunnable.Ok(callback, filename, objects);
                                         return null;
                                     } catch (Exception es) {
@@ -2445,7 +2475,7 @@ public class FeatureViewZD extends FeatureView {
                                 SignActivity.LoadImg(activity, signPath, iv_sign);
                             }
                             String path = FileUtils.getAppDirAndMK(signDirPath + "/" + signName + "签章举证/") + "/缩放" + signName +name+ "电子签章.jpg";
-                            MapImage.getZoomBitmap(signPath, path);
+                            MapImage.getZoomBitmap(signPath, path,480,240);
                             return null;
                         }
                     });

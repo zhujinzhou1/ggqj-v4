@@ -136,7 +136,7 @@
                         style="@style/Theme.App.Ai.AiTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="电话"/>
+                        android:text="联系电话"/>
 
                     <EditText
                         android:id="@+id/et_dh"
@@ -202,6 +202,30 @@
                     android:layout_height="wrap_content"
                     android:padding="@dimen/app_split_small"
                     android:text="身份证明材料"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/app_item_center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        style="@style/Theme.App.Ai.AiTextView.Desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="权利人类型"/>
+
+                    <Spinner
+                        android:id="@+id/spn_qlrlx"
+                        style="@style/Theme.App.Ai.AiEditText.Desc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="qlrlx"
+                        android:dropDownSelector="@color/black"
+                        android:gravity="center" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -249,159 +273,159 @@
                         android:hint="／"/>
                 </LinearLayout>
 
-                <!-- 权属证明材料 -->
-                <TextView
-                    style="@style/Theme.App.Ai.AiTextView.Desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/app_split_small"
-                    android:text="权属证明材料"/>
+                <!--&lt;!&ndash; 权属证明材料 &ndash;&gt;-->
+                <!--<TextView-->
+                    <!--style="@style/Theme.App.Ai.AiTextView.Desc"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:padding="@dimen/app_split_small"-->
+                    <!--android:text="权属证明材料"/>-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/app_item_first"
-                    android:orientation="horizontal">
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="@drawable/app_item_first"-->
+                    <!--android:orientation="horizontal">-->
 
-                    <TextView
-                        style="@style/Theme.App.Ai.AiTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="宗地代码"/>
+                    <!--<TextView-->
+                        <!--style="@style/Theme.App.Ai.AiTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="宗地代码"/>-->
 
-                    <EditText
-                        android:id="@+id/et_zddm"
-                        style="@style/Theme.App.Ai.AiEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:gravity="right"
-                        android:hint="／"
-                        android:text=""/>
-                </LinearLayout>
+                    <!--<EditText-->
+                        <!--android:id="@+id/et_zddm"-->
+                        <!--style="@style/Theme.App.Ai.AiEditText"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:gravity="right"-->
+                        <!--android:hint="／"-->
+                        <!--android:text=""/>-->
+                <!--</LinearLayout>-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/app_item_center"
-                    android:orientation="horizontal">
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="@drawable/app_item_center"-->
+                    <!--android:orientation="horizontal">-->
 
-                    <TextView
-                        style="@style/Theme.App.Ai.AiTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="土地证号"/>
+                    <!--<TextView-->
+                        <!--style="@style/Theme.App.Ai.AiTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="土地证号"/>-->
 
-                    <EditText
-                        android:id="@+id/et_tdzh"
-                        style="@style/Theme.App.Ai.AiEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:gravity="right"
-                        android:hint="／"
-                        android:text=""/>
-                </LinearLayout>
+                    <!--<EditText-->
+                        <!--android:id="@+id/et_tdzh"-->
+                        <!--style="@style/Theme.App.Ai.AiEditText"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:gravity="right"-->
+                        <!--android:hint="／"-->
+                        <!--android:text=""/>-->
+                <!--</LinearLayout>-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/app_item_center"
-                    android:orientation="horizontal">
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="@drawable/app_item_center"-->
+                    <!--android:orientation="horizontal">-->
 
-                    <TextView
-                        style="@style/Theme.App.Ai.AiTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="户主证件号"/>
+                    <!--<TextView-->
+                        <!--style="@style/Theme.App.Ai.AiTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="户主证件号"/>-->
 
-                    <EditText
-                        android:id="@+id/et_hzzjh"
-                        style="@style/Theme.App.Ai.AiEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:gravity="right"
-                        android:hint="／"
-                        android:text=""/>
-                </LinearLayout>
+                    <!--<EditText-->
+                        <!--android:id="@+id/et_hzzjh"-->
+                        <!--style="@style/Theme.App.Ai.AiEditText"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:gravity="right"-->
+                        <!--android:hint="／"-->
+                        <!--android:text=""/>-->
+                <!--</LinearLayout>-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/app_item_center"
-                    android:orientation="horizontal">
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="@drawable/app_item_center"-->
+                    <!--android:orientation="horizontal">-->
 
-                    <TextView
-                        style="@style/Theme.App.Ai.AiTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="使用权面积"/>
+                    <!--<TextView-->
+                        <!--style="@style/Theme.App.Ai.AiTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="使用权面积"/>-->
 
-                    <EditText
-                        android:id="@+id/et_syqmj"
-                        style="@style/Theme.App.Ai.AiEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:gravity="right"
-                        android:hint="／"
-                        android:text=""/>
-                </LinearLayout>
+                    <!--<EditText-->
+                        <!--android:id="@+id/et_syqmj"-->
+                        <!--style="@style/Theme.App.Ai.AiEditText"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:gravity="right"-->
+                        <!--android:hint="／"-->
+                        <!--android:text=""/>-->
+                <!--</LinearLayout>-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/app_item_center"
-                    android:orientation="horizontal">
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="@drawable/app_item_center"-->
+                    <!--android:orientation="horizontal">-->
 
-                    <TextView
-                        style="@style/Theme.App.Ai.AiTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="独用面积"/>
+                    <!--<TextView-->
+                        <!--style="@style/Theme.App.Ai.AiTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="独用面积"/>-->
 
-                    <EditText
-                        android:id="@+id/et_dymj"
-                        style="@style/Theme.App.Ai.AiEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:gravity="right"
-                        android:hint="／"
-                        android:text=""/>
-                </LinearLayout>
+                    <!--<EditText-->
+                        <!--android:id="@+id/et_dymj"-->
+                        <!--style="@style/Theme.App.Ai.AiEditText"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:gravity="right"-->
+                        <!--android:hint="／"-->
+                        <!--android:text=""/>-->
+                <!--</LinearLayout>-->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/app_item_last"
-                    android:orientation="horizontal">
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:background="@drawable/app_item_last"-->
+                    <!--android:orientation="horizontal">-->
 
-                    <TextView
-                        style="@style/Theme.App.Ai.AiTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="分摊面积"/>
+                    <!--<TextView-->
+                        <!--style="@style/Theme.App.Ai.AiTextView"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="分摊面积"/>-->
 
-                    <EditText
-                        android:id="@+id/et_ftmj"
-                        style="@style/Theme.App.Ai.AiEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/transparent"
-                        android:gravity="right"
-                        android:hint="／"
-                        android:text=""/>
-                </LinearLayout>
+                    <!--<EditText-->
+                        <!--android:id="@+id/et_ftmj"-->
+                        <!--style="@style/Theme.App.Ai.AiEditText"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:gravity="right"-->
+                        <!--android:hint="／"-->
+                        <!--android:text=""/>-->
+                <!--</LinearLayout>-->
 
-                <!--  附件材料  -->
-                <TextView
-                    style="@style/Theme.App.Ai.AiTextView.Desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="@dimen/app_split_small"
-                    android:text="附件材料"/>
+                <!--&lt;!&ndash;  附件材料  &ndash;&gt;-->
+                <!--<TextView-->
+                    <!--style="@style/Theme.App.Ai.AiTextView.Desc"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:padding="@dimen/app_split_small"-->
+                    <!--android:text="附件材料"/>-->
 
                 <!--  备注  -->
                 <TextView

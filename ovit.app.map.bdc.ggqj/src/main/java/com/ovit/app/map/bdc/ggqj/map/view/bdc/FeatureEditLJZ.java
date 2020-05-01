@@ -21,9 +21,7 @@ import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
-import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
-import com.ovit.app.util.StringUtil;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -218,6 +216,15 @@ public class FeatureEditLJZ extends FeatureEdit {
                         conversionToHfsjg();
                     }
                 });
+
+                TextView tv_to_fsss = (TextView) v_feature.findViewById(R.id.tv_to_fsss);
+                tv_to_fsss.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // 转为幢附属结构
+                        conversionToFsss();
+                    }
+                });
             }
         } catch (Exception es) {
             Log.e(TAG, "build: 构建失败", es);
@@ -401,6 +408,22 @@ public class FeatureEditLJZ extends FeatureEdit {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 fv.featureConversionToHfsjg(new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        Feature f_hfsjg = (Feature) t_;
+                        mapInstance.viewFeature(f_hfsjg);
+                        return null;
+                    }
+                });
+            }
+        }, AiDialog.CENCEL, null).show();
+    }
+    // 逻辑幢转为附属设施
+    private void conversionToFsss() {
+        DialogBuilder.confirm(activity, "图形转换提示", "确定要转为附属设施结构？", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                fv.featureConversionToFsss(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         Feature f_hfsjg = (Feature) t_;

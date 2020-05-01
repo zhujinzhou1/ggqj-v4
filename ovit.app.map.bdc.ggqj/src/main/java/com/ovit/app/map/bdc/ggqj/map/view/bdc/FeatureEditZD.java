@@ -126,7 +126,7 @@ public class FeatureEditZD extends FeatureEdit {
     public void init() {
         super.init();
         // 菜单 基本信息 界址情况 界址签字 宗地草图 自然幢 分摊情况 不动产单元
-        menus = new int[]{R.id.ll_info, R.id.ll_jzd, R.id.ll_jzx, R.id.ll_zdct, R.id.ll_zrz, R.id.ll_ft, R.id.ll_bdcdy,R.id.ll_dzqz};
+        menus = new int[]{R.id.ll_info, R.id.ll_jzd, R.id.ll_jzx, R.id.ll_zdct, R.id.ll_zrz, R.id.ll_ft, R.id.ll_bdcdy,R.id.ll_dzqz,R.id.ll_info2};
     }
 
     // 填充界面
@@ -156,13 +156,10 @@ public class FeatureEditZD extends FeatureEdit {
             // 填充控件
             fillView(v_feature);
             map_tzm_zddm.put(fv.getTzm(old_zddm), old_zddm);
-            final TextView tv_tobdc = (TextView) v_feature.findViewById(R.id.tv_tobdc);
             // 特殊操作
             et_zddm = (EditText) v_feature.findViewById(R.id.et_zddm);
             et_ybzddm = (EditText) v_feature.findViewById(R.id.et_ybzddm);
             et_bdcdyh = (EditText) v_feature.findViewById(R.id.et_bdcdyh);
-//            sh_dzsfty = (Switch) v_feature.findViewById(R.id.sh_dzsfty);// 多幢属同一权利人
-//            sh_dzsfty.setChecked(bdcdyh.endsWith("99990001"));
             spn_qllx = (Spinner) v_feature.findViewById(R.id.spn_qllx);
             final String bdcdyh = AiUtil.GetValue(et_bdcdyh.getText(), "");
             et_bdcdyh.setEnabled(false);
@@ -360,12 +357,12 @@ public class FeatureEditZD extends FeatureEdit {
             });
 
             // 不用判断多幢属于同一权利人
-            tv_tobdc.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fv.to_bdc(feature);
-                }
-            });
+//            tv_tobdc.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    fv.to_bdc(feature);
+//                }
+//            });
 
             et_qslyzmcl = (EditText) v_feature.findViewById(R.id.et_qslyzmcl);
             et_qslyzmcl.setOnLongClickListener(new View.OnLongClickListener() {
@@ -419,6 +416,7 @@ public class FeatureEditZD extends FeatureEdit {
                     reload_ftqk();
                 }
             });
+
 
         } catch (Exception es) {
             Log.e(TAG, "build: 构建失败", es);
@@ -485,6 +483,12 @@ public class FeatureEditZD extends FeatureEdit {
             public void onClick(View v) {
                 setMenuItem(R.id.ll_ft);
                 load_ftqk();
+            }
+        });
+        addMenu("其他信息", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMenuItem(R.id.ll_info2);
             }
         });
 
@@ -695,8 +699,6 @@ public class FeatureEditZD extends FeatureEdit {
             FeatureView.LoadJzdx_AndZhfs(mapInstance, feature, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
-                    boolean isf99990001 = bdcdyh.endsWith("F99990001");
-
                     for (Feature f : fs_jzd) {
                         FeatureHelper.Set(f, "ZDZHDM", zddm);
                     }
@@ -759,17 +761,7 @@ public class FeatureEditZD extends FeatureEdit {
         final String qlrxm = AiUtil.GetValue(feature.getAttributes().get("QLRXM"), "");
         final String qlrzjh = AiUtil.GetValue(feature.getAttributes().get("QLRZJH"), "");
         if ((!qlrzjh.equals(old_qlrzjh))) { /*在权利人和ZD一对多的情况下，一旦QLRXM或QLRZJH发生变化，则需要新建权利人 而清除多余权利人的操作则应在FeatureEditQLR中做 20180813*/
-            if (StringUtil.IsEmpty(qlrxm) || StringUtil.IsEmpty(qlrzjh)) {
-                ToastMessage.Send("权利人姓名和权利人证件号不能为空！");
-                AiRunnable.Ok(callback, true);
-            } else {
-                // 1 身份证校验
-                // 2 权利人是否存在
-                // 2.1 权利人不存在新建
-                // 2.2 权利人存在更新信息
-                createNewQlrByZD(mapInstance, feature, true, true, false, callback);
-            }
-
+            AiRunnable.Ok(callback, null);
         } else {
             AiRunnable.Ok(callback, null);
         }
@@ -1299,7 +1291,7 @@ public class FeatureEditZD extends FeatureEdit {
 
                     ImageView iv_zjrqz = (ImageView) helper.getView().findViewById(R.id.iv_zjrqz);
                     TextView tv_zjrqz = (TextView) helper.getView().findViewById(R.id.tv_zjrqz);
-                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/") ;
+                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/") ;
                     String signName = AiUtil.GetValue(f_jzqz.get("JZQZ.XLZDZDDM"), "");
                     if (TextUtils.isEmpty(signName)){
                         signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ZDZHDM"), "");

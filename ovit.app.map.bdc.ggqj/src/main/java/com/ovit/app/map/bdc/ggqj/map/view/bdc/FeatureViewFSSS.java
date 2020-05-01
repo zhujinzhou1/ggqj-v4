@@ -41,7 +41,6 @@ public class FeatureViewFSSS extends FeatureView {
             String qlrxm = FeatureHelper.Get(feature_zd, "QLRXM", "");
             FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDDM, zddm);
             FeatureHelper.Set(feature,"QLR", qlrxm);
-
         }
     }
 
@@ -96,6 +95,13 @@ public class FeatureViewFSSS extends FeatureView {
                 });
             }
         }
+        mapInstance.addAction(groupname, "画附属设施", R.mipmap.app_map_layer_zrz, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                draw_fsss();
+            }
+        });
+
         addActionDW("");
         addActionBZ("", false);
         return groupname;
@@ -187,12 +193,7 @@ public class FeatureViewFSSS extends FeatureView {
         if (f_p == null) {
             ToastMessage.Send("注意：缺少宗地信息");
         }
-        if (feature.getGeometry() == null && f_p != null) {
-            feature.setGeometry(MapHelper.geometry_copy(f_p.getGeometry()));
-        }
         final List<Feature> fs_update = new ArrayList<>();
-        final String zddm = FeatureHelper.Get(f_p, FeatureHelper.TABLE_ATTR_ZDDM, "");
-        // 绘图
         fv.drawAndAutoCompelet(feature, fs_update, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {

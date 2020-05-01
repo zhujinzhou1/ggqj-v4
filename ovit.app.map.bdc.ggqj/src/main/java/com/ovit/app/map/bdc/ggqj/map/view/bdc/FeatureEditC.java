@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +30,6 @@ import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
-import com.ovit.app.map.custom.shape.ShapeUtil;
 import com.ovit.app.map.model.FwPc;
 import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
@@ -39,7 +40,6 @@ import com.ovit.app.util.AppConfig;
 import com.ovit.app.util.ConvertUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.ImageUtil;
-import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.cad.DxfAdapter;
 import com.ovit.app.util.gdal.shp.ShpAdapter;
@@ -540,6 +540,8 @@ public class FeatureEditC extends FeatureEdit {
         // 单层户
         img.setColor(Color.BLACK).setSw(1);
 
+        img.getPaint().setAntiAlias(true);
+        img.canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));
 
         for (Feature f : fs) {
             if (MapHelper.getLayerName(f).contains("附属")) {
@@ -548,11 +550,9 @@ public class FeatureEditC extends FeatureEdit {
                 img.getPaint().setPathEffect(null);
                 img.getPaint().setTextSize(12);
             }
-//                    android.graphics.PorterDuff.Mode.DST_IN
-//                    PorterDuffXfermode mode=new PorterDuffXfermode(PorterDuff.Mode.DST_IN);
-//                    img.getPaint().setXfermode(mode);
             img.draw(f, mapInstance.getLabel(f), 16, pc);
         }
+        img.getPaint().setPathEffect(null);
 //        img.draw(new android.graphics.Point(w / 2, 40), "第" + cs + "层", 0, 0, 0, 20);
         // 是否摆正幢
         if (AppConfig.PHSZ_IMG_ADJUST_UPRIGHT.equals(AppConfig.get(AppConfig.APP_BDCQJDC_PHSZ_IMG_ADJUST, AppConfig.PHSZ_IMG_ADJUST_BASIC))) {

@@ -147,22 +147,25 @@ public class MapInstance extends com.ovit.app.map.model.MapInstance {
     @Override
     public String getLabel(Feature feature) {
         String label = "";
-        if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_ZD)) {
+        String tableName = feature.getFeatureTable().getTableName();
+        if (tableName.equals(FeatureHelper.TABLE_NAME_ZD)) {
             //[PRO_ZDDM_F]  & vbCrLf   & [YT] & vbCrLf  & [QLRXM]
             label = AiUtil.GetValue(feature.getAttributes().get("PRO_ZDDM_F"), "") + "\n"
                     + AiUtil.GetValue(feature.getAttributes().get("YT"), "") + "\n"
                     + AiUtil.GetValue(feature.getAttributes().get("QLRXM"), "");
-        } else if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_ZRZ)) {
+        } else if (tableName.equals(FeatureHelper.TABLE_NAME_ZRZ)) {
             String fwjg = DicUtil.dic(activity,"fwjg",AiUtil.GetValue(feature.getAttributes().get("FWJG"), ""));
             fwjg = StringUtil.substr(fwjg,"[","]");
-
-            //[ZH] & "#  " & [ZZDMJ] & vbCrLf   & [JZWMC]  & " " &  [ZCS]
             label = "("+ AiUtil.GetValue(feature.getAttributes().get("ZH"), 1)+") "
                     + AiUtil.GetValue(feature.getAttributes().get("SCJZMJ"), "",AiUtil.F_FLOAT2) + "\n"
 //                    + AiUtil.GetValue(feature.getAttributes().get("JZWMC"), "")+" "
                     + fwjg+" "
                     + AiUtil.GetValue(feature.getAttributes().get("ZCS"),1);
-        } else {
+        } else if (tableName.equals(FeatureHelper.TABLE_NAME_H_FSJG)||tableName.equals(FeatureHelper.TABLE_NAME_Z_FSJG)){
+            label = FeatureHelper.Get(feature,"FHMC","");
+        }else if (tableName.equals(FeatureHelper.TABLE_NAME_H)){
+
+        }else {
             label = getName(feature);
         }
         return label;

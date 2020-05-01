@@ -195,6 +195,21 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 });
             }
         });
+        // 图形替换
+        tool_view.findViewById(R.id.ll_txth).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String fundesc = "图形替换";
+                License.vaildfunc(activity, fundesc, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        mapInstance.tool.layerTool.inputfromshp(true,null);
+                        return null;
+                    }
+                });
+            }
+        });
+
         // 自然幢识别宗地
         tool_view.findViewById(R.id.ll_identy_zd).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1709,6 +1724,12 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     @Override
                     public void onClick(View v) {
                         ToastMessage.Send("功能正在建设中...");
+
+
+
+
+
+
                     }
                 }},
                 new Object[]{R.mipmap.app_icon_cad, "导入DXF文件", new View.OnClickListener() {
