@@ -147,7 +147,18 @@ public class FeatureViewZD extends FeatureView {
                         txsb(feature);
                     }
                 });
-
+                mapInstance.addAction(groupname, "画附属设施", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        draw_fsss(feature, "1", null);
+                    }
+                });
+                mapInstance.addAction(groupname, "关联附属设施", R.mipmap.app_map_layer_ljz, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        connect_fsss(null);
+                    }
+                });
                 mapInstance.addAction(groupname, "权属", R.mipmap.app_map_user, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
