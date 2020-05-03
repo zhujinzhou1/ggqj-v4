@@ -724,6 +724,7 @@ public class FeatureViewZD extends FeatureView {
                                     }
                                 }
                                 featureZrz.getAttributes().put("ZCS", Double.valueOf(getMaxFloor(myLjz, "ZCS")));
+
                                 featureZrz.getAttributes().put("FWJG", getZrzStructure(myLjz));
                                 featuresZRZ.add(featureZrz);
                             }
