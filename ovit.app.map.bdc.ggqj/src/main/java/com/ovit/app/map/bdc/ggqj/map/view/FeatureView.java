@@ -633,14 +633,8 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public void draw_zd(AiRunnable callback) {
        FeatureViewZD fv = (FeatureViewZD) mapInstance.newFeatureView(FeatureHelper.LAYER_NAME_ZD);
         fv.createFeature(callback);
-//        FeatureViewZD.CreateFeature(mapInstance, callback);
 
     }
-
-//    public void draw_zrz(String zddm) {
-//        FeatureEditZRZ.CreateFeature(mapInstance,zddm,null,null);
-//
-//    }
     public void draw_zrz( String orid, final AiRunnable callback) {
     FeatureViewZRZ.CreateFeature(mapInstance,orid,null,callback);
 }
@@ -997,7 +991,6 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     // 获取界址线
     public void loadJzqzs(final List<Feature> fs_jzd , final List<Map<String,Object>> fs_jzqz ) {
         final String zddm = getZddm();
-        String orid = getOrid();
         if (fs_jzd.size() > 0) {
             Map<String, Object> map = null;
             String xlzdqlr = "";
@@ -1033,7 +1026,9 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     jzxzdh = "";
                     map = new ArrayMap<>();
                     jsxzjh = new ArrayList<>();
-                    String qlrPath =  FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/权利人签章举证/") + "缩放权利人电子签章.jpg";
+                    String orid = mapInstance.getOrid(feature);
+                    String qlrPath =  FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature)
+                            + "附件材料/电子签章/权利人签章举证/") +"指界人"+orid+"电子签章.jpg";
                     map.put("img.qlr",qlrPath);
                     map.put("JZQZ.ZDZHDM", zddm);
                     map.put("JZQZ.JZXQDH", jzxqdh);
@@ -1071,9 +1066,11 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                                     String mzddm = mapInstance.getId(f_zd) ;
                                     String mOrid = mapInstance.getOrid(f_zd) ;
                                     if (StringUtil.IsNotEmpty(mzddm)) {
-                                        final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/指界人签章举证/") + "缩放指界人"+ mzddm +"电子签章.jpg";
+                                        final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature)
+                                                + "附件材料/电子签章/权利人签章举证/") +"指界人"+mOrid+"电子签章.jpg";
                                         map.put("JZQZ.LZDZJR", mzddm);
                                         map.put("img.lzzjqz",path);
+                                        map.put("JZQZ.ORID", mOrid);
                                     }
                                     AiRunnable.Ok(getNext(), null);
                                     return null;

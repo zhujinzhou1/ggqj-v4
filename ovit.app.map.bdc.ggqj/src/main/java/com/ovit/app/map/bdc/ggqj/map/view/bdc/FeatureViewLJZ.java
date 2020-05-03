@@ -125,6 +125,7 @@ public class FeatureViewLJZ extends FeatureView {
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         String id = t_ + "";
                         FeatureHelper.Set(feature, "LJZH", id);
+                        FeatureHelper.Set(feature, "ZCS", "1");
                         // 填充
                         fv.fillFeature(feature, f_p);
                         fs_update.add(feature);
@@ -161,8 +162,10 @@ public class FeatureViewLJZ extends FeatureView {
         if (feature_zrz != null) {
             String zrzh = FeatureHelper.Get(feature_zrz, "ZRZH", "");
             FeatureHelper.Set(feature, "ZRZH", zrzh);
-//            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, FeatureHelper.Get(feature_zrz, FeatureHelper.TABLE_ATTR_ORID_PATH, ""));
-            FeatureHelper.Set(feature, "ZCS", FeatureHelper.Get(feature_zrz, "ZCS", "1"));
+            String zcs = FeatureHelper.Get(feature, "ZCS", "");
+            if (StringUtil.IsEmpty(zcs)){
+                 FeatureHelper.Set(feature, "ZCS",FeatureHelper.Get(feature_zrz, "ZCS", "1"));
+            }
         }
         FeatureHelper.Set(feature, "MPH", FeatureHelper.Get(feature, "MPH", getMph(ljzh))); //  门牌号
         FeatureHelper.Set(feature, "FWJG1", FeatureHelper.Get(feature_zrz, "FWJG", "4"), true, false);// [4][B][混]混合结构
@@ -208,6 +211,10 @@ public class FeatureViewLJZ extends FeatureView {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 mapInstance.canSelectMilu = false; // 设置为单选
+                                if (FeatureHelper.isExistFeature(t_)){
+                                    Feature  f_zd = (Feature) t_;
+                                    mapInstance.setSelectFeature(f_zd);
+                                }
                                 return null;
                             }
                         });
@@ -411,13 +418,7 @@ public class FeatureViewLJZ extends FeatureView {
                                 fv.fillFeature(f, feature);
                                 features_save.add(f);
                             }
-                            MapHelper.saveFeature(features_save, new AiRunnable() {
-                                @Override
-                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                    mapInstance.viewFeature(f_t);
-                                    return null;
-                                }
-                            });
+                            MapHelper.saveFeature(features_save,null);
                         }
                         return null;
                     }

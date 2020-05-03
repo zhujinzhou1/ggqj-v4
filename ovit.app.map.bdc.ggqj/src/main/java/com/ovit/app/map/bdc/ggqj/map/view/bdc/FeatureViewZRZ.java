@@ -96,12 +96,20 @@ public class FeatureViewZRZ extends FeatureView {
             }
         });
 
+
         addActionTY(groupname);
 //        addActionPZ(groupname);
         addActionSJ(groupname);
 
         groupname = "操作";
         if (feature != null && feature.getFeatureTable() == table) {
+            mapInstance.addAction(groupname, "画正门", R.mipmap.app_map_layer_bz_wz, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    draw_zm("BZ_WZ", "正门", "正门");
+                }
+            });
+
             mapInstance.addAction(groupname, "定位", com.ovit.R.mipmap.app_icon_opt_location, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -143,11 +151,25 @@ public class FeatureViewZRZ extends FeatureView {
                         command_del(null);
                     }
                 });
+
             }
         }
         addActionDW("");
         addActionBZ("", false);
         return groupname;
+    }
+
+    private void draw_zm(String layername, String fhmc, String dwmc) {
+        Feature mfeature =  MapHelper.getLayer(map, layername).getFeatureTable().createFeature();
+        FeatureHelper.Set(mfeature,"FHMC", fhmc);
+        FeatureHelper.Set(mfeature,"TITLE", fhmc);
+        FeatureHelper.Set(mfeature,"DWMC", dwmc);
+        fillFeature(mfeature);
+        if (feature != null && FeatureHelper.Exist(mfeature, FeatureHelper.TABLE_ATTR_ORID_PATH)) {
+            String path = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "") + "/" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID, "");
+            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, path);
+        }
+        mapInstance.requireFeatureView(mfeature).command_change(null);
     }
 
     // 列表项，点击加载自然幢
@@ -202,6 +224,7 @@ public class FeatureViewZRZ extends FeatureView {
 
         FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDDM, zddm);
         FeatureHelper.Set(feature, "ZH", zh);
+        FeatureHelper.Set(feature, "ZTS", FeatureHelper.Get(feature,"ZTS","1"));
 
 
         // 单位米

@@ -41,6 +41,7 @@ import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ImageUtil;
 import com.ovit.app.util.ResourceUtil;
 import com.ovit.app.util.StringUtil;
+import com.ovit.app.util.gdal.cad.DxfHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,30 +52,29 @@ import java.util.Map;
 
 /**
  * Created by Lichun on 2017/4/5.
- //region 常量
- ///endregion
-
- //region 字段
- ///endregion
-
- //region 构造函数
- ///endregion
-
- //region 重写函数和回调
- ///endregion
-
- //region 公有函数
- ///endregion
-
- //region 私有函数
- ///endregion
-
- //region 面积计算
- ///endregion
-
- //region 内部类或接口
- ///endregion
-
+ * //region 常量
+ * ///endregion
+ * <p>
+ * //region 字段
+ * ///endregion
+ * <p>
+ * //region 构造函数
+ * ///endregion
+ * <p>
+ * //region 重写函数和回调
+ * ///endregion
+ * <p>
+ * //region 公有函数
+ * ///endregion
+ * <p>
+ * //region 私有函数
+ * ///endregion
+ * <p>
+ * //region 面积计算
+ * ///endregion
+ * <p>
+ * //region 内部类或接口
+ * ///endregion
  */
 
 public class FeatureEditZD extends FeatureEdit {
@@ -126,7 +126,7 @@ public class FeatureEditZD extends FeatureEdit {
     public void init() {
         super.init();
         // 菜单 基本信息 界址情况 界址签字 宗地草图 自然幢 分摊情况 不动产单元
-        menus = new int[]{R.id.ll_info, R.id.ll_jzd, R.id.ll_jzx, R.id.ll_zdct, R.id.ll_zrz, R.id.ll_ft, R.id.ll_bdcdy,R.id.ll_dzqz,R.id.ll_info2};
+        menus = new int[]{R.id.ll_info, R.id.ll_jzd, R.id.ll_jzx, R.id.ll_zdct, R.id.ll_zrz, R.id.ll_ft, R.id.ll_bdcdy, R.id.ll_dzqz, R.id.ll_info2};
     }
 
     // 填充界面
@@ -210,7 +210,41 @@ public class FeatureEditZD extends FeatureEdit {
             civ_qlrzjh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
-                    updateQlr((Map<String, String>) t_, v_feature);
+                    Map<String, String> datas = (Map<String, String>) t_;
+                    String xb = AiUtil.GetValue(datas.get("xb"), "男");
+                    String mz = AiUtil.GetValue(datas.get("mz"), "汉");
+                    String xm = datas.get("xm");
+                    String sfzh = datas.get("sfzh");
+                    String zz = datas.get("zz"); // 住址
+                    if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI) {
+                        try {
+                            String lpmc = xm + "私房";
+                            String xmmc = xm + "宅基地不动产测绘";
+                            ((EditText) v_feature.findViewById(R.id.et_zl)).setText(zz);
+                            ((EditText) v_feature.findViewById(R.id.et_lpmc)).setText(lpmc);
+                            ((EditText) v_feature.findViewById(R.id.et_xmmc)).setText(xmmc);
+                        } catch (Exception e) {
+                            Log.e(TAG, "身份证识别信息填充出错" + xm + ":" + sfzh + ":" + zz, e);
+                        }
+                    }
+
+                    if (StringUtil.IsNotEmpty(xm) ) {
+                        ((EditText) v_feature.findViewById(R.id.et_qlrxm)).setText(xm);
+                    }
+                    if (StringUtil.IsNotEmpty(sfzh) ) {
+                        ((EditText) v_feature.findViewById(R.id.et_qlrzjh)).setText(sfzh);
+                    }
+                    if ( StringUtil.IsNotEmpty(zz)) {
+                        ((EditText) v_feature.findViewById(R.id.et_qlrtxdz)).setText(zz);
+                    }
+                    String mmz = ((EditText) v_feature.findViewById(R.id.et_qlrmz)).getText().toString();
+                    Spinner sp_xb = (Spinner) v_feature.findViewById(R.id.spn_qlrxb);
+                    if (StringUtil.IsNotEmpty(datas.get("xb"))) {
+                        sp_xb.setSelection("男".equals(xb) ? 0 : 1);
+                    }
+                    if (TextUtils.isEmpty(mmz) || StringUtil.IsNotEmpty(datas.get("mz"))) {
+                        ((EditText) v_feature.findViewById(R.id.et_qlrmz)).setText(mz);
+                    }
                     return null;
                 }
             });
@@ -234,7 +268,9 @@ public class FeatureEditZD extends FeatureEdit {
             civ_dlrzjbh.setName(filename).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/")).setOnRecognize_SFZ(new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
+
                     updateDlr((Map<String, String>) t_, v_feature);
+
                     return null;
                 }
             });
@@ -356,13 +392,33 @@ public class FeatureEditZD extends FeatureEdit {
                 }
             });
 
-            // 不用判断多幢属于同一权利人
-//            tv_tobdc.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    fv.to_bdc(feature);
-//                }
-//            });
+            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI) {
+                View tv_tcsz = v_feature.findViewById(R.id.tv_tcsz);
+                tv_tcsz.setVisibility(View.VISIBLE);
+                tv_tcsz.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AiDialog.get(activity, "预设置四至", "是否填充四至？", null, "否，取消", "是", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String xzmc = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "XZMC", "");//乡镇名称
+                                String czmc = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "CZMC", "");//村名称
+                                String zmc = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "CCXZMC", "");//CCXZMC
+                                if (xzmc.isEmpty() || czmc.isEmpty() || zmc.isEmpty()) {
+                                    ToastMessage.Send(activity, "请查看镇，村，组信息是否完善");
+                                } else {
+                                    String sz = xzmc + czmc + zmc;
+                                    ((EditText) v_feature.findViewById(R.id.et_zdszd)).setText(sz);
+                                    ((EditText) v_feature.findViewById(R.id.et_zdszn)).setText(sz);
+                                    ((EditText) v_feature.findViewById(R.id.et_zdszx)).setText(sz);
+                                    ((EditText) v_feature.findViewById(R.id.et_zdszb)).setText(sz);
+                                }
+                                dialog.dismiss();
+                            }
+                        });
+                    }
+                });
+            }
 
             et_qslyzmcl = (EditText) v_feature.findViewById(R.id.et_qslyzmcl);
             et_qslyzmcl.setOnLongClickListener(new View.OnLongClickListener() {
@@ -400,7 +456,7 @@ public class FeatureEditZD extends FeatureEdit {
             v_feature.findViewById(R.id.tv_reload_bdcdy).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                 reload_bdcdy();
+                    reload_bdcdy();
                 }
             });
 
@@ -645,7 +701,7 @@ public class FeatureEditZD extends FeatureEdit {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
-                if (t_!=null){
+                if (t_ != null) {
                     //可以设定不动产单元
                     aiDialog.addContentView("确定要生成一个不动产单元吗?", "该操作将根据宗地与该宗地上所有定着物共同设定一个不动产单元！");
                     aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
@@ -672,9 +728,9 @@ public class FeatureEditZD extends FeatureEdit {
                         }
                     }).show();
 
-                }else {
-                    aiDialog.addContentView("不能设定不动产单元", (String) objects[0]+"已经设定了不动产单元！");
-                    aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM,null).show();
+                } else {
+                    aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
+                    aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
                 }
 
                 return null;
@@ -897,6 +953,7 @@ public class FeatureEditZD extends FeatureEdit {
 
     /**
      * 计算宗地：宗地面积，建筑占地面积，建筑面积
+     *
      * @param v_feature
      */
     private void hsjzmj(final LinearLayout v_feature) {
@@ -906,7 +963,7 @@ public class FeatureEditZD extends FeatureEdit {
                 fv.update_Area(new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        if(FeatureHelper.Get(feature,FeatureViewZD.TABLE_ATTR_FTXS_ZD,0.0d)>0){
+                        if (FeatureHelper.Get(feature, FeatureViewZD.TABLE_ATTR_FTXS_ZD, 0.0d) > 0) {
                             fv.update_ftxs(new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
@@ -919,7 +976,7 @@ public class FeatureEditZD extends FeatureEdit {
                                     return null;
                                 }
                             });
-                        }else {
+                        } else {
                             fillView(v_feature, feature, FeatureHelper.TABLE_ATTR_ZDMJ);
                             fillView(v_feature, feature, "JZMJ");
                             fillView(v_feature, feature, "JZZDMJ");
@@ -1029,6 +1086,7 @@ public class FeatureEditZD extends FeatureEdit {
             }
         }
     }
+
     //改变宗地代码
     private void changeZddm(LinearLayout v_feature) {
         String new_zddm = et_zddm.getText().toString();
@@ -1201,6 +1259,7 @@ public class FeatureEditZD extends FeatureEdit {
             Log.e(TAG, "load_jzdx: ", es);
         }
     }
+
     //界址点线适配器
     private QuickAdapter<Feature> getAdapter_jzdx() {
         final LinearLayout list_jzd = (LinearLayout) view.findViewById(R.id.ll_list_jzd);
@@ -1254,6 +1313,7 @@ public class FeatureEditZD extends FeatureEdit {
             return adapter_jzdx;
         }
     }
+
     //界址签章适配器
     private QuickAdapter<Map<String, Object>> getAdapter_jzqz() {
         final LinearLayout ll_list_jzqz = (LinearLayout) view.findViewById(R.id.ll_list_jzqz);
@@ -1291,12 +1351,14 @@ public class FeatureEditZD extends FeatureEdit {
 
                     ImageView iv_zjrqz = (ImageView) helper.getView().findViewById(R.id.iv_zjrqz);
                     TextView tv_zjrqz = (TextView) helper.getView().findViewById(R.id.tv_zjrqz);
-                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/") ;
+                    final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/");
                     String signName = AiUtil.GetValue(f_jzqz.get("JZQZ.XLZDZDDM"), "");
-                    if (TextUtils.isEmpty(signName)){
-                        signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ZDZHDM"), "");
-                    }
-                    fv.setSign(tv_zjrqz,iv_zjrqz,path, signName);
+//                    if (TextUtils.isEmpty(signName)) {
+//                        signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ORID"), "");
+//                    }
+                    signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ORID"), "");
+
+                    fv.setSign(tv_zjrqz, iv_zjrqz, path, signName);
                 }
             };
             adapter_jzqz.adpter(ll_list_jzqz);
@@ -1314,8 +1376,8 @@ public class FeatureEditZD extends FeatureEdit {
         //权利人拍照
         CustomImagesView civ_qlrpz = (CustomImagesView) ll_dzqz.findViewById(R.id.civ_qlrpz);
         String filename = AiUtil.GetValue(civ_qlrpz.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
-        final String signDirPath = mapInstance.getpath_root()+"资料库/电子签章/";
-        String qlrsignDirPath = getpath_root()+"附件材料/电子签章/";
+        final String signDirPath = mapInstance.getpath_root() + "资料库/电子签章/";
+        String qlrsignDirPath = getpath_root() + "附件材料/电子签章/";
         civ_qlrpz.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(qlrsignDirPath + filename + "/"));
         //组长拍照
         CustomImagesView civ_zz = (CustomImagesView) ll_zz.findViewById(R.id.civ_zz);
@@ -1333,29 +1395,29 @@ public class FeatureEditZD extends FeatureEdit {
         TextView tv_sign = (TextView) ll_dzqz.findViewById(R.id.tv_sign);
         final ImageView iv_sign = (ImageView) ll_dzqz.findViewById(R.id.iv_sign);
         // 权利人
-        fv.setSign(tv_sign,iv_sign,qlrsignDirPath, "");
+        fv.setSign(tv_sign, iv_sign, qlrsignDirPath, "");
 
         //组长电子签章
         TextView tvZz = (TextView) ll_zz.findViewById(R.id.tv_zz);
         ImageView ivZz = (ImageView) ll_zz.findViewById(R.id.iv_zz);
-        fv.setSign(tvZz,ivZz,signDirPath, "");
+        fv.setSign(tvZz, ivZz, signDirPath, "");
         //测量人电子签章
         TextView tvClr = (TextView) ll_clr.findViewById(R.id.tv_clr);
         ImageView ivClr = (ImageView) ll_clr.findViewById(R.id.iv_clr);
-        fv.setSign(tvClr,ivClr,signDirPath, "");
+        fv.setSign(tvClr, ivClr, signDirPath, "");
 
         //调查人电子签章
         TextView tvDcr = (TextView) ll_dcr.findViewById(R.id.tv_dcr);
         final ImageView ivDcr = (ImageView) ll_dcr.findViewById(R.id.iv_dcr);
-        fv.setSign(tvDcr,ivDcr,signDirPath, "");
+        fv.setSign(tvDcr, ivDcr, signDirPath, "");
 
     }
-
 
 
     //endregion 界址点线签字
 
     //region menu 菜单功能实现方法
+
     /**
      * 加载宗地草图
      */

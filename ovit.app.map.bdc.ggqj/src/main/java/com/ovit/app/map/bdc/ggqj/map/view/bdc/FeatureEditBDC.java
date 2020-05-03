@@ -1394,10 +1394,10 @@ public class FeatureEditBDC extends FeatureEdit {
         String img_dzqz = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/" + "权利人签章举证/") + "权利人电子签章.jpg";
         String image_fjcl = FileUtils.getAppDirAndMK(signDirPath);
         //力智
-        String imgClrqm = FileUtils.getAppDirAndMK(signDirPath + "/测量人签章举证/") + "缩放测量人电子签章.jpg";
-        String imgDcrqm = FileUtils.getAppDirAndMK(signDirPath + "/调查人签章举证/") + "缩放调查人电子签章.jpg";
-        String imgZz = FileUtils.getAppDirAndMK(signDirPath + "/组长签章举证/") + "缩放组长电子签章.jpg";
-        String imgQlr = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/" + "权利人签章举证/") + "缩放权利人电子签章.jpg";
+        String imgClrqm = FileUtils.getAppDirAndMK(signDirPath + "/测量人签章举证/") + "测量人电子签章.jpg";
+        String imgDcrqm = FileUtils.getAppDirAndMK(signDirPath + "/调查人签章举证/") + "调查人电子签章.jpg";
+        String imgZz = FileUtils.getAppDirAndMK(signDirPath + "/组长签章举证/") + "组长电子签章.jpg";
+        String imgQlr = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/" + "权利人签章举证/") + mapInstance.getOrid(f_zd)+"权利人电子签章.jpg";
 
         map_.put("img.clrqm", imgClrqm);
         map_.put("img.dcrqm", imgDcrqm);
@@ -1409,7 +1409,7 @@ public class FeatureEditBDC extends FeatureEdit {
         File[] tempList = file.listFiles();
         for (int i = 0; i < tempList.length; i++) {
             String zjPath = tempList[i].toString();
-            if (zjPath.endsWith(".jpg") && zjPath.contains("缩放")) {
+            if (zjPath.endsWith(".jpg") ) {
                 Map<String, Object> map_dzqz = new LinkedHashMap<>();
                 map_dzqz.put("img.slqz", zjPath);
                 maps_dzqz.add(map_dzqz);
