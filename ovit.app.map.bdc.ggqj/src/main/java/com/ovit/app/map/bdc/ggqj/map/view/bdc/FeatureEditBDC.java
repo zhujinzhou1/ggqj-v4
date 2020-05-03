@@ -265,8 +265,8 @@ public class FeatureEditBDC extends FeatureEdit {
         return FileUtils.getAppDirAndMK(GetPath(mapInstance, bdcdyh) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
     }
 
-    public static String GetPath_doc(MapInstance mapInstance, String bdcdyh, String id) {
-        return FileUtils.getAppDirAndMK(GetPath(mapInstance, bdcdyh) + FeatureHelper.FJCL) + id + bdcdyh + ".docx";
+    public static String GetPath_doc(MapInstance mapInstance, String bdcdyh, String id, Feature f_bdc) {
+        return FileUtils.getAppDirAndMK(GetPath(mapInstance, mapInstance.getOrid(f_bdc)) + FeatureHelper.FJCL) + id + bdcdyh + ".docx";
     }
 
     public static void LoadZD(MapInstance mapInstance, String bdcdyh, final AiRunnable callback) {
@@ -1216,8 +1216,11 @@ public class FeatureEditBDC extends FeatureEdit {
             f_jzqz_def.put("JZQZ.JZXZJDH", "");
             f_jzqz_def.put("JZQZ.JZXZDH", "");
             f_jzqz_def.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
-            f_jzqz_def.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
+            f_jzqz_def.put("JZQZ.LZDZJR", " ");
+            f_jzqz_def.put("img.lzzjqz","");
+            f_jzqz_def.put("img.qlr","");
             f_jzqzs.add(f_jzqz_def);
+
         }
         map_.put("list.jzqz", f_jzqzs);
 
@@ -1397,7 +1400,7 @@ public class FeatureEditBDC extends FeatureEdit {
         String imgClrqm = FileUtils.getAppDirAndMK(signDirPath + "/测量人签章举证/") + "测量人电子签章.jpg";
         String imgDcrqm = FileUtils.getAppDirAndMK(signDirPath + "/调查人签章举证/") + "调查人电子签章.jpg";
         String imgZz = FileUtils.getAppDirAndMK(signDirPath + "/组长签章举证/") + "组长电子签章.jpg";
-        String imgQlr = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/" + "权利人签章举证/") + mapInstance.getOrid(f_zd)+"权利人电子签章.jpg";
+        String imgQlr = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/" + "权利人签章举证/") +"权利人电子签章.jpg";
 
         map_.put("img.clrqm", imgClrqm);
         map_.put("img.dcrqm", imgDcrqm);

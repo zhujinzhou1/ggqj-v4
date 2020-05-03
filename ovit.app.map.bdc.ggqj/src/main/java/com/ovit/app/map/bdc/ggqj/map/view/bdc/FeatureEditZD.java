@@ -1324,16 +1324,16 @@ public class FeatureEditZD extends FeatureEdit {
                 @Override
                 protected void convert(BaseAdapterHelper helper, final Map<String, Object> f_jzqz) {
                     int i = helper.getPosition();
-                    String zjh = AiUtil.GetValue(f_jzqz.get("JZXZJH"), "");
-                    final String name = AiUtil.GetValue(f_jzqz.get("JZXQDH"), "") + " " +
+                    String zjh = AiUtil.GetValue(f_jzqz.get("JZQZ.JZXZJH"), "");
+                    final String name = AiUtil.GetValue(f_jzqz.get("JZQZ.JZXQDH"), "") + " " +
                             (StringUtil.IsEmpty(zjh) ? "" : "[" + zjh + "]") + " " +
-                            AiUtil.GetValue(f_jzqz.get("JZXZDH"), "");
+                            AiUtil.GetValue(f_jzqz.get("JZQZ.JZXZDH"), "");
                     helper.setText(R.id.tv_l_name, name);
 
-                    helper.setText(R.id.et_jzqzbrq, AiUtil.GetValue(f_jzqz.get("JZQZBRQ"), ""));
-                    helper.setText(R.id.et_xlzdqlr, StringUtil.substr_last(AiUtil.GetValue(f_jzqz.get("XLZDQLR"), ""), 7));
-                    helper.setText(R.id.et_lzdzjr, AiUtil.GetValue(f_jzqz.get("LZDZJR"), ""));
-                    helper.setText(R.id.et_bzdzjr, AiUtil.GetValue(f_jzqz.get("BZDZJR"), ""));
+                    helper.setText(R.id.et_jzqzbrq, AiUtil.GetValue(f_jzqz.get("JZQZ.BZDQLR"), ""));
+                    helper.setText(R.id.et_xlzdqlr, StringUtil.substr_last(AiUtil.GetValue(f_jzqz.get("JZQZ.XLZDQLR"), ""), 7));
+                    helper.setText(R.id.et_lzdzjr, AiUtil.GetValue(f_jzqz.get("JZQZ.LZDZJR"), ""));
+                    helper.setText(R.id.et_bzdzjr, AiUtil.GetValue(f_jzqz.get("JZQZ.BZDZJR"), ""));
 
                     //            fillView_seldate(((TextView) view.findViewById(R.id.et_jzqzbrq)), item, "jzqzbrq");
                     //            fillView(((TextView) view.findViewById(R.id.et_xlzdqlr)), item, "xlzdqlr");

@@ -2230,10 +2230,10 @@ public class FeatureViewZD extends FeatureView {
                     loadall(mapInstance, bdcdyh, featureBdcdy,fs_hjxx, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, where, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            createDOCX(mapInstance, bdcdyh, f_zd,fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
+                            createDOCX(mapInstance, bdcdyh,featureBdcdy, f_zd,fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    outputData(mapInstance, bdcdyh, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
+                                    outputData(mapInstance, bdcdyh,featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
                                     AiRunnable.Ok(callback, t_, objects);
                                     return null;
                                 }
@@ -2247,7 +2247,7 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_zd,final List<Feature> fs_hjxx, final List<Feature> fs_zd,
+    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_bdcdy, final Feature f_zd,final List<Feature> fs_hjxx, final List<Feature> fs_zd,
                             final List<Feature> fs_jzd, final List<Feature> fs_jzx, final Map<String, Feature> map_jzx,
                             final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, List<Feature> fs_ljz
             , List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
@@ -2308,7 +2308,7 @@ public class FeatureViewZD extends FeatureView {
                                 public void exec() {
                                     String file1 = files.get(postion);
                                     String mbID = StringUtil.substr(file1, file1.lastIndexOf("/") + 1, file1.lastIndexOf("."));
-                                    final String file_dcb_doc = GetPath_doc(mapInstance, bdcdyh, mbID);
+                                    final String file_dcb_doc = GetPath_doc(mapInstance, bdcdyh, mbID, f_bdcdy);
                                     String file_zd_zip = GetPath_ZD_zip(mapInstance, f_zd);
                                     if (FileUtils.exsit(file1)) {
                                         ReportUtils.exportWord(file1, file_dcb_doc, map_);
@@ -2440,6 +2440,7 @@ public class FeatureViewZD extends FeatureView {
 
     private void outputData(final MapInstance mapInstance,
                             final String bdcdyh,
+                            final Feature f_bdcdy,
                             final Feature f_zd,
                             final List<Feature> fs_jzd,
                             final List<Feature> fs_jzx,
@@ -2449,7 +2450,7 @@ public class FeatureViewZD extends FeatureView {
                             final List<Feature> fs_h_fsjg) {
         try {
             final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
-            FileUtils.copyFile(FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh), file_dcb);
+            FileUtils.copyFile(FeatureEditBDC.GetPath_doc(mapInstance, bdcdyh,"不动产权籍调查表",f_bdcdy), file_dcb);
             // 导出shp 文件
             final String shpfile_zd = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/shp/") + mapInstance.getId(f_zd) + FeatureHelper.LAYER_NAME_ZD + ".shp";
             ShapeUtil.writeShp(shpfile_zd, f_zd);
