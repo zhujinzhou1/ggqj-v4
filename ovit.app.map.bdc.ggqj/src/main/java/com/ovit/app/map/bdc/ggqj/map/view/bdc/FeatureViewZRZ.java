@@ -497,7 +497,7 @@ public class FeatureViewZRZ extends FeatureView {
 //        }
 //    }
     // 2019 06 03 已orid 为关联
-    public void update_Area(Feature feature, List<Feature> f_hs, List<Feature> f_z_fsjgs) {
+    public void update_Area(Feature feature, List<Feature> f_hs, List<Feature> f_h_fsjgs, List<Feature> f_z_fsjgs) {
         String id = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID, "");
         int zcs = FeatureHelper.Get(feature, "ZCS", 1);
         Geometry g = feature.getGeometry();
@@ -520,6 +520,14 @@ public class FeatureViewZRZ extends FeatureView {
                     hsmj += f_hsmj;
                 }
             }
+            for (Feature f : f_h_fsjgs) {
+                String orid_path = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+                if (orid_path.contains(id)) {
+                    double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
+                    hsmj += f_hsmj;
+                }
+            }
+
             if (hsmj <= 0) {
                 hsmj = area * zcs;
             }
@@ -1404,7 +1412,7 @@ public class FeatureViewZRZ extends FeatureView {
                         // 设置界址线
                         FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
                         // 自然幢
-                        FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h);
+                        FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, null);
                         // 在全局放所有户
                         FeatureEditBDC.Put_data_hs(mapInstance, map_, fs_h);
                         // 在全局放一个户

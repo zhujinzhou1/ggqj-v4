@@ -122,16 +122,20 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 // 导入二调数据
-                String funcdesc = "将两权dxf文件导入到系统！";
-                License.vaildfunc(activity, funcdesc, new AiRunnable() {
+                final String funcdesc = "将两权dxf文件导入到系统！";
+                FeatureHelper.vaildfunc(mapInstance, funcdesc, DxfHelper.IsCheckArea, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        show_lqsj_items();
+                        License.vaildfunc(activity, funcdesc, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                show_lqsj_items();
+                                return null;
+                            }
+                        });
                         return null;
                     }
                 });
-
-
             }
         });
         // 导出二调数据
@@ -139,14 +143,10 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 final String fundesc = "生成两权数据！";
-                FeatureHelper.vaildfunc(mapInstance, fundesc, false, new AiRunnable() {
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        Geometry g = null;
-                        if (t_ != null && t_ instanceof Geometry) {
-                            g = (Geometry) t_;
-                        }
-                        output_lqsj(mapInstance, g);
+                        output_lqsj(mapInstance);
                         return null;
                     }
                 });
@@ -158,7 +158,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 String fundesc = "导入权利人！";
-                License.vaildfunc(activity, fundesc, new AiRunnable() {
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         output_excels();
@@ -172,7 +172,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 String fundesc = "导入不动产单元！";
-                License.vaildfunc(activity, fundesc, new AiRunnable() {
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         input_bdcdy(mapInstance);
@@ -186,7 +186,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 String fundesc = "不动产单元与不动产智能挂接！";
-                License.vaildfunc(activity, fundesc, new AiRunnable() {
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         zngjBdcFromBdcdy(mapInstance);
@@ -200,7 +200,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 String fundesc = "图形替换";
-                License.vaildfunc(activity, fundesc, new AiRunnable() {
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         mapInstance.tool.layerTool.inputfromshp(true,null);
@@ -245,7 +245,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.v_cggl_zlcl).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Zlcl(mapInstance);
+                String fundesc = "智能处理";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        Zlcl(mapInstance);
+                        return null;
+                    }
+                });
             }
         });
 
@@ -254,7 +261,15 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 // 查看列表
-                FeatureEditH.Sjjc_h(mapInstance);
+                String fundesc = "数据检查";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        FeatureEditH.Sjjc_h(mapInstance);
+                        return null;
+                    }
+                });
+
             }
         });
         // 生成资料
@@ -262,7 +277,15 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             @Override
             public void onClick(View v) {
                 // 查看列表
-                Cgsc(mapInstance, false);
+                String fundesc = "生成资料";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        Cgsc(mapInstance, false);
+                        return null;
+                    }
+                });
+
             }
         });
 
@@ -270,7 +293,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.v_cggl_txxf).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                txxf(mapInstance, true);
+                String fundesc = "图形修复";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        txxf(mapInstance, true);
+                        return null;
+                    }
+                });
             }
         });
 
@@ -278,7 +308,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         tool_view.findViewById(R.id.v_cggl_sctz).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Sctz(mapInstance, true);
+                String fundesc = "生成台账";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        Sctz(mapInstance, true);
+                        return null;
+                    }
+                });
             }
         });
 
@@ -515,6 +552,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                             aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "户。");
                                             AiRunnable.Ok(callback, null);
+                                            return null;
+                                        }
+
+                                        @Override
+                                        public <T_> T_ error(T_ t_, Object... objects) {
+                                            aidialog.addContentView(null, "不在授权区域，请联系当地服务商！");
+                                            AiRunnable.Error(callback, null);
                                             return null;
                                         }
                                     });
@@ -806,7 +850,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
     }
 
     // 生成两权数据
-    private void output_lqsj(final MapInstance mapInstance, final Geometry licenseGeometry) {
+    private void output_lqsj(final MapInstance mapInstance) {
         final String funcdesc = "该功能将逐生成完整的dxf成果！";
 
         License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {

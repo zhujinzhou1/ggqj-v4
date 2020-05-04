@@ -52,6 +52,7 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh_jinshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFct_xianan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdctDefult;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_badong;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -1273,14 +1274,15 @@ public class FeatureViewZD extends FeatureView {
     // 出宗地草图 dxf
     public void loadZdct_Dxf(final com.ovit.app.map.model.MapInstance mapInstance, final Feature f_zd, List<Feature> fs_zd
             , List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h_fsjg
-            , List<Feature> fs_jzd, List<Feature> fs_zj_x, List<Feature> fs_xzdw, List<Feature> fs_mzdw) {
+            , List<Feature> fs_jzd, List<Feature> fs_zj_x,  List<Feature> fs_zj_d,List<Feature> fs_xzdw, List<Feature> fs_mzdw,List<Feature> fs_dzdw) {
         try {
             final String dxfpath_zdt = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "") + "宗地图.dxf";
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
                 final String dxfpath_zdct = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "") + "宗地草图.dxf";
                 new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
             } else {
-                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+//                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+                new DxfZdt_badong(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd, fs_zj_x, fs_zj_d, fs_xzdw, fs_mzdw, fs_dzdw).write().save();
             }
         } catch (Exception es) {
             Log.e(TAG, "生成分层分户图失败");
@@ -1317,8 +1319,10 @@ public class FeatureViewZD extends FeatureView {
                                 final List<Feature> fs_h_fsjg = new ArrayList<Feature>();
                                 final List<Feature> fs_z_fsjg = new ArrayList<Feature>();
                                 final List<Feature> fs_zj_x = new ArrayList<Feature>();
+                                final List<Feature> fs_zj_d = new ArrayList<Feature>();
                                 final List<Feature> fs_mzdw = new ArrayList<Feature>();
                                 final List<Feature> fs_xzdw = new ArrayList<Feature>();
+                                final List<Feature> fs_dzdw = new ArrayList<Feature>();
                                 final Geometry g = GeometryEngine.bufferGeodetic(feature.getGeometry(), 1, MapHelper.U_L, 0.01, MapHelper.GC);
                                 // 范围内所有宗地
                                 final double buffer = DxfHelper.getZdctBuffer();
@@ -1345,13 +1349,20 @@ public class FeatureViewZD extends FeatureView {
                                                                 MapHelper.Query(mapInstance.map, "BZ_X", g, buffer, fs_zj_x, new AiRunnable(runnable) {
                                                                     @Override
                                                                     public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        MapHelper.Query(mapInstance.map, "BZ_D", g, buffer, fs_zj_d, new AiRunnable(runnable) {
+                                                                            @Override
+                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
                                                                         MapHelper.Query(mapInstance.map, "MZDW", g, buffer, fs_mzdw, new AiRunnable(runnable) {
                                                                             @Override
                                                                             public <T_> T_ ok(T_ t_, Object... objects) {
 
                                                                                 MapHelper.Query(mapInstance.map, "XZDW", g, buffer, fs_xzdw, new AiRunnable(runnable) {
-                                                                                    @Override
-                                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                        @Override
+                                                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                            MapHelper.Query(mapInstance.map, "DZDW", g, buffer, fs_dzdw, new AiRunnable(runnable) {
+                                                                                                @Override
+                                                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+
                                                                                         List<Geometry> lablePoints = new ArrayList<>();
                                                                                         String jxlx = FeatureHelper.Get(feature, "JXLX", "J");
                                                                                         if (true) {
@@ -1360,7 +1371,7 @@ public class FeatureViewZD extends FeatureView {
                                                                                             }
                                                                                         }
                                                                                         //生成dxf
-                                                                                        loadZdct_Dxf(mapInstance, feature, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, features_jzd, fs_zj_x, fs_xzdw, fs_mzdw);
+                                                                                        loadZdct_Dxf(mapInstance, feature, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, features_jzd, fs_zj_x,fs_zj_d, fs_xzdw, fs_mzdw,fs_dzdw);
                                                                                         //这些图层是要隐藏的
                                                                                         List<Layer> ls = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.TABLE_NAME_ZRZ,"LJZ", "FSSS","JZD", "JZX", FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG, "KZD");
                                                                                         for (Layer l : ls) {
@@ -1549,12 +1560,8 @@ public class FeatureViewZD extends FeatureView {
                                                                                             String textLable = mapInstance.getLabel(f, DxfHelper.TYPE);
                                                                                             textSymbol.setText(textLable);
                                                                                             Point p_z_lable = MapHelper.getNiceLablePoint(intersectionGeometry,lablePoints);
-                                                                                            if(p_z_lable == null){
-                                                                                                p_z_lable = GeometryEngine.labelPoint((Polygon) intersectionGeometry);
-                                                                                            }
-                                                                                            glayer.getGraphics().add(new Graphic(p_z_lable, textSymbol));
+                                                                                             glayer.getGraphics().add(new Graphic(p_z_lable, textSymbol));
                                                                                         }
-
 
                                                                                         if (g instanceof Multipoint) {
                                                                                             //  不做操作
@@ -1630,7 +1637,11 @@ public class FeatureViewZD extends FeatureView {
                                                         });
                                                         return null;
                                                     }
-                                                });
+                                                });      return null;
+                                                    }
+                                                });      return null;
+                                                            }
+                                                        });
                                                         return null;
                                                     }
                                                 });
@@ -2132,7 +2143,7 @@ public class FeatureViewZD extends FeatureView {
                     update_fs.add(f);
                 }
                 for (Feature f : fs_zrz) {
-                    FeatureViewZRZ.From(mapInstance, f).update_Area(f, fs_h, fs_z_fsjg);
+                    FeatureViewZRZ.From(mapInstance, f).update_Area(f, fs_h, fs_h_fsjg,fs_z_fsjg);
                     update_fs.add(f);
                 }
                 hsmj(fs_zrz);
@@ -2247,10 +2258,10 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_bdcdy, final Feature f_zd,final List<Feature> fs_hjxx, final List<Feature> fs_zd,
+    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_bdcdy, final Feature f_zd, final List<Feature> fs_hjxx, final List<Feature> fs_zd,
                             final List<Feature> fs_jzd, final List<Feature> fs_jzx, final Map<String, Feature> map_jzx,
                             final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, List<Feature> fs_ljz
-            , List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
+            , final List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
 
         {
             final String file_dcb_doc = FeatureEditBDC.GetPath_BDC_doc(mapInstance, bdcdyh);
@@ -2279,7 +2290,7 @@ public class FeatureViewZD extends FeatureView {
                             // 设置界址线
                             FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
                             // 自然幢
-                            FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h);
+                            FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_c);
                             // 在全局放所有户
                             FeatureEditBDC.Put_data_hs(mapInstance, map_, fs_h);
                             // 在全局放一个户
@@ -2354,7 +2365,7 @@ public class FeatureViewZD extends FeatureView {
     private void loadall(final MapInstance mapInstance, final String orid, final Feature featureBdcdy
             , final List<Feature> fs_hjxx, Feature f_zd, List<Feature> fs_zd, List<Feature> fs_jzd, List<Feature> fs_jzx
             , Map<String, Feature> map_jzx, List<Map<String, Object>> fs_jzqz
-            , final List<Feature> fs_zrz, final List<Feature> fs_ljz, List<Feature> fs_c
+            , final List<Feature> fs_zrz, final List<Feature> fs_ljz, final List<Feature> fs_c
             , final List<Feature> fs_z_fsjg, final List<Feature> fs_h
             , final List<Feature> fs_h_fsjg, final String where, final AiRunnable callback) {
         FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
@@ -2368,6 +2379,9 @@ public class FeatureViewZD extends FeatureView {
                         MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_LJZH, "asc", -1, fs_ljz, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
+                                MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ_C), StringUtil.WhereByIsEmpty(orid) + where,"SJC", "asc", -1, fs_c, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
                                 MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(orid) + where, "ID", "asc", -1, fs_h, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
@@ -2392,6 +2406,9 @@ public class FeatureViewZD extends FeatureView {
                                                 return null;
                                             }
                                         });
+                                        return null;
+                                    }
+                                });
                                         return null;
                                     }
                                 });

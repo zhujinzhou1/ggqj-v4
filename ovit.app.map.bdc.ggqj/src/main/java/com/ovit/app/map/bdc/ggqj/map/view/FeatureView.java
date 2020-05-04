@@ -1101,8 +1101,10 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
             } else {
                 map.put("JZQZ.LZDZJR", " ");
                 map.put("img.lzzjqz", "");
-                AiRunnable.Ok(callback, null, null);
+                AiRunnable.Ok(callback, null,   null);
             }
+        }else {
+            AiRunnable.Ok(callback,null,null);
         }
     }
 

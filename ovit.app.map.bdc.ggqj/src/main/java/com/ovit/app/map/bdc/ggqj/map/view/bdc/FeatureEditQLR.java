@@ -14,6 +14,7 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
+import com.ovit.app.core.License;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
@@ -31,6 +32,7 @@ import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.StringUtil;
+import com.ovit.app.util.gdal.cad.DxfHelper;
 import com.ovit.app.util.openCV.OpenCVDialog;
 
 import java.util.ArrayList;
@@ -207,7 +209,20 @@ public class FeatureEditQLR extends FeatureEdit {
         addAction("生成资料", R.mipmap.app_icon_excel_blue, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dy(feature, mapInstance, true);
+                final String fundesc = "生成资料";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        License.vaildfunc(mapInstance.activity, fundesc, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                dy(feature, mapInstance, true);
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                });
             }
         });
 
