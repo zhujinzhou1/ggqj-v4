@@ -839,7 +839,7 @@ public class FeatureViewLJZ extends FeatureView {
         });
     }
 
-    //转户附属
+    //转附属设施
     public void featureConversionToFsss(final AiRunnable callback) {
         FeatureLayer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_FSSS, FeatureHelper.LAYER_NAME_FSSS);
         final Feature f = layer.getFeatureTable().createFeature();

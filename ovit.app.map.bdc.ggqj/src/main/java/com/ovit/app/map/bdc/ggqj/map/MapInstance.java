@@ -165,6 +165,9 @@ public class MapInstance extends com.ovit.app.map.model.MapInstance {
             label = FeatureHelper.Get(feature,"FHMC","");
         }else if (tableName.equals(FeatureHelper.TABLE_NAME_H)){
 
+        }else if (tableName.equals(FeatureHelper.TABLE_NAME_FSSS)) {
+            label = FeatureHelper.Get(feature,"QLR","") + "\n"
+                    +FeatureHelper.Get(feature,"JZWMC","");
         }else {
             label = getName(feature);
         }

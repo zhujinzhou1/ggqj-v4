@@ -118,12 +118,13 @@ public class FeatureViewFSSS extends FeatureView {
 
         FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDDM, zddm);
         FeatureHelper.Set(feature, "ZH", zh);
-
-
         // 单位米
         double area = MapHelper.getArea(mapInstance, feature.getGeometry());
+        if (0d == FeatureHelper.Get(feature, "ZYDMJ", 0d)) {
+            FeatureHelper.Set(feature, "ZYDMJ", area);
+        }
         if (0d == FeatureHelper.Get(feature, "ZZDMJ", 0d)) {
-            FeatureHelper.Set(feature, "ZZDMJ", area);
+            feature.getAttributes().put("ZZDMJ", area);
         }
         if (0d == FeatureHelper.Get(feature, "SCJZMJ", 0d)) {
             double scjzmj = area * AiUtil.GetValue(feature.getAttributes().get("ZCS"), 1);

@@ -32,7 +32,6 @@ import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.StringUtil;
-import com.ovit.app.util.gdal.cad.DxfHelper;
 import com.ovit.app.util.openCV.OpenCVDialog;
 
 import java.util.ArrayList;
@@ -210,19 +209,20 @@ public class FeatureEditQLR extends FeatureEdit {
             @Override
             public void onClick(View v) {
                 final String fundesc = "生成资料";
-                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+//                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+//                    @Override
+//                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                        return null;
+//                    }
+//                });
+                License.vaildfunc(mapInstance.activity, fundesc, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        License.vaildfunc(mapInstance.activity, fundesc, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                dy(feature, mapInstance, true);
-                                return null;
-                            }
-                        });
+                        dy(feature, mapInstance, true);
                         return null;
                     }
                 });
+
             }
         });
 

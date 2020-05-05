@@ -147,6 +147,12 @@ public class FeatureEditZD extends FeatureEdit {
             if (0d == AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ZDMJ), 0d)) {
                 feature.getAttributes().put(FeatureHelper.TABLE_ATTR_ZDMJ, area);
             }
+            if (TextUtils.isEmpty(FeatureHelper.Get(feature,"ZDSYQ","")) ) {
+                 FeatureHelper.Set(feature,"ZDSYQR", "集体所有");
+            }
+            if (TextUtils.isEmpty(FeatureHelper.Get(feature,"YPZFWSFYZ","")) ) {
+                FeatureHelper.Set(feature,"YPZFWSFYZ", "是");
+            }
             feature.getAttributes().put("GLBLC", "1:" + scale);
             mapInstance.fillFeature(feature);
             old_bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_BDCDYH, "");
@@ -161,7 +167,6 @@ public class FeatureEditZD extends FeatureEdit {
             et_ybzddm = (EditText) v_feature.findViewById(R.id.et_ybzddm);
             et_bdcdyh = (EditText) v_feature.findViewById(R.id.et_bdcdyh);
             spn_qllx = (Spinner) v_feature.findViewById(R.id.spn_qllx);
-            final String bdcdyh = AiUtil.GetValue(et_bdcdyh.getText(), "");
             et_bdcdyh.setEnabled(false);
             et_zddm.addTextChangedListener(new TextWatcher() {
                 @Override

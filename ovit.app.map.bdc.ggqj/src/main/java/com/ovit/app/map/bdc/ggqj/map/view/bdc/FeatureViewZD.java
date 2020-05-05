@@ -1274,7 +1274,8 @@ public class FeatureViewZD extends FeatureView {
     // 出宗地草图 dxf
     public void loadZdct_Dxf(final com.ovit.app.map.model.MapInstance mapInstance, final Feature f_zd, List<Feature> fs_zd
             , List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h_fsjg
-            , List<Feature> fs_jzd, List<Feature> fs_zj_x,  List<Feature> fs_zj_d,List<Feature> fs_xzdw, List<Feature> fs_mzdw,List<Feature> fs_dzdw) {
+            , List<Feature> fs_jzd, List<Feature> fs_zj_x,  List<Feature> fs_zj_d
+            ,List<Feature> fs_xzdw, List<Feature> fs_mzdw,List<Feature> fs_dzdw,List<Feature> fs_fsss) {
         try {
             final String dxfpath_zdt = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "") + "宗地图.dxf";
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
@@ -1282,7 +1283,7 @@ public class FeatureViewZD extends FeatureView {
                 new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
             } else {
 //                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
-                new DxfZdt_badong(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd, fs_zj_x, fs_zj_d, fs_xzdw, fs_mzdw, fs_dzdw).write().save();
+                new DxfZdt_badong(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd, fs_zj_x, fs_zj_d, fs_xzdw, fs_mzdw, fs_dzdw,fs_fsss).write().save();
             }
         } catch (Exception es) {
             Log.e(TAG, "生成分层分户图失败");
@@ -1371,7 +1372,7 @@ public class FeatureViewZD extends FeatureView {
                                                                                             }
                                                                                         }
                                                                                         //生成dxf
-                                                                                        loadZdct_Dxf(mapInstance, feature, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, features_jzd, fs_zj_x,fs_zj_d, fs_xzdw, fs_mzdw,fs_dzdw);
+                                                                                        loadZdct_Dxf(mapInstance, feature, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, features_jzd, fs_zj_x,fs_zj_d, fs_xzdw, fs_mzdw,fs_dzdw,fs_fsss);
                                                                                         //这些图层是要隐藏的
                                                                                         List<Layer> ls = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.TABLE_NAME_ZRZ,"LJZ", "FSSS","JZD", "JZX", FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG, "KZD");
                                                                                         for (Layer l : ls) {
@@ -1559,8 +1560,8 @@ public class FeatureViewZD extends FeatureView {
                                                                                             textSymbol.setSize(7);
                                                                                             String textLable = mapInstance.getLabel(f, DxfHelper.TYPE);
                                                                                             textSymbol.setText(textLable);
-                                                                                            Point p_z_lable = MapHelper.getNiceLablePoint(intersectionGeometry,lablePoints);
-                                                                                             glayer.getGraphics().add(new Graphic(p_z_lable, textSymbol));
+//                                                                                            Point p_z_lable = MapHelper.getNiceLablePoint(intersectionGeometry,lablePoints);
+                                                                                             glayer.getGraphics().add(new Graphic(GeometryEngine.labelPoint((Polygon) intersectionGeometry), textSymbol));
                                                                                         }
 
                                                                                         if (g instanceof Multipoint) {
@@ -1663,7 +1664,7 @@ public class FeatureViewZD extends FeatureView {
                                 if (bitmap != null) {
                                     try {
                                         FileUtils.writeFile(filename, ConvertUtil.convert(bitmap));
-                                        MapImage.getZoomBitmap(filename, filename,600,600);
+                                        MapImage.getZoomBitmap(filename, filename,1000,1000);
                                         AiRunnable.Ok(callback, filename, objects);
                                         return null;
                                     } catch (Exception es) {

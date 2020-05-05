@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
@@ -12,6 +13,7 @@ import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
+import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.StringUtil;
 
 /**
@@ -49,6 +51,18 @@ public class FeatureEditFSSS extends FeatureEdit {
         final LinearLayout v_feature = (LinearLayout) LayoutInflater.from(activity).inflate(R.layout.app_ui_ai_aimap_feature_fsss, v_content);
         try {
             if (feature != null) {
+                Geometry g = feature.getGeometry();
+                if (g!=null){
+                    double area = MapHelper.getArea(mapInstance, feature.getGeometry());
+                    if (0d == FeatureHelper.Get(feature, "ZYDMJ", 0d)) {
+                        FeatureHelper.Set(feature, "ZYDMJ", area);
+                    }
+                    if (0d == FeatureHelper.Get(feature, "ZZDMJ", 0d)) {
+                        feature.getAttributes().put("ZZDMJ", area);
+                    }
+                    double scjzmj = area * AiUtil.GetValue(feature.getAttributes().get("ZCS"), 1);
+                    feature.getAttributes().put("SCJZMJ", scjzmj);
+                }
                 mapInstance.fillFeature(feature);
                 fillView(v_feature);
 

@@ -1,40 +1,29 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.esri.arcgisruntime.data.Feature;
-import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Geometry;
-import com.esri.arcgisruntime.geometry.Polygon;
-import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
-import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.dialog.AiDialog;
+import com.ovit.app.ui.dialog.DialogBuilder;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
-import com.ovit.app.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by LiuSheng on 2017/7/28.
@@ -178,6 +167,13 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
 
                     }
                 });
+                TextView tv_to_h_fsjg = (TextView) v_feature.findViewById(R.id.tv_to_h_fsjg);
+                tv_to_h_fsjg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        conversionToHfsjg();
+                    }
+                });
 
 
             }
@@ -269,6 +265,23 @@ public class FeatureEditZ_FSJG extends FeatureEdit {
             ToastMessage.Send(activity, "更新属性失败!", TAG, es);
         }
     }
+
+    private void conversionToHfsjg() {
+        DialogBuilder.confirm(activity, "图形转换提示", "确定要转幢附属结构？幢附属结构根据（全、半、无）三类去核算建筑面积。", null, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                fv.featureConversionToHfsjg(new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        Feature f_hfsjg = (Feature) t_;
+                        mapInstance.viewFeature(f_hfsjg);
+                        return null;
+                    }
+                });
+            }
+        }, AiDialog.CENCEL, null).show();
+    }
+
     // endregion
 
 }

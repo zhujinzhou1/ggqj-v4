@@ -70,6 +70,7 @@ public class DxfZdt_badong {
     private List<Feature> fs_fsjg;
     private List<Feature> fs_h_fsjg;
     private List<Feature> fs_jzd;
+    private List<Feature> fs_fsss;
 
     public DxfZdt_badong(MapInstance mapInstance) {
         this.mapInstance = mapInstance;
@@ -87,7 +88,8 @@ public class DxfZdt_badong {
     }
 
     public DxfZdt_badong set(Feature f_zd, List<Feature> fs_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h_fsjg
-            , List<Feature> fs_jzd, List<Feature> fs_zj_x, List<Feature> fs_zj_d, List<Feature> fs_xzdw, List<Feature> fs_mzdw,List<Feature> fs_dzdw) {
+            , List<Feature> fs_jzd, List<Feature> fs_zj_x, List<Feature> fs_zj_d, List<Feature> fs_xzdw
+            , List<Feature> fs_mzdw,List<Feature> fs_dzdw,List<Feature> fs_fsss) {
         this.f_zd = f_zd;
         List<Feature> fs_all=new ArrayList<>();
         List<Feature> fs_fsjg=new ArrayList<>();
@@ -103,6 +105,7 @@ public class DxfZdt_badong {
         this.fs_xzdw = fs_xzdw;
         this.fs_mzdw = fs_mzdw;
         this.fs_dzdw = fs_dzdw;
+        this.fs_fsss = fs_fsss;
         this.fs_zrz =fs_zrz;
         this.fs_z_fsjg =fs_z_fsjg;
         this.fs_h_fsjg =fs_h_fsjg;
@@ -368,7 +371,6 @@ public class DxfZdt_badong {
 //                    dxf.writeLine(DxfTemplet.Get_POLYLINE(points, DxfHelper.LINETYPE_SOLID_LINE, DxfHelper.COLOR_GREEN, 0, "0", stbm, "JMD"));
 //                }
             }
-             fs.addAll(fs_mzdw);
             for (Feature f_mzdw : fs_mzdw) {
                 com.esri.arcgisruntime.geometry.Geometry g = MapHelper.geometry_get(f_mzdw.getGeometry(), spatialReference);
                 String text = mapInstance.getLabel(f_mzdw);
@@ -379,7 +381,25 @@ public class DxfZdt_badong {
                 String stbm=FeatureHelper.Get(f_mzdw,"STBM",FeatureHelper.Get(f_mzdw,"FHDM",FeatureHelper.Get(f_mzdw,"XX","")));
                 dxf.writeLine(DxfTemplet.Get_POLYGON(points, DxfHelper.LINETYPE_SOLID_LINE, DxfHelper.COLOR_BULEGREEN, 0, stbm));
                 dxf.writeMText(p, text, 0.4f, "", 0, 1, 2, DxfHelper.COLOR_BLUE, "JMD", "140009");
-                //  dxf.write(intersection);
+//                dxf.write(intersection);
+            }
+            for (Feature f_fsss : fs_fsss) {
+                Geometry g_fsss = f_fsss.getGeometry();
+                if (FeatureHelper.isPolygonGeometryValid(g_fsss)) {
+                    com.esri.arcgisruntime.geometry.Geometry g = MapHelper.geometry_get(g_fsss, spatialReference);
+                    String text = mapInstance.getLabel(f_fsss);
+                    Point p = GeometryEngine.labelPoint((Polygon) g);
+                    Geometry intersection = GeometryEngine.intersection(cel_4_2, g);
+                    if (FeatureHelper.isPolygonGeometryValid(intersection)){
+                        List<Point> points = MapHelper.geometry_getPoints(intersection);
+                        //     String stbm=FeatureHelper.Get(f_mzdw,"FHDM", "158800");
+                        String stbm = FeatureHelper.Get(f_fsss, "STBM", FeatureHelper.Get(f_fsss, "FHDM", FeatureHelper.Get(f_fsss, "XX", "")));
+                        dxf.writeLine(DxfTemplet.Get_POLYGON(points, DxfHelper.LINETYPE_SOLID_LINE, DxfHelper.COLOR_BULEGREEN, 0, stbm));
+                        dxf.writeMText(p, text, 0.4f, "", 0, 1, 2, DxfHelper.COLOR_BLUE, "JMD", "140009");
+                    }
+                                 }
+
+
             }
             fs.addAll(fs_dzdw);
             fs.addAll(fs_zj_d);

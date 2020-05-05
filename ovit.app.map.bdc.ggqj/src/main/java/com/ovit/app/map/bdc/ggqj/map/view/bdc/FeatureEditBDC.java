@@ -940,19 +940,19 @@ public class FeatureEditBDC extends FeatureEdit {
             return;
         }
         //TODO 区域验证
-        String bdcdy = FeatureHelper.Get(featureBdcdy,FeatureHelper.TABLE_ATTR_BDCDYH,"");
-        if (FeatureHelper.isBDCDYHValid(bdcdy)){
-            if (!bdcdy.startsWith(DxfHelper.AREA_DJZQDM_BASE)){
-                ToastMessage.Send("操作失败，本系统为区域版，本工程没有此权限，请联系当地服务商！");
-                AiRunnable.Error(callback, featureBdcdy);
-                return ;
-            }
-        }else {
-            // 宗地代码有误
-            ToastMessage.Send("不动产单元号有误，请检查数据！");
-            AiRunnable.Error(callback, featureBdcdy);
-            return ;
-        }
+//        String bdcdy = FeatureHelper.Get(featureBdcdy,FeatureHelper.TABLE_ATTR_BDCDYH,"");
+//        if (FeatureHelper.isBDCDYHValid(bdcdy)){
+//            if (DxfHelper.IsCheckArea&&!bdcdy.startsWith(DxfHelper.AREA_DJZQDM_BASE)){
+//                ToastMessage.Send("操作失败，本系统为区域版，本工程没有此权限，请联系当地服务商！");
+//                AiRunnable.Error(callback, featureBdcdy);
+//                return ;
+//            }
+//        }else {
+//            // 宗地代码有误
+//            ToastMessage.Send("不动产单元号有误，请检查数据！");
+//            AiRunnable.Error(callback, featureBdcdy);
+//            return ;
+//        }
 
         if (last_orid.contains(FeatureConstants.ZD_ORID_PREFIX)) {
             new FeatureViewZD().createDOCX(mapInstance, featureBdcdy, true, callback);

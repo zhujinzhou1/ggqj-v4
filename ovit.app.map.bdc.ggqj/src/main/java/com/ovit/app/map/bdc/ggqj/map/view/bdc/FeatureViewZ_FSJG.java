@@ -6,12 +6,12 @@ import android.graphics.DashPathEffect;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.esri.arcgisruntime.data.ArcGISFeatureTable;
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.esri.arcgisruntime.layers.Layer;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
@@ -24,10 +24,10 @@ import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
-import com.ovit.app.util.Callback;
 import com.ovit.app.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -187,6 +187,28 @@ public class FeatureViewZ_FSJG extends FeatureView {
     ///endregion
 
     //region 公有函数
+    //转户附属
+    public void featureConversionToHfsjg(final AiRunnable callback) {
+        String type = "阳台";
+        FeatureLayer layer = MapHelper.getLayer(map, FeatureHelper.TABLE_NAME_H_FSJG, FeatureHelper.LAYER_NAME_H_FSJG);
+        final Feature f = layer.getFeatureTable().createFeature();
+//                                f.getAttributes().put("HID",AiUtil.GetValue(featureH.getAttributes().get("ID"),""));
+//                                f.getAttributes().put("HH",AiUtil.GetValue(featureH.getAttributes().get("HH"),""));
+//                                f.getAttributes().put("LC",AiUtil.GetValue(featureH.getAttributes().get("CH"),""));
+        f.getAttributes().put("MC", type);
+        f.getAttributes().put("TYPE", "1");
+        f.getAttributes().put("FHMC", type);
+        f.setGeometry(feature.getGeometry());
+        mapInstance.fillFeature(f);
+        MapHelper.saveFeature(Arrays.asList(new Feature[]{f}), Arrays.asList(feature), new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                AiRunnable.Ok(callback, f, objects);
+                return null;
+            }
+        });
+    }
+
     public void queryFatherFeature(MapInstance mapInstance, String fathertable, String orid_, Feature feature, List<Feature> features, AiRunnable callback) {
         String orid_path = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
         if (StringUtil.IsEmpty(orid_path)) {
