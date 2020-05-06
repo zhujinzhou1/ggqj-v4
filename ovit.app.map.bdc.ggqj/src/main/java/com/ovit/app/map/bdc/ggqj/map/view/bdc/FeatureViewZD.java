@@ -2150,6 +2150,7 @@ public class FeatureViewZD extends FeatureView {
         final List<Feature> fs_h = new ArrayList<>();
         final List<Feature> fs_h_fsjg = new ArrayList<>();
         final List<Feature> update_fs = new ArrayList<>();
+        final List<Feature> fs_fsss = new ArrayList<>();
         String id = getZddm();
         if (StringUtil.IsEmpty(id)) {
             AiRunnable.Ok(callback, null);
@@ -2158,36 +2159,57 @@ public class FeatureViewZD extends FeatureView {
         LoadZ_H_And_Fsjg(mapInstance, feature, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                for (Feature f : fs_h_fsjg) {
-                    FeatureEditH_FSJG.hsmj(f, mapInstance);
-                    update_fs.add(f);
-                }
-                for (Feature f : fs_z_fsjg) {
-                    FeatureEditZ_FSJG.hsmj(f, mapInstance);
-                    update_fs.add(f);
-                }
-                for (Feature f : fs_h) {
-                    FeatureViewH.hsmj(f, mapInstance, fs_h_fsjg);
-                    update_fs.add(f);
-                }
-                for (Feature f : fs_zrz) {
-                    FeatureViewZRZ.From(mapInstance, f).update_Area(f, fs_h, fs_h_fsjg, fs_z_fsjg);
-                    update_fs.add(f);
-                }
-                hsmj(fs_zrz);
-                update_fs.add(feature);
-                MapHelper.saveFeature(update_fs, callback);
+
+                final FeatureView fv = mapInstance.newFeatureView(feature);
+                fv.loadFsss(fs_fsss, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+
+                        for (Feature f : fs_h_fsjg) {
+                            FeatureEditH_FSJG.hsmj(f, mapInstance);
+                            update_fs.add(f);
+                        }
+                        for (Feature f : fs_z_fsjg) {
+                            FeatureEditZ_FSJG.hsmj(f, mapInstance);
+                            update_fs.add(f);
+                        }
+                        for (Feature f : fs_h) {
+                            FeatureViewH.hsmj(f, mapInstance, fs_h_fsjg);
+                            update_fs.add(f);
+                        }
+                        for (Feature f : fs_zrz) {
+                            FeatureViewZRZ.From(mapInstance, f).update_Area(f, fs_h, fs_h_fsjg, fs_z_fsjg);
+                            update_fs.add(f);
+                        }
+                        for (Feature f : fs_fsss) {
+                            FeatureViewFSSS.From(mapInstance, f).update_Area(fs_fsss);
+                            update_fs.add(f);
+                        }
+
+                        hsmj(fs_zrz,fs_fsss,fs_h,fs_h_fsjg,fs_z_fsjg);
+                        update_fs.add(feature);
+                        MapHelper.saveFeature(update_fs, callback);
+                        return null;
+                    }
+                });
                 return null;
             }
         });
     }
 
-    public void hsmj(List<Feature> f_zrzs) {
+    public void hsmj(List<Feature> f_zrzs,List<Feature> fs_fsss,List<Feature> fs_h,List<Feature> fs_hfs,List<Feature> fs_zfs) {
         String orid = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID, "");
         Geometry g = feature.getGeometry();
         double area = 0d;
         double hsmj = 0d;
         double jzzdmj = 0d;
+
+        // 湖南长沙
+        double zfjzzdmj = FeatureViewFSSS.GetJZZDMJ(fs_fsss,"杂屋"); // 杂房建筑占地面积
+        double qtjzzdmj = FeatureViewFSSS.GetQTJZZDMJ(fs_fsss);   // 其他建筑占地面积
+        double cczdmj = 0d;
+
+
         if (g != null) {
             area = MapHelper.getArea(mapInstance, g);
         }
@@ -2207,6 +2229,52 @@ public class FeatureViewZD extends FeatureView {
         FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDMJ, AiUtil.Scale(area, 2));
         FeatureHelper.Set(feature, "JZZDMJ", AiUtil.Scale(jzzdmj, 2));
         FeatureHelper.Set(feature, "JZMJ", AiUtil.Scale(hsmj, 2));
+
+
+        // 湖南长沙
+        Double zdmj = FeatureHelper.Get(feature,"ZDMJ",0d);
+        Double syqmj = FeatureHelper.Get(feature,"SYQMJ",0d);
+        Double djzdmj =0d;
+        Double zjzzdmj =qtjzzdmj+zfjzzdmj+jzzdmj; // 总建筑占地面面积
+        Double fsss_zjzmj = FeatureViewFSSS.GetZJZMJ(fs_fsss);
+        Double zjzmj =hsmj+fsss_zjzmj; // 总建筑面积
+        Double djjzmj =0d; // 登记建筑面积
+        Double hjccjzmj =0d; // 登记建筑面积
+        if (FeatureHelper.Get(feature,"SYQMJ",0d)>10){
+           cczdmj =zdmj-syqmj;
+        }
+        djzdmj = (zdmj<=syqmj+5)?zdmj:syqmj; // 登记宗地面积
+
+        //登记建筑面积
+        ArrayList<Map.Entry<String, List<Feature>>> fs_c = FeatureViewZRZ.GroupbyC_Sort(fs_h);
+
+        for (Map.Entry<String, List<Feature>> map : fs_c) {
+            List<Feature> fs = map.getValue();
+            Double cmj =0d;
+            for (Feature f : fs) {
+                cmj+=FeatureHelper.Get(f,"YCJZMJ",0d);
+            }
+            djjzmj += (cmj>syqmj?syqmj:cmj);
+        }
+
+        for (Feature f : fs_hfs) {
+            djjzmj+=FeatureHelper.Get(f,"SCJZMJ",0d);
+        }
+        for (Feature f : fs_zfs) {
+            djjzmj+=FeatureHelper.Get(f,"SCJZMJ",0d);
+        }
+        //合计超出建筑面积
+        hjccjzmj = hsmj - djjzmj ;
+
+        FeatureHelper.Set(feature, "ZFJZZDMJ", AiUtil.Scale(zfjzzdmj, 2));
+        FeatureHelper.Set(feature, "QTJZZDMJ", AiUtil.Scale(qtjzzdmj, 2));
+        FeatureHelper.Set(feature, "CCZDSYMJ", AiUtil.Scale(cczdmj, 2));
+        FeatureHelper.Set(feature, "DJZDMJ", AiUtil.Scale(djzdmj, 2));
+        FeatureHelper.Set(feature, "ZJZZDMJ", AiUtil.Scale(zjzzdmj, 2));
+        FeatureHelper.Set(feature, "ZJZMJ", AiUtil.Scale(zjzmj, 2));
+        FeatureHelper.Set(feature, "DJJZMJ", AiUtil.Scale(djjzmj, 2));
+        FeatureHelper.Set(feature, "HJCCJZMJ", AiUtil.Scale(hjccjzmj, 2));
+
     }
 
     // 加载所有的宗地、核算其面积
@@ -2251,6 +2319,7 @@ public class FeatureViewZD extends FeatureView {
                     final List<Feature> fs_h_fsjg = new ArrayList<Feature>();
                     final List<Feature> fs_jzd = new ArrayList<Feature>();
                     final List<Feature> fs_jzx = new ArrayList<Feature>();
+                    final List<Feature> fs_fsss = new ArrayList<Feature>();
                     final Map<String, Feature> map_jzx = new HashMap<>();
                     final List<Map<String, Object>> fs_jzqz = new ArrayList<>();
 
@@ -2266,10 +2335,10 @@ public class FeatureViewZD extends FeatureView {
                         }
                     }
 
-                    loadall(mapInstance, bdcdyh, featureBdcdy, fs_hjxx, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, where, new AiRunnable() {
+                    loadall(mapInstance, bdcdyh, featureBdcdy, fs_hjxx, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_fsss, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, where, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            createDOCX(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
+                            createDOCX(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz,fs_fsss , fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     outputData(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg);
@@ -2288,7 +2357,7 @@ public class FeatureViewZD extends FeatureView {
 
     private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_bdcdy, final Feature f_zd, final List<Feature> fs_hjxx, final List<Feature> fs_zd,
                             final List<Feature> fs_jzd, final List<Feature> fs_jzx, final Map<String, Feature> map_jzx,
-                            final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, List<Feature> fs_ljz
+                            final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, final List<Feature> fs_fsss, List<Feature> fs_ljz
             , final List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
 
         {
@@ -2317,6 +2386,9 @@ public class FeatureViewZD extends FeatureView {
 
                             // 设置界址线
                             FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
+
+                            // 设置界址线
+                            FeatureEditBDC.Put_data_fsss(mapInstance, map_, fs_fsss);
                             // 自然幢
                             FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_c);
                             // 在全局放所有户
@@ -2393,7 +2465,7 @@ public class FeatureViewZD extends FeatureView {
     private void loadall(final MapInstance mapInstance, final String orid, final Feature featureBdcdy
             , final List<Feature> fs_hjxx, Feature f_zd, List<Feature> fs_zd, List<Feature> fs_jzd, List<Feature> fs_jzx
             , Map<String, Feature> map_jzx, List<Map<String, Object>> fs_jzqz
-            , final List<Feature> fs_zrz, final List<Feature> fs_ljz, final List<Feature> fs_c
+            , final List<Feature> fs_zrz, final List<Feature> fs_fsss, final List<Feature> fs_ljz, final List<Feature> fs_c
             , final List<Feature> fs_z_fsjg, final List<Feature> fs_h
             , final List<Feature> fs_h_fsjg, final String where, final AiRunnable callback) {
         FeatureEditBDC.LoadJZDXQZ(mapInstance, f_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, new AiRunnable() {
@@ -2404,6 +2476,9 @@ public class FeatureViewZD extends FeatureView {
                 MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
+                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_FSSS), StringUtil.WhereByIsEmpty(orid) + where, "", "asc", -1, fs_fsss, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
                         MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_LJZH, "asc", -1, fs_ljz, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -2437,6 +2512,9 @@ public class FeatureViewZD extends FeatureView {
                                                 return null;
                                             }
                                         });
+                                        return null;
+                                    }
+                                });
                                         return null;
                                     }
                                 });

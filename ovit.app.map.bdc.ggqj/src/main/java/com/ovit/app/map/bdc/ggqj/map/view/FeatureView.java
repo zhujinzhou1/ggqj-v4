@@ -1139,6 +1139,9 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public void loadH_FSJGs(List<Feature> fs_h_fsjg, AiRunnable callback) {
         queryChildFeature(FeatureHelper.TABLE_NAME_H_FSJG, getOrid(), "ID", "", fs_h_fsjg, callback);
     }
+    public void loadFsss(List<Feature> fs_fsss, AiRunnable callback) {
+        queryChildFeature(FeatureHelper.TABLE_NAME_FSSS, getOrid(), "", "", fs_fsss, callback);
+    }
 
     public static void LoadAllZD(final MapInstance mapInstance, final List<Feature> fs_zd, AiRunnable callback) {
         MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD), "", FeatureHelper.TABLE_ATTR_ZDDM, "", -1, fs_zd, callback);

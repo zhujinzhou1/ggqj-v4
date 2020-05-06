@@ -1,6 +1,7 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.esri.arcgisruntime.data.Feature;
@@ -215,6 +216,102 @@ public class FeatureViewFSSS extends FeatureView {
             }
         });
     }
+
+    public static double GetJZZDMJ(List<Feature> fs_fsss, String jzwmc) {
+        double jzzdmj = 0d;
+        if (!TextUtils.isEmpty(jzwmc)){
+            for (Feature f : fs_fsss) {
+                String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
+
+                if (jzwmc.equals(mJzwmc)) {
+                    Double zzdmj = FeatureHelper.Get(f, "ZZDMJ", 0d);
+                    jzzdmj += zzdmj;
+                }
+            }
+        }
+        return jzzdmj;
+    }
+
+    public  double getJZMJ(List<Feature> fs_fsss, String jzwmc) {
+        double jzzdmj = 0d;
+        if (!TextUtils.isEmpty(jzwmc)){
+            for (Feature f : fs_fsss) {
+                String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
+                if (jzwmc.equals(mJzwmc)) {
+                    Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
+                    jzzdmj += zzdmj;
+                }
+            }
+        }
+        return jzzdmj;
+    }
+
+
+
+    public static double GetQTJZZDMJ(List<Feature> fs_fsss) {
+        double qtjzzdmj = 0d;
+        for (Feature f : fs_fsss) {
+            String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
+            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒场")) {
+                Double zzdmj = FeatureHelper.Get(f, "ZZDMJ", 0d);
+                qtjzzdmj += zzdmj;
+            }
+        }
+        return qtjzzdmj;
+    }
+
+    public static double GetZJZMJ(List<Feature> fs_fsss) {
+        double zjzmj = 0d;
+        for (Feature f : fs_fsss) {
+            String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
+            if (!mJzwmc.equals("庭院晒场")) {
+                Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
+                zjzmj += zzdmj;
+            }
+        }
+        return zjzmj;
+    }
+
+    public static double GetZWJZMJ(List<Feature> fs_fsss) {
+        double zwjzmj = 0d;
+        for (Feature f : fs_fsss) {
+            String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
+            if (mJzwmc.equals("杂屋")) {
+                Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
+                zwjzmj += zzdmj;
+            }
+        }
+        return zwjzmj;
+    }
+    public static double GetQTJZMJ(List<Feature> fs_fsss) {
+        double zwjzmj = 0d;
+        for (Feature f : fs_fsss) {
+            String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
+            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒场")) {
+                Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
+                zwjzmj += zzdmj;
+            }
+        }
+        return zwjzmj;
+    }
+
+    public void update_Area(List<Feature> fs_fsss) {
+        for (Feature f : fs_fsss) {
+            double area = MapHelper.getArea(mapInstance, f.getGeometry());
+            if (0d == FeatureHelper.Get(f, "ZYDMJ", 0d)) {
+                FeatureHelper.Set(f, "ZYDMJ", area);
+            }
+            if (0d == FeatureHelper.Get(f, "ZZDMJ", 0d)) {
+                f.getAttributes().put("ZZDMJ", area);
+            }
+            if (0d == FeatureHelper.Get(f, "SCJZMJ", 0d)) {
+                double scjzmj = area * AiUtil.GetValue(f.getAttributes().get("ZCS"), 1);
+                f.getAttributes().put("SCJZMJ", scjzmj);
+            }
+        }
+
+    }
+
 
     //endregion 输出生果
 }

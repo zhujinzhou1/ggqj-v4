@@ -962,7 +962,7 @@ public class FeatureEditZD extends FeatureEdit {
      * @param v_feature
      */
     private void hsjzmj(final LinearLayout v_feature) {
-        AiDialog.get(activity, "自动计算面积", "是否要重新计算该宗地面积、建筑占地面积、建筑面积么？", null, "否，取消", "是，重新计算", new DialogInterface.OnClickListener() {
+        AiDialog.get(activity, "自动计算面积", "是否要重新计算该宗地面积、建筑占地面积、建筑面积？", "自动计算面积的结果仅供参考，请仔细核实面积！", "否，取消", "是，重新计算", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(final DialogInterface dialog, int which) {
                 fv.update_Area(new AiRunnable() {
@@ -976,6 +976,7 @@ public class FeatureEditZD extends FeatureEdit {
                                     fillView(v_feature, feature, "JZMJ");
                                     fillView(v_feature, feature, "JZZDMJ");
                                     fillView(v_feature, feature, FeatureViewZD.TABLE_ATTR_FTXS_ZD);
+
                                     ToastMessage.Send(activity, "自动计算面积完成！");
                                     dialog.dismiss();
                                     return null;
@@ -985,6 +986,16 @@ public class FeatureEditZD extends FeatureEdit {
                             fillView(v_feature, feature, FeatureHelper.TABLE_ATTR_ZDMJ);
                             fillView(v_feature, feature, "JZMJ");
                             fillView(v_feature, feature, "JZZDMJ");
+
+                            fillView(v_feature, feature,"ZFJZZDMJ");
+                            fillView(v_feature, feature,"QTJZZDMJ");
+                            fillView(v_feature, feature,"CCZDSYMJ");
+                            fillView(v_feature, feature,"DJZDMJ");
+                            fillView(v_feature, feature,"ZJZZDMJ");
+                            fillView(v_feature, feature,"ZJZMJ");
+                            fillView(v_feature, feature,"DJJZMJ");
+                            fillView(v_feature, feature,"HJCCJZMJ");
+
                             ToastMessage.Send(activity, "自动计算面积完成！");
                             dialog.dismiss();
                         }

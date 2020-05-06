@@ -1575,6 +1575,26 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("list." + base + "hkb", map_hkbzp_ps);
 
     }
+    public static void Put_data_fsss(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_fsss) {
+        List<Feature> fs_zrzs = new ArrayList<>(fs_fsss);
+        // 自然幢最少1个
+        map_.put("FSSS.ZWMJ", "");
+        map_.put("FSSS.CSMJ", "");
+        map_.put("FSSS.SSMJ", "");
+        map_.put("FSSS.SPMJ", "");
+        if (fs_zrzs.size() > 1) {
+            FeatureViewFSSS fv = FeatureViewFSSS.From(mapInstance);
+            double zwmj = fv.getJZMJ(fs_fsss, "杂屋");
+            double csmj = fv.getJZMJ(fs_fsss, "厕所");
+            double ssmj = fv.getJZMJ(fs_fsss, "畜舍");
+            double spmj = fv.getJZMJ(fs_fsss, "庭院晒坪");
+            AiUtil.Scale(zwmj, 2);
+            map_.put("FSSS.ZWMJ", AiUtil.Scale(zwmj, 2));
+            map_.put("FSSS.CSMJ", AiUtil.Scale(csmj, 2));
+            map_.put("FSSS.SSMJ", AiUtil.Scale(ssmj, 2));
+            map_.put("FSSS.SPMJ", AiUtil.Scale(spmj, 2));
+        }
+    }
 
     // 设置自然幢
     public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, List<Feature> fs_c) {
@@ -2866,6 +2886,7 @@ public class FeatureEditBDC extends FeatureEdit {
                     }
                 });
     }
+
 
 
 }
