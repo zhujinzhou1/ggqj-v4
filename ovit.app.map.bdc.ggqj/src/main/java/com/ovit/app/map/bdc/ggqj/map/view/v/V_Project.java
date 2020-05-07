@@ -63,6 +63,7 @@ import com.ovit.app.util.gdal.GdalAdapter;
 import com.ovit.app.util.gdal.cad.DxfAdapter;
 import com.ovit.app.util.gdal.cad.DxfFeature;
 import com.ovit.app.util.gdal.cad.DxfHelper;
+import com.ovit.app.util.gdal.shp.ShpAdapter;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -71,10 +72,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-;import jxl.read.biff.BiffException;
+import jxl.read.biff.BiffException;
+
+;import static com.ovit.app.map.view.FeatureEdit.GetTable;
 
 /**
  * Created by Lichun on 2017/10/16.
@@ -785,65 +789,106 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
     }
 
     //生成台帐
-    private void Sctz(final com.ovit.app.map.model.MapInstance mapInstance, final boolean isReload) {
-        final String funcdesc = "该功能将逐一对项目中每宗地资料" + (isReload ? "重新" : "") + "进行整理。";
+    private void Sctz(final MapInstance mapInstance, final boolean isReload) {
+        final String funcdesc = "该功能将逐一对项目中每宗地资料"+(isReload?"重新":"")+"进行整理。";
         License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 final AiDialog aidialog = AiDialog.get(mapInstance.activity);
-                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "整理资料")
-                        .setContentView("注意：属于不可逆操作，如果您已经整理过成果，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "整理资料");
+                aidialog.setContentView("注意：属于不可逆操作，如果您已经整理过成果，请注意备份谨慎处理！", funcdesc);
+                aidialog.setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 完成后的回掉
+                        final AiRunnable callback = new AiRunnable() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // 完成后的回掉
-                                final AiRunnable callback = new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                aidialog.addContentView("处理数据完成。");
+                                aidialog.setFooterView(null, "关闭", null);
+                                return null;
+                            }
 
-                                    @Override
-                                    public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.NO);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
+                            @Override
+                            public <T_> T_ no(T_ t_, Object... objects) {
+                                aidialog.addContentView("处理数据失败！");
+                                aidialog.setFooterView(null, "关闭", null);
+                                return null;
+                            }
 
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.ERROR);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
-                                        return null;
-                                    }
-                                };
-                                // 设置不可中断
-                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
-                                aidialog.setContentView("开始处理数据");
-                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
-                                {
-                                    final List<Feature> fs_zd = new ArrayList<>();
+                            @Override
+                            public <T_> T_ error(T_ t_, Object... objects) {
+                                aidialog.addContentView("处理数据异常！");
+                                aidialog.setFooterView(null, "关闭", null);
+                                return null;
+                            }
+                        };
+                        // 设置不可中断
+                        aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                        aidialog.setContentView("开始处理数据");
+                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
+                        {
+                            final List<Feature> fs_zd = new ArrayList<>();
 
-                                    MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_FEATURE_MAX_RESULTS, fs_zd, new AiRunnable() {
+                            MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_LENGTH_MAX, fs_zd, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+
+//                                            String xmmc = GsonUtil.GetValue(aiMap.JsonData,"XMMC","");
+//                                            String xmbm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
+//                                            final String filePath =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) +xmbm+xmmc+".xls";
+//                                            final String filePath_enshi =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) + xmbm + xmmc +".xls";
+//                                            Excel.CreateStandingBook_JingShang(mapInstance,"总台账",filePath,fs_zd);
+//                                            Excel.CreateStandingBook_EnShi(mapInstance,"总台账",filePath_enshi,fs_zd);
+
+                                    final List<Map<String, Object>> maps = new ArrayList<>();
+                                    new AiForEach<Feature>(fs_zd, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
+                                            String filePath = FileUtils.getAppDirAndMK(FeatureEditBDC.GetPath_Templet()) + "不动产权籍调查入库模板.xls"; // 入库模板
+                                            if (FileUtils.exsit(filePath)) {
+                                                try {
+                                                    // TODO... 根据excel 模板生成 生成入库成果
+                                                    final Map<Integer, String> xlsData = Excel.getXlsMap(filePath);
+                                                    String xmmc = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "XMMC", "");
+                                                    String xmbm = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "XMBM", "");
+                                                    String filePath_badong = FileUtils.getAppDirAndMK(mapInstance.getpath_root()) + xmbm + xmmc + ".xls";
+                                                    Excel.CreateStandingBook(maps, xlsData, filePath, filePath_badong);
 
-                                            String xmmc = GsonUtil.GetValue(aiMap.JsonData, "XMMC", "");
-                                            String xmbm = GsonUtil.GetValue(aiMap.JsonData, "XMBM", "");
-                                            final String filePath = FileUtils.getAppDirAndMK(getMapInstance().getpath_root()) + xmbm + xmmc + ".xls";
-                                            final String filePath_enshi = FileUtils.getAppDirAndMK(getMapInstance().getpath_root()) + xmbm + xmmc + "_恩施" + ".xls";
-                                            Excel.CreateStandingBook_JingShang(mapInstance, "总台账", filePath, fs_zd);
-                                            Excel.CreateStandingBook_EnShi(mapInstance, "总台账_恩施", filePath_enshi, fs_zd);
-
+                                                } catch (Exception e) {
+                                                    AiRunnable.Error(callback, null);
+                                                    e.printStackTrace();
+                                                }
+                                            }
                                             AiRunnable.Ok(callback, null);
                                             return null;
                                         }
-                                    });
+                                    }) {
+                                        @Override
+                                        public void exec() {
+                                            final Feature f_zd = fs_zd.get(postion);
+                                            final List<Feature> fs_zrz = new ArrayList<>();
+                                            String orid = mapInstance.getOrid(f_zd);
+                                            String where = " ORID_PATH like '%" + orid + "%' ";
+                                            MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
+                                                @Override
+                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                    Map<String, Object> map_ = new LinkedHashMap<>();
+                                                    FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
+                                                    FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
+                                                    maps.add(map_);
+                                                    AiRunnable.Ok(getNext(), t_, objects);
+                                                    return null;
+                                                }
+                                            });
+                                        }
+                                    }.start();
+                                    return null;
                                 }
-                            }
-                        }).show();
+                            });
+                        }
+                    }
+                }).show();
                 return null;
             }
         });
@@ -951,16 +996,17 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             tableNames.add(FeatureHelper.LAYER_NAME_ZD);
                                             tableNames.add(FeatureHelper.LAYER_NAME_ZRZ);
                                             tableNames.add(FeatureHelper.LAYER_NAME_LJZ);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_H);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_C);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_H_FSJG);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_Z_FSJG);
                                             tableNames.add(FeatureHelper.LAYER_NAME_JZD);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_JZX);
                                             tableNames.add(FeatureHelper.LAYER_NAME_XZDW);
                                             tableNames.add(FeatureHelper.LAYER_NAME_MZDW);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJD);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJX);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_Z_FSJG);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_H_FSJG);
-                                            //    tableNames.add(FeatureHelper.LAYER_NAME_H);
-                                            //    tableNames.add(FeatureHelper.LAYER_NAME_JZX);
-                                            //    tableNames.add(FeatureHelper.LAYER_NAME_DZDW);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_ZJM);
                                             new AiForEach<String>(tableNames, null) {
                                                 @Override
                                                 public void exec() {
@@ -971,6 +1017,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                             try {
                                                                 addMessage("", "读取到" + fs.size() + "条" + tableName + "数据，正在输出成果...");
                                                                 dxf.write(getMapInstance(), fs, null, null, DxfHelper.TYPE, DxfHelper.LINE_LABEL_OUTSIDE, new LineLabel());
+                                                                String xmdm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
+                                                                String Shpath = FileUtils.getAppDirAndMK(getMapInstance().getpath_root() + "资料库/两权shp/") + xmdm + "_" + tableName + ".shp";
+                                                                ShpAdapter.writeShp(Shpath, fs);
                                                                 fs.clear();
                                                                 addMessage("", tableName + "数据导出成功！");
                                                                 AiRunnable.Ok(getNext(), t_);

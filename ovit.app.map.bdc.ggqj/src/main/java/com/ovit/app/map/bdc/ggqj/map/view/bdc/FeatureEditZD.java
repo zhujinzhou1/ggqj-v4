@@ -154,6 +154,9 @@ public class FeatureEditZD extends FeatureEdit {
                 FeatureHelper.Set(feature,"YPZFWSFYZ", "是");
             }
             feature.getAttributes().put("GLBLC", "1:" + scale);
+            if (DxfHelper.AREA_DJZQDM_BASE == DxfHelper.AREA_DJZQDM_WangCheng){
+                feature.getAttributes().put("GLBLC", "1:" + 2000);
+            }
             mapInstance.fillFeature(feature);
             old_bdcdyh = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_BDCDYH, "");
             old_zddm = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "");
@@ -283,6 +286,11 @@ public class FeatureEditZD extends FeatureEdit {
             CustomImagesView civ_tdqslyzm = (CustomImagesView) v_feature.findViewById(R.id.civ_tdqslyzm);
             filename = AiUtil.GetValue(civ_tdqslyzm.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
             civ_tdqslyzm.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/"));
+
+
+            CustomImagesView civ_ghjgyscl = (CustomImagesView) v_feature.findViewById(R.id.civ_ghjgyscl);
+            filename = AiUtil.GetValue(civ_ghjgyscl.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+            civ_ghjgyscl.setName(filename, activity).setDir(FileUtils.getAppDirAndMK(getpath_root() + FeatureHelper.FJCL + filename + "/"));
 
             v_feature.findViewById(R.id.tv_autojzd).setOnClickListener(new View.OnClickListener() {
                 @Override

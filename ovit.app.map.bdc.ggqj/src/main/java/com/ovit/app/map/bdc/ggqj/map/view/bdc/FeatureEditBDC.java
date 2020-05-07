@@ -1001,7 +1001,7 @@ public class FeatureEditBDC extends FeatureEdit {
                         // 设置界址线
                         Put_data_jzx(mapInstance, map_, fs_jzx);
                         // 自然幢
-                        Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h,fs_c );
+                        Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h,fs_c, new ArrayList<Feature>());
                         // 在全局放所有户
                         //  Put_data_hs(mapInstance, map_, fs_h);
                         // 在全局放一个户
@@ -1202,11 +1202,73 @@ public class FeatureEditBDC extends FeatureEdit {
 
     public static void Put_data_hjxx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_hjxx) {
         List<Feature> mfs_hjxx = new ArrayList<>(fs_hjxx);
+        map_.put("ZD.HJXX", fs_hjxx.size()+"");
+
         for (int i = mfs_hjxx.size(); i < 4; i++) {
             mfs_hjxx.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_HJXX).createFeature());
         }
         GetReplecData(mapInstance.activity, map_, "list.hjxx", mfs_hjxx, "");
     }
+
+    public static void Put_data_hjxx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_hjxx,int size) {
+        List<Feature> mfs_hjxx = new ArrayList<>(fs_hjxx);
+        for (int i = mfs_hjxx.size(); i < 6; i++) {
+            mfs_hjxx.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_HJXX).createFeature());
+        }
+
+
+
+        {
+
+            List<Map<String, Object>> maps_p = new ArrayList<>();
+            Map<String, Object> map_p = new LinkedHashMap<>();
+            int i = 0;
+            String ch1 = "";
+            String gcmjhz = "";
+            double jzmj = 0;
+
+            for (int i1 = 0; i1 < fs_hjxx.size(); i1++) {
+                Feature hjxx=fs_hjxx.get(i1);
+                String xm = FeatureHelper.Get(hjxx,"XM","");
+                String yhzgx = FeatureHelper.Get(hjxx,"YHZGX","");
+                String zjh = FeatureHelper.Get(hjxx,"ZJH","");
+
+                int j = i % size;
+                map_p.put("HJXX.XM" + (j + 1), xm);
+                map_p.put("HJXX.YHZGX" + (j + 1),yhzgx);
+                map_p.put("HJXX.ZJH" + (j + 1), zjh);
+                // 当每页最后一个，或是最后一个
+                if (j == size - 1 || i == fs_hjxx.size() - 1) {
+//                    map_p.put("CP.FZH", StringUtil.substr_last(zrzh, 5));
+//                    map_p.put("CP.FHH", StringUtil.substr_last(bdcdyh, 4));
+//                    map_p.put("CP.FCHHZ", ch1.equals(fct_ch) ? fct_ch : (ch1.substring(0,1) + "-" + fct_ch.substring(fct_ch.length()-1)));
+//                    map_p.put("CP.FJZMJHZ", AiUtil.GetValue(jzmj, "", AiUtil.F_FLOAT2));
+//
+//                    map_p.put("CP.FGCMJHZ",gcmjhz.substring(0,gcmjhz.length()-1));
+                    if (j < size - 1) {
+                        for (int n = 1; n <= size - j; n++) {
+                            map_p.put("HJXX.XM" + (j + n + 1), "");
+                            map_p.put("HJXX.YHZGX" + (j + n + 1), "");
+                            map_p.put("HJXX.ZJH" + (j + n + 1), "");
+                        }
+                    }
+                    maps_p.add(map_p);
+                    map_p = new LinkedHashMap<>();
+                    ch1 = "";
+                    jzmj = 0;
+                    gcmjhz="";
+                }
+                i++;
+            }
+            // 为幢设置层
+            map_.put("list."+size+"hjxx", maps_p);
+        }
+
+
+
+
+    }
+
 
     // 设置宗地的内容
     public static void Put_data_zd(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd) {
@@ -1244,6 +1306,8 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZD.Y", map_.get("SYS.Y"));
         map_.put("ZD.M", map_.get("SYS.M"));
         map_.put("ZD.D", map_.get("SYS.D"));
+        map_.put("ZD.FFDJSJ", map_.get("ZD.PZSJ"));
+        map_.put("ZD.FFDJMJ", map_.get("ZD.DJMJ"));
 
     }
 
@@ -1575,34 +1639,57 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("list." + base + "hkb", map_hkbzp_ps);
 
     }
-    public static void Put_data_fsss(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_fsss) {
+    public static void Put_data_fsss(MapInstance mapInstance, Map<String, Object> map_,Feature f_zd, List<Feature> fs_fsss) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_fsss);
         // 自然幢最少1个
-        map_.put("FSSS.ZWMJ", "");
-        map_.put("FSSS.CSMJ", "");
-        map_.put("FSSS.SSMJ", "");
-        map_.put("FSSS.SPMJ", "");
+        map_.put("FSSS.ZWZDMJ", "");
+        map_.put("FSSS.CSZDMJ", "");
+        map_.put("FSSS.SSZDMJ", "");
+        map_.put("FSSS.SPZDMJ", "");
+        double zzdmj = FeatureHelper.Get(f_zd,"JZZDMJ",0d);
+        map_.put("FSSS.ZZDMJ", AiUtil.Scale(zzdmj, 2));
         if (fs_zrzs.size() > 1) {
             FeatureViewFSSS fv = FeatureViewFSSS.From(mapInstance);
-            double zwmj = fv.getJZMJ(fs_fsss, "杂屋");
-            double csmj = fv.getJZMJ(fs_fsss, "厕所");
-            double ssmj = fv.getJZMJ(fs_fsss, "畜舍");
-            double spmj = fv.getJZMJ(fs_fsss, "庭院晒坪");
+            double zwmj = fv.GetJZZDMJ(fs_fsss, "杂屋");
+            double csmj = fv.GetJZZDMJ(fs_fsss, "厕所");
+            double ssmj = fv.GetJZZDMJ(fs_fsss, "畜舍");
+            double spmj = fv.GetJZZDMJ(fs_fsss, "庭院晒坪");
+            zzdmj += zwmj+csmj+ssmj+spmj;
             AiUtil.Scale(zwmj, 2);
-            map_.put("FSSS.ZWMJ", AiUtil.Scale(zwmj, 2));
-            map_.put("FSSS.CSMJ", AiUtil.Scale(csmj, 2));
-            map_.put("FSSS.SSMJ", AiUtil.Scale(ssmj, 2));
-            map_.put("FSSS.SPMJ", AiUtil.Scale(spmj, 2));
+            map_.put("FSSS.ZWZDMJ", AiUtil.Scale(zwmj, 2)+"");
+            map_.put("FSSS.CSZDMJ", AiUtil.Scale(csmj, 2)+"");
+            map_.put("FSSS.SSZDMJ", AiUtil.Scale(ssmj, 2)+"");
+            map_.put("FSSS.SPZDMJ", AiUtil.Scale(spmj, 2)+"");
+            map_.put("FSSS.ZZDMJ", AiUtil.Scale(zzdmj, 2)+"");
         }
     }
 
     // 设置自然幢
-    public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, List<Feature> fs_c) {
+    public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h, List<Feature> fs_c, List<Feature> fs_fsss) {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
+        List<Feature> fs_zrz_fsss = new ArrayList<>(fs_fsss);
+        List<Map<String, Object>> maps_fsss = new ArrayList<>();
+        List<Map<String, Object>> maps_zrz_fsss = new ArrayList<>();
         // 自然幢最少1个
         if (fs_zrzs.size() < 1) {
             fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
         }
+        for (Feature fsFsss : fs_fsss) {
+            Map<String, Object> map_fsss = new LinkedHashMap<>();
+            map_fsss.put("H.FWLXFF",FeatureHelper.Get(fsFsss,"JZWMC",""));
+            map_fsss.put("ZRZ.FWJGFF",FeatureHelper.Get(fsFsss,"JZWMC",""));
+            map_fsss.put("ZRZ.ZCS",FeatureHelper.Get(fsFsss,"ZCS",""));
+            map_fsss.put("H.YT","");
+            map_fsss.put("ZRZ.SJGRQ","");
+            map_fsss.put("ZRZ.CG","");
+            map_fsss.put("ZRZ.WDLX","");
+            map_fsss.put("ZRZ.QTGSD","自墙");
+            map_fsss.put("ZRZ.QTGSN","自墙");
+            map_fsss.put("ZRZ.QTGSX","自墙");
+            map_fsss.put("ZRZ.QTGSB","自墙");
+            maps_fsss.add(map_fsss);
+        }
+
         List<Map<String, Object>> maps_zrz = new ArrayList<>();
         List<String> hzszc = new ArrayList<>();
         List<String> hzfwjgff = new ArrayList<>();
@@ -1636,6 +1723,76 @@ public class FeatureEditBDC extends FeatureEdit {
         }
         Put_data_all_cps(mapInstance, map_, bdcdyh, fs_zrzs, 4, fs_z_fsjg, fs_h);
 
+        map_.put("ZRZ.HZSZC", StringUtil.Join(hzszc, true));
+        map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
+        map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
+
+        map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
+        map_.put("list.zrz", maps_zrz);
+        maps_zrz_fsss.addAll(maps_zrz);
+        maps_zrz_fsss.addAll(maps_fsss);
+        map_.put("list.fszrz", maps_zrz_fsss);
+    }
+    public static void Put_data_zrz(MapInstance mapInstance, Map<String, Object > map_, Feature f_zd, List<Feature> fs_zrz) {
+        List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
+        // 自然幢最少1个
+        if (fs_zrzs.size() < 1) {
+            fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
+        }
+        List<Map<String, Object>> maps_zrz = new ArrayList<>();
+        List<String> hzszc = new ArrayList<>();
+        List<String> hzfwjgff = new ArrayList<>();
+        List<String> hzjgrq = new ArrayList<>();
+        int zd_cshz = 0;
+        String fwsx = "";//  主房/厨房
+        String fwzrzh = "";// 自然幢号
+        String fwzh = "";//  0001/0002
+        boolean iszf = true;
+        for (Feature zrz : fs_zrzs) {
+            // 幢基本信息
+            String jzwmc = FeatureHelper.Get(zrz, "JZWMC", "");
+            String zh = FeatureHelper.Get(zrz, "ZH", "");
+            String zrzh = FeatureHelper.Get(zrz, "ZRZH", "");
+
+            if (StringUtil.IsNotEmpty(fwsx)) {
+                fwsx += "/" + jzwmc;
+                fwzh += "/" + zh;
+                fwzrzh += "/" + zrzh;
+            } else {
+                fwsx += jzwmc;
+                fwzh += zh;
+                fwzrzh += zrzh;
+            }
+            map_.put("ZRZ.FWSX", fwsx);
+            map_.put("ZRZ.FWZH", fwzh);
+            map_.put("ZRZ.FWZRZH", fwzrzh);
+            zd_cshz += FeatureHelper.Get(zrz, "ZCS", 1);
+            if (jzwmc.contains("主房")) {
+                map_.put("ZRZ.ZFZH", zh);
+            }
+            Map<String, Object> map_zrz = new LinkedHashMap<>();
+            Put_data_zrz(mapInstance, map_zrz, zrz);
+            String fwjg = (String) map_zrz.get("ZRZ.FWJGFF");
+            if (!TextUtils.isEmpty(fwjg) && fwjg.contains("]")) {
+                fwjg = fwjg.substring(fwjg.lastIndexOf("]") + 1);
+                map_zrz.put("ZRZ.FWJGFF", fwjg);
+            }
+            hzszc.add(map_zrz.get("ZRZ.CSHZ") + "/" + map_zrz.get("ZRZ.ZCS"));
+            hzfwjgff.add(map_zrz.get("ZRZ.FWJGFF") + "");
+            String jgrq = map_zrz.get("ZRZ.MJGRQ") + "";
+            hzjgrq.add(jgrq);
+            if (!TextUtils.isEmpty(jgrq) &&!"null".equals(jgrq) && iszf) {
+                map_.put("ZRZ.MJGRQ", jgrq);
+                if (jzwmc.contains("主房")) {
+                    iszf = false;
+                }
+            }
+            map_zrz.put("ZRZ.ZH", Integer.parseInt(FeatureHelper.Get(zrz, "ZH", "1")) + "");
+            map_zrz.put("ZRZ.4ZH", FeatureHelper.Get(zrz, "ZH", "0001"));
+            map_zrz.put("ZRZ.2ZH", String.format("%02d", Integer.parseInt(FeatureHelper.Get(zrz, "ZH", "1"))));
+            maps_zrz.add(map_zrz);
+        }
+        map_.put("ZD.ZRZCSHZ", zd_cshz);
         map_.put("ZRZ.HZSZC", StringUtil.Join(hzszc, true));
         map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
         map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));

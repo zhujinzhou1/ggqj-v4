@@ -900,7 +900,7 @@ public class FeatureViewH extends FeatureView {
                         // 设置界址线
                         FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
                         // 自然幢
-                        FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h,null );
+                        FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h,null, new ArrayList<Feature>());
                         // 在全局放一个幢
                         FeatureEditBDC.Put_data_zrz(mapInstance, map_, fs_zrz);
                         // 在全局放所有户

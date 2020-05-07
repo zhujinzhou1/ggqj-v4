@@ -241,7 +241,7 @@ public class DxfFcfct_tianmen {
         fs_map_croup = FeatureViewZRZ.GroupbyC_Sort(fs_hAndFs);
         dbMap.get(DbTemplet.DB_C_CALLAYERS).addAll(DbTemplet.GetalLayer(fs_map_croup));
         dbMap.get(DbTemplet.DB_ZD).add(DbTemplet.GetDbZds(f_zd));
-//        dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_hjxx));
+      dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_hjxx));
         dbMap.get(DbTemplet.DB_JZD).addAll(DbTemplet.GetDbJzd(fs_jzd));
         dbMap.get(DbTemplet.DB_SVMETADATA).addAll(DbTemplet.GetSvMetadata(fs_zrz,f_zd,mapInstance));
         dbMap.get(DbTemplet.DB_TDOOR).addAll(DbTemplet.GetTDoor(fs_h,f_zd,fs_h_fsjg));
