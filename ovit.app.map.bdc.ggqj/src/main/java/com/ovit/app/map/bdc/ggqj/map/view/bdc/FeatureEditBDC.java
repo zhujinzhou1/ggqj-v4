@@ -30,6 +30,7 @@ import com.esri.arcgisruntime.geometry.Polygon;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
+import com.ovit.app.authentication.pojo.AppDevice;
 import com.ovit.app.core.License;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
@@ -47,6 +48,7 @@ import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
+import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ReportUtils;
@@ -940,19 +942,23 @@ public class FeatureEditBDC extends FeatureEdit {
             return;
         }
         //TODO 区域验证
-//        String bdcdy = FeatureHelper.Get(featureBdcdy,FeatureHelper.TABLE_ATTR_BDCDYH,"");
-//        if (FeatureHelper.isBDCDYHValid(bdcdy)){
-//            if (DxfHelper.IsCheckArea&&!bdcdy.startsWith(DxfHelper.AREA_DJZQDM_BASE)){
-//                ToastMessage.Send("操作失败，本系统为区域版，本工程没有此权限，请联系当地服务商！");
-//                AiRunnable.Error(callback, featureBdcdy);
-//                return ;
-//            }
-//        }else {
-//            // 宗地代码有误
-//            ToastMessage.Send("不动产单元号有误，请检查数据！");
-//            AiRunnable.Error(callback, featureBdcdy);
-//            return ;
-//        }
+        String bdcdy = FeatureHelper.Get(featureBdcdy,FeatureHelper.TABLE_ATTR_BDCDYH,"");
+        String imei = AppDevice.getImei();
+
+        if (!DxfHelper.VERSION_UNIVERSAL && !FeatureHelper.GetBASEIMEI().contains(imei)){
+            if (FeatureHelper.isBDCDYHValid(bdcdy)){
+                if (!bdcdy.startsWith(DxfHelper.AREA_DJZQDM_BASE)){
+                    ToastMessage.Send("操作失败，本系统为区域版，本工程没有此权限，请联系当地服务商！");
+                    AiRunnable.Error(callback, featureBdcdy);
+                    return ;
+                }
+            }else {
+                // 宗地代码有误
+                ToastMessage.Send("不动产单元号有误，请检查数据！");
+                AiRunnable.Error(callback, featureBdcdy);
+                return ;
+            }
+        }
 
         if (last_orid.contains(FeatureConstants.ZD_ORID_PREFIX)) {
             new FeatureViewZD().createDOCX(mapInstance, featureBdcdy, true, callback);
@@ -1676,17 +1682,25 @@ public class FeatureEditBDC extends FeatureEdit {
         }
         for (Feature fsFsss : fs_fsss) {
             Map<String, Object> map_fsss = new LinkedHashMap<>();
-            map_fsss.put("H.FWLXFF",FeatureHelper.Get(fsFsss,"JZWMC",""));
-            map_fsss.put("ZRZ.FWJGFF",FeatureHelper.Get(fsFsss,"JZWMC",""));
-            map_fsss.put("ZRZ.ZCS",FeatureHelper.Get(fsFsss,"ZCS",""));
-            map_fsss.put("H.YT","");
-            map_fsss.put("ZRZ.SJGRQ","");
-            map_fsss.put("ZRZ.CG","");
-            map_fsss.put("ZRZ.WDLX","");
-            map_fsss.put("ZRZ.QTGSD","自墙");
-            map_fsss.put("ZRZ.QTGSN","自墙");
-            map_fsss.put("ZRZ.QTGSX","自墙");
-            map_fsss.put("ZRZ.QTGSB","自墙");
+            map_fsss.put("H.FWLXFF", FeatureHelper.Get(fsFsss, "JZWMC", ""));
+            map_fsss.put("ZRZ.ZH", "");
+            String fwjg = DicUtil.dic("fwjg", FeatureHelper.Get(fsFsss, "FWJG", "4"));
+            if (!TextUtils.isEmpty(fwjg) && fwjg.contains("]")) {
+                fwjg = StringUtil.substr(fwjg, fwjg.lastIndexOf("]")+1);
+            }
+            map_fsss.put("ZRZ.FWJGFF", fwjg);
+//            map_fsss.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(fsFsss, "JZWJBYT", "")));
+            map_fsss.put("ZRZ.FFJZWJBYT", "");
+            map_fsss.put("ZRZ.ZCS", FeatureHelper.Get(fsFsss, "ZCS", 1));
+            map_fsss.put("H.YT", "");
+            map_fsss.put("ZRZ.SJGRQ", "");
+            map_fsss.put("ZRZ.CG", "");
+            map_fsss.put("ZRZ.WDLX", "");
+            map_fsss.put("ZRZ.SCJZMJ", AiUtil.Scale(FeatureHelper.Get(fsFsss,"SCJZMJ",0d), 2)+"");
+            map_fsss.put("ZRZ.QTGSD", FeatureHelper.Get(fsFsss, "QTGSD", "自墙"));
+            map_fsss.put("ZRZ.QTGSN", FeatureHelper.Get(fsFsss, "QTGSN", "自墙"));
+            map_fsss.put("ZRZ.QTGSX", FeatureHelper.Get(fsFsss, "QTGSX", "自墙"));
+            map_fsss.put("ZRZ.QTGSB", FeatureHelper.Get(fsFsss, "QTGSB", "自墙"));
             maps_fsss.add(map_fsss);
         }
 
@@ -1717,6 +1731,7 @@ public class FeatureEditBDC extends FeatureEdit {
 
             String image_fwzp = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz) + FeatureHelper.FJCL) + "房屋照片";
             map_zrz.put("img.fwzp", image_fwzp);
+            map_zrz.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(zrz, "JZWJBYT", "")));
             maps_zrz.add(map_zrz);
             // 拷贝自然幢的内容
 //            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));

@@ -1019,7 +1019,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                 dxf.write(getMapInstance(), fs, null, null, DxfHelper.TYPE, DxfHelper.LINE_LABEL_OUTSIDE, new LineLabel());
                                                                 String xmdm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
                                                                 String Shpath = FileUtils.getAppDirAndMK(getMapInstance().getpath_root() + "资料库/两权shp/") + xmdm + "_" + tableName + ".shp";
-                                                                ShpAdapter.writeShp(Shpath, fs);
+                                                                ShpAdapter.writeShp(Shpath, fs,MapHelper.GetSpatialReference(mapInstance),mapInstance);
                                                                 fs.clear();
                                                                 addMessage("", tableName + "数据导出成功！");
                                                                 AiRunnable.Ok(getNext(), t_);
