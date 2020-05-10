@@ -1004,9 +1004,12 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             tableNames.add(FeatureHelper.LAYER_NAME_JZX);
                                             tableNames.add(FeatureHelper.LAYER_NAME_XZDW);
                                             tableNames.add(FeatureHelper.LAYER_NAME_MZDW);
+                                            tableNames.add(FeatureHelper.LAYER_NAME_DZDW);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJD);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJX);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJM);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_FSSS);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_SJ);
                                             new AiForEach<String>(tableNames, null) {
                                                 @Override
                                                 public void exec() {
@@ -2356,7 +2359,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             if (g != null) {
                 Feature ff = null;
                 if (zStdm.contains(stdm)) {
-                    ff = table_z.createFeature();
+                    ff = table_h.createFeature();
+//                    ff = table_z.createFeature();
                     if ("141500".equalsIgnoreCase(stdm)) {
                         // 棚房 房屋附属
                         FeatureHelper.Set(ff, "FHMC", "棚房");
@@ -2396,7 +2400,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                         FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
                     }
                 }
+
                 FeatureHelper.Set(ff, "FHDM", stdm);
+                FeatureHelper.Set(ff, "SZC", 1);
                 ff.setGeometry(g);
                 mapInstance.fillFeature(ff);
                 fs.add(ff);

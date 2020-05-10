@@ -111,39 +111,22 @@ public class FeatureViewFSSS extends FeatureView {
     //endregion 重写父类方法
     //region 界面方法
 
-    public void fillFeature(Feature feature, boolean isF99990001) {
-
-        String zrzh = FeatureHelper.Get(feature, "ZRZH", "");
-        String zddm = StringUtil.substr(zrzh, 0, zrzh.length() - 5);
-        String zh = StringUtil.substr_last(zrzh, 4);
-
-        FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDDM, zddm);
-        FeatureHelper.Set(feature, "ZH", zh);
-        // 单位米
-        double area = MapHelper.getArea(mapInstance, feature.getGeometry());
-        if (0d == FeatureHelper.Get(feature, "ZYDMJ", 0d)) {
-            FeatureHelper.Set(feature, "ZYDMJ", area);
-        }
-        if (0d == FeatureHelper.Get(feature, "ZZDMJ", 0d)) {
-            feature.getAttributes().put("ZZDMJ", area);
-        }
-        if (0d == FeatureHelper.Get(feature, "SCJZMJ", 0d)) {
-            double scjzmj = area * AiUtil.GetValue(feature.getAttributes().get("ZCS"), 1);
+    @Override
+    public void hsmj(Feature f, MapInstance mapInstance) {
+        String jzwmc = FeatureHelper.Get(f,"JZWMC","");
+        if (!IsSc(jzwmc)){
+            double area = MapHelper.getArea(mapInstance, f.getGeometry());
+            int zcs =  AiUtil.GetValue(feature.getAttributes().get("ZCS"),1);
+            if (zcs<=0){
+                FeatureHelper.Set(f,"ZCS",1);
+                zcs = 1;
+            }
+            double scjzmj = area * zcs;
             feature.getAttributes().put("SCJZMJ", scjzmj);
+        }else {
+            feature.getAttributes().put("SCJZMJ", 0.0d);
+            feature.getAttributes().put("ZCS", 0);
         }
-
-        if (isF99990001) {
-            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_BDCDYH, zddm + "F99990001");
-        } else {
-            FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_BDCDYH, zrzh + "0001");
-        }
-        if (StringUtil.IsNotEmpty(zh) && StringUtil.IsEmpty(AiUtil.GetValue(feature.getAttributes().get("JZWMC"), ""))) {
-            FeatureHelper.Set(feature, "JZWMC", AiUtil.GetValue(zh, 1) + "");
-        }
-        if (StringUtil.IsEmpty(AiUtil.GetValue(feature.getAttributes().get("FWJG"), ""))) {
-            FeatureHelper.Set(feature, "FWJG", "4");// [4][B][混]混合结构
-        }
-
     }
 
     public static FeatureViewFSSS From(MapInstance mapInstance, Feature f) {
@@ -175,7 +158,7 @@ public class FeatureViewFSSS extends FeatureView {
     }
 
     //    带有诸多属性fsss
-    public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, Feature f, final AiRunnable callback) {
+    public static void CreateFeature(final MapInstance mapInstance, final Feature f_p, final Feature f, final AiRunnable callback) {
 
         if (f_p != null && f_p.getFeatureTable() != mapInstance.getTable(FeatureConstants.ZD_TABLE_NAME)) {
             // 如果不是宗地
@@ -200,6 +183,8 @@ public class FeatureViewFSSS extends FeatureView {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 // 填充
+                FeatureHelper.Set(feature,"JZWMC","杂屋");
+                FeatureHelper.Set(feature,"ZCS",1);
                 fv.fillFeature(feature, f_p);
                 fs_update.add(feature);
                 // 保存
@@ -298,18 +283,30 @@ public class FeatureViewFSSS extends FeatureView {
     public void update_Area(List<Feature> fs_fsss) {
         for (Feature f : fs_fsss) {
             double area = MapHelper.getArea(mapInstance, f.getGeometry());
-            if (0d == FeatureHelper.Get(f, "ZYDMJ", 0d)) {
-                FeatureHelper.Set(f, "ZYDMJ", area);
-            }
-            if (0d == FeatureHelper.Get(f, "ZZDMJ", 0d)) {
-                f.getAttributes().put("ZZDMJ", area);
-            }
-            if (0d == FeatureHelper.Get(f, "SCJZMJ", 0d)) {
-                double scjzmj = area * AiUtil.GetValue(f.getAttributes().get("ZCS"), 1);
-                f.getAttributes().put("SCJZMJ", scjzmj);
+            FeatureHelper.Set(f, "ZYDMJ", area);
+            FeatureHelper.Set(f, "ZZDMJ", area);
+            String jzwmc = FeatureHelper.Get(f, "JZWMC", "");
+            if (!IsSc(jzwmc)){
+                int zcs =  AiUtil.GetValue(feature.getAttributes().get("ZCS"),1);
+                if (zcs<=0){
+                    FeatureHelper.Set(f,"ZCS",1);
+                    zcs = 1;
+                }
+                double scjzmj = area * zcs;
+                feature.getAttributes().put("SCJZMJ", scjzmj);
+            }else {
+                feature.getAttributes().put("SCJZMJ", 0.0d);
+                feature.getAttributes().put("ZCS", 0);
             }
         }
 
+    }
+
+    public static boolean IsSc(String jzwmc) {
+        if ("庭院晒场".equals(jzwmc)){
+            return true;
+        }
+        return false;
     }
 
 

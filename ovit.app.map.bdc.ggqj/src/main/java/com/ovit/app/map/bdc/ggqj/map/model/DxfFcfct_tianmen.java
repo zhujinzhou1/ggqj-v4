@@ -67,6 +67,7 @@ public class DxfFcfct_tianmen {
     private String o_fontstyle = "宋体";// 字体
     private Envelope p_extend;// 页面的范围
     private List<Feature> fs_zrz;
+    private List<Feature> fs_fsss;
     private String jgrq;
     private Envelope o_extend_1;
     private ArrayList<Map.Entry<String, List<Feature>>> fs_map_croup;
@@ -93,11 +94,12 @@ public class DxfFcfct_tianmen {
         return this;
     }
 
-    public DxfFcfct_tianmen set(String bdcdyh, Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg
+    public DxfFcfct_tianmen set(String bdcdyh, Feature f_zd,List<Feature> fs_fsss, List<Feature> fs_zrz, List<Feature> fs_z_fsjg
             , List<Feature> fs_h, List<Feature> fs_h_fsjg,List<Feature> fs_hjxx,List<Feature> fs_jzd) {
         this.bdcdyh = bdcdyh;
         this.f_zd = f_zd;
         this.fs_zrz=fs_zrz;
+        this.fs_fsss=fs_fsss;
         this.fs_h=fs_h;
         this.fs_z_fsjg=fs_z_fsjg;
         this.fs_h_fsjg=fs_h_fsjg;
@@ -241,13 +243,12 @@ public class DxfFcfct_tianmen {
         fs_map_croup = FeatureViewZRZ.GroupbyC_Sort(fs_hAndFs);
         dbMap.get(DbTemplet.DB_C_CALLAYERS).addAll(DbTemplet.GetalLayer(fs_map_croup));
         dbMap.get(DbTemplet.DB_ZD).add(DbTemplet.GetDbZds(f_zd));
-      dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_hjxx));
+        dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_hjxx));
         dbMap.get(DbTemplet.DB_JZD).addAll(DbTemplet.GetDbJzd(fs_jzd));
         dbMap.get(DbTemplet.DB_SVMETADATA).addAll(DbTemplet.GetSvMetadata(fs_zrz,f_zd,mapInstance));
         dbMap.get(DbTemplet.DB_TDOOR).addAll(DbTemplet.GetTDoor(fs_h,f_zd,fs_h_fsjg));
         dbMap.get(DbTemplet.DB_TLAYER).addAll(DbTemplet.GetTLayer(fs_h,fs_h_fsjg));
-
-
+        dbMap.get(DbTemplet.DB_FSSS).addAll(DbTemplet.GetDbFsss(fs_fsss));
 
         try {
             List<String[]> list_z=new ArrayList<>();
@@ -756,6 +757,7 @@ public class DxfFcfct_tianmen {
             db.save(dbMap.get(DbTemplet.DB_TEXT_STANNOS));
             db.save(dbMap.get(DbTemplet.DB_SHAPE_STREGIONS));
             db.save(dbMap.get(DbTemplet.DB_TLAYER));
+            db.save(dbMap.get(DbTemplet.DB_FSSS));
         }
         return this;
     }

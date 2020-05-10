@@ -3,7 +3,9 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.layers.Layer;
@@ -31,7 +33,7 @@ public class FeatureEditFSSS extends FeatureEdit {
     public void onCreate() {
         super.onCreate();
         // 使用 fv
-        if (super.fv instanceof FeatureViewZRZ) {
+        if (super.fv instanceof FeatureViewFSSS) {
             this.fv = (FeatureViewFSSS) super.fv;
         }
     }
@@ -54,17 +56,37 @@ public class FeatureEditFSSS extends FeatureEdit {
                 Geometry g = feature.getGeometry();
                 if (g!=null){
                     double area = MapHelper.getArea(mapInstance, feature.getGeometry());
+
                     if (0d == FeatureHelper.Get(feature, "ZYDMJ", 0d)) {
                         FeatureHelper.Set(feature, "ZYDMJ", area);
                     }
                     if (0d == FeatureHelper.Get(feature, "ZZDMJ", 0d)) {
                         feature.getAttributes().put("ZZDMJ", area);
                     }
-                    double scjzmj = area * AiUtil.GetValue(feature.getAttributes().get("ZCS"), 1);
-                    feature.getAttributes().put("SCJZMJ", scjzmj);
+                    String jzwmc = FeatureHelper.Get(feature,"JZWMC","");
+                    if (0d == FeatureHelper.Get(feature, "ZZDMJ", 0d) && !fv.IsSc(jzwmc)) {
+                        double scjzmj = area * AiUtil.GetValue(feature.getAttributes().get("ZCS"), 1);
+                        feature.getAttributes().put("SCJZMJ", scjzmj);
+                    }
+
                 }
                 mapInstance.fillFeature(feature);
                 fillView(v_feature);
+               final Spinner  spn_jzwmc = (Spinner) v_feature.findViewById(R.id.spn_jzwmc);
+
+                  spn_jzwmc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                   @Override
+                   public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                     String value = (String) spn_jzwmc.getAdapter().getItem(position);
+                       setDicValue(feature, "JZWMC", value);
+                       hsmj();
+                   }
+
+                   @Override
+                   public void onNothingSelected(AdapterView<?> parent) {
+//                       setValue(feature, "JZWMC", null);
+                   }
+               });
 
                 v_feature.findViewById(R.id.tv_fsssglzd).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -91,6 +113,12 @@ public class FeatureEditFSSS extends FeatureEdit {
         } catch (Exception es) {
             Log.e(TAG, "build: 构建失败", es);
         }
+    }
+
+    private void hsmj() {
+        fv.hsmj(feature, mapInstance);
+        fillView(v_content, feature, "SCJZMJ");
+        fillView(v_content, feature, "ZCS");
     }
 
     @Override

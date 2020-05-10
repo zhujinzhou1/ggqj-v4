@@ -390,16 +390,14 @@ public class DxfZdt_badong {
                     String text = mapInstance.getLabel(f_fsss);
                     Point p = GeometryEngine.labelPoint((Polygon) g);
                     Geometry intersection = GeometryEngine.intersection(cel_4_2, g);
-                    if (FeatureHelper.isPolygonGeometryValid(intersection)){
+                    if (FeatureHelper.isPolygonGeometryValid(intersection)) {
                         List<Point> points = MapHelper.geometry_getPoints(intersection);
                         //     String stbm=FeatureHelper.Get(f_mzdw,"FHDM", "158800");
                         String stbm = FeatureHelper.Get(f_fsss, "STBM", FeatureHelper.Get(f_fsss, "FHDM", FeatureHelper.Get(f_fsss, "XX", "")));
-                        dxf.writeLine(DxfTemplet.Get_POLYGON(points, DxfHelper.LINETYPE_SOLID_LINE, DxfHelper.COLOR_BULEGREEN, 0, stbm));
-                        dxf.writeMText(p, text, 0.4f, "", 0, 1, 2, DxfHelper.COLOR_BLUE, "JMD", "140009");
+                        dxf.writeLine(DxfTemplet.Get_POLYGON(points, DxfHelper.LINETYPE_SOLID_LINE, DxfHelper.COLOR_BULEGREEN, 0, stbm,"QM"));
+                        dxf.writeMText(p, text, 0.4f, "", 0, 1, 2, DxfHelper.COLOR_BLUE, "QM", "140009");
                     }
-                                 }
-
-
+                }
             }
             fs.addAll(fs_dzdw);
             fs.addAll(fs_zj_d);

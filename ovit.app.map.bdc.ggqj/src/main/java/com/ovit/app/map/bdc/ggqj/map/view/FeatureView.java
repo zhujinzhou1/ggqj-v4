@@ -662,7 +662,7 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
         FeatureViewLJZ.CreateFeature(mapInstance, featureZRZ, null, callback);
     }
 
-    public void draw_fsss(Feature f_zd, final String cs, final AiRunnable callback) {
+    public void draw_fsss(Feature f_zd, final String jzwmc, final AiRunnable callback) {
         FeatureViewFSSS.CreateFeature(mapInstance, f_zd, null, callback);
     }
 
@@ -1395,6 +1395,8 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     }
 
     public void hsmj(Feature f, MapInstance mapInstance) {
+
+
     }
 
 

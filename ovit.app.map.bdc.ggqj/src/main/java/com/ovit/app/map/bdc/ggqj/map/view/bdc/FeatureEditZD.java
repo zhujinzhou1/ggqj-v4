@@ -80,6 +80,8 @@ import java.util.Map;
 public class FeatureEditZD extends FeatureEdit {
     //region 常量
     final static String TAG = "FeatureEditZD";
+    final static String ZDDCR = "SOVIT1";
+    final static String ZDCLR = "SOVIT2";
     //endregion
 
     //region基础字段

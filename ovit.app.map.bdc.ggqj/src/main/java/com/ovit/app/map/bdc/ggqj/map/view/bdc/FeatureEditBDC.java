@@ -1682,16 +1682,23 @@ public class FeatureEditBDC extends FeatureEdit {
         }
         for (Feature fsFsss : fs_fsss) {
             Map<String, Object> map_fsss = new LinkedHashMap<>();
-            map_fsss.put("H.FWLXFF", FeatureHelper.Get(fsFsss, "JZWMC", ""));
+            String jzwmc = FeatureHelper.Get(fsFsss, "JZWMC", "");
+            map_fsss.put("H.FWLXFF",jzwmc);
             map_fsss.put("ZRZ.ZH", "");
             String fwjg = DicUtil.dic("fwjg", FeatureHelper.Get(fsFsss, "FWJG", "4"));
             if (!TextUtils.isEmpty(fwjg) && fwjg.contains("]")) {
                 fwjg = StringUtil.substr(fwjg, fwjg.lastIndexOf("]")+1);
             }
-            map_fsss.put("ZRZ.FWJGFF", fwjg);
+
+            if (!FeatureViewFSSS.IsSc(jzwmc)){
+                map_fsss.put("ZRZ.FWJGFF", fwjg);
+                map_fsss.put("ZRZ.ZCS", FeatureHelper.Get(fsFsss, "ZCS", 1)+"");
+            }else {
+                map_fsss.put("ZRZ.ZCS", "");
+                map_fsss.put("ZRZ.FWJGFF", "");
+            }
 //            map_fsss.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(fsFsss, "JZWJBYT", "")));
             map_fsss.put("ZRZ.FFJZWJBYT", "");
-            map_fsss.put("ZRZ.ZCS", FeatureHelper.Get(fsFsss, "ZCS", 1));
             map_fsss.put("H.YT", "");
             map_fsss.put("ZRZ.SJGRQ", "");
             map_fsss.put("ZRZ.CG", "");
