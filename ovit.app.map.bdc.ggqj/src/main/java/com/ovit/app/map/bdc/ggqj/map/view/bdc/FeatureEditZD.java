@@ -153,8 +153,15 @@ public class FeatureEditZD extends FeatureEdit {
                  FeatureHelper.Set(feature,"ZDSYQR", "集体所有");
             }
             if (TextUtils.isEmpty(FeatureHelper.Get(feature,"YPZFWSFYZ","")) ) {
-                FeatureHelper.Set(feature,"YPZFWSFYZ", "是");
+                FeatureHelper.Set(feature,"YPZFWSFYZ", "否");
             }
+            if (TextUtils.isEmpty(FeatureHelper.Get(feature,FeatureEditZD.ZDDCR,"")) ) {
+                FeatureHelper.Set(feature,FeatureEditZD.ZDDCR, GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR",""));
+            }
+            if (TextUtils.isEmpty(FeatureHelper.Get(feature,FeatureEditZD.ZDCLR,"")) ) {
+                FeatureHelper.Set(feature,FeatureEditZD.ZDCLR, GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR",""));
+            }
+
             feature.getAttributes().put("GLBLC", "1:" + scale);
             if (DxfHelper.AREA_DJZQDM_BASE == DxfHelper.AREA_DJZQDM_WangCheng){
                 feature.getAttributes().put("GLBLC", "1:" + 2000);

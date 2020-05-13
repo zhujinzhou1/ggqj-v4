@@ -237,7 +237,7 @@ public class FeatureViewFSSS extends FeatureView {
         double qtjzzdmj = 0d;
         for (Feature f : fs_fsss) {
             String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒场")) {
+            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒坪")) {
                 Double zzdmj = FeatureHelper.Get(f, "ZZDMJ", 0d);
                 qtjzzdmj += zzdmj;
             }
@@ -249,7 +249,7 @@ public class FeatureViewFSSS extends FeatureView {
         double zjzmj = 0d;
         for (Feature f : fs_fsss) {
             String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!mJzwmc.equals("庭院晒场")) {
+            if (!mJzwmc.equals("庭院晒坪")) {
                 Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
                 zjzmj += zzdmj;
             }
@@ -272,7 +272,7 @@ public class FeatureViewFSSS extends FeatureView {
         double zwjzmj = 0d;
         for (Feature f : fs_fsss) {
             String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒场")) {
+            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒坪")) {
                 Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
                 zwjzmj += zzdmj;
             }
@@ -280,30 +280,27 @@ public class FeatureViewFSSS extends FeatureView {
         return zwjzmj;
     }
 
-    public void update_Area(List<Feature> fs_fsss) {
-        for (Feature f : fs_fsss) {
-            double area = MapHelper.getArea(mapInstance, f.getGeometry());
-            FeatureHelper.Set(f, "ZYDMJ", area);
-            FeatureHelper.Set(f, "ZZDMJ", area);
-            String jzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!IsSc(jzwmc)){
-                int zcs =  AiUtil.GetValue(feature.getAttributes().get("ZCS"),1);
-                if (zcs<=0){
-                    FeatureHelper.Set(f,"ZCS",1);
-                    zcs = 1;
-                }
-                double scjzmj = area * zcs;
-                feature.getAttributes().put("SCJZMJ", scjzmj);
-            }else {
-                feature.getAttributes().put("SCJZMJ", 0.0d);
-                feature.getAttributes().put("ZCS", 0);
+    public void update_Area(Feature f) {
+        double area = MapHelper.getArea(mapInstance, f.getGeometry());
+        FeatureHelper.Set(f, "ZYDMJ", area);
+        FeatureHelper.Set(f, "ZZDMJ", area);
+        String jzwmc = FeatureHelper.Get(f, "JZWMC", "");
+        if (!IsSc(jzwmc)){
+            int zcs =  AiUtil.GetValue(feature.getAttributes().get("ZCS"),1);
+            if (zcs<=0){
+                FeatureHelper.Set(f,"ZCS",1d);
+                zcs = 1;
             }
+            double scjzmj = area * zcs;
+            feature.getAttributes().put("SCJZMJ", scjzmj);
+        }else {
+            feature.getAttributes().put("SCJZMJ", 0.0d);
+            feature.getAttributes().put("ZCS", 0d);
         }
-
     }
 
     public static boolean IsSc(String jzwmc) {
-        if ("庭院晒场".equals(jzwmc)){
+        if ("庭院晒坪".equals(jzwmc)){
             return true;
         }
         return false;

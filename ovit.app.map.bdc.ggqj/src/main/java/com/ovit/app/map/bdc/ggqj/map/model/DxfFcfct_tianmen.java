@@ -74,6 +74,7 @@ public class DxfFcfct_tianmen {
 
     Map<String,List> dbMap =null;
     private List<Feature> fs_h;
+    private List<Feature> fs_c;
     private List<Feature> fs_z_fsjg;
     private List<Feature> fs_h_fsjg;
     private List<Feature> fs_hjxx;
@@ -94,13 +95,17 @@ public class DxfFcfct_tianmen {
         return this;
     }
 
-    public DxfFcfct_tianmen set(String bdcdyh, Feature f_zd,List<Feature> fs_fsss, List<Feature> fs_zrz, List<Feature> fs_z_fsjg
-            , List<Feature> fs_h, List<Feature> fs_h_fsjg,List<Feature> fs_hjxx,List<Feature> fs_jzd) {
+    public DxfFcfct_tianmen set(String bdcdyh, Feature f_zd,List<Feature> fs_fsss,
+                                List<Feature> fs_zrz, List<Feature> fs_z_fsjg,
+                                List<Feature> fs_h, List<Feature> fs_h_fsjg,
+                                List<Feature> fs_c,
+                                List<Feature> fs_hjxx,List<Feature> fs_jzd) {
         this.bdcdyh = bdcdyh;
         this.f_zd = f_zd;
         this.fs_zrz=fs_zrz;
         this.fs_fsss=fs_fsss;
         this.fs_h=fs_h;
+        this.fs_c=fs_c;
         this.fs_z_fsjg=fs_z_fsjg;
         this.fs_h_fsjg=fs_h_fsjg;
         this.fs_jzd=fs_jzd;
@@ -240,14 +245,13 @@ public class DxfFcfct_tianmen {
             }
         }
 
-        fs_map_croup = FeatureViewZRZ.GroupbyC_Sort(fs_hAndFs);
         dbMap.get(DbTemplet.DB_C_CALLAYERS).addAll(DbTemplet.GetalLayer(fs_map_croup));
         dbMap.get(DbTemplet.DB_ZD).add(DbTemplet.GetDbZds(f_zd));
         dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_hjxx));
         dbMap.get(DbTemplet.DB_JZD).addAll(DbTemplet.GetDbJzd(fs_jzd));
         dbMap.get(DbTemplet.DB_SVMETADATA).addAll(DbTemplet.GetSvMetadata(fs_zrz,f_zd,mapInstance));
         dbMap.get(DbTemplet.DB_TDOOR).addAll(DbTemplet.GetTDoor(fs_h,f_zd,fs_h_fsjg));
-        dbMap.get(DbTemplet.DB_TLAYER).addAll(DbTemplet.GetTLayer(fs_h,fs_h_fsjg));
+        dbMap.get(DbTemplet.DB_TLAYER).addAll(DbTemplet.GetTLayer(fs_map_croup,fs_c));
         dbMap.get(DbTemplet.DB_FSSS).addAll(DbTemplet.GetDbFsss(fs_fsss));
 
         try {

@@ -185,12 +185,12 @@ public class DxfZdt_badong {
             Envelope cel_1_1 = new Envelope(x_, y_, x_ + w * 3 / 15, y_ - h, p_extend.getSpatialReference());
 //                dxf.write(cel_1_1,"不动产单元号");
 //            dxf.write(cel_1_1, null, "宗地代码", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
-            dxf.writeText(cel_1_1.getCenter(),"宗地代码", o_fontsize,0, null, 0, 1, 2, DxfHelper.COLOR_BYLAYER, "JZD", null);
+            dxf.writeText(cel_1_1.getCenter(),"宗地代码", o_fontsize,0, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, "JZD", null);
             // 单元格1-2
             x_ = x_ + w * 3 / 15;
-            Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 6 / 15, y_ - h, p_extend.getSpatialReference());
+            Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 1 / 15, y_ - h, p_extend.getSpatialReference());
 //            dxf.write(cel_1_2, null, Get(f_zd, "ZDDM", ""), o_fontsize*0.6f, null, false, DxfHelper.COLOR_BYLAYER, 0);
-            dxf.writeText(cel_1_2.getCenter(),Get(f_zd, "ZDDM", ""), o_fontsize,0, null, 0, 1, 2, DxfHelper.COLOR_BYLAYER, "JZD", null);
+            dxf.writeText(cel_1_2.getCenter(),Get(f_zd, "ZDDM", ""), o_fontsize,0, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, "JZD", null);
 
             // 单元格1-3
             x_ = x_ + w * 6 / 15;
@@ -213,7 +213,7 @@ public class DxfZdt_badong {
 
             // 单元格2-2
             x_ = x_ + w * 3 / 15;
-            Envelope cel_2_2 = new Envelope(x_, y_, x_ + w * 6 / 15, y_ - h, p_extend.getSpatialReference());
+            Envelope cel_2_2 = new Envelope(x_, y_, x_ + w * 1 / 15, y_ - h, p_extend.getSpatialReference());
 //            dxf.write(cel_2_2, null,FeatureHelper.Get(f_zd,"TFH",""), o_fontsize*0.6f, null, false, DxfHelper.COLOR_BYLAYER, 0);
             dxf.writeText(cel_2_2.getCenter(),FeatureHelper.Get(f_zd,"TFH",""), o_fontsize,0, null, 0, 1, 2, DxfHelper.COLOR_BYLAYER, "JZD", null);
 

@@ -349,6 +349,9 @@ public class FeatureViewZD extends FeatureView {
     public void fillFeatureBdcdy(Feature featureBdcdy, Feature featureZd) {
         featureBdcdy.getAttributes().put("YHZGX", "户主");
         featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(featureZd, "QLRXM"));
+        featureBdcdy.getAttributes().put("XB", FeatureHelper.Get(featureZd, "QLRXB"));
+        featureBdcdy.getAttributes().put("MZ", FeatureHelper.Get(featureZd, "QLRMZ"));
+        featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(featureZd, "QLRXM"));
         featureBdcdy.getAttributes().put("ZJH", FeatureHelper.Get(featureZd, "QLRZJH"));
         featureBdcdy.getAttributes().put("ZJZL", FeatureHelper.Get(featureZd, "QLRZJZL"));
         featureBdcdy.getAttributes().put("DZ", FeatureHelper.Get(featureZd, "QLRTXDZ"));
@@ -2182,7 +2185,7 @@ public class FeatureViewZD extends FeatureView {
                             update_fs.add(f);
                         }
                         for (Feature f : fs_fsss) {
-                            FeatureViewFSSS.From(mapInstance, f).update_Area(fs_fsss);
+                            FeatureViewFSSS.From(mapInstance, f).update_Area(f);
                             update_fs.add(f);
                         }
 
@@ -2354,7 +2357,7 @@ public class FeatureViewZD extends FeatureView {
                             createDOCX(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz,fs_fsss , fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    outputData(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg,fs_qlr,fs_fsss);
+                                    outputData(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg,fs_c,fs_qlr,fs_fsss);
                                     AiRunnable.Ok(callback, t_, objects);
                                     return null;
                                 }
@@ -2591,7 +2594,10 @@ public class FeatureViewZD extends FeatureView {
                             final List<Feature> fs_zrz,
                             final List<Feature> fs_z_fsjg,
                             final List<Feature> fs_h,
-                            final List<Feature> fs_h_fsjg, List<Feature> fs_qlrxx,List<Feature> fs_fsss) {
+                            final List<Feature> fs_h_fsjg,
+                            List<Feature> fs_c,
+                            List<Feature> fs_qlrxx,List<Feature> fs_fsss) {
+
         try {
 //            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
 //            FileUtils.copyFile(FeatureEditBDC.GetPath_doc(mapInstance, bdcdyh, "不动产权籍调查表", f_bdcdy), file_dcb);
@@ -2627,7 +2633,7 @@ public class FeatureViewZD extends FeatureView {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
 //                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
 
-                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd,fs_fsss,fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, fs_qlrxx, fs_jzd).write().save();
+                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd,fs_fsss,fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, fs_c,fs_qlrxx, fs_jzd).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN) {
                 // 咸安
                 final String dxf_fc_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
