@@ -214,7 +214,7 @@ public class FeatureViewFSSS extends FeatureView {
                 }
             }
         }
-        return jzzdmj;
+        return AiUtil.Scale(jzzdmj,2);
     }
 
     public  double getJZMJ(List<Feature> fs_fsss, String jzwmc) {
@@ -228,7 +228,7 @@ public class FeatureViewFSSS extends FeatureView {
                 }
             }
         }
-        return jzzdmj;
+        return AiUtil.Scale(jzzdmj,2);
     }
 
 
@@ -242,7 +242,8 @@ public class FeatureViewFSSS extends FeatureView {
                 qtjzzdmj += zzdmj;
             }
         }
-        return qtjzzdmj;
+
+        return AiUtil.Scale(qtjzzdmj,2);
     }
 
     public static double GetZJZMJ(List<Feature> fs_fsss) {
@@ -254,7 +255,7 @@ public class FeatureViewFSSS extends FeatureView {
                 zjzmj += zzdmj;
             }
         }
-        return zjzmj;
+        return AiUtil.Scale(zjzmj,2);
     }
 
     public static double GetZWJZMJ(List<Feature> fs_fsss) {
@@ -266,7 +267,7 @@ public class FeatureViewFSSS extends FeatureView {
                 zwjzmj += zzdmj;
             }
         }
-        return zwjzmj;
+        return AiUtil.Scale(zwjzmj,2);
     }
     public static double GetQTJZMJ(List<Feature> fs_fsss) {
         double zwjzmj = 0d;
@@ -277,11 +278,12 @@ public class FeatureViewFSSS extends FeatureView {
                 zwjzmj += zzdmj;
             }
         }
-        return zwjzmj;
+        return AiUtil.Scale(zwjzmj,2);
     }
 
     public void update_Area(Feature f) {
         double area = MapHelper.getArea(mapInstance, f.getGeometry());
+        area=AiUtil.Scale(area,2);
         FeatureHelper.Set(f, "ZYDMJ", area);
         FeatureHelper.Set(f, "ZZDMJ", area);
         String jzwmc = FeatureHelper.Get(f, "JZWMC", "");

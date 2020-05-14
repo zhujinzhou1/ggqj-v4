@@ -550,7 +550,7 @@ public class FeatureViewH extends FeatureView {
             }
         }
         for (Feature f : f_h_fsjgs) {
-            String hid = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_BDCDYH, "");
+            String hid = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
             if (hid.contains(id)) {
                 double f_hsmj = AiUtil.GetValue(f.getAttributes().get("HSMJ"), 0d);
                 hsmj += f_hsmj;

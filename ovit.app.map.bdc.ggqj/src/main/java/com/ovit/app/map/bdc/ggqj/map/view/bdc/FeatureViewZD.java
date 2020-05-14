@@ -2214,14 +2214,14 @@ public class FeatureViewZD extends FeatureView {
 
 
         if (g != null) {
-            area = MapHelper.getArea(mapInstance, g);
+            area = AiUtil.Scale(MapHelper.getArea(mapInstance, g),2);
         }
 
         for (Feature f : f_zrzs) {
             String orid_parent = FeatureHelper.GetLastOrid(f);
             if (orid.equals(orid_parent)) {
-                double f_hsmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
-                double f_jzzdmj = FeatureHelper.Get(f, "ZZDMJ", 0d);
+                double f_hsmj =  AiUtil.Scale(FeatureHelper.Get(f, "SCJZMJ", 0d),2);
+                double f_jzzdmj = AiUtil.Scale(FeatureHelper.Get(f, "ZZDMJ", 0d),2);
                 hsmj += f_hsmj;
                 jzzdmj += f_jzzdmj;
             }
@@ -2235,9 +2235,9 @@ public class FeatureViewZD extends FeatureView {
 
 
         // 湖南长沙
-        Double zdmj = FeatureHelper.Get(feature,"ZDMJ",0d);
-        Double syqmj = FeatureHelper.Get(feature,"SYQMJ",0d);
-        Double pzjzmj = FeatureHelper.Get(feature,"PZJZMJ",0d);
+        Double zdmj = FeatureHelper.Get(feature,"ZDMJ",0.00d);
+        Double syqmj = FeatureHelper.Get(feature,"SYQMJ",0.00d);
+        Double pzjzmj = FeatureHelper.Get(feature,"PZJZMJ",0.00d);
         Double djzdmj =0d;
         Double zjzzdmj =qtjzzdmj+zfjzzdmj+jzzdmj; // 总建筑占地面面积
         Double fsss_zjzmj = FeatureViewFSSS.GetZJZMJ(fs_fsss);
@@ -2271,10 +2271,10 @@ public class FeatureViewZD extends FeatureView {
             }
 
             for (Feature f : fs_hfs) {
-                djjzmj+=FeatureHelper.Get(f,"MJ",0d);
+                djjzmj+=FeatureHelper.Get(f,"HSMJ",0d);
             }
             for (Feature f : fs_zfs) {
-                djjzmj+=FeatureHelper.Get(f,"MJ",0d);
+                djjzmj+=FeatureHelper.Get(f,"HSMJ",0d);
             }
             //合计超出建筑面积
             hjccjzmj = hsmj - djjzmj ;
@@ -2503,7 +2503,7 @@ public class FeatureViewZD extends FeatureView {
                                 MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ_C), StringUtil.WhereByIsEmpty(orid) + where, "SJC", "asc", -1, fs_c, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(orid) + where, "ID", "asc", -1, fs_h, new AiRunnable() {
+                                        MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_H), StringUtil.WhereByIsEmpty(orid) + where, "SZC", "asc", -1, fs_h, new AiRunnable() {
                                             @Override
                                             public <T_> T_ ok(T_ t_, Object... objects) {
                                                 MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_Z_FSJG), StringUtil.WhereByIsEmpty(orid) + where, "ID", "asc", -1, fs_z_fsjg, new AiRunnable() {

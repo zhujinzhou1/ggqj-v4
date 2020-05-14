@@ -1314,6 +1314,8 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZD.D", map_.get("SYS.D"));
         map_.put("ZD.FFDJSJ", map_.get("ZD.PZSJ"));
         map_.put("ZD.FFDJMJ", map_.get("ZD.DJMJ"));
+        map_.put("ZD.FFDJJZMJ ", map_.get("ZD.DJJZMJ"));
+        map_.put("ZD.FFDJZDMJ", map_.get("ZD.DJZDMJ"));
 
     }
 
@@ -1512,7 +1514,7 @@ public class FeatureEditBDC extends FeatureEdit {
         String imgClrqm = FileUtils.getAppDirAndMK(signDirPath + "/测量人签章举证/") + "测量人电子签章.jpg";
         String imgDcrqm = FileUtils.getAppDirAndMK(signDirPath + "/调查人签章举证/") + "调查人电子签章.jpg";
         String imgZz = FileUtils.getAppDirAndMK(signDirPath + "/组长签章举证/") + "组长电子签章.jpg";
-        String imgQlr = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/" + "权利人签章举证/") +"权利人电子签章.jpg";
+        String imgQlr = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/权利人签章举证/") +"权利人电子签章.jpg";
 
         map_.put("img.clrqm", imgClrqm);
         map_.put("img.dcrqm", imgDcrqm);
@@ -1689,25 +1691,36 @@ public class FeatureEditBDC extends FeatureEdit {
             if (!TextUtils.isEmpty(fwjg) && fwjg.contains("]")) {
                 fwjg = StringUtil.substr(fwjg, fwjg.lastIndexOf("]")+1);
             }
-
-            if (!FeatureViewFSSS.IsSc(jzwmc)){
-                map_fsss.put("ZRZ.FWJGFF", fwjg);
-                map_fsss.put("ZRZ.ZCS", FeatureHelper.Get(fsFsss, "ZCS", 1)+"");
-            }else {
-                map_fsss.put("ZRZ.ZCS", "");
-                map_fsss.put("ZRZ.FWJGFF", "");
-            }
 //            map_fsss.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(fsFsss, "JZWJBYT", "")));
             map_fsss.put("ZRZ.FFJZWJBYT", "");
             map_fsss.put("H.YT", "");
-            map_fsss.put("ZRZ.SJGRQ", "");
-            map_fsss.put("ZRZ.CG", "");
+            map_fsss.put("ZRZ.JGRQ", " ");
+            map_fsss.put("ZRZ.FWDPG", "");
+            map_fsss.put("ZRZ.FWJGFF", "");
+            map_fsss.put("ZRZ.CG", FeatureHelper.Get(fsFsss,"LCGD",""));
             map_fsss.put("ZRZ.WDLX", "");
             map_fsss.put("ZRZ.SCJZMJ", AiUtil.Scale(FeatureHelper.Get(fsFsss,"SCJZMJ",0d), 2)+"");
             map_fsss.put("ZRZ.QTGSD", FeatureHelper.Get(fsFsss, "QTGSD", "自墙"));
             map_fsss.put("ZRZ.QTGSN", FeatureHelper.Get(fsFsss, "QTGSN", "自墙"));
             map_fsss.put("ZRZ.QTGSX", FeatureHelper.Get(fsFsss, "QTGSX", "自墙"));
             map_fsss.put("ZRZ.QTGSB", FeatureHelper.Get(fsFsss, "QTGSB", "自墙"));
+
+
+            if (!FeatureViewFSSS.IsSc(jzwmc)){
+                map_fsss.put("ZRZ.JGRQ",AiUtil.GetValue(fsFsss.getAttributes().get("JGRQ"),"2020-01-01").substring(0,10));
+                map_fsss.put("ZRZ.FWJGFF", fwjg);
+                map_fsss.put("ZRZ.ZCS", FeatureHelper.Get(fsFsss, "ZCS", 1)+"");
+            }else {
+                map_fsss.put("ZRZ.SCJZMJ", String.format("%.2f",AiUtil.Scale(FeatureHelper.Get(fsFsss,"ZZDMJ",0d), 2)));
+                map_fsss.put("ZRZ.QTGSD", FeatureHelper.Get(fsFsss, "QTGSD", ""));
+                map_fsss.put("ZRZ.QTGSN", FeatureHelper.Get(fsFsss, "QTGSN", ""));
+                map_fsss.put("ZRZ.QTGSX", FeatureHelper.Get(fsFsss, "QTGSX", ""));
+                map_fsss.put("ZRZ.QTGSB", FeatureHelper.Get(fsFsss, "QTGSB", ""));
+                map_fsss.put("ZRZ.ZCS", "");
+                map_fsss.put("ZRZ.FWJGFF", "");
+            }
+
+
             maps_fsss.add(map_fsss);
         }
 
@@ -1715,8 +1728,23 @@ public class FeatureEditBDC extends FeatureEdit {
         List<String> hzszc = new ArrayList<>();
         List<String> hzfwjgff = new ArrayList<>();
         List<String> hzjgrq = new ArrayList<>();
+        List<String> hzcg = new ArrayList<>();
+
+
         for (Feature zrz : fs_zrzs) {
             // 幢基本信息
+            String orid = mapInstance.getOrid(zrz);
+
+            for (Feature f_c : fs_c) {
+                String orid_path = mapInstance.getOrid_Path(f_c);
+                if (orid_path.contains(orid)){
+                    String cg = AiUtil.Scale(FeatureHelper.Get(f_c,"CG",0d),2)+"";
+                    hzcg.add(cg);
+                }
+
+            }
+
+
             String z_zrzh = AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), "");
             if (AiUtil.GetValue(zrz.getAttributes().get("JZWMC"), "").equals("主房")) {
                 map_.put("ZRZ.ZFZH", AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""));
@@ -1739,6 +1767,7 @@ public class FeatureEditBDC extends FeatureEdit {
             String image_fwzp = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz) + FeatureHelper.FJCL) + "房屋照片";
             map_zrz.put("img.fwzp", image_fwzp);
             map_zrz.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(zrz, "JZWJBYT", "")));
+            map_zrz.put("ZRZ.CG", StringUtil.Join(hzcg, true));
             maps_zrz.add(map_zrz);
             // 拷贝自然幢的内容
 //            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));
