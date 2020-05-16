@@ -78,6 +78,7 @@ public class DxfFcfct_tianmen {
     private List<Feature> fs_z_fsjg;
     private List<Feature> fs_h_fsjg;
     private List<Feature> fs_hjxx;
+    private List<Feature> fs_qlrxx;
     private List<Feature> fs_jzd;
 
     public DxfFcfct_tianmen(MapInstance mapInstance) {
@@ -99,7 +100,9 @@ public class DxfFcfct_tianmen {
                                 List<Feature> fs_zrz, List<Feature> fs_z_fsjg,
                                 List<Feature> fs_h, List<Feature> fs_h_fsjg,
                                 List<Feature> fs_c,
-                                List<Feature> fs_hjxx,List<Feature> fs_jzd) {
+                                List<Feature> fs_qlrxx,
+                                List<Feature> fs_hjxx,
+                                List<Feature> fs_jzd) {
         this.bdcdyh = bdcdyh;
         this.f_zd = f_zd;
         this.fs_zrz=fs_zrz;
@@ -110,6 +113,7 @@ public class DxfFcfct_tianmen {
         this.fs_h_fsjg=fs_h_fsjg;
         this.fs_jzd=fs_jzd;
         this.fs_hjxx=fs_hjxx;
+        this.fs_qlrxx=fs_qlrxx;
 
         fs_hAndFs = new ArrayList<>();
 
@@ -248,6 +252,7 @@ public class DxfFcfct_tianmen {
         dbMap.get(DbTemplet.DB_C_CALLAYERS).addAll(DbTemplet.GetalLayer(fs_map_croup));
         dbMap.get(DbTemplet.DB_ZD).add(DbTemplet.GetDbZds(f_zd));
         dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_hjxx));
+        dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_qlrxx));
         dbMap.get(DbTemplet.DB_JZD).addAll(DbTemplet.GetDbJzd(fs_jzd));
         dbMap.get(DbTemplet.DB_SVMETADATA).addAll(DbTemplet.GetSvMetadata(fs_zrz,f_zd,mapInstance));
         dbMap.get(DbTemplet.DB_TDOOR).addAll(DbTemplet.GetTDoor(fs_h,f_zd,fs_h_fsjg,fs_z_fsjg));

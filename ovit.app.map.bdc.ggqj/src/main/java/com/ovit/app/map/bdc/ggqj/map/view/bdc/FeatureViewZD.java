@@ -752,6 +752,11 @@ public class FeatureViewZD extends FeatureView {
         Map<String, List<Feature>> map = null;
         if (FeatureHelper.isExistElement(fs) && StringUtil.IsNotEmpty(attr)) {
             map = new HashMap<>();
+            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI){
+                String attrValue = FeatureHelper.Get(fs.get(0), attr, "");
+                map .put(attrValue,fs);
+                return map;
+            }
             for (Feature f : fs) {
                 String attrValue = FeatureHelper.Get(f, attr, "");
                 if (StringUtil.IsNotEmpty(attrValue)) {
@@ -2357,7 +2362,7 @@ public class FeatureViewZD extends FeatureView {
                             createDOCX(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz,fs_fsss , fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                    outputData(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg,fs_c,fs_qlr,fs_fsss);
+                                    outputData(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg,fs_c,fs_qlr,fs_hjxx,fs_fsss);
                                     AiRunnable.Ok(callback, t_, objects);
                                     return null;
                                 }
@@ -2596,7 +2601,9 @@ public class FeatureViewZD extends FeatureView {
                             final List<Feature> fs_h,
                             final List<Feature> fs_h_fsjg,
                             List<Feature> fs_c,
-                            List<Feature> fs_qlrxx,List<Feature> fs_fsss) {
+                            List<Feature> fs_qlrxx,
+                            List<Feature> fs_hjxx,
+                            List<Feature> fs_fsss) {
 
         try {
 //            final String file_dcb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "不动产权籍调查表" + bdcdyh + ".docx";
@@ -2633,7 +2640,7 @@ public class FeatureViewZD extends FeatureView {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
 //                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
 
-                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd,fs_fsss,fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, fs_c,fs_qlrxx, fs_jzd).write().save();
+                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd,fs_fsss,fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, fs_c,fs_qlrxx,fs_hjxx, fs_jzd).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN) {
                 // 咸安
                 final String dxf_fc_xianan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0

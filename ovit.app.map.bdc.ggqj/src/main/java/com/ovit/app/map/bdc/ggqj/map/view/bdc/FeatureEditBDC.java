@@ -1694,7 +1694,6 @@ public class FeatureEditBDC extends FeatureEdit {
 //            map_fsss.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(fsFsss, "JZWJBYT", "")));
             map_fsss.put("ZRZ.FFJZWJBYT", "");
             map_fsss.put("H.YT", "");
-            map_fsss.put("ZRZ.JGRQ", " ");
             map_fsss.put("ZRZ.FWDPG", "");
             map_fsss.put("ZRZ.FWJGFF", "");
             map_fsss.put("ZRZ.CG", FeatureHelper.Get(fsFsss,"LCGD",""));
@@ -1707,10 +1706,11 @@ public class FeatureEditBDC extends FeatureEdit {
 
 
             if (!FeatureViewFSSS.IsSc(jzwmc)){
-                map_fsss.put("ZRZ.JGRQ",AiUtil.GetValue(fsFsss.getAttributes().get("JGRQ"),"2020-01-01").substring(0,10));
+                map_fsss.put("ZRZ.JGRQ",AiUtil.GetValue(fsFsss.getAttributes().get("JGRQ"),"2020-01-01").substring(0,7));
                 map_fsss.put("ZRZ.FWJGFF", fwjg);
                 map_fsss.put("ZRZ.ZCS", FeatureHelper.Get(fsFsss, "ZCS", 1)+"");
             }else {
+                map_fsss.put("ZRZ.JGRQ", "");
                 map_fsss.put("ZRZ.SCJZMJ", String.format("%.2f",AiUtil.Scale(FeatureHelper.Get(fsFsss,"ZZDMJ",0d), 2)));
                 map_fsss.put("ZRZ.QTGSD", FeatureHelper.Get(fsFsss, "QTGSD", ""));
                 map_fsss.put("ZRZ.QTGSN", FeatureHelper.Get(fsFsss, "QTGSN", ""));

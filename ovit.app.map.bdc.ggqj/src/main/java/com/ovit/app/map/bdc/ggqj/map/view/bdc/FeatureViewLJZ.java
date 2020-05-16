@@ -486,12 +486,12 @@ public class FeatureViewLJZ extends FeatureView {
 
     private boolean isCanExtract(List<Feature> fs) {
         Boolean flag = true;
-        for (Feature f : fs) {
-            String orid_path = mapInstance.getOrid_Path(f);
-            if (StringUtil.IsNotEmpty(orid_path)) {
-                flag = false;
-            }
-        }
+//        for (Feature f : fs) {
+//            String orid_path = mapInstance.getOrid_Path(f);
+//            if (StringUtil.IsNotEmpty(orid_path)) {
+//                flag = false;
+//            }
+//        }
         return flag;
     }
 
