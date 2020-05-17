@@ -1655,7 +1655,7 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("FSSS.SSZDMJ", "");
         map_.put("FSSS.SPZDMJ", "");
         double zzdmj = FeatureHelper.Get(f_zd,"JZZDMJ",0d);
-        map_.put("FSSS.ZZDMJ", AiUtil.Scale(zzdmj, 2));
+        map_.put("FSSS.ZZDMJ", String.format("%.2f",AiUtil.Scale(zzdmj, 2)));
         if (fs_zrzs.size() > 1) {
             FeatureViewFSSS fv = FeatureViewFSSS.From(mapInstance);
             double zwmj = fv.GetJZZDMJ(fs_fsss, "杂屋");
@@ -1664,11 +1664,11 @@ public class FeatureEditBDC extends FeatureEdit {
             double spmj = fv.GetJZZDMJ(fs_fsss, "庭院晒坪");
             zzdmj += zwmj+csmj+ssmj+spmj;
             AiUtil.Scale(zwmj, 2);
-            map_.put("FSSS.ZWZDMJ", AiUtil.Scale(zwmj, 2)+"");
-            map_.put("FSSS.CSZDMJ", AiUtil.Scale(csmj, 2)+"");
-            map_.put("FSSS.SSZDMJ", AiUtil.Scale(ssmj, 2)+"");
-            map_.put("FSSS.SPZDMJ", AiUtil.Scale(spmj, 2)+"");
-            map_.put("FSSS.ZZDMJ", AiUtil.Scale(zzdmj, 2)+"");
+            map_.put("FSSS.ZWZDMJ", String.format("%.2f",AiUtil.Scale(zwmj, 2)));
+            map_.put("FSSS.CSZDMJ", String.format("%.2f",AiUtil.Scale(csmj, 2)));
+            map_.put("FSSS.SSZDMJ",String.format("%.2f",AiUtil.Scale(ssmj, 2)));
+            map_.put("FSSS.SPZDMJ", String.format("%.2f",AiUtil.Scale(spmj, 2)));
+            map_.put("FSSS.ZZDMJ", String.format("%.2f",AiUtil.Scale(zzdmj, 2)));
         }
     }
 

@@ -1,10 +1,10 @@
 ﻿##### 配置文件版本，子文件及文件夹放靠前目录,父目录版本改变后会更新整个子目录得内容
-config/data/database_config.db=v1.3
-config/data/template.db=v1.3
-config/data/不动产权籍调查表.docx=v1.3
-config/data/长沙县农村宅基地实地调查、首次登记申请表.docx=v1.3
-data/_defealt/矢量库/_defealt.geodatabase=v1.3
-version.txt=v1.3
+config/data/database_config.db=v1.4
+config/data/template.db=v1.4
+config/data/不动产权籍调查表.docx=v1.4
+config/data/长沙县农村宅基地实地调查、首次登记申请表.docx=v1.4
+data/_defealt/矢量库/_defealt.geodatabase=v1.4
+version.txt=v1.4
 data=v1.0
 config=v1.0
 tessdata=v1.0
