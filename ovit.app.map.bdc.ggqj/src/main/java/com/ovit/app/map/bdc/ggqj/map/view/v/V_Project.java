@@ -2065,17 +2065,16 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         String name = FeatureHelper.LAYER_NAME_ZD;
         if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
             //  300000 宗地
-            Geometry g = GdalAdapter.convert(f.getGeometry());
-            g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
-            g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
-            if (g == null) {
-                return false;
-            }
-            Feature f_zd = table.createFeature();
-
             String stdm = f.getExtendeds(0);
             boolean flag = isEmptyStdm(f, stdm, "300000");// 是否包含实体编码
             if (flag) {
+                Geometry g = GdalAdapter.convert(f.getGeometry());
+                g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+                g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
+                if (g == null || !FeatureHelper.isPolygonGeometryValid(g)) {
+                    return false;
+                }
+                Feature f_zd = table.createFeature();
                 // 实体编码为 300000
                 for (String value : f.getExtendeds()) {
                     if (TextUtils.isEmpty(value)) {
@@ -2262,7 +2261,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
             g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
-            if (g != null) {
+            if (g != null && FeatureHelper.isPolygonGeometryValid(g)) {
                 Feature f_ljz = table.createFeature();
                 String fwjg1= "FWJG1";
                 String fwjg= "FWJG";
@@ -2298,7 +2297,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 } else if ("141161".equalsIgnoreCase(stdm)) {
                     //  混房子
                     FeatureHelper.Set(f_ljz, fwjg1, "4");// [B][混]混合结构
-                    FeatureHelper.Set(f_ljz,"FWJG","");
+                    FeatureHelper.Set(f_ljz,"FWJG","混");
 
                     } else if ("141200".equalsIgnoreCase(stdm)) {
                     // 简 房屋
@@ -2356,7 +2355,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
             g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
-            if (g != null) {
+            if (FeatureHelper.isPolygonGeometryValid(g)) {
                 Feature ff = null;
                 if (zStdm.contains(stdm)) {
                     ff = table_h.createFeature();
@@ -2452,15 +2451,21 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 Feature ff = null;
                 if (g instanceof Point) {
                     ff = table_d.createFeature();
-                } else if (g instanceof Polygon) {
+                } else if (g instanceof Polygon && FeatureHelper.isPolygonGeometryValid(g)) {
                     ff = table_m.createFeature();
-                } else if (g instanceof Polyline) {
+                } else if (g instanceof Polyline &&MapHelper.geometry_getPoints(g).size()>1) {
                     if (MapHelper.geometry_isclose(g)) {
-                        ff = table_m.createFeature();
                         g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
+                        if (g instanceof Polygon && FeatureHelper.isPolygonGeometryValid(g)){
+                            ff = table_m.createFeature();
+                        }else {
+                            return false;
+                        }
                     } else {
                         ff = table_x.createFeature();
                     }
+                }else {
+                    return false;
                 }
                 FeatureHelper.Set(ff, "FHMC", stdms.get(stdm));
                 FeatureHelper.Set(ff, "FHDM", stdm);

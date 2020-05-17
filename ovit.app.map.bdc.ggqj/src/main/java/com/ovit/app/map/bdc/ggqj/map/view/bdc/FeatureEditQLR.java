@@ -49,6 +49,7 @@ public class FeatureEditQLR extends FeatureEdit {
 
     //region 常量
     final static String TAG = "FeatureEditQLR";
+    final static String CGLX = "SOVIT1";   // 输出成果类型
     ///endregion
 
     //region 字段

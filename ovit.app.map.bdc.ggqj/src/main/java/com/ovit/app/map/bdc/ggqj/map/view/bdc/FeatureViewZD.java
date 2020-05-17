@@ -2116,8 +2116,7 @@ public class FeatureViewZD extends FeatureView {
 
                     featureBdcdy.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
                     //TODO 拷贝附件材料需要谨慎处理附件数据建议放到不动产单元
-                    capyAttachments(feature, featureBdcdy);// 拷贝附件材料
-
+//                  capyAttachments(feature, featureBdcdy);// 拷贝附件材料
                     FeatureHelper.Set(fs_zrz, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
                     fs_upt.addAll(fs_zrz);
                     fs_upt.add(featureBdcdy);
