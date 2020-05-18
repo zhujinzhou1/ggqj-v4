@@ -165,8 +165,8 @@ public class DxfZdt_badong {
         }
         try {
             Envelope envelope = p_extend;
-            dxf.writetk(new Envelope(envelope.getCenter(), width_tk, height_tk),DxfHelper.LINETYPE_SOLID_LINE,"",o_fontsize,DxfHelper.FONT_STYLE_HZ,false,DxfHelper.COLOR_BYLAYER,DxfHelper.LINE_WIDTH_DEFULT); // 图框
-
+//            dxf.writetk(new Envelope(envelope.getCenter(), width_tk, height_tk),DxfHelper.LINETYPE_SOLID_LINE,"",o_fontsize,DxfHelper.FONT_STYLE_HZ,false,DxfHelper.COLOR_BYLAYER,DxfHelper.LINE_WIDTH_DEFULT); // 图框
+            DxfHelper.writeDaYingKuang(dxf,envelope,o_split,spatialReference);
             Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + o_split * 1, envelope.getSpatialReference());
             dxf.writeText(p_title, "宗地图", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, "TK", null);
 

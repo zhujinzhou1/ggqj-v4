@@ -1,5 +1,6 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
@@ -11,6 +12,7 @@ import com.esri.arcgisruntime.geometry.ImmutablePart;
 import com.esri.arcgisruntime.geometry.Multipart;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.PointCollection;
+import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.Segment;
 import com.ovit.R;
@@ -205,9 +207,13 @@ public class FeatureEditJZX extends FeatureEdit {
 
         Map<String, Feature> map_old = new HashMap<>();
         Map<String, Feature> map_new = new LinkedHashMap<>(); // 有排序功能的
+
+        Geometry g = f_zd.getGeometry();
+
+        List<Polyline> polylines = MapHelper.geometry_getLines(g);
         for (Feature f : fs_jzx) {
             String key = GetKey(f.getGeometry());
-            if(StringUtil.IsEmpty(key)||map_old.containsKey(key)){
+            if(StringUtil.IsEmpty(key)||map_old.containsKey(key)||!IsVaildJzx(f_zd,polylines,f)){
                 // 删除无效或者重复
                 fs_del.add(f);
             }else {
@@ -216,7 +222,7 @@ public class FeatureEditJZX extends FeatureEdit {
         }
 
         // 根据宗地的形状再重新设置界址线
-        Geometry g = f_zd.getGeometry();
+
         if (g != null && g instanceof Multipart) {
            for(ImmutablePart part:((Multipart) g).getParts()) {
                for(Segment s :part){
@@ -246,6 +252,49 @@ public class FeatureEditJZX extends FeatureEdit {
         IndentyJZX(instance, fs_jzx_, fs_save, fs_del, callback);
     }
 
+    private static boolean IsVaildJzx(Feature f_zd,List<Polyline> polylines,Feature f_jzx) {
+
+        if (f_zd == null || f_jzx ==null){
+            return false;
+        }
+
+        String mTableNameZD = f_zd.getFeatureTable().getTableName();
+        String mTableNameJZX = f_jzx.getFeatureTable().getTableName();
+
+        if (!FeatureHelper.TABLE_NAME_ZD.equals(mTableNameZD)||!FeatureHelper.TABLE_NAME_JZX.equals(mTableNameJZX)){
+            return false;
+        }
+
+        Geometry g_zd = f_zd.getGeometry();
+        Geometry g_jzx = f_jzx.getGeometry();
+        if (!(g_zd instanceof Polygon) ||!(g_jzx instanceof Polyline) ){
+            return false ;
+        }
+
+        String zdzhdm = FeatureHelper.Get(f_jzx,FeatureHelper.TABLE_ATTR_ZDZHDM,"");
+        String zddm = FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"");
+        if (TextUtils.isEmpty(zdzhdm)){
+            return false;
+        }
+
+        if (!MapHelper.geometry_equals(polylines,g_jzx)){
+//            String[] split = zdzhdm.split("/");
+//            if (split.length == 1){
+//                return false;
+//            }else {
+//                List<String> mZdzhdms = new ArrayList<>();
+//                for (int i = 0; i < split.length; i++) {
+//                   if (!split[i].equals(zddm)){
+//                     mZdzhdms.add(split[i]);
+//                    }
+//                }
+//                FeatureHelper.Set(f_jzx,FeatureHelper.TABLE_ATTR_ZDZHDM,StringUtil.Join(mZdzhdms,"/",true));
+//            }
+            return false;
+
+        };
+        return true;
+    }
 
     public static boolean  IndentyJZX(MapInstance instance,Feature f_jzx,List<Feature> fs_zd){
         return IndentyJZX(instance,f_jzx,"",null,fs_zd);

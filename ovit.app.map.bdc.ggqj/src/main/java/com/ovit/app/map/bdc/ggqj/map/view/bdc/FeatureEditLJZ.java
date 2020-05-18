@@ -86,7 +86,6 @@ public class FeatureEditLJZ extends FeatureEdit {
                 mapInstance.fillFeature(feature);
                 fillView(v_feature);
                 TextWatcher tw_cs = new TextWatcher() {
-
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
                         cs_change(null);
                     }

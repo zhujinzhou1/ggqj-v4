@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Geometry;
-import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.ImmutablePart;
 import com.esri.arcgisruntime.geometry.Multipart;
@@ -47,7 +46,6 @@ import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
-import com.ovit.app.util.AppConfig;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.Session;
 import com.ovit.app.util.StringUtil;
@@ -886,78 +884,101 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                      * 点同时存储在list_struc<struc_loadJzds>中备用；依次计算fs_jzd表中相邻界址点的距离，令rc=最大距离*容差系数；
                      * 遍历list_struc，若前距离和后距值均<rc，从fs_jzd中删除对应的中点，若只有前距值<rc,从fs_jzd中删除对应的前点，
                      * 若只有后距值<rc,从fs_jzd中删除对应的后点，若两值均>rc,则不做操作；遍历完成 算法结束*/
-                    int start_jzd_size = fs_jzd.size();  //开始处理前总界址点数
-                    Log.i(TAG, "start fs_jzd.size:" + start_jzd_size);
-                    ArrayList<struc_loadJzds> list_struc = new ArrayList<struc_loadJzds>();  //辅助表
-                    double rc = 0; //容差
-                    for (int i = 0; i < fs_jzd.size(); i++) {
-                        Point p_pre = (Point) fs_jzd.get((i < 1 ? fs_jzd.size() : i) - 1).getGeometry();
-                        Point p = (Point) fs_jzd.get(i).getGeometry();
-                        Point p_next = (Point) fs_jzd.get((i < (fs_jzd.size() - 1) ? i : -1) + 1).getGeometry();
-                        list_struc.add(new struc_loadJzds(p_pre, p, p_next, GeometryEngine.distanceBetween(p_pre, p), GeometryEngine.distanceBetween(p, p_next)));
-                    }
+//                    int start_jzd_size = fs_jzd.size();  //开始处理前总界址点数
+//                    Log.i(TAG, "start fs_jzd.size:" + start_jzd_size);
+//                    ArrayList<struc_loadJzds> list_struc = new ArrayList<struc_loadJzds>();  //辅助表
+//                    double rc = 0; //容差
+//                    for (int i = 0; i < fs_jzd.size(); i++) {
+//                        Point p_pre = (Point) fs_jzd.get((i < 1 ? fs_jzd.size() : i) - 1).getGeometry();
+//                        Point p = (Point) fs_jzd.get(i).getGeometry();
+//                        Point p_next = (Point) fs_jzd.get((i < (fs_jzd.size() - 1) ? i : -1) + 1).getGeometry();
+//                        list_struc.add(new struc_loadJzds(p_pre, p, p_next, GeometryEngine.distanceBetween(p_pre, p), GeometryEngine.distanceBetween(p, p_next)));
+//                    }
+//
+//                    for (int j = 0; j < list_struc.size(); j++) {
+//                        rc = rc < list_struc.get(j).getDistance_p_pre() ? list_struc.get(j).getDistance_p_pre() : rc;
+//                        rc = rc < list_struc.get(j).getDistance_p_next() ? list_struc.get(j).getDistance_p_next() : rc;
+//                    }
+//
+//                    rc = rc * 0.05; //设置容差 默认系数0.05
+//
+//                    for (int k = 0; k < list_struc.size(); k++) {
+//                        Log.i(TAG, "界址点处理及容差设置参考|前距值：" + list_struc.get(k).getDistance_p_pre() + "|后距值：" + list_struc.get(k).getDistance_p_next() + "|" + "容差：" + rc);//参考
+//                        if (list_struc.get(k).getDistance_p_pre() < rc && list_struc.get(k).getDistance_p_next() < rc) {
+//                            for (int t = 0; t < fs_jzd.size(); t++) {
+//                                if (fs_jzd.get(t).getGeometry().equals(list_struc.get(k).getP())) {
+//                                    fs_jzd.remove(t);
+//                                }
+//                            }
+//                        } else if (list_struc.get(k).getDistance_p_pre() < rc) {
+//                            for (int t = 0; t < fs_jzd.size(); t++) {
+//                                if (fs_jzd.get(t).getGeometry().equals(list_struc.get(k).getP_pre())) {
+//                                    fs_jzd.remove(t);
+//                                }
+//                            }
+//                        } else if (list_struc.get(k).getDistance_p_next() < rc) {
+//                            for (int t = 0; t < fs_jzd.size(); t++) {
+//                                if (fs_jzd.get(t).getGeometry().equals(list_struc.get(k).getP_next())) {
+//                                    fs_jzd.remove(t);
+//                                }
+//                            }
+//                        }
+//
+//                    }
 
-                    for (int j = 0; j < list_struc.size(); j++) {
-                        rc = rc < list_struc.get(j).getDistance_p_pre() ? list_struc.get(j).getDistance_p_pre() : rc;
-                        rc = rc < list_struc.get(j).getDistance_p_next() ? list_struc.get(j).getDistance_p_next() : rc;
-                    }
-
-                    rc = rc * 0.05; //设置容差 默认系数0.05
-
-                    for (int k = 0; k < list_struc.size(); k++) {
-                        Log.i(TAG, "界址点处理及容差设置参考|前距值：" + list_struc.get(k).getDistance_p_pre() + "|后距值：" + list_struc.get(k).getDistance_p_next() + "|" + "容差：" + rc);//参考
-                        if (list_struc.get(k).getDistance_p_pre() < rc && list_struc.get(k).getDistance_p_next() < rc) {
-                            for (int t = 0; t < fs_jzd.size(); t++) {
-                                if (fs_jzd.get(t).getGeometry().equals(list_struc.get(k).getP())) {
-                                    fs_jzd.remove(t);
-                                }
-                            }
-                        } else if (list_struc.get(k).getDistance_p_pre() < rc) {
-                            for (int t = 0; t < fs_jzd.size(); t++) {
-                                if (fs_jzd.get(t).getGeometry().equals(list_struc.get(k).getP_pre())) {
-                                    fs_jzd.remove(t);
-                                }
-                            }
-                        } else if (list_struc.get(k).getDistance_p_next() < rc) {
-                            for (int t = 0; t < fs_jzd.size(); t++) {
-                                if (fs_jzd.get(t).getGeometry().equals(list_struc.get(k).getP_next())) {
-                                    fs_jzd.remove(t);
-                                }
-                            }
-                        }
-
-                    }
-
-                    if (start_jzd_size == fs_jzd.size()) {  //为提高效率 若剔除前后界址点数量一致 则不执行界址点编号调整操作
-                        Log.i(TAG, "未执行界址点编号调整");
-                    } else {//对处理后的界址点编号进行调整 依据偏好设置选择简码或原码
-                        String encodingMethod = "";
-                        for (int i = 0; i < fs_jzd.size(); i++) {
-                            if (fs_jzd.get(i).getAttributes().containsKey("JZDH")) {
-                                String jzd_y = fs_jzd.get(i).getAttributes().get("JZDH").toString();
-                                Log.i(TAG, "原界址点号:" + jzd_y);
-                                fs_jzd.get(i).getAttributes().remove("JZDH");
-
-                                if (AiUtil.GetValue(AppConfig.get("APP_ZD_JZD_FSSYJM"), true)) {
-                                    encodingMethod = "简码";
-                                    fs_jzd.get(i).getAttributes().put("JZDH", "J" + (i + 1));
-                                } else {
-                                    encodingMethod = "原码";
-                                    if (jzd_y.length() > 2) {
-                                        if (i < 9) {
-                                            fs_jzd.get(i).getAttributes().put("JZDH", jzd_y.substring(0, jzd_y.length() - 2) + "0" + (i + 1));
-                                        } else {
-                                            fs_jzd.get(i).getAttributes().put("JZDH", jzd_y.substring(0, jzd_y.length() - 2) + (i + 1));
-                                        }
-                                    }
-                                }
-
-                                Log.i(TAG, encodingMethod + "调整后界址点号:" + fs_jzd.get(i).getAttributes().get("JZDH").toString());
-                            }
-                        }
-                    }
-
-                    Log.i(TAG, "end fs_jzd.size:" + fs_jzd.size()); //
+//                    if (start_jzd_size == fs_jzd.size()) {  //为提高效率 若剔除前后界址点数量一致 则不执行界址点编号调整操作
+//                        Log.i(TAG, "未执行界址点编号调整");
+//                    } else {//对处理后的界址点编号进行调整 依据偏好设置选择简码或原码
+//                        String encodingMethod = "";
+//                        for (int i = 0; i < fs_jzd.size(); i++) {
+//                            if (fs_jzd.get(i).getAttributes().containsKey("JZDH")) {
+//                                String jzd_y = fs_jzd.get(i).getAttributes().get("JZDH").toString();
+//                                Log.i(TAG, "原界址点号:" + jzd_y);
+//                                fs_jzd.get(i).getAttributes().remove("JZDH");
+//
+//                                if (AiUtil.GetValue(AppConfig.get("APP_ZD_JZD_FSSYJM"), true)) {
+//                                    encodingMethod = "简码";
+//                                    fs_jzd.get(i).getAttributes().put("JZDH", "J" + (i + 1));
+//                                } else {
+//                                    encodingMethod = "原码";
+//                                    if (jzd_y.length() > 2) {
+//                                        if (i <9) {
+//                                            fs_jzd.get(i).getAttributes().put("JZDH", jzd_y.substring(0, jzd_y.length() - 2) + "0" + (i + 1));
+//                                        } else {
+//                                            fs_jzd.get(i).getAttributes().put("JZDH", jzd_y.substring(0, jzd_y.length() - 2) + (i + 1));
+//                                        }
+//                                    }
+//                                }
+//
+//                                Log.i(TAG, encodingMethod + "调整后界址点号:" + fs_jzd.get(i).getAttributes().get("JZDH").toString());
+//                            }
+//                        }
+//                    }
+//                    String encodingMethod = "";
+//                    for (int i = 0; i < fs_jzd.size(); i++) {
+//                        if (fs_jzd.get(i).getAttributes().containsKey("JZDH")) {
+//                            String jzd_y = fs_jzd.get(i).getAttributes().get("JZDH").toString();
+//                            Log.i(TAG, "原界址点号:" + jzd_y);
+//                            fs_jzd.get(i).getAttributes().remove("JZDH");
+//
+//                            if (AiUtil.GetValue(AppConfig.get("APP_ZD_JZD_FSSYJM"), true)) {
+//                                encodingMethod = "简码";
+//                                fs_jzd.get(i).getAttributes().put("JZDH", "J" + (i + 1));
+//                            } else {
+//                                encodingMethod = "原码";
+//                                if (jzd_y.length() > 2) {
+//                                    if (i <9) {
+//                                        fs_jzd.get(i).getAttributes().put("JZDH", jzd_y.substring(0, jzd_y.length() - 2) + "0" + (i + 1));
+//                                    } else {
+//                                        fs_jzd.get(i).getAttributes().put("JZDH", jzd_y.substring(0, jzd_y.length() - 2) + (i + 1));
+//                                    }
+//                                }
+//                            }
+//
+//                            Log.i(TAG, encodingMethod + "调整后界址点号:" + fs_jzd.get(i).getAttributes().get("JZDH").toString());
+//                        }
+//                    }
+//                    Log.i(TAG, "end fs_jzd.size:" + fs_jzd.size()); //
                     //------------------------------------end 20180705----------------------------------------------
 
                     AiRunnable.Ok(callback, fs_jzd);

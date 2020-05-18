@@ -85,7 +85,6 @@ public class FeatureEditJZD extends FeatureEdit {
         return AiUtil.Scale(p.getX(),3,0)+","+ AiUtil.Scale(p.getY(),3,0);
     }
 
-
     public static void UpdateJZD(final MapInstance mapInstance,final  Feature f_zd, AiRunnable callback_) {
         final AiDialog dialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_kzd, "生成界址点")
                 .addContentView("将根据宗地的范围删除原有的界址点，重新生成界址点", "该操作不可逆转，如果已经生成过界址点请谨慎操作");
