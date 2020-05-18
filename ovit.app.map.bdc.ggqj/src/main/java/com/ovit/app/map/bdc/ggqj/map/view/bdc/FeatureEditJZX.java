@@ -278,20 +278,20 @@ public class FeatureEditJZX extends FeatureEdit {
         }
 
         if (!MapHelper.geometry_equals(polylines,g_jzx)){
-//            String[] split = zdzhdm.split("/");
-//            if (split.length == 1){
-//                return false;
-//            }else {
-//                List<String> mZdzhdms = new ArrayList<>();
-//                for (int i = 0; i < split.length; i++) {
-//                   if (!split[i].equals(zddm)){
-//                     mZdzhdms.add(split[i]);
-//                    }
-//                }
-//                FeatureHelper.Set(f_jzx,FeatureHelper.TABLE_ATTR_ZDZHDM,StringUtil.Join(mZdzhdms,"/",true));
-//            }
-            return false;
-
+            String[] split = zdzhdm.split("/");
+            if (split.length == 1){
+                if (split[0].equals(zddm)){
+                    return false;
+                }
+            }else {
+                List<String> mZdzhdms = new ArrayList<>();
+                for (int i = 0; i < split.length; i++) {
+                   if (!split[i].equals(zddm)){
+                     mZdzhdms.add(split[i]);
+                    }
+                }
+                FeatureHelper.Set(f_jzx,FeatureHelper.TABLE_ATTR_ZDZHDM,StringUtil.Join(mZdzhdms,"/",true));
+            }
         };
         return true;
     }
