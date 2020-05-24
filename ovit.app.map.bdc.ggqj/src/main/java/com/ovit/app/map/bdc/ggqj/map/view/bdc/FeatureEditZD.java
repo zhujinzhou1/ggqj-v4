@@ -1406,6 +1406,7 @@ public class FeatureEditZD extends FeatureEdit {
         LinearLayout ll_zz = (LinearLayout) view.findViewById(R.id.ll_zz);
         LinearLayout ll_clr = (LinearLayout) view.findViewById(R.id.ll_clr);
         LinearLayout ll_dcr = (LinearLayout) view.findViewById(R.id.ll_dcr);
+        LinearLayout ll_shr = (LinearLayout) view.findViewById(R.id.ll_shr);
         //权利人拍照
         CustomImagesView civ_qlrpz = (CustomImagesView) ll_dzqz.findViewById(R.id.civ_qlrpz);
         String filename = AiUtil.GetValue(civ_qlrpz.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
@@ -1424,6 +1425,11 @@ public class FeatureEditZD extends FeatureEdit {
         CustomImagesView civDcr = (CustomImagesView) ll_dcr.findViewById(R.id.civ_dcr);
         String fileDcr = AiUtil.GetValue(civDcr.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
         civDcr.setName(fileDcr, activity).setDir(FileUtils.getAppDirAndMK(signDirPath + fileDcr + "/"));
+
+        //审核人
+        CustomImagesView civShr = (CustomImagesView) ll_shr.findViewById(R.id.civ_shr);
+        String fileScr = AiUtil.GetValue(civShr.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
+        civShr.setName(fileScr, activity).setDir(FileUtils.getAppDirAndMK(signDirPath + fileScr + "/"));
         //权利人电子签章
         TextView tv_sign = (TextView) ll_dzqz.findViewById(R.id.tv_sign);
         final ImageView iv_sign = (ImageView) ll_dzqz.findViewById(R.id.iv_sign);
@@ -1443,6 +1449,12 @@ public class FeatureEditZD extends FeatureEdit {
         TextView tvDcr = (TextView) ll_dcr.findViewById(R.id.tv_dcr);
         final ImageView ivDcr = (ImageView) ll_dcr.findViewById(R.id.iv_dcr);
         fv.setSign(tvDcr, ivDcr, signDirPath, "");
+
+        //审核人电子签章
+        TextView tvShr = (TextView) ll_shr.findViewById(R.id.tv_shr);
+        final ImageView ivShr = (ImageView) ll_shr.findViewById(R.id.iv_shr);
+        fv.setSign(tvShr, ivShr, signDirPath, "");
+
 
     }
 

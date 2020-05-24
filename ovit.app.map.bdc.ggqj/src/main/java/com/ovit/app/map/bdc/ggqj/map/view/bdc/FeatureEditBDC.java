@@ -1514,12 +1514,14 @@ public class FeatureEditBDC extends FeatureEdit {
         String imgClrqm = FileUtils.getAppDirAndMK(signDirPath + "/测量人签章举证/") + "测量人电子签章.jpg";
         String imgDcrqm = FileUtils.getAppDirAndMK(signDirPath + "/调查人签章举证/") + "调查人电子签章.jpg";
         String imgZz = FileUtils.getAppDirAndMK(signDirPath + "/组长签章举证/") + "组长电子签章.jpg";
+        String imgshr = FileUtils.getAppDirAndMK(signDirPath + "/审核人签章举证/") + "审核人电子签章.jpg";
         String imgQlr = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "/附件材料/电子签章/权利人签章举证/") +"权利人电子签章.jpg";
 
         map_.put("img.clrqm", imgClrqm);
         map_.put("img.dcrqm", imgDcrqm);
         map_.put("img.zzqm", imgZz);
         map_.put("img.qlrqm", imgQlr);
+        map_.put("img.shrqm", imgshr);
 
         List<Map<String, Object>> maps_dzqz = new ArrayList<>();
         File file = new File(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/电子签章/指界人签章举证/"));

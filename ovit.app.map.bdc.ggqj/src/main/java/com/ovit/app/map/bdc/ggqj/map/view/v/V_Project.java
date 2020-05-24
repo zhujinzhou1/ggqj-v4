@@ -988,7 +988,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             Envelope extent_ZD = com.ovit.app.map.view.FeatureEdit.GetTable(getMapInstance(), FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD).getExtent();
                                             Envelope extent_ZRZ = com.ovit.app.map.view.FeatureEdit.GetTable(getMapInstance(), FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD).getExtent();
                                             Envelope extent = GeometryEngine.combineExtents(extent_ZD, extent_ZRZ);
-//                                                final DxfAdapter dxf = DxfAdapter.getInstance();
+//                                          final DxfAdapter dxf = DxfAdapter.getInstance();
                                             final DxfAdapter dxf = new DxfAdapter();
                                             dxf.create(dxfpath, extent, MapHelper.GetSpatialReference(mapInstance));
 
@@ -1048,7 +1048,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             }.start();
 
                                         } catch (Exception e) {
-
                                             addMessage("操作失败", e.getMessage());
                                             AiRunnable.Error(callback, null);
                                         }
