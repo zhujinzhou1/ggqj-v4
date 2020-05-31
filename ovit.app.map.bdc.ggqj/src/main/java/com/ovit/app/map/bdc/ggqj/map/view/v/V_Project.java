@@ -833,14 +833,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                             MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_LENGTH_MAX, fs_zd, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
-
-//                                            String xmmc = GsonUtil.GetValue(aiMap.JsonData,"XMMC","");
-//                                            String xmbm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
-//                                            final String filePath =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) +xmbm+xmmc+".xls";
-//                                            final String filePath_enshi =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) + xmbm + xmmc +".xls";
-//                                            Excel.CreateStandingBook_JingShang(mapInstance,"总台账",filePath,fs_zd);
-//                                            Excel.CreateStandingBook_EnShi(mapInstance,"总台账",filePath_enshi,fs_zd);
-
                                     final List<Map<String, Object>> maps = new ArrayList<>();
                                     new AiForEach<Feature>(fs_zd, new AiRunnable() {
                                         @Override
@@ -854,7 +846,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     String xmbm = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "XMBM", "");
                                                     String filePath_badong = FileUtils.getAppDirAndMK(mapInstance.getpath_root()) + xmbm + xmmc + ".xls";
                                                     Excel.CreateStandingBook(maps, xlsData, filePath, filePath_badong);
-
                                                 } catch (Exception e) {
                                                     AiRunnable.Error(callback, null);
                                                     e.printStackTrace();
@@ -1312,7 +1303,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
     private void output_excels() {
         final AiDialog dialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_zd_fw, "导入Excel数据");
 
-        final Map<String, String> dataconfig = new HashMap<>();
+        final Map<String, Object> dataconfig = new HashMap<>();
         dialog.addContentView(dialog.getSelectView("图层", "map_tc", dataconfig, "tc"));
 
         dialog.addContentViewMenu(Arrays.asList(
@@ -1810,7 +1801,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         final AiDialog dialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_zd_fw, "导入两权数据")
                 .addContentView("可以从SHP、CAD中导入两权数据，请选择文件格式");
 
-        final Map<String, String> dataconfig = new HashMap<>();
+        final Map<String, Object> dataconfig = new HashMap<>();
         dialog.addContentView(dialog.getSelectView("坐标系", "map_zbx", dataconfig, "zbx"));
         dialog.addContentView(dialog.getSelectView("字符集", "file_encode", dataconfig, "encode"));
 

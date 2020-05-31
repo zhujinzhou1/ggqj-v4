@@ -464,7 +464,7 @@ public class FeatureViewLJZ extends FeatureView {
     private void setFsjgAttribute(final String resname, final AiRunnable callback) {
         String desc = "该操作主要是绘制"+resname+"结构到指定楼层！";
         final Map<String, Object> map = new LinkedHashMap<>();
-        final Map<String, String> dataconfig = new LinkedHashMap<>();
+        final Map<String, Object> dataconfig = new LinkedHashMap<>();
         final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
         final String szc = "SZC";
         map.put(szc, "1");

@@ -1122,20 +1122,20 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
             } else {
                 map.put("JZQZ.LZDZJR", " ");
                 map.put("img.lzzjqz", "");
-                AiRunnable.Ok(callback, null,    null);
+                AiRunnable.Ok(callback, null,     "");
             }
         }else {
-            AiRunnable.Ok(callback,null,null);
+            AiRunnable.Ok(callback,null,"");
         }
     }
 
     public void loadZrzs(List<Feature> fs_zrz, AiRunnable callback) {
         queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, getOrid(), "ZRZH", "", fs_zrz, callback);
     }
-
     public void loadCs(List<Feature> fs_c, AiRunnable callback) {
         queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ_C, getOrid(), "CH", "", fs_c, callback);
     }
+
 
     public void loadLjz(List<Feature> fs_ljz, AiRunnable callback) {
         queryChildFeature(FeatureHelper.TABLE_NAME_LJZ, getOrid(), "LJZH", "", fs_ljz, callback);

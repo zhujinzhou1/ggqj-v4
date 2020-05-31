@@ -3,6 +3,7 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -1093,16 +1094,24 @@ public class FeatureViewZD extends FeatureView {
     //region 宗地代码相关
     //  获取最大的编号
     public void getMaxZddm(final AiRunnable callback) {
-        getMaxZddm(getTzm(), callback);
+        getMaxZddm("",callback);
+    }
+    public void getMaxZddm(String xzh,final AiRunnable callback) {
+        getMaxZddm(getTzm(), xzh, callback);
     }
 
-    public void getMaxZddm(final String tzm, final AiRunnable callback) {
+    public void getMaxZddm(final String tzm, final String xzh, final AiRunnable callback) {
         getDjzq(new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 String djzq = (String) t_;
-                final String id = djzq + tzm;
-                MapHelper.QueryMax(table, StringUtil.WhereByIsEmpty(id) + " ZDDM like '" + id + "_____' ", FeatureHelper.TABLE_ATTR_ZDDM, id.length(), 0, id + "00000", callback);
+                String id = djzq + tzm;
+                String where = StringUtil.WhereByIsEmpty(id) + " ZDDM like '" + id + "_____' ";
+                if (!TextUtils.isEmpty(xzh) && StringUtil.isInteger(xzh) && xzh.length() == 2) {
+                    id = djzq + tzm + xzh;
+                    where = StringUtil.WhereByIsEmpty(id) + " ZDDM like '" + id + "___' ";
+                }
+                MapHelper.QueryMax(table, where, FeatureHelper.TABLE_ATTR_ZDDM,14 , 0, djzq + tzm+"00000", callback);
                 return null;
             }
         });
@@ -1110,13 +1119,15 @@ public class FeatureViewZD extends FeatureView {
 
     //  获取新的宗地编码
     public void newZddm(final AiRunnable callback) {
+        newZddm("", callback);
+    }
+    public void newZddm(String xzh,final AiRunnable callback) {
         final String zddm_old = getZddm();
-        newZddm(zddm_old, getTzm(zddm_old), callback);
+        newZddm(zddm_old, getTzm(zddm_old), xzh, callback);
     }
 
-    public void newZddm(final String oldZddm, String tzm, final AiRunnable callback) {
-
-        getMaxZddm(tzm, new AiRunnable(callback) {
+    public void newZddm(final String oldZddm, String tzm, final String xzh, final AiRunnable callback) {
+        getMaxZddm(tzm, xzh, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 String id = "";
@@ -1127,7 +1138,13 @@ public class FeatureViewZD extends FeatureView {
                     } else {
                         // 最大号加1
                         int count = AiUtil.GetValue(objects[1], 0) + 1;
-                        id = StringUtil.fill(String.format("%05d", count), maxid, true);
+                        String sCount = String.format("%05d", count);
+                        if (!TextUtils.isEmpty(xzh) && StringUtil.isInteger(xzh) && xzh.length() == 2) {
+                            if (!sCount.startsWith(xzh)) {
+                                sCount = xzh + sCount.substring(2);
+                            }
+                        }
+                        id = StringUtil.fill(sCount, maxid, true);
                     }
                 }
                 AiRunnable.Ok(callback, id);

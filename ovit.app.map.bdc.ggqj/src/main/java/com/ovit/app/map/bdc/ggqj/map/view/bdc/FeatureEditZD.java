@@ -1107,7 +1107,7 @@ public class FeatureEditZD extends FeatureEdit {
                 if (map_zddm != null && map_zddm.length() == 19) {
                     et_zddm.setText(map_zddm);
                 } else {
-                    fv.newZddm(fv.getZddm(), new_tzm, new AiRunnable() {
+                    fv.newZddm(fv.getZddm(), new_tzm, "", new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
                             String zddm = t_ + "";
@@ -1144,16 +1144,19 @@ public class FeatureEditZD extends FeatureEdit {
     private void newZddm() {
         String desc = "该操作主要是在地籍子区范围内重新编制宗地代码，宗地代码发生变化后该宗地范围的房屋需要重新识别，请谨慎处理！";
         final AiDialog aidialog = AiDialog.get(activity);
+        final Map<String, Object> map = new LinkedHashMap<>();
+        map.put("xzh", "");
         aidialog.setHeaderView(R.mipmap.app_icon_warning_red, "不可逆操作提醒")
                 .addContentView("确定要重新编号么？", desc)
+                .addContentView(aidialog.getSelectView("小组号", "map_xzh", map, "xzh"))
+//                .addContentView(aidialog.getEditView("请输入两位小组号，例如：01，02等...", map, "xzh"))
                 .setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {
-                        fv.newZddm(new AiRunnable() {
+                        fv.newZddm( AiUtil.GetValue(map.get("xzh")),new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 String zddm = t_ + "";
-                                final Map<String, Object> map = new LinkedHashMap<>();
                                 map.put("zddm", zddm);
                                 aidialog.setContentView("重新获取的宗地代码为：")
                                         .addContentView(aidialog.getEditView("宗地代码", map, "zddm"))

@@ -479,7 +479,7 @@ public class FeatureEditLJZ extends FeatureEdit {
     private void fsjg_init(final String resname, final AiRunnable callback) {
         String desc = "该操作主要是绘制幢附属结构到指定楼层！";
         final Map<String, Object> map = new LinkedHashMap<>();
-        final Map<String, String> dataconfig = new LinkedHashMap<>();
+        final Map<String, Object> dataconfig = new LinkedHashMap<>();
         final AiDialog aiDialog = AiDialog.get(mapInstance.activity);
         final String szc = "SZC";
         map.put(szc, "1");
