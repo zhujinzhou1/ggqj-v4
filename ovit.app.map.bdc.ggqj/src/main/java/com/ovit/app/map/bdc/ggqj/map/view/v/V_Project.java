@@ -88,6 +88,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
     //region 常量
     public final static String STBM="STBM";
+    public final static String GRAPHICS_REPLACE="图形替换";
     ///endregion
 
     //region 字段
@@ -1802,18 +1803,15 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 .addContentView("可以从SHP、CAD中导入两权数据，请选择文件格式");
 
         final Map<String, Object> dataconfig = new HashMap<>();
+        dialog.addContentView(dialog.getSelectView("操作模式", "map_modle", dataconfig, "modle"));
         dialog.addContentView(dialog.getSelectView("坐标系", "map_zbx", dataconfig, "zbx"));
         dialog.addContentView(dialog.getSelectView("字符集", "file_encode", dataconfig, "encode"));
 
         dialog.addContentViewMenu(Arrays.asList(
-                new Object[]{R.mipmap.app_icon_shp, "导入SHP文件", new View.OnClickListener() {
+                new Object[]{R.mipmap.app_icon_shp, "导入shape", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ToastMessage.Send("功能正在建设中...");
-
-
-
-
 
 
                     }
@@ -1821,6 +1819,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 new Object[]{R.mipmap.app_icon_cad, "导入DXF文件", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
+
+                        final String modle = AiUtil.GetValue(dataconfig.get("modle"), "");
                         FileUtils.showChooser(activity, new AiRunnable() {
                             void setMessage(final String message) {
                                 if (StringUtil.IsNotEmpty(message)) {
@@ -1863,23 +1864,57 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     messge_ += "[" + key + "：" + map_fs.get(key) + "]";
                                 }
                                 final String messge = messge_;
-                                MapHelper.saveFeature(fs, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "导入" + fs.size() + "个图形成功:" + messge + "...");
-                                        if (isComplete)
-                                            setComplete(R.mipmap.app_icon_ok_f, "导入" + messge + "成功！", true);
-                                        return null;
-                                    }
+                                if (GRAPHICS_REPLACE.equals(modle)){
+                                    final List<Feature> fs_upt = new ArrayList<>();
+                                    new AiForEach<Feature>(fs,null){
+                                        @Override
+                                        public void exec() {
+                                            Feature mFeature = fs.get(postion);
+                                            Geometry g = mFeature.getGeometry();
+                                            MapHelper.GraphicReplacement(mapInstance,FeatureHelper.TABLE_NAME_ZD,g,fs_upt,getNext());
+                                        }
+                                        @Override
+                                        public void complet() {
+                                            MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                @Override
+                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                    addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "替换" + fs_upt.size() + "个图形成功:" + messge + "...");
+                                                    if (isComplete)
+                                                        setComplete(R.mipmap.app_icon_ok_f, "替换" + messge + "成功！", true);
+                                                    return null;
+                                                }
+                                                @Override
+                                                public <T_> T_ error(T_ t_, Object... objects) {
+                                                    addMessage("替换失败:", ((Exception) t_).getMessage());
+                                                    if (isComplete)
+                                                        setComplete(R.mipmap.app_icon_error_smaller, "替换失败", true);
+                                                    return null;
+                                                }
+                                            });
 
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        addMessage("导入失败:", ((Exception) t_).getMessage());
-                                        if (isComplete)
-                                            setComplete(R.mipmap.app_icon_error_smaller, "导入失败", true);
-                                        return null;
-                                    }
-                                });
+                                        }
+                                    }.start();
+                                }else {
+                                    MapHelper.saveFeature(fs, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "导入" + fs.size() + "个图形成功:" + messge + "...");
+                                            if (isComplete)
+                                                setComplete(R.mipmap.app_icon_ok_f, "导入" + messge + "成功！", true);
+                                            return null;
+                                        }
+
+                                        @Override
+                                        public <T_> T_ error(T_ t_, Object... objects) {
+                                            addMessage("导入失败:", ((Exception) t_).getMessage());
+                                            if (isComplete)
+                                                setComplete(R.mipmap.app_icon_error_smaller, "导入失败", true);
+                                            return null;
+                                        }
+                                    });
+
+                                }
+
                             }
 
                             @Override
@@ -1927,27 +1962,34 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                             }
                                                             index++;
                                                             Log.d(TAG, "：-> " + f.toString());
-
-                                                            if (readZd(table_zd, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-                                                            if (readLjz(table_ljz, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
+                                                            if(GRAPHICS_REPLACE.equals(modle)){
+                                                                if (readZd(table_zd, fs, map_fs, f, wkid)) {
+                                                                    continue;
+                                                                }
+                                                            }else {
+                                                                if (readZd(table_zd, fs, map_fs, f, wkid)) {
+                                                                    continue;
+                                                                }
+                                                                if (readLjz(table_ljz, fs, map_fs, f, wkid)) {
+                                                                    continue;
+                                                                }
 //                                                           if(readZrz(table_zrz,fs,map_fs,f,wkid)){ continue;  }
-                                                            if (readFSJG(table_z_fsjg, table_h_fsjg, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-                                                            if (readCLD(table_cld, fs, map_fs, f, wkid)) {
-                                                                continue;
-                                                            }
-                                                            if (readDw(table_dzdw, table_xzdw, table_mzdw, fs, map_fs, f, wkid)) {
-                                                                continue;
+                                                                if (readFSJG(table_z_fsjg, table_h_fsjg, fs, map_fs, f, wkid)) {
+                                                                    continue;
+                                                                }
+                                                                if (readCLD(table_cld, fs, map_fs, f, wkid)) {
+                                                                    continue;
+                                                                }
+                                                                if (readDw(table_dzdw, table_xzdw, table_mzdw, fs, map_fs, f, wkid)) {
+                                                                    continue;
+                                                                }
+
+                                                                if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
+                                                                    Log.d(TAG, f.getExtendeds(0) + "： -> 【未处理】" + f.toString());
+                                                                }
                                                             }
 
-                                                            if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
-                                                                Log.d(TAG, f.getExtendeds(0) + "： -> 【未处理】" + f.toString());
-                                                            }
+
                                                             index--;
                                                         } catch (Exception es) {
                                                             addMessage("", "读取实体失败,跳过：" + es.getMessage());
@@ -2147,6 +2189,34 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         }
         return false;
     }
+
+    public boolean readZdAndReplace(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+        String name = FeatureHelper.LAYER_NAME_ZD;
+        if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
+            //  300000 宗地
+            String stdm = f.getExtendeds(0);
+            boolean flag = isEmptyStdm(f, stdm, "300000");// 是否包含实体编码
+            if (flag) {
+                Geometry g = GdalAdapter.convert(f.getGeometry());
+                g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+                g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
+                if (g == null || !FeatureHelper.isPolygonGeometryValid(g)) {
+                    return false;
+                }
+
+                MapHelper.GraphicReplacement(mapInstance,FeatureHelper.TABLE_NAME_ZD, g,fs,null);
+//                MapHelper.Geometry_get(g);
+
+//                fs.add(f_zd);
+                map_fs.put(name, AiUtil.GetValue(map_fs.get(name), 0) + 1);
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
 
     public boolean readZrz(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
 
