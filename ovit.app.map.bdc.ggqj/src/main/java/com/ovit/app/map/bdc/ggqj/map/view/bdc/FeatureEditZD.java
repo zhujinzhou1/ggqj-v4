@@ -82,6 +82,7 @@ public class FeatureEditZD extends FeatureEdit {
     final static String TAG = "FeatureEditZD";
     final static String ZDDCR = "SOVIT1";
     final static String ZDCLR = "SOVIT2";
+    final static String PZJFSRK = "SOVIT3"; // 批准建房时候人口
     //endregion
 
     //region基础字段

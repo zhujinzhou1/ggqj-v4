@@ -1770,6 +1770,12 @@ public class FeatureEditBDC extends FeatureEdit {
             map_zrz.put("img.fwzp", image_fwzp);
             map_zrz.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(zrz, "JZWJBYT", "")));
             map_zrz.put("ZRZ.CG", StringUtil.Join(hzcg, true));
+            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI){
+                String zrzh = (String) map_zrz.get("ZRZ.ZH");
+                if (!TextUtils.isEmpty(zrzh)){
+                    map_zrz.put("ZRZ.ZH","F"+zrzh);
+                }
+            }
             maps_zrz.add(map_zrz);
             // 拷贝自然幢的内容
 //            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));
