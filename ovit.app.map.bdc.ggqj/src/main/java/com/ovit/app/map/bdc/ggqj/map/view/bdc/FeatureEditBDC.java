@@ -1755,6 +1755,13 @@ public class FeatureEditBDC extends FeatureEdit {
             Map<String, Object> map_zrz = new LinkedHashMap<>();
             Put_data_zrz(mapInstance, map_zrz, zrz);
             hzszc.add(map_zrz.get("ZRZ.CSHZ") + "/" + map_zrz.get("ZRZ.ZCS"));
+
+            String fwjg_h =  (String) map_zrz.get("ZRZ.FWJGFF");
+            if (fwjg_h.contains("结构")) {
+                fwjg_h = fwjg_h.substring(0, fwjg_h.lastIndexOf("结构"));
+            }
+            map_zrz.put("ZRZ.FWJGFF",fwjg_h);
+
             hzfwjgff.add(map_zrz.get("ZRZ.FWJGFF") + "");
             hzjgrq.add(map_zrz.get("ZRZ.JGRQ") + "");
 
@@ -1785,8 +1792,30 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZRZ.HZSZC", StringUtil.Join(hzszc, true));
         map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
         map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
-
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
+
+        for (int i = 0; i < 10-fs_zrz.size(); i++) {
+
+            Feature f = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
+            Map<String, Object> map_zrz = new LinkedHashMap<>();
+            Put_data_zrz(mapInstance, map_zrz, f);
+            maps_zrz.add(map_zrz);
+            map_zrz.put("ZRZ.ZHFS"," ");
+            map_zrz.put("H.HH"," ");
+            map_zrz.put("ZRZ.ZTS"," ");
+            map_zrz.put("ZRZ.ZCS"," ");
+            map_zrz.put("ZRZ.FWJGFF"," ");
+            map_zrz.put("ZRZ.SJGRQ"," ");
+            map_zrz.put("ZRZ.ZZDMJ"," ");
+            map_zrz.put("ZRZ.SCJZMJ"," ");
+            map_zrz.put("H.CQLY"," ");
+            map_zrz.put("Z.QTGSD"," ");
+            map_zrz.put("Z.QTGSN"," ");
+            map_zrz.put("Z.QTGSX"," ");
+            map_zrz.put("Z.QTGSB"," ");
+
+        }
+
         map_.put("list.zrz", maps_zrz);
         maps_zrz_fsss.addAll(maps_zrz);
         maps_zrz_fsss.addAll(maps_fsss);
@@ -1836,6 +1865,13 @@ public class FeatureEditBDC extends FeatureEdit {
                 fwjg = fwjg.substring(fwjg.lastIndexOf("]") + 1);
                 map_zrz.put("ZRZ.FWJGFF", fwjg);
             }
+
+            String fwjg_h =  (String) map_zrz.get("ZRZ.FWJGFF");
+            if (fwjg_h.contains("结构")) {
+                fwjg_h = fwjg_h.substring(0, fwjg_h.lastIndexOf("结构"));
+            }
+            map_zrz.put("ZRZ.FWJGFF",fwjg_h);
+
             hzszc.add(map_zrz.get("ZRZ.CSHZ") + "/" + map_zrz.get("ZRZ.ZCS"));
             hzfwjgff.add(map_zrz.get("ZRZ.FWJGFF") + "");
             String jgrq = map_zrz.get("ZRZ.MJGRQ") + "";
@@ -1880,6 +1916,12 @@ public class FeatureEditBDC extends FeatureEdit {
         map.put("ZRZ.ZCS", AiUtil.GetValue(zrz.getAttributes().get("ZCS"), "", "0.#"));
         map.put("ZRZ.CSHZ", z_zcs > 1 ? ("1-" + z_zcs) : 1);
         map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 7));
+        //建筑日期到年   通山模板   2020/06/04
+        if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI ) {
+            if (map.get("ZRZ.JGRQ").toString().length() > 4) {
+                map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 4));
+            }
+        }
         GetReplecData(map_, "", map);
     }
 
