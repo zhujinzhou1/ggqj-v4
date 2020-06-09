@@ -255,8 +255,8 @@ public class DxfFcfct_tianmen {
         dbMap.get(DbTemplet.DB_QLRXX).addAll(DbTemplet.GetDbQlrxx(fs_qlrxx));
         dbMap.get(DbTemplet.DB_JZD).addAll(DbTemplet.GetDbJzd(fs_jzd));
         dbMap.get(DbTemplet.DB_SVMETADATA).addAll(DbTemplet.GetSvMetadata(fs_zrz,f_zd,mapInstance));
-        dbMap.get(DbTemplet.DB_TDOOR).addAll(DbTemplet.GetTDoor(fs_h,f_zd,fs_h_fsjg,fs_z_fsjg));
-        dbMap.get(DbTemplet.DB_TLAYER).addAll(DbTemplet.GetTLayer(fs_map_croup,fs_c));
+        //dbMap.get(DbTemplet.DB_TDOOR).addAll(DbTemplet.GetTDoor(fs_h,f_zd,fs_h_fsjg,fs_z_fsjg));
+        //dbMap.get(DbTemplet.DB_TLAYER).addAll(DbTemplet.GetTLayer(fs_map_croup,fs_c));
         dbMap.get(DbTemplet.DB_FSSS).addAll(DbTemplet.GetDbFsss(fs_fsss));
 
         try {
