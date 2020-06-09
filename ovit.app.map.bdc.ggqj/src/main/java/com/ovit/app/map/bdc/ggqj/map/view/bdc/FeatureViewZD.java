@@ -2346,6 +2346,12 @@ public class FeatureViewZD extends FeatureView {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     final Feature f_zd = (Feature) t_;
+
+                    if (f_zd == null){
+                        AiRunnable.Error(callback, t_, objects);
+                        return null;
+                    }
+
                     final List<Feature> fs_hjxx = new ArrayList<Feature>();
                     final List<Feature> fs_qlr = new ArrayList<Feature>();
                     final List<Feature> fs_zrz = new ArrayList<Feature>();
@@ -2419,9 +2425,11 @@ public class FeatureViewZD extends FeatureView {
                             FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
                             // 界址点
                             FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
-
-                            FeatureEditBDC.Put_changsha_jzd(map_, fs_jzd, map_jzx);
-
+                            if (DxfHelper.AREA_DJZQDM_BASE.equals(DxfHelper.AREA_DJZQDM_WangCheng)){
+                                  FeatureEditBDC.Put_changsha_jzd_wangcheng(map_, fs_jzd, map_jzx);
+                            }else {
+                                  FeatureEditBDC.Put_changsha_jzd(map_, fs_jzd, map_jzx);
+                            }
                             // 设置界址线
                             FeatureEditBDC.Put_data_jzx(mapInstance, map_, fs_jzx);
 

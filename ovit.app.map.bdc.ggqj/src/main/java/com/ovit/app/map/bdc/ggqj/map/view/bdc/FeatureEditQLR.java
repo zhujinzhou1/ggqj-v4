@@ -1812,13 +1812,13 @@ public class FeatureEditQLR extends FeatureEdit {
             @Override
             public <T_> T_ no(T_ t_, Object... objects) {
                 progressDialog.dismiss();
-                return super.no(t_, objects);
+                return null;
             }
 
             @Override
             public <T_> T_ error(T_ t_, Object... objects) {
                 progressDialog.dismiss();
-                return super.error(t_, objects);
+                return null;
             }
         });
     }

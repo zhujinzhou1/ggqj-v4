@@ -1495,6 +1495,38 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("list.csjzd", maps_jzd);
 
     }
+    public static void Put_changsha_jzd_wangcheng(Map<String, Object> map_, List<Feature> f_jzds, Map<String, Feature> map_jzx) {
+        List<Map<String, Object>> maps_jzd = new ArrayList<>();
+        for (int i = 0; i < f_jzds.size(); i = i + 2) {
+            Map<String, Object> map_jzd = new LinkedHashMap<>();
+            String jzlx = AiUtil.GetValue(map_.get("ZD.JXLX"), "J");
+            int j = i + 1 < f_jzds.size() ? i + 1 : 0;
+            int k = i + 2 < f_jzds.size() ? i + 2 : 0;
+            Feature f_jzd = f_jzds.get(i);
+            Feature f_jzd1 = f_jzds.get(j);
+            Feature f_jzd2 = f_jzds.get(k);
+            Feature f_jzx = FeatureEditJZX.Get(map_jzx, f_jzd, f_jzd1);
+            Feature f_jzx2 = FeatureEditJZX.Get(map_jzx, f_jzd1, f_jzd2);
+            map_jzd.put("JZD.QDH", jzlx + (i + 1));
+            map_jzd.put("JZD.ZDH", jzlx + (j + 1));
+            if(j!=0){
+                map_jzd.put("JZD.ZJDH",jzlx + (j + 1));
+                map_jzd.put("JZD.END", jzlx + (k + 1));
+            } else {
+                map_jzd.put("JZD.ZJDH","");
+                map_jzd.put("JZD.END", "");
+            }
+            map_jzd.put("JZX.CDF", AiUtil.Scale(FeatureHelper.Get(f_jzx, "JZXCD", 0d), 2, 0) + "m" );
+            if(FeatureHelper.Get(f_jzx2, "JZXCD", "").isEmpty()){
+                map_jzd.put("JZX.CDT","");
+            } else {
+                map_jzd.put("JZX.CDT", AiUtil.Scale(FeatureHelper.Get(f_jzx2, "JZXCD", 0d), 2, 0) + "m" );
+            }
+            maps_jzd.add(map_jzd);
+        }
+        map_.put("list.csjzd", maps_jzd);
+    }
+
 
     public static void Put_data_zdct(MapInstance mapInstance, Map<String, Object> map_, Feature f_zd) {
         // 设置宗地草图
