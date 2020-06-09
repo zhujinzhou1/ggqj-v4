@@ -18,7 +18,7 @@ public class FeatureViewJZD extends FeatureView {
 
         if(f!=null && f.getGeometry()!=null) {
             Point p = (Point) f.getGeometry();
-            p = MapHelper.geometry_get(p, mapInstance.aiMap.getProjectWkid());
+            p = MapHelper.geometry_get(p, MapHelper.GetSpatialReference(mapInstance));
             // 覆盖的属性
             FeatureHelper.Set(f, "XZBZ", AiUtil.Scale(p.getX(), 3, 0d));// x
             FeatureHelper.Set(f, "YZBZ", AiUtil.Scale(p.getY(), 3, 0d));// y
