@@ -83,7 +83,7 @@ public class DxfFcfct_tianmen {
 
     public DxfFcfct_tianmen(MapInstance mapInstance) {
         this.mapInstance = mapInstance;
-        set(mapInstance.aiMap.getProjectWkid());
+        set(MapHelper.GetSpatialReference(mapInstance));
     }
 
     public DxfFcfct_tianmen set(String dxfpath) {
