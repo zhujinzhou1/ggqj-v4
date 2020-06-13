@@ -731,7 +731,6 @@ public class FeatureViewZD extends FeatureView {
                                     }
                                 }
                                 featureZrz.getAttributes().put("ZCS", Double.valueOf(getMaxFloor(myLjz, "ZCS")));
-
                                 featureZrz.getAttributes().put("FWJG", getZrzStructure(myLjz));
                                 featuresZRZ.add(featureZrz);
                             }
@@ -2665,7 +2664,6 @@ public class FeatureViewZD extends FeatureView {
                 // 天门 乔向阳
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
 //                new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-
                 new DxfFcfct_tianmen(mapInstance).set(dxf_fcfht_tianmen).set(dxf_bdcdyh, f_zd,fs_fsss,fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, fs_c,fs_qlrxx,fs_hjxx, fs_jzd).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN) {
                 // 咸安

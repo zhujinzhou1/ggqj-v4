@@ -237,7 +237,7 @@ public class FeatureViewFSSS extends FeatureView {
         double qtjzzdmj = 0d;
         for (Feature f : fs_fsss) {
             String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒坪")) {
+            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒坪")&&!mJzwmc.equals("用地范围线")) {
                 Double zzdmj = FeatureHelper.Get(f, "ZZDMJ", 0d);
                 qtjzzdmj += zzdmj;
             }
@@ -250,7 +250,7 @@ public class FeatureViewFSSS extends FeatureView {
         double zjzmj = 0d;
         for (Feature f : fs_fsss) {
             String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!mJzwmc.equals("庭院晒坪")) {
+            if (!mJzwmc.equals("庭院晒坪")&&!mJzwmc.equals("用地范围线")) {
                 Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
                 zjzmj += zzdmj;
             }

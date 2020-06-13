@@ -13,7 +13,6 @@ import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.StringUtil;
-import com.ovit.app.util.gdal.cad.DxfHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -2577,9 +2576,9 @@ public class Excel
                 for (int j = 0; j < attrs.length; j++) {
                     if (i==0){
                         label = new Label(j, i,  attrs[j].toString());
-                    }else {
-                        label = new Label(j, i,FeatureHelper.Get(fs.get(i), attrs[j].toString(),""));
+                        wSheet.addCell(label);
                     }
+                    label = new Label(j, i+1,FeatureHelper.Get(fs.get(i), attrs[j].toString(),""));
                     wSheet.addCell(label);
                 }
             }

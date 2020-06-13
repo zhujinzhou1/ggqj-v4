@@ -41,6 +41,7 @@ import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditH;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditQLR;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditZD;
+import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewGYR;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewQLR;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZD;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZRZ;
@@ -156,6 +157,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     }
                 });
 
+            }
+        });
+        //        批量导出权利人信息
+        tool_view.findViewById(R.id.ll_output_qlrxx).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                output_gyr(mapInstance);
             }
         });
         // 导入权利人
@@ -376,6 +384,102 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         });
         return tool_view;
     }
+
+    private void output_gyr(final MapInstance mapInstance) {
+        final String funcdesc = "该功能将逐步导出家庭成员户籍信息表！";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "导出Excel")
+                        .setContentView("注意：属于不可逆操作，如果您已经整理过成果，请注意备份谨慎处理！",funcdesc)
+                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // 完成后的回掉
+                                final AiRunnable callback = new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据完成。");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return null;
+                                    }
+                                    @Override
+                                    public <T_> T_ no(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据失败！");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return  null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        aidialog.addContentView("处理数据异常！");
+                                        aidialog.setFooterView(null,"关闭",null);
+                                        return  null;
+                                    }
+                                };
+                                // 设置不可中断
+                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                                aidialog.setContentView("开始处理数据");
+                                aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 查找所有权利人与家庭成员");
+                                {
+                                    final List<Feature> fs_qlr=new ArrayList<>();
+                                    final List<Feature> fs=new ArrayList<>();
+                                    final List<Feature> hjxx=new ArrayList<>();
+
+                                    MapHelper.Query(mapInstance.getTable(FeatureHelper.LAYER_NAME_GYRXX, FeatureHelper.LAYER_NAME_GYRXX), "", MapHelper.QUERY_LENGTH_MAX, fs_qlr, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            if (FeatureHelper.isExistElement(fs_qlr)){
+                                                new AiForEach<Feature>(fs_qlr,null){
+                                                    @Override
+                                                    public void exec() {
+                                                        Feature f_qlr = fs_qlr.get(postion);
+                                                        fs.add(f_qlr);
+                                                        FeatureViewGYR fv = (FeatureViewGYR) mapInstance.newFeatureView(f_qlr);
+                                                        fv.queryChildFeature(FeatureHelper.TABLE_NAME_HJXX, f_qlr,hjxx, new AiRunnable() {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                if (FeatureHelper.isExistElement(hjxx)){
+                                                                    fs.addAll(hjxx);
+                                                                    hjxx.clear();
+                                                                }
+                                                                AiRunnable.Ok(getNext(),t_,objects);
+                                                                return null;
+                                                            }
+                                                        });
+                                                    }
+                                                    @Override
+                                                    public void complet() {
+                                                        String xmmc = GsonUtil.GetValue(aiMap.JsonData,"XMMC","");
+                                                        String xmbm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
+                                                        String name = fs.get(0).getFeatureTable().getFeatureLayer().getName();
+                                                        final String filePath =  FileUtils.getAppDirAndMK(getMapInstance().getpath_root() ) +xmbm+xmmc+name+".xls";
+                                                        Excel.CreateStandingBookToLayer(mapInstance,filePath,fs);
+                                                        AiRunnable.Ok(callback,null);
+                                                    }
+
+                                                }.start();
+
+
+
+
+                                            }else {
+                                                AiRunnable.Ok(callback,null);
+                                            }
+                                            return null;
+                                        }
+                                    });
+                                }
+                            }
+                        }).show();
+                ;
+
+                return null;
+            }
+        });
+    }
+
     /**
      * 项目管理
      *

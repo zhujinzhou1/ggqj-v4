@@ -1688,21 +1688,31 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("FSSS.CSZDMJ", "");
         map_.put("FSSS.SSZDMJ", "");
         map_.put("FSSS.SPZDMJ", "");
+        map_.put("FSSS.PFZDMJ", ""); // 棚房占地面积
+        map_.put("FSSS.YDFWXZDMJ", ""); // 用地范围线占地面积
+        map_.put("FSSS.QTZDMJ", ""); // 其他占地面积
         double zzdmj = FeatureHelper.Get(f_zd,"JZZDMJ",0d);
         map_.put("FSSS.ZZDMJ", String.format("%.2f",AiUtil.Scale(zzdmj, 2)));
         if (fs_zrzs.size() > 1) {
+
             FeatureViewFSSS fv = FeatureViewFSSS.From(mapInstance);
             double zwmj = fv.GetJZZDMJ(fs_fsss, "杂屋");
             double csmj = fv.GetJZZDMJ(fs_fsss, "厕所");
             double ssmj = fv.GetJZZDMJ(fs_fsss, "畜舍");
             double spmj = fv.GetJZZDMJ(fs_fsss, "庭院晒坪");
-            zzdmj += zwmj+csmj+ssmj+spmj;
-            AiUtil.Scale(zwmj, 2);
+            double ydfwxmj = fv.GetJZZDMJ(fs_fsss, "用地范围线");
+            double pfmj = fv.GetJZZDMJ(fs_fsss, "棚房");
+            zzdmj += zwmj+csmj+ssmj+spmj+pfmj;
+
+            double qtmj = ydfwxmj - zzdmj;
             map_.put("FSSS.ZWZDMJ", String.format("%.2f",AiUtil.Scale(zwmj, 2)));
             map_.put("FSSS.CSZDMJ", String.format("%.2f",AiUtil.Scale(csmj, 2)));
             map_.put("FSSS.SSZDMJ",String.format("%.2f",AiUtil.Scale(ssmj, 2)));
             map_.put("FSSS.SPZDMJ", String.format("%.2f",AiUtil.Scale(spmj, 2)));
+            map_.put("FSSS.PFZDMJ",  String.format("%.2f",AiUtil.Scale(ydfwxmj, 2))); // 棚房占地面积
+            map_.put("FSSS.YDFWXZDMJ",  String.format("%.2f",AiUtil.Scale(pfmj, 2))); // 用地范围线占地面积
             map_.put("FSSS.ZZDMJ", String.format("%.2f",AiUtil.Scale(zzdmj, 2)));
+            map_.put("FSSS.QTZDMJ", String.format("%.2f",AiUtil.Scale(qtmj, 2)));
         }
     }
 
@@ -1801,6 +1811,7 @@ public class FeatureEditBDC extends FeatureEdit {
             Put_data_hs(mapInstance, map_zrz, z_zrzh, fs_h);
             //  层
             Put_data_cs(mapInstance, map_zrz, z_zrzh, zrz, fs_z_fsjg, fs_h);
+            Put_data_cps(mapInstance, map_, bdcdyh, z_zrzh, zrz, 4, fs_z_fsjg, fs_h);
             //  层的分页
 //            Put_data_cps(mapInstance, map_zrz, bdcdyh, z_zrzh, zrz, 6, fs_z_fsjg, fs_h);
             Put_data_cps_hz(mapInstance, map_zrz, bdcdyh, z_zrzh, zrz, 2, fs_z_fsjg, fs_h,fs_c);
@@ -1820,32 +1831,30 @@ public class FeatureEditBDC extends FeatureEdit {
 //            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));
         }
         Put_data_all_cps(mapInstance, map_, bdcdyh, fs_zrzs, 4, fs_z_fsjg, fs_h);
-
         map_.put("ZRZ.HZSZC", StringUtil.Join(hzszc, true));
         map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
         map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
-
-        for (int i = 0; i < 10-fs_zrz.size(); i++) {
-
-            Feature f = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
-            Map<String, Object> map_zrz = new LinkedHashMap<>();
-            Put_data_zrz(mapInstance, map_zrz, f);
-            maps_zrz.add(map_zrz);
-            map_zrz.put("ZRZ.ZHFS"," ");
-            map_zrz.put("H.HH"," ");
-            map_zrz.put("ZRZ.ZTS"," ");
-            map_zrz.put("ZRZ.ZCS"," ");
-            map_zrz.put("ZRZ.FWJGFF"," ");
-            map_zrz.put("ZRZ.SJGRQ"," ");
-            map_zrz.put("ZRZ.ZZDMJ"," ");
-            map_zrz.put("ZRZ.SCJZMJ"," ");
-            map_zrz.put("H.CQLY"," ");
-            map_zrz.put("Z.QTGSD"," ");
-            map_zrz.put("Z.QTGSN"," ");
-            map_zrz.put("Z.QTGSX"," ");
-            map_zrz.put("Z.QTGSB"," ");
-
+        if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN){
+            for (int i = 0; i < 10-fs_zrz.size(); i++) {
+                Feature f = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
+                Map<String, Object> map_zrz = new LinkedHashMap<>();
+                Put_data_zrz(mapInstance, map_zrz, f);
+                maps_zrz.add(map_zrz);
+                map_zrz.put("ZRZ.ZHFS"," ");
+                map_zrz.put("H.HH"," ");
+                map_zrz.put("ZRZ.ZTS"," ");
+                map_zrz.put("ZRZ.ZCS"," ");
+                map_zrz.put("ZRZ.FWJGFF"," ");
+                map_zrz.put("ZRZ.SJGRQ"," ");
+                map_zrz.put("ZRZ.ZZDMJ"," ");
+                map_zrz.put("ZRZ.SCJZMJ"," ");
+                map_zrz.put("H.CQLY"," ");
+                map_zrz.put("Z.QTGSD"," ");
+                map_zrz.put("Z.QTGSN"," ");
+                map_zrz.put("Z.QTGSX"," ");
+                map_zrz.put("Z.QTGSB"," ");
+            }
         }
 
         map_.put("list.zrz", maps_zrz);
@@ -2215,7 +2224,7 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     // 层的分页 汇总
-    public static void Put_data_cps(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, String zrzh, Feature zrz, int size, List<Feature> fs_z_fsjg, List<Feature> fs_h) {
+    public static void Put_data_cps(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, String zrzh, Feature zrz, int size, List<Feature> fs_z_fsjg, List<Feature> fs_h) {
         Map<String, List<Feature>> map_chs = GetCbyZrz(zrzh, fs_z_fsjg, fs_h);
         List<Map<String, Object>> maps_p = new ArrayList<>();
         Map<String, Object> map_p = new LinkedHashMap<>();
@@ -2226,6 +2235,7 @@ public class FeatureEditBDC extends FeatureEdit {
             int j = i % size;
             // 每一层
             map_p.put("CP.CH" + (j + 1), ch);
+            map_p.put("CP.MC" + (j + 1),ch+"层平面图");
             double jzmj_ = GetJZMJ(map_chs.get(ch));
             jzmj += jzmj_;
             map_p.put("CP.JZMJ" + (j + 1), AiUtil.GetValue(jzmj_, "", AiUtil.F_FLOAT2));
@@ -2244,6 +2254,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 if (j < size - 1) {
                     for (int n = 1; n <= size - j; n++) {
                         map_p.put("CP.CH" + (j + n + 1), "");
+                        map_p.put("CP.MC" + (j + n + 1),"");
                         map_p.put("CP.JZMJ" + (j + n + 1), "");
                         map_p.put("img.fcfht" + (j + n + 1), "");
                     }
@@ -2256,7 +2267,7 @@ public class FeatureEditBDC extends FeatureEdit {
             i++;
         }
         // 为幢设置层
-        map_.put("list.cps", maps_p);
+        map_.put("list.c"+size+"ps", maps_p);
     }
 
     // 层的分页户的属性进行分组 多幢显示到一张图表
