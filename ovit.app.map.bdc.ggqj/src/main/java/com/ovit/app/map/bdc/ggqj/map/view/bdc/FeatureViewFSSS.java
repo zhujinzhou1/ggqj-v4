@@ -302,7 +302,7 @@ public class FeatureViewFSSS extends FeatureView {
     }
 
     public static boolean IsSc(String jzwmc) {
-        if ("庭院晒坪".equals(jzwmc)){
+        if ("庭院晒坪".equals(jzwmc)||"用地范围线".equals(jzwmc)){
             return true;
         }
         return false;

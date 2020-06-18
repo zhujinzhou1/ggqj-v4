@@ -1709,8 +1709,8 @@ public class FeatureEditBDC extends FeatureEdit {
             map_.put("FSSS.CSZDMJ", String.format("%.2f",AiUtil.Scale(csmj, 2)));
             map_.put("FSSS.SSZDMJ",String.format("%.2f",AiUtil.Scale(ssmj, 2)));
             map_.put("FSSS.SPZDMJ", String.format("%.2f",AiUtil.Scale(spmj, 2)));
-            map_.put("FSSS.PFZDMJ",  String.format("%.2f",AiUtil.Scale(ydfwxmj, 2))); // 棚房占地面积
-            map_.put("FSSS.YDFWXZDMJ",  String.format("%.2f",AiUtil.Scale(pfmj, 2))); // 用地范围线占地面积
+            map_.put("FSSS.PFZDMJ",  String.format("%.2f",AiUtil.Scale(pfmj, 2))); // 棚房占地面积
+            map_.put("FSSS.YDFWXZDMJ",  String.format("%.2f",AiUtil.Scale(ydfwxmj, 2))); // 用地范围线占地面积
             map_.put("FSSS.ZZDMJ", String.format("%.2f",AiUtil.Scale(zzdmj, 2)));
             map_.put("FSSS.QTZDMJ", String.format("%.2f",AiUtil.Scale(qtmj, 2)));
         }

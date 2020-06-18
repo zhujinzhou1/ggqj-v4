@@ -3,24 +3,19 @@ package com.ovit.app.map.bdc.ggqj.map.model;
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.geometry.PointCollection;
-import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.map.model.MapInstance;
-import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.StringUtil;
-import com.ovit.app.util.gdal.cad.DxfAdapter;
-import com.ovit.app.util.gdal.cad.DxfHelper;
+import com.ovit.app.util.gdal.dxf.DxfAdapter;
+import com.ovit.app.util.gdal.dxf.DxfHelper;
+import com.ovit.app.util.gdal.dxf.DxfPaint;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.ovit.app.map.custom.FeatureHelper.Get;
 
@@ -71,7 +66,6 @@ public class DxfZdct {
     }
 
     public DxfZdct set(Feature f_zd, List<Feature> fs_zd, List<Feature> fs_zrz, List<Feature> fs_z_fsjg, List<Feature> fs_h_fsjg, List<Feature> fs_jzd) {
-        //mapInstance,feature,fs_zd,fs_zrz,fs_z_fsjg,fs_h_fsjg,fs_all
         List<Feature> fs_all=new ArrayList<>();
         List<Feature> fs_fsjg=new ArrayList<>();
         fs_all.add(f_zd);
@@ -88,7 +82,6 @@ public class DxfZdct {
         fs_fsjg.addAll(fs_h_fsjg);
         fs_fsjg.addAll(fs_z_fsjg);
         this.fs_fsjg =fs_fsjg;
-
 
         return this;
     }
@@ -136,14 +129,23 @@ public class DxfZdct {
             dxf.create(dxfpath, p_extend, spatialReference).setFontSize(o_fontsize);
         }
         try {
+            DxfPaint paint = new DxfPaint();  // dxf 画笔
+            paint.setColor(DxfHelper.COLOR_BYLAYER);
+            paint.setFontsize(o_fontsize);
+            paint.setFontstyle(o_fontstyle);
+            paint.setTextAlign(DxfPaint.Align.CENTER);
+
             Envelope envelope = p_extend;
             Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + o_split * 1, envelope.getSpatialReference());
-            dxf.writeText(p_title, "宗地草图", o_fontsize*2, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+            dxf.writeText(p_title, "宗地草图", paint);
 
+            paint.setTextAlign(DxfPaint.Align.RIGHT);
+            paint.setFontsize(o_fontsize * 0.8f);
             Point p_unit = new Point(envelope.getXMax() , envelope.getYMax() + o_split*0.5, envelope.getSpatialReference());
-            dxf.writeText(p_unit, "单位：m.㎡ ", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, 0, null, null);
-            double w = p_width; //行宽
+            dxf.writeText(p_unit, "单位：m.㎡",paint);
 
+
+            double w = p_width; //行宽
             // 左上角
             double x = p_extend.getXMin();
             double y = p_extend.getYMax();
@@ -154,49 +156,40 @@ public class DxfZdct {
 
             // 单元格1-1
             Envelope cel_1_1 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
-//                dxf.write(cel_1_1,"不动产单元号");
-//            dxf.write(cel_1_1, null, "宗地编号", o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_1_1.getCenter(),"宗地代码：");
             // 单元格1-2
             x_ = x_ + w * 2 / 15;
             Envelope cel_1_2 = new Envelope(x_, y_, x_ + w * 4 / 15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_1_2, null, Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""), o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_1_2.getCenter(),Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""));
             // 单元格1-3
             x_ = x_ + w * 8/ 15;
             Envelope cel_1_3 = new Envelope(x_, y_, x_ + w * 2 /15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_1_3, null, "土地权利人", o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_1_3.getCenter(),"土地权利人：");
 
             // 单元格1-4
             x_ = x_ +w * 2 /15;
             Envelope cel_1_4 = new Envelope(x_, y_, x_ + w * 2 /15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_1_4, null, FeatureHelper.Get(f_zd,"QLRXM",""), o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_1_4.getCenter(), FeatureHelper.Get(f_zd,"QLRXM",""));
 
             // 单元格2-1
             x_ = x;
             y_ = y_ - h;
             Envelope cel_2_1 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_2_1, null, "所在图幅号：", o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_2_1.getCenter(),"所在图幅号：");
 
             // 单元格2-2
             x_ = x_ + w * 2 / 15;
             Envelope cel_2_2 = new Envelope(x_, y_, x_ + w * 4 / 15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_2_2, null,FeatureHelper.Get(f_zd,"TFH",""), o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_2_2.getCenter(), FeatureHelper.Get(f_zd,"TFH",""));
 
             // 单元格2-3
             x_ = x_ + w * 8 / 15;
             Envelope cel_2_3 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_2_3, null, "宗地面积：", o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_2_3.getCenter(),"宗地面积：");
 
             // 单元格2-4
             x_ = x_ + w * 2 / 15;
             Envelope cel_2_4 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
-//            dxf.write(cel_2_4, null, FeatureHelper.Get(f_zd,"ZDMJ",0.00)+"", o_fontsize, null, false, 0, 0);
             dxf.writeMText(cel_2_4.getCenter(), FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+"");
 
             // 单元格4-1
@@ -211,44 +204,6 @@ public class DxfZdct {
                 dxf.write(f_fsjg.getGeometry(), DxfHelper.LINETYPE_DOTTED_LINE, "", 0, "", false, DxfHelper.COLOR_BLUE, 0);
             }
             dxf.writeZD(f_zd,null, DxfHelper.LINE_LABEL_OUTSIDE);
-
-            Point p_basic = new Point(o_extend.getXMin(), o_extend.getYMax(), spatialReference);
-            double minLen=10000d;
-            Map<Double,Feature> map_len_jzd= new LinkedHashMap<>();
-            if (fs_jzd!=null&&fs_jzd.size()>0){
-                for (Feature f_jzd : fs_jzd) {
-
-                    Polyline line = new Polyline(new PointCollection(Arrays.asList(new Point[]{p_basic
-                            , MapHelper.geometry_get((Point) f_jzd.getGeometry(), p_basic.getSpatialReference())})));
-                    double len = Double.parseDouble(AiUtil.Scale(MapHelper.getLength(line, MapHelper.U_L), 2, 0d));
-                    map_len_jzd.put(len,f_jzd);
-                    minLen=minLen>len?len:minLen;
-                }
-                // 界址点重新排序
-                List<Feature> fs_jzd_new=new ArrayList<>();
-                // j1
-                Feature f_j1 = map_len_jzd.get(minLen);// 右上角
-                int index = fs_jzd.indexOf(f_j1);
-
-                if (index!=0){
-                    for (int i = index; i < fs_jzd.size(); i++) {
-                        fs_jzd_new.add(MapHelper.cloneFeature(fs_jzd.get(i)));
-
-                    }
-                    for (int i = 0; i <index; i++) {
-                        fs_jzd_new.add(MapHelper.cloneFeature(fs_jzd.get(i)));
-                    }
-
-                    for (int i = 0 ;i<fs_jzd_new.size();i++) {
-                        fs_jzd_new.get(i).getAttributes().put("JZDH","J"+(i+1));
-                    }
-                }
-                if (fs_jzd_new.size()==0){
-                    fs_jzd_new=fs_jzd;
-                }
-                dxf.write(mapInstance, fs_jzd_new);
-
-            }
 
             // 单元格4-2
             Envelope cel_4_2 = new Envelope(x_, y_, x_ + w, y -p_height, p_extend.getSpatialReference());
