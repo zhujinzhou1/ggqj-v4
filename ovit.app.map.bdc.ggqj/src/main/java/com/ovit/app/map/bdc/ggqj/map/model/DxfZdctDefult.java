@@ -18,6 +18,7 @@ import com.ovit.app.util.gdal.dxf.DxfPaint;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xw on 2020/4/1.
@@ -37,24 +38,23 @@ public class DxfZdctDefult extends BaseDxf {
         return this;
     }
 
-    public DxfZdctDefult set(Feature f_zd, List<Feature> fs_zd, List<Feature> fs_zrz
-            , List<Feature> fs_z_fsjg, List<Feature> fs_h_fsjg, List<Feature> fs_jzd
-            , List<Feature> fs_zj_x, List<Feature> fs_xzdw, List<Feature> fs_mzdw) {
+    public DxfZdctDefult set(Feature f_zd, Map<String, List<Feature>> mapfs) {
         List<Feature> fs_all = new ArrayList<>();
         List<Feature> fs_fsjg = new ArrayList<>();
         List<Feature> mfs_fsjg = new ArrayList<>(); // 筛选后的附属结构
-        fs_all.addAll(fs_zd);
-        fs_all.addAll(fs_zrz);
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_ZD));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_ZRZ));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_LJZ));
 
-        fs_fsjg.addAll(fs_h_fsjg);
-        fs_fsjg.addAll(fs_z_fsjg);
+        fs_fsjg.addAll(mapfs.get(FeatureHelper.TABLE_NAME_H_FSJG));
+        fs_fsjg.addAll(mapfs.get(FeatureHelper.TABLE_NAME_Z_FSJG));
         mfs_fsjg = getFilterFsjg(fs_fsjg);// 筛选后的附属结构
-
         fs_all.addAll(mfs_fsjg);
-        fs_all.addAll(fs_jzd);
-        fs_all.addAll(fs_zj_x);
-        fs_all.addAll(fs_xzdw);
-        fs_all.addAll(fs_mzdw);
+
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_JZD));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_ZJX));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_XZDW));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_MZDW));
         this.f_zd = f_zd;
         this.fs_all = fs_all;
         return this;
@@ -65,6 +65,7 @@ public class DxfZdctDefult extends BaseDxf {
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_ZRZ,false);
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_ZD,true);
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_JZD,true);
+        dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_LJZ,false);
         dxfRenderer.setZDDM(mapInstance.getId(f_zd));
     }
 
@@ -119,8 +120,8 @@ public class DxfZdctDefult extends BaseDxf {
         String auditDate = "2020-12-08";
         String drawDate = "2020-12-07";
 
-        String drawPerson = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZR", "");
-        String auditPerson = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "SHR", "");
+        String drawPerson = GsonUtil.GetValue(mapInstance.aiMap.JsonData, FeatureHelper.HZR, "");
+        String auditPerson = GsonUtil.GetValue(mapInstance.aiMap.JsonData, FeatureHelper.SHR, "");
 
         Envelope cel_1_1 = new Envelope(x_, y_, x_ + w * 1 / 6, y_ - h,spatialReference);
         dxf.write(cel_1_1, DxfConstant.DXF_ZLZ);

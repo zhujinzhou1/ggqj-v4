@@ -17,8 +17,6 @@ import com.ovit.app.util.gdal.dxf.DxfPaint;
 import com.ovit.app.util.gdal.dxf.DxfRenderer;
 
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Time        : 2019/6/19
@@ -65,15 +63,14 @@ public abstract class BaseDxf {
     private void initDxfPaint() {
         if (paint == null) {
             dxfRenderer = new DxfRenderer();
-            Map<String, Boolean> map = getDisplayLableLayer();
-            paint = new DxfPaint();  // dxf 画笔
+            paint = dxfRenderer.getDxfPaint();
             paint.setColor(DxfHelper.COLOR_BYLAYER);
             paint.setFontsize(o_fontsize);
             paint.setFontWidth(o_fontWidth);
             paint.setFontstyle(o_fontstyle);
             paint.setTextAlign(DxfPaint.Align.CENTER);
             dxfRenderer.setDxfPaint(paint);
-            dxfRenderer.setDisplayLableMap(map);
+
         }
     }
 
@@ -295,17 +292,5 @@ public abstract class BaseDxf {
         }catch (Exception exception){
             ToastMessage.Send("绘制宗地四至失败");
         }
-    }
-
-    public Map<String,Boolean> getDisplayLableLayer() {
-         Map<String, Boolean> displayLableLayer = new HashMap<>();
-         displayLableLayer.put(FeatureHelper.LAYER_NAME_ZD,true);
-         displayLableLayer.put(FeatureHelper.LAYER_NAME_ZRZ,true);
-         displayLableLayer.put(FeatureHelper.LAYER_NAME_H,true);
-         displayLableLayer.put(FeatureHelper.LAYER_NAME_LJZ,true);
-         displayLableLayer.put(FeatureHelper.LAYER_NAME_Z_FSJG,true);
-         displayLableLayer.put(FeatureHelper.LAYER_NAME_H_FSJG,true);
-         displayLableLayer.put(FeatureHelper.LAYER_NAME_FSSS,false);
-        return displayLableLayer;
     }
 }

@@ -20,7 +20,6 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.data.Field;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.Geometry;
-import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.Polygon;
@@ -79,7 +78,9 @@ import java.util.Map;
 
 import jxl.read.biff.BiffException;
 
-;import static com.ovit.app.map.view.FeatureEdit.GetTable;
+import static com.ovit.app.map.view.FeatureEdit.GetTable;
+
+;
 
 /**
  * Created by Lichun on 2017/10/16.
@@ -1082,40 +1083,44 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     public void run() {
                                         try {
                                             Envelope extent_ZD = com.ovit.app.map.view.FeatureEdit.GetTable(getMapInstance(), FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD).getExtent();
-                                            Envelope extent_ZRZ = com.ovit.app.map.view.FeatureEdit.GetTable(getMapInstance(), FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD).getExtent();
-                                            Envelope extent = GeometryEngine.combineExtents(extent_ZD, extent_ZRZ);
+                                            Envelope envelope = MapHelper.geometry_get(extent_ZD, MapHelper.GetSpatialReference(mapInstance));
 //                                          final DxfAdapter dxf = DxfAdapter.getInstance();
-                                            final DxfAdapter dxf = new DxfAdapter();
-                                            dxf.create(dxfpath, extent, MapHelper.GetSpatialReference(mapInstance));
+                                            com.ovit.app.util.gdal.dxf.DxfRenderer dxfRenderer = new  com.ovit.app.util.gdal.dxf.DxfRenderer();
+
+                                            final com.ovit.app.util.gdal.dxf.DxfAdapter dxf = new com.ovit.app.util.gdal.dxf.DxfAdapter();
+                                            dxf.create(dxfpath, envelope, MapHelper.GetSpatialReference(mapInstance)).setDxfRenderer(dxfRenderer);
 
                                             final List<String> tableNames = new ArrayList<>();
-                                            tableNames.add(FeatureHelper.LAYER_NAME_ZD);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_ZRZ);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_LJZ);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_H);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_C);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_H_FSJG);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_Z_FSJG);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_JZD);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_JZX);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_XZDW);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_MZDW);
-                                            tableNames.add(FeatureHelper.LAYER_NAME_DZDW);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_ZD);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_ZRZ);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_LJZ);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_H);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_ZRZ_C);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_H_FSJG);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_Z_FSJG);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_JZD);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_JZX);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_XZDW);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_MZDW);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_DZDW);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJD);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJX);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJM);
                                             tableNames.add(FeatureHelper.TABLE_NAME_FSSS);
                                             tableNames.add(FeatureHelper.TABLE_NAME_SJ);
+                                            final LineLabel lineLabel = new LineLabel();
                                             new AiForEach<String>(tableNames, null) {
                                                 @Override
                                                 public void exec() {
                                                     final String tableName = tableNames.get(postion);
-                                                    MapHelper.Query(com.ovit.app.map.view.FeatureEdit.GetTable(mapInstance, tableName), "", MapHelper.QUERY_LENGTH_MAX, fs, new AiRunnable() {
+                                                    MapHelper.Query(FeatureEdit.GetTable(mapInstance, tableName), "", MapHelper.QUERY_LENGTH_MAX, fs, new AiRunnable() {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                                             try {
+                                                                if (!tableName.equals(FeatureHelper.TABLE_NAME_H )&&!tableName.equals(FeatureHelper.TABLE_NAME_ZRZ_C)){
+                                                                    dxf.write(getMapInstance(), fs, null, null, DxfHelper.TYPE, DxfHelper.LINE_LABEL_OUTSIDE, lineLabel);
+                                                                }
                                                                 addMessage("", "读取到" + fs.size() + "条" + tableName + "数据，正在输出成果...");
-                                                                dxf.write(getMapInstance(), fs, null, null, DxfHelper.TYPE, DxfHelper.LINE_LABEL_OUTSIDE, new LineLabel());
                                                                 String xmdm = GsonUtil.GetValue(aiMap.JsonData,"XMBM","");
                                                                 String Shpath = FileUtils.getAppDirAndMK(getMapInstance().getpath_root() + "资料库/两权shp/") + xmdm + "_" + tableName + ".shp";
                                                                 ShpAdapter.writeShp(Shpath, fs,MapHelper.GetSpatialReference(mapInstance),mapInstance);
