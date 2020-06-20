@@ -1105,6 +1105,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             tableNames.add(FeatureHelper.TABLE_NAME_DZDW);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJD);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJX);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_ZJWZ);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZJM);
                                             tableNames.add(FeatureHelper.TABLE_NAME_FSSS);
                                             tableNames.add(FeatureHelper.TABLE_NAME_SJ);
@@ -1113,7 +1114,12 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                 @Override
                                                 public void exec() {
                                                     final String tableName = tableNames.get(postion);
-                                                    MapHelper.Query(FeatureEdit.GetTable(mapInstance, tableName), "", MapHelper.QUERY_LENGTH_MAX, fs, new AiRunnable() {
+                                                    FeatureTable featureTable = FeatureEdit.GetTable(mapInstance, tableName);
+                                                    if (featureTable == null){
+                                                        addMessage("", "缺少"+tableName + "图层！");
+                                                        AiRunnable.Ok(getNext(), null);
+                                                    }
+                                                    MapHelper.Query(featureTable, "", MapHelper.QUERY_LENGTH_MAX, fs, new AiRunnable() {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                                             try {
@@ -1128,7 +1134,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                 addMessage("", tableName + "数据导出成功！");
                                                                 AiRunnable.Ok(getNext(), t_);
                                                             } catch (Exception e) {
-                                                                addMessage("导出成功两权数据失败", e.getMessage());
+                                                                addMessage("导出成功两权数据失败", e.getMessage()+tableName);
                                                                 AiRunnable.Error(callback, null);
                                                             }
                                                             return null;
