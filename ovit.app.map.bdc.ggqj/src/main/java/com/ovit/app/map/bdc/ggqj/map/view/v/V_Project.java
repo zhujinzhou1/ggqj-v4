@@ -1093,13 +1093,15 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             final List<String> tableNames = new ArrayList<>();
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZD);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZRZ);
-                                            tableNames.add(FeatureHelper.TABLE_NAME_LJZ);
+                                            tableNames.add(FeatureHelper.TABLE_NAME_LJZ); // 导出失败
                                             tableNames.add(FeatureHelper.TABLE_NAME_H);
                                             tableNames.add(FeatureHelper.TABLE_NAME_ZRZ_C);
+
                                             tableNames.add(FeatureHelper.TABLE_NAME_H_FSJG);
                                             tableNames.add(FeatureHelper.TABLE_NAME_Z_FSJG);
                                             tableNames.add(FeatureHelper.TABLE_NAME_JZD);
                                             tableNames.add(FeatureHelper.TABLE_NAME_JZX);
+
                                             tableNames.add(FeatureHelper.TABLE_NAME_XZDW);
                                             tableNames.add(FeatureHelper.TABLE_NAME_MZDW);
                                             tableNames.add(FeatureHelper.TABLE_NAME_DZDW);
@@ -1123,7 +1125,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
                                                             try {
-                                                                if (!tableName.equals(FeatureHelper.TABLE_NAME_H )&&!tableName.equals(FeatureHelper.TABLE_NAME_ZRZ_C)){
+                                                                if (!tableName.equals(FeatureHelper.TABLE_NAME_H )&&!tableName.equals(FeatureHelper.TABLE_NAME_ZRZ_C)&&!tableName.equals(FeatureHelper.TABLE_NAME_JZX)){
                                                                     dxf.write(getMapInstance(), fs, null, null, DxfHelper.TYPE, DxfHelper.LINE_LABEL_OUTSIDE, lineLabel);
                                                                 }
                                                                 addMessage("", "读取到" + fs.size() + "条" + tableName + "数据，正在输出成果...");
