@@ -16,15 +16,15 @@ import com.ovit.app.util.gdal.dxf.DxfHelper;
 import com.ovit.app.util.gdal.dxf.DxfPaint;
 import com.ovit.app.util.gdal.dxf.DxfRenderer;
 
-import java.util.Calendar;
+import java.util.Calendar;public abstract class BaseDxf {
 
-/**
+
+    /**
  * Time        : 2019/6/19
  * Author      : xw
  * Description :
  */
 
-public abstract class BaseDxf {
 
     protected MapInstance mapInstance;
     protected SpatialReference spatialReference;
