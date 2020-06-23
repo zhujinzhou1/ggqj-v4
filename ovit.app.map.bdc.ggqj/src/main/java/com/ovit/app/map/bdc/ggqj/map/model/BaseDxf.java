@@ -51,8 +51,19 @@ public abstract class BaseDxf {
         boxWidth = getPictureBoxWidth();
         boxHeight = getPictureBoxHeight();
         k = getPictureBoxBufferFactor();
-        p_width = boxWidth / (1 + k);// 页面宽  图形范围
-        p_height = boxHeight / (1 + k);
+       /* p_width = boxWidth / (1 + k);// 页面宽  图形范围
+        p_height = boxHeight / (1 + k);*/
+       //V3
+        double dx =0d;
+        if (boxHeight>boxWidth){
+            p_width = (boxWidth / (1 + k));
+            dx = boxWidth -p_width;
+            p_height = boxHeight -dx;
+        }else {
+            p_height = (boxHeight / (1 + k));
+            dx = boxHeight -p_height;
+            p_width = boxWidth -dx;
+        }
     }
 
     public BaseDxf set(String dxfpath) {
@@ -76,6 +87,7 @@ public abstract class BaseDxf {
             dxf.create(dxfpath, p_extend, spatialReference).setFontSize(o_fontsize);
         }
         try {
+            getDxfRenderer();
             getHeader();
             getBody();
             getFooter();
@@ -84,6 +96,11 @@ public abstract class BaseDxf {
         }
         return this;
     }
+
+    protected  void getDxfRenderer(){
+
+    }
+
     // 获取范围
     public Envelope getExtend() {
         o_extend = getChildExtend(); //    图形范围
@@ -181,6 +198,16 @@ public abstract class BaseDxf {
         Point p_blc = new Point(envelope.getCenter().getX(), envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
         dxf.writeText(p_blc, "1:" + (int) blc, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_CYAN, null, null);
 
+        //V3
+        String hzr = GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR","");
+        String shr = GsonUtil.GetValue(mapInstance.aiMap.JsonData,"SHR","");
+
+        if(hzr.length()>shr.length()){
+            shr = getNiceString(shr,hzr.length()-shr.length());
+        }else if (hzr.length()< shr.length()){
+            hzr = getNiceString(hzr,shr.length()-hzr.length());
+        }
+
         Point p_chr = new Point(x + w, envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
         dxf.writeText(p_chr, "测绘员：" + GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZR", ""), o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_CYAN, null, null);
         Point p_shr = new Point(x + w, envelope.getYMin() - 1.5 * h, envelope.getSpatialReference());
@@ -199,5 +226,40 @@ public abstract class BaseDxf {
         dxf.writeText(p_unit, "单位：m·㎡ ", o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, DxfHelper.FONT_STYLE_SONGTI, 0, 2, 2, DxfHelper.COLOR_CYAN, null, null);
     }
 
+    //V3
+    public String getRQ(String s) {
+        String rq = "";
+        if (StringUtil.IsNotEmpty(s) && s.length() >= 10) {
+            String year = StringUtil.substr(s, 0, 4);
+            String month = StringUtil.substr(s, 5, 7);
+            String day = StringUtil.substr(s, 8, 10);
+            rq = year + "年" + month + "月" + day + "日";
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            rq = calendar.get(Calendar.YEAR) + "年" + (calendar.get(Calendar.MONTH) + 1) + "月" + (calendar.get(Calendar.DAY_OF_MONTH) + "日");
+        }
+
+        return rq;
+    }
+
+    public String getHZR(String s) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            if (i > 0) {
+                result.append("  ");
+            }
+            result.append(s.charAt(i));
+        }
+        return result.toString();
+    }
+
+    public String getNiceString(String s,int j) {
+        StringBuilder result = new StringBuilder();
+        result.append(s);
+        for (int i = 0; i < j; i++) {
+            result.append("  ");
+        }
+        return result.toString();
+    }
 
 }

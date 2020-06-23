@@ -3077,10 +3077,6 @@ public void loadZdct(boolean reload, final AiRunnable callback) {
                 // 通山
                 final String dxf_fwfcpmt_tongshan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
                 new DxfFwfcpmt_tongshan(mapInstance).set(dxf_fwfcpmt_tongshan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-                final String dxf_fwqjxsyt_tongshan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋权界线示意图.dxf";// fs_zrz =0
-                new DxfFwqjxsyt_tongshan(mapInstance).set(dxf_fwqjxsyt_tongshan).set(f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-                //new FwqjxSyt_tongshan(mapInstance).set(dxfpath_qjxsyt_tongshan).set(f_zd,fs_zrz,fs_jzd,fs_h_fsjg,fs_zj_d).write().save();
-                //Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_jzd, List<Feature> fs_h_fsjg, List<Feature> fs_zj_d) {
             }
             else {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0

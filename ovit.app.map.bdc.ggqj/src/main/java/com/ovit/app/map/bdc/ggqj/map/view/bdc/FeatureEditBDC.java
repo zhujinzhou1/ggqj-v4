@@ -1808,6 +1808,7 @@ public class FeatureEditBDC extends FeatureEdit {
             hzjgrq.add(map_zrz.get("ZRZ.JGRQ") + "");
 
             // 设置户
+            // 设置户
             Put_data_hs(mapInstance, map_zrz, z_zrzh, fs_h);
             //  层
             Put_data_cs(mapInstance, map_zrz, z_zrzh, zrz, fs_z_fsjg, fs_h);
@@ -1835,13 +1836,13 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
         map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
-        if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN){
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN){
             for (int i = 0; i < 10-fs_zrz.size(); i++) {
                 Feature f = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
                 Map<String, Object> map_zrz = new LinkedHashMap<>();
                 Put_data_zrz(mapInstance, map_zrz, f);
                 maps_zrz.add(map_zrz);
-                map_zrz.put("ZRZ.ZHFS"," ");
+                map_zrz.put("ZRZ.ZHFF"," ");
                 map_zrz.put("H.HH"," ");
                 map_zrz.put("ZRZ.ZTS"," ");
                 map_zrz.put("ZRZ.ZCS"," ");
@@ -1958,9 +1959,10 @@ public class FeatureEditBDC extends FeatureEdit {
         map.put("ZRZ.CSHZ", z_zcs > 1 ? ("1-" + z_zcs) : 1);
         map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 7));
         //建筑日期到年   通山模板   2020/06/04
-        if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI ) {
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN ) {
             if (map.get("ZRZ.JGRQ").toString().length() > 4) {
                 map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 4));
+                map.put("ZRZ.ZHFF", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
             }
         }
         GetReplecData(map_, "", map);
