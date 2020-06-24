@@ -24,7 +24,6 @@ import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.geometry.Polyline;
-import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
@@ -1893,7 +1892,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 f.getAttributes().put("YZB", y);
                 f.getAttributes().put("ZZB", z);
                 f.getAttributes().put("BZ", bz);
-                f.setGeometry(new Point(x, y, SpatialReference.create(wkid)));
+                f.setGeometry(new Point(x, y, MapHelper.GetSpatialReference( mapInstance,wkid)));
                 fs.add(f);
             }
         }
@@ -2041,6 +2040,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     final String path = (String) t_;
                                     String sel_zbx = AiUtil.GetValue(dataconfig.get("zbx"), "");
                                     sel_zbx = StringUtil.substr(sel_zbx, sel_zbx.indexOf("[") + 1, sel_zbx.indexOf("]"));
+
                                     final int wkid = AiUtil.GetValue(sel_zbx, map.getSpatialReference().getWkid());
 
                                     final String encode = AiUtil.GetValue(dataconfig.get("encode"), "");
@@ -2218,7 +2218,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             boolean flag = isEmptyStdm(f, stdm, "300000");// 是否包含实体编码
             if (flag) {
                 Geometry g = GdalAdapter.convert(f.getGeometry());
-                g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+                g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference( mapInstance,wkid));
                 g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
                 if (g == null || !FeatureHelper.isPolygonGeometryValid(g)) {
                     return false;
@@ -2315,7 +2315,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             boolean flag = isEmptyStdm(f, stdm, "300000");// 是否包含实体编码
             if (flag) {
                 Geometry g = GdalAdapter.convert(f.getGeometry());
-                g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+                g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference( mapInstance,wkid));
                 g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
                 if (g == null || !FeatureHelper.isPolygonGeometryValid(g)) {
                     return false;
@@ -2356,7 +2356,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         if (flag) {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
-            g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+            g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference( mapInstance,wkid));
             if (g instanceof Polyline) {
                 if (MapHelper.geometry_isclose(g) || "JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
 //        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag) {
@@ -2436,7 +2436,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             // 幢
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
-            g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+            g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference( mapInstance,wkid));
             g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
             if (g != null && FeatureHelper.isPolygonGeometryValid(g)) {
                 Feature f_ljz = table.createFeature();
@@ -2530,7 +2530,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         if (("JMD".equals(f.Layer) || "FWFS".equals(f.Layer)) && (f.SubClasses + "").contains("Polyline") && flag) {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
-            g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+            g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference( mapInstance,wkid));
             g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
             if (FeatureHelper.isPolygonGeometryValid(g)) {
                 Feature ff = null;
@@ -2598,7 +2598,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             if (g != null && g instanceof Point) {
-                g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+                g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference( mapInstance,wkid));
                 Feature ff = table.createFeature();
                 FeatureHelper.Set(ff, "MC", stdms.get(stdm));
                 FeatureHelper.Set(ff, "XZB", ((Point) g).getX());
@@ -2623,7 +2623,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         if (flag) {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
-            g = MapHelper.geometry_get(g, SpatialReference.create(wkid));
+            g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference( mapInstance,wkid));
             if (g != null) {
                 Feature ff = null;
                 if (g instanceof Point) {
