@@ -1808,6 +1808,7 @@ public class FeatureEditBDC extends FeatureEdit {
             hzjgrq.add(map_zrz.get("ZRZ.JGRQ") + "");
 
             // 设置户
+            // 设置户
             Put_data_hs(mapInstance, map_zrz, z_zrzh, fs_h);
             //  层
             Put_data_cs(mapInstance, map_zrz, z_zrzh, zrz, fs_z_fsjg, fs_h);
@@ -1826,6 +1827,11 @@ public class FeatureEditBDC extends FeatureEdit {
                     map_zrz.put("ZRZ.ZH","F"+zrzh);
                 }
             }
+            //墙体归属取自然幢
+            map_zrz.put("Z.QTGSD",FeatureHelper.Get(zrz,"QTGSD", "自墙"));
+            map_zrz.put("Z.QTGSN",FeatureHelper.Get(zrz,"QTGSN", "自墙"));
+            map_zrz.put("Z.QTGSX",FeatureHelper.Get(zrz,"QTGSX", "自墙"));
+            map_zrz.put("Z.QTGSB",FeatureHelper.Get(zrz,"QTGSB", "自墙"));
             maps_zrz.add(map_zrz);
             // 拷贝自然幢的内容
 //            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));
@@ -1835,13 +1841,13 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
         map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
-        if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN){
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN){
             for (int i = 0; i < 10-fs_zrz.size(); i++) {
                 Feature f = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
                 Map<String, Object> map_zrz = new LinkedHashMap<>();
                 Put_data_zrz(mapInstance, map_zrz, f);
                 maps_zrz.add(map_zrz);
-                map_zrz.put("ZRZ.ZHFS"," ");
+                map_zrz.put("ZRZ.ZHFT"," ");
                 map_zrz.put("H.HH"," ");
                 map_zrz.put("ZRZ.ZTS"," ");
                 map_zrz.put("ZRZ.ZCS"," ");
@@ -1946,6 +1952,9 @@ public class FeatureEditBDC extends FeatureEdit {
         // 设置单个幢信息
         // 提前防止覆盖
         map.put("ZRZ.ZHFF", AiUtil.GetValue(zrz.getAttributes().get("ZH"), 1) + "");
+        //通山自然幢号F0001
+        map.put("ZRZ.ZHFT", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
+
         if ((zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH) + "").contains("F99990001")) {
 
         } else {
@@ -1958,9 +1967,10 @@ public class FeatureEditBDC extends FeatureEdit {
         map.put("ZRZ.CSHZ", z_zcs > 1 ? ("1-" + z_zcs) : 1);
         map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 7));
         //建筑日期到年   通山模板   2020/06/04
-        if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI ) {
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN ) {
             if (map.get("ZRZ.JGRQ").toString().length() > 4) {
                 map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 4));
+                map.put("ZRZ.ZHFF", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
             }
         }
         GetReplecData(map_, "", map);
@@ -1983,9 +1993,9 @@ public class FeatureEditBDC extends FeatureEdit {
         List<Feature> features_h = GetHbyZrzh(mapInstance, zrzh, hs);
         if (features_h != null && features_h.size() > 0) {
             map_.put("ZRZ.CQLY", AiUtil.GetValue(features_h.get(0).getAttributes().get("CQLY"), "自建"));
-        } else {
-            map_.put("ZRZ.CQLY", "自建");
-        }
+    } else {
+        map_.put("ZRZ.CQLY", "自建");
+    }
         map_.put("Z.QTGSD", AiUtil.GetValue(features_h.get(0).getAttributes().get("QTGSD"), "自有墙"));
         map_.put("Z.QTGSN", AiUtil.GetValue(features_h.get(0).getAttributes().get("QTGSN"), "自有墙"));
         map_.put("Z.QTGSX", AiUtil.GetValue(features_h.get(0).getAttributes().get("QTGSX"), "自有墙"));
