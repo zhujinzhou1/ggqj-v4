@@ -1827,6 +1827,11 @@ public class FeatureEditBDC extends FeatureEdit {
                     map_zrz.put("ZRZ.ZH","F"+zrzh);
                 }
             }
+            //墙体归属取自然幢
+            map_zrz.put("Z.QTGSD",FeatureHelper.Get(zrz,"QTGSD", "自墙"));
+            map_zrz.put("Z.QTGSN",FeatureHelper.Get(zrz,"QTGSN", "自墙"));
+            map_zrz.put("Z.QTGSX",FeatureHelper.Get(zrz,"QTGSX", "自墙"));
+            map_zrz.put("Z.QTGSB",FeatureHelper.Get(zrz,"QTGSB", "自墙"));
             maps_zrz.add(map_zrz);
             // 拷贝自然幢的内容
 //            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));
@@ -1842,7 +1847,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 Map<String, Object> map_zrz = new LinkedHashMap<>();
                 Put_data_zrz(mapInstance, map_zrz, f);
                 maps_zrz.add(map_zrz);
-                map_zrz.put("ZRZ.ZHFF"," ");
+                map_zrz.put("ZRZ.ZHFT"," ");
                 map_zrz.put("H.HH"," ");
                 map_zrz.put("ZRZ.ZTS"," ");
                 map_zrz.put("ZRZ.ZCS"," ");
@@ -1947,6 +1952,9 @@ public class FeatureEditBDC extends FeatureEdit {
         // 设置单个幢信息
         // 提前防止覆盖
         map.put("ZRZ.ZHFF", AiUtil.GetValue(zrz.getAttributes().get("ZH"), 1) + "");
+        //通山自然幢号F0001
+        map.put("ZRZ.ZHFT", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
+
         if ((zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH) + "").contains("F99990001")) {
 
         } else {
@@ -1985,9 +1993,9 @@ public class FeatureEditBDC extends FeatureEdit {
         List<Feature> features_h = GetHbyZrzh(mapInstance, zrzh, hs);
         if (features_h != null && features_h.size() > 0) {
             map_.put("ZRZ.CQLY", AiUtil.GetValue(features_h.get(0).getAttributes().get("CQLY"), "自建"));
-        } else {
-            map_.put("ZRZ.CQLY", "自建");
-        }
+    } else {
+        map_.put("ZRZ.CQLY", "自建");
+    }
         map_.put("Z.QTGSD", AiUtil.GetValue(features_h.get(0).getAttributes().get("QTGSD"), "自有墙"));
         map_.put("Z.QTGSN", AiUtil.GetValue(features_h.get(0).getAttributes().get("QTGSN"), "自有墙"));
         map_.put("Z.QTGSX", AiUtil.GetValue(features_h.get(0).getAttributes().get("QTGSX"), "自有墙"));
