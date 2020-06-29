@@ -180,6 +180,20 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 });
             }
         });
+        // 导入户籍信息
+        tool_view.findViewById(R.id.ll_input_hjxx).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String fundesc = "导入户籍信息";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        output_excels();
+                        return null;
+                    }
+                });
+            }
+        });
         // 导入不动产单元
         tool_view.findViewById(R.id.ll_input_bdcdy).setOnClickListener(new View.OnClickListener() {
             @Override
