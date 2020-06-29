@@ -1821,7 +1821,7 @@ public class FeatureEditBDC extends FeatureEdit {
             map_zrz.put("img.fwzp", image_fwzp);
             map_zrz.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(zrz, "JZWJBYT", "")));
             map_zrz.put("ZRZ.CG", StringUtil.Join(hzcg, true));
-            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI){
+            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI ||DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN){
                 String zrzh = (String) map_zrz.get("ZRZ.ZH");
                 if (!TextUtils.isEmpty(zrzh)){
                     map_zrz.put("ZRZ.ZH","F"+zrzh);
@@ -1847,7 +1847,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 Map<String, Object> map_zrz = new LinkedHashMap<>();
                 Put_data_zrz(mapInstance, map_zrz, f);
                 maps_zrz.add(map_zrz);
-                map_zrz.put("ZRZ.ZHFT"," ");
+                map_zrz.put("ZRZ.ZH"," ");
                 map_zrz.put("H.HH"," ");
                 map_zrz.put("ZRZ.ZTS"," ");
                 map_zrz.put("ZRZ.ZCS"," ");
@@ -1952,9 +1952,6 @@ public class FeatureEditBDC extends FeatureEdit {
         // 设置单个幢信息
         // 提前防止覆盖
         map.put("ZRZ.ZHFF", AiUtil.GetValue(zrz.getAttributes().get("ZH"), 1) + "");
-        //通山自然幢号F0001
-        map.put("ZRZ.ZHFT", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
-
         if ((zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH) + "").contains("F99990001")) {
 
         } else {
