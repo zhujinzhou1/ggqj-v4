@@ -1445,7 +1445,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     });
                                 }
                             }
-
                             void addMessage(final String title, final String mssage) {
                                 activity.runOnUiThread(new Runnable() {
                                     @Override

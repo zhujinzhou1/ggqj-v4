@@ -12,11 +12,15 @@ import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.dxf.DxfAdapter;
+import com.ovit.app.util.gdal.dxf.DxfConstant;
 import com.ovit.app.util.gdal.dxf.DxfHelper;
 import com.ovit.app.util.gdal.dxf.DxfPaint;
 import com.ovit.app.util.gdal.dxf.DxfRenderer;
 
-import java.util.Calendar;public abstract class BaseDxf {
+import java.util.Arrays;
+import java.util.Calendar;
+
+public abstract class BaseDxf {
 
 
     /**
@@ -199,6 +203,7 @@ import java.util.Calendar;public abstract class BaseDxf {
     };
 
     public void getDefultFooter() throws Exception {
+        paint.setLayer(DxfConstant.DXF_LAYER_BKZJ);
         Envelope envelope = p_extend;
         double x=envelope.getXMin();
         double y=envelope.getYMax();
@@ -214,13 +219,16 @@ import java.util.Calendar;public abstract class BaseDxf {
         String auditDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
         c.add(Calendar.DATE, -1);
         String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
-        Point p_auditDate = new Point(x, envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
-        Point p_drawDate = new Point(x, envelope.getYMin() -  h * (o_fontsize*2) , envelope.getSpatialReference());
-        dxf.writeText(p_drawDate, "绘图日期:" + drawDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_CYAN, null, null);
-        dxf.writeText(p_auditDate, "审核日期:" + auditDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_CYAN, null, null);
+        Point p_jxf = new Point(x, envelope.getYMin() - h * o_fontsize, envelope.getSpatialReference());
+        Point p_auditDate = new Point(x, envelope.getYMin() -  h * (o_fontsize*2) , envelope.getSpatialReference());
+        Point p_drawDate = new Point(x, envelope.getYMin() -  h * (o_fontsize*3) , envelope.getSpatialReference());
+        String tjsj = StringUtil.substr(auditDate,0,auditDate.indexOf("月")+1); // 图解时间
+        dxf.writeText(p_jxf, tjsj+"解析法测绘界址点", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_CYAN, paint.getLayer(), paint.getStbm());
+        dxf.writeText(p_drawDate, "绘图日期:" + drawDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_CYAN, paint.getLayer(), paint.getStbm());
+        dxf.writeText(p_auditDate, "审核日期:" + auditDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_CYAN, paint.getLayer(), paint.getStbm());
 
         Point p_blc = new Point(envelope.getCenter().getX(), envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
-        dxf.writeText(p_blc, "1:" + (int) blc, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_CYAN, null, null);
+        dxf.writeText(p_blc, "1:" + (int) blc, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_CYAN, paint.getLayer(), paint.getStbm());
 
 
 
@@ -234,21 +242,35 @@ import java.util.Calendar;public abstract class BaseDxf {
         }
 
         Point p_chr = new Point(x + w, envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
-        dxf.writeText(p_chr, "测绘员：" + hzr, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_CYAN, null, null);
+        dxf.writeText(p_chr, "制图员：" + hzr, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_CYAN, null, null);
         Point p_shr = new Point(x + w, envelope.getYMin() -  h * (o_fontsize*2), envelope.getSpatialReference());
         dxf.writeText(p_shr, "审核员：" +shr, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_CYAN, null, null);
 
     }
 
     public void getDefultHeader() throws Exception {
+        //  图形范围
+        DxfPaint.Align align = paint.getTextAlign();
         Envelope envelope = p_extend;
-        dxf.write(new Envelope(envelope.getCenter(), boxWidth, boxHeight)); // 图框
+        paint.setLayer(DxfConstant.DXF_LAYER_TK);
+        paint.setFontstyle(DxfHelper.FONT_STYLE_HZ);
+        paint.setLinewidth(DxfHelper.LINE_WIDTH_3);
 
-        Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + h, envelope.getSpatialReference());
-        dxf.writeText(p_title, "宗地图", o_fontsize*2, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_CYAN, null, null);
-
-        Point p_unit = new Point(envelope.getXMax(), envelope.getYMax() + h * 0.5, envelope.getSpatialReference());
-        dxf.writeText(p_unit, "单位：m·㎡ ", o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, DxfHelper.FONT_STYLE_SONGTI, 0, 2, 2, DxfHelper.COLOR_CYAN, null, null);
+//        dxf.write(new Envelope(envelope.getCenter(), boxWidth, boxHeight)); // 图框
+        writeDaYingKuang(new Envelope(envelope.getCenter(), boxWidth, boxHeight),o_split,spatialReference);
+        paint.setLayer(DxfConstant.DXF_LAYER_BKZJ);
+        paint.setFontstyle(DxfHelper.FONT_STYLE_SONGTI);
+        paint.setFontsize(o_fontsize*2);
+        paint.setLinewidth(DxfHelper.LINE_WIDTH_DEFULT);
+        dxf.write(p_extend, "");
+        Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + h, spatialReference);
+        dxf.writeText(p_title, "宗地图", paint);
+        paint.setFontsize(o_fontsize*0.8f);
+        Point p_unit = new Point(envelope.getXMax(), envelope.getYMax() + h * 0.5, spatialReference);
+        paint.setTextAlign(DxfPaint.Align.RIGHT);
+        dxf.writeText(p_unit, "单位：m·㎡ ", paint);
+        paint.setTextAlign(align);
+        paint.setFontsize(o_fontsize);
     }
     public String getRQ(String s) {
         String rq = "";
@@ -279,6 +301,8 @@ import java.util.Calendar;public abstract class BaseDxf {
      */
     public  void writeZdsz(DxfAdapter dxf, Feature f_zd){
         try {
+            String layerName = paint.getLayer();
+            paint.setLayer(DxfConstant.DXF_LAYER_ZDSZZJ);
             Envelope e = GeometryEngine.buffer(f_zd.getGeometry(),5).getExtent();
             double e_height = e.getHeight();
             Point point_d = new Point(e.getXMax() + o_split, e. getYMin() + e_height / 2, spatialReference);
@@ -289,8 +313,18 @@ import java.util.Calendar;public abstract class BaseDxf {
             dxf.writeText(point_b, FeatureHelper.Get(f_zd, "ZDSZB", ""));
             dxf.writeMText(point_d, StringUtil.GetDxfStrFormat(FeatureHelper.Get(f_zd, "ZDSZD", ""), "\n"));
             dxf.writeMText(point_x, StringUtil.GetDxfStrFormat(FeatureHelper.Get(f_zd, "ZDSZX", ""), "\n"));
+            paint.setLayer(layerName);
         }catch (Exception exception){
             ToastMessage.Send("绘制宗地四至失败");
         }
+    }
+
+    public void writeDaYingKuang( Envelope envelope, double o_split, SpatialReference spatialReference) throws Exception {
+        Point p_t_r = new Point(envelope.getXMin() - 0.7 * o_split, envelope.getYMax() + 0.87 * o_split, spatialReference);
+        dxf.writeLine(Arrays.asList(new Point[]{new Point(p_t_r.getX(), p_t_r.getY()), new Point(p_t_r.getX(), p_t_r.getY() + 3)}), DxfHelper.LINETYPE_SOLID_LINE, false, DxfHelper.COLOR_BYLAYER, 0,paint.getLayer(),"");
+        dxf.writeLine(Arrays.asList(new Point[]{new Point(p_t_r.getX() - 3, p_t_r.getY()), new Point(p_t_r.getX(), p_t_r.getY())}), DxfHelper.LINETYPE_SOLID_LINE, false, DxfHelper.COLOR_BYLAYER, 0,paint.getLayer(),"");
+        Point p_r_b = new Point(envelope.getXMax() + 0.7 * o_split, envelope.getYMin() - 1.1 * o_split, spatialReference);
+        dxf.writeLine(Arrays.asList(new Point[]{new Point(p_r_b.getX() + 3, p_r_b.getY()), new Point(p_r_b.getX(), p_r_b.getY())}), DxfHelper.LINETYPE_SOLID_LINE, false, DxfHelper.COLOR_BYLAYER, 0,paint.getLayer(),"");
+        dxf.writeLine(Arrays.asList(new Point[]{new Point(p_r_b.getX(), p_r_b.getY()), new Point(p_r_b.getX(), p_r_b.getY() - 3)}), DxfHelper.LINETYPE_SOLID_LINE, false, DxfHelper.COLOR_BYLAYER, 0,paint.getLayer(),"");
     }
 }

@@ -183,7 +183,7 @@ public class FeatureViewH extends FeatureView {
             FeatureHelper.Set(feature, "SCJZMJ", area);
         }
         FeatureHelper.Set(feature, "YCJZMJ", area);
-        FeatureHelper.Set(feature, "FWJG", FeatureHelper.Get(feature_ljz, "FWJG1", "4"), true, false);//4[B][混]混合结构
+        FeatureHelper.Set(feature, "FWJG", FeatureHelper.Get(feature_ljz, "FWJG1", "5"), true, false);//砖木结构
 
         FeatureHelper.Set(feature, "CQLY", "自建", true, false);// 自建
         FeatureHelper.Set(feature, "FWLX", "1", true, false); //[1]住宅
