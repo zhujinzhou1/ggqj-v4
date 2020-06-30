@@ -1295,6 +1295,10 @@ public class FeatureEditBDC extends FeatureEdit {
         map.put("ZD.DZWDM", StringUtil.substr_last(bdcdyh, 9));
         map.put("ZD.ZDDMFF", StringUtil.substr_last(bdcdyh, 7, 9));
 
+        //拼接宗地代码（宗地+附属宗地）
+        map.put("ZD.ZDDMPJ",f_zd);
+
+
         map.put("ZD.HZR", GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZR", ""));
         map.put("ZD.SHR", GsonUtil.GetValue(mapInstance.aiMap.JsonData, "SHR", ""));
         map.put("ZD.HZDW", GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZDW", ""));

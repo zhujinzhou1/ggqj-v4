@@ -55,7 +55,6 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFwfcpmt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFwqjxsyt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdctDefult;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -1333,10 +1332,13 @@ public class FeatureViewZD extends FeatureView {
             final String dxfpath_zdt = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "") + "宗地图.dxf";
             if (DxfHelper.TYPE == DxfHelper.TYPE_NEIMENG) {
                 final String dxfpath_zdct = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "") + "宗地草图.dxf";
+//                new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+            }  else if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN){
+                String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) +  "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
+                final String dxffwqjxsyt_tongshan = dxfDir + "房屋权界线示意图.dxf";
+                new DxfFwqjxsyt_tongshan(mapInstance).set(dxffwqjxsyt_tongshan).set(f_zd, mapfs).write().save();
 //              new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
-            } else if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI){
-                new DxfZdct_HuNan(mapInstance).set(dxfpath_zdt).set(f_zd, mapfs).write().save();
-            } else {
+            }else {
                 new DxfZdctDefult(mapInstance).set(dxfpath_zdt).set(f_zd, mapfs).write().save();
             }
         } catch (Exception es) {
@@ -1829,18 +1831,17 @@ public void loadZdct(boolean reload, final AiRunnable callback) {
                                 public void complet() {
                                     ;
                                     final List<Feature> fs_zd = mapfs.get(FeatureHelper.TABLE_NAME_ZD);
-//                                    final List<Feature> fs_Jzd = mapfs.get(FeatureHelper.TABLE_NAME_JZD);
-//                                    final List<Feature> fs_zrz = mapfs.get(FeatureHelper.TABLE_NAME_ZRZ);
+                                    final List<Feature> fs_zrz = mapfs.get(FeatureHelper.TABLE_NAME_ZRZ);
                                     final List<Feature> fs_ljz = mapfs.get(FeatureHelper.TABLE_NAME_LJZ);
                                     final List<Feature> fs_fsss = mapfs.get(FeatureHelper.TABLE_NAME_FSSS);
                                     final List<Feature> fs_h_fsjg = mapfs.get(FeatureHelper.TABLE_NAME_H_FSJG);
                                     final List<Feature> fs_z_fsjg = mapfs.get(FeatureHelper.TABLE_NAME_Z_FSJG);
-//                                    final List<Feature> fs_zj_x = mapfs.get(FeatureHelper.TABLE_NAME_ZJX);
-//                                    final List<Feature> fs_zj_d = mapfs.get(FeatureHelper.TABLE_NAME_ZJD);
+                                    final List<Feature> fs_zj_x = mapfs.get(FeatureHelper.TABLE_NAME_ZJX);
+                                    final List<Feature> fs_zj_d = mapfs.get(FeatureHelper.TABLE_NAME_ZJD);
                                     final List<Feature> fs_zj_sj = mapfs.get(FeatureHelper.TABLE_NAME_SJ);
-//                                    final List<Feature> fs_mzdw = mapfs.get(FeatureHelper.TABLE_NAME_MZDW);
-//                                    final List<Feature> fs_xzdw = mapfs.get(FeatureHelper.TABLE_NAME_XZDW);
-//                                    final List<Feature> fs_dzdw = mapfs.get(FeatureHelper.TABLE_NAME_DZDW);
+                                    final List<Feature> fs_mzdw = mapfs.get(FeatureHelper.TABLE_NAME_MZDW);
+                                    final List<Feature> fs_xzdw = mapfs.get(FeatureHelper.TABLE_NAME_XZDW);
+                                    final List<Feature> fs_dzdw = mapfs.get(FeatureHelper.TABLE_NAME_DZDW);
 
                                     List<Geometry> lablePoints = new ArrayList<>();
                                     String jxlx = FeatureHelper.Get(feature, "JXLX", "J");
@@ -3086,10 +3087,6 @@ public void loadZdct(boolean reload, final AiRunnable callback) {
                 // 通山
                 final String dxf_fwfcpmt_tongshan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
                 new DxfFwfcpmt_tongshan(mapInstance).set(dxf_fwfcpmt_tongshan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-                final String dxf_fwqjxsyt_tongshan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋权界线示意图.dxf";// fs_zrz =0
-                new DxfFwqjxsyt_tongshan(mapInstance).set(dxf_fwqjxsyt_tongshan).set(f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-                //new FwqjxSyt_tongshan(mapInstance).set(dxfpath_qjxsyt_tongshan).set(f_zd,fs_zrz,fs_jzd,fs_h_fsjg,fs_zj_d).write().save();
-                //Feature f_zd, List<Feature> fs_zrz, List<Feature> fs_jzd, List<Feature> fs_h_fsjg, List<Feature> fs_zj_d) {
             }
             else {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
