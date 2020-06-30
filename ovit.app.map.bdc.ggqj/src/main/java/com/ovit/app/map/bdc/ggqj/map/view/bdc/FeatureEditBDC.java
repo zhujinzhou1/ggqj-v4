@@ -25,8 +25,10 @@ import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.ImmutablePart;
 import com.esri.arcgisruntime.geometry.ImmutablePartCollection;
+import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
@@ -1964,6 +1966,21 @@ public class FeatureEditBDC extends FeatureEdit {
                 map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 4));
             }
         }
+        String qpkg = FeatureHelper.Get(zrz, "SOVIT2", "");// 切坡数据,宽，高，后墙距离
+        map.put("ZRZ.QPKD", "");
+        map.put("ZRZ.QPGD", "");
+        map.put("ZRZ.HQYPJJL", "");
+
+        String[] qp = qpkg.split("/");
+        String[] qpk = {"ZRZ.QPKD","ZRZ.QPGD","ZRZ.HQYPJJL"};;
+        for (int i = 0; i < qp.length; i++) {
+            map.put(qpk[i],qp[i]);
+        }
+        Point point = GeometryEngine.labelPoint((Polygon) zrz.getGeometry());
+        Point p = MapHelper.geometry_get(point, SpatialReference.create(4490));
+        map.put("ZRZ.ZXDX", p.getX());
+        map.put("ZRZ.ZXDY", p.getY());
+
         GetReplecData(map_, "", map);
     }
 

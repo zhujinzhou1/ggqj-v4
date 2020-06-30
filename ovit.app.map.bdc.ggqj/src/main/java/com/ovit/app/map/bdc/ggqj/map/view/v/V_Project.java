@@ -1438,10 +1438,97 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         dialog.addContentView(dialog.getSelectView("图层", "map_tc", dataconfig, "tc"));
 
         dialog.addContentViewMenu(Arrays.asList(
-                new Object[]{R.mipmap.app_icon_shp, "导入Mdb文件", new View.OnClickListener() {
+                new Object[]{R.mipmap.app_icon_shp, "导入家庭成员", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ToastMessage.Send("功能正在建设中...");
+                        FileUtils.showChooser(activity, new AiRunnable() {
+                            void setMessage(final String message) {
+                                if (StringUtil.IsNotEmpty(message)) {
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ToastMessage.Send(message);
+                                            dialog.setContentView(message);
+                                        }
+                                    });
+                                }
+                            }
+                            void addMessage(final String title, final String mssage) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.addContentView(title, mssage);
+                                    }
+                                });
+                            }
+
+                            void setComplete(final int icon, final String text, final boolean cancelable) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.setCancelable(cancelable);
+                                        dialog.setFooterView(dialog.getStateView(icon, text));
+                                        addMessage(text, "");
+
+                                    }
+                                });
+                            }
+
+                            void save(final Map<String, Integer> map_fs, List<Feature> features, final boolean isComplete) {
+                                final List<Feature> fs = new ArrayList<>(features);
+                                features.clear();
+                                String messge_ = "";
+//                                for (String key:map_fs.keySet()){ messge_+="["+key+"："+map_fs.get(key)+"]"; }
+                                final String messge = messge_;
+                                MapHelper.saveFeature(fs, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "导入" + fs.size() + "个图形成功:" + messge + "...");
+                                        if (isComplete)
+                                            setComplete(R.mipmap.app_icon_ok_f, "导入" + messge + "成功！", true);
+                                        return null;
+                                    }
+
+                                    @Override
+                                    public <T_> T_ error(T_ t_, Object... objects) {
+                                        addMessage("导入失败:", ((Exception) t_).getMessage());
+                                        if (isComplete)
+                                            setComplete(R.mipmap.app_icon_error_smaller, "导入失败", true);
+                                        return null;
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                String message = "";
+                                // TODO... 根据excel 模板生成 生成入库成果
+                                final String filePath = (String) t_;
+                                if (filePath.toLowerCase().endsWith(".xls")) {
+                                    dialog.setCancelable(false)
+                                            .setFooterView(dialog.getProgressView("正在导入数据..."))
+                                            .setContentView("正在读取Excel内容导入中，所耗时间取决于文件大小，请耐心等待...");
+
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                final List<Feature> features_upt = new ArrayList<>();
+                                                final List<Map<String, String>> xlsData = Excel.getXlsMap(filePath, "HJXX", 0);
+
+                                            } catch (Exception es) {
+                                                setMessage("读取文件失败：" + es.getMessage());
+                                                setComplete(R.mipmap.app_icon_error_smaller, "读取文件失败", true);
+                                            }
+                                        }
+                                    }).start();
+                                }
+
+
+                                return null;
+                            }
+                        });
+
                     }
                 }},
                 new Object[]{R.mipmap.app_icon_cad, "导入Excel文件", new View.OnClickListener() {
