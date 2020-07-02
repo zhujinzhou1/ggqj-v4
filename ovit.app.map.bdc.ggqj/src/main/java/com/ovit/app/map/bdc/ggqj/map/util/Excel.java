@@ -2,9 +2,12 @@ package com.ovit.app.map.bdc.ggqj.map.util;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.data.Field;
+import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.util.AiForEach;
@@ -19,7 +22,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,19 +47,18 @@ import jxl.write.WriteException;
  * Created by 此生无分起相思 on 2018/7/9.
  */
 
-public class Excel
-{
+public class Excel {
     public static WritableFont arial14font = null;
     public static WritableCellFormat arial14format = null;
     public static WritableFont arial10font = null;
     public static WritableCellFormat arial10format = null;
     public static WritableFont arial12font = null;
     public static WritableCellFormat arial12format = null;
-
+    public static String TAG = "Excel";
     public final static String UTF8_ENCODING = "UTF-8";
     public final static String GBK_ENCODING = "GBK";
     private String name;
-    private static String fwdh="";
+    private static String fwdh = "";
     private static String jdx;
 
     public static void format() {
@@ -309,7 +314,7 @@ public class Excel
     }
 
     // 通过Feature 生成 exc
-    public static void CreateSouthExcelToGdal( Feature feature, String filePath, List<List<Feature>> values) {
+    public static void CreateSouthExcelToGdal(Feature feature, String filePath, List<List<Feature>> values) {
         format();
         WritableWorkbook workbook = null;
         try {
@@ -343,6 +348,7 @@ public class Excel
             e.printStackTrace();
         }
     }
+
     // region 南方不动产数据库
     private static void writeQLR_South(Map<String, WritableSheet> wSheets, List<String> gfr_attributeList, List<Feature> fs) throws WriteException {
 
@@ -364,7 +370,7 @@ public class Excel
                     label = new Label(0, index + 1, value);
                 } else if ("ZJZL".equals(key)) {
                     // 1 证件类别
-                    label = new Label(1, index + 1, getValue("zjzl",key,value));
+                    label = new Label(1, index + 1, getValue("zjzl", key, value));
                 } else if ("ZJH".equals(key)) {
 //                    2 证件号码
                     label = new Label(2, index + 1, value);
@@ -444,7 +450,7 @@ public class Excel
                 } /*else if ("BDCDYH ".equals(key)) {
 //                    24 不动产单元号
                     label = new Label(24, index + 1, value);
-                } */else if ("BDCQZH".equals(key)) {
+                } */ else if ("BDCQZH".equals(key)) {
 //                    25 不动产权证号
                     label = new Label(25, index + 1, value);
                 } else if ("BZ".equals(key)) {
@@ -542,11 +548,11 @@ public class Excel
 //               8 实际层
                 if ("SZC".equals(key)) {
                     label = new Label(8, index + 1, value);
-                    labelC= new Label(4, index + 1, value);
+                    labelC = new Label(4, index + 1, value);
                     wsC.addCell(labelC);
-                    labelC= new Label(5, index + 1, value);
+                    labelC = new Label(5, index + 1, value);
                     wsC.addCell(labelC);
-                    labelC= new Label(0, index + 1, value);
+                    labelC = new Label(0, index + 1, value);
                 }
 //               9 名义层
                 if ("MYC".equals(key)) {
@@ -581,7 +587,7 @@ public class Excel
                 }
                 // 16 房屋用途
                 if ("YT".equals(key)) {
-                    labelLJZ = new Label(16, index + 1,  DicUtil.dic("fwyt", FeatureHelper.Get(f,"YT","")));
+                    labelLJZ = new Label(16, index + 1, DicUtil.dic("fwyt", FeatureHelper.Get(f, "YT", "")));
                 }
 //               16 预测套内建筑面积
                 if ("YCTNJZMJ".equals(key)) {
@@ -641,15 +647,15 @@ public class Excel
                 }
 //               30 房屋类型
                 if ("FWLX".equals(key)) {
-                    label = new Label(30, index + 1, getValue("fwlx",key,value));
+                    label = new Label(30, index + 1, getValue("fwlx", key, value));
                 }
 //               31 房屋性质
                 if ("FWXZ".equals(key)) {
-                    label = new Label(31, index + 1, getValue("fwxz",key,value));
+                    label = new Label(31, index + 1, getValue("fwxz", key, value));
                 }
 //               32 房屋结构
                 if ("FWJG".equals(key)) {
-                    label = new Label(32, index + 1, getValue("fwjg",key,value));
+                    label = new Label(32, index + 1, getValue("fwjg", key, value));
                 }
 //               33 单元信息
                 if ("DYXX".equals(key)) {
@@ -761,17 +767,17 @@ public class Excel
                     labelGFR = new Label(18, index + 1, value);
                 } else if ("QLRLX".equals(key)) {
 //                    19  GFR 权利人性质
-                    labelGFR = new Label(19, index + 1, getValue("qlrlx",key,value));
+                    labelGFR = new Label(19, index + 1, getValue("qlrlx", key, value));
                 } else if ("TDZZSJ".equals(key)) {
                     // TODO something....
 //                    20  GFR 权利面积
                     labelGFR = new Label(20, index + 1, value);
                 } else if ("QLXZ".equals(key)) {
 //                  35  H 权利性质
-                    labelH = new Label(35, index + 1, getValue("qlxz",key,value));
+                    labelH = new Label(35, index + 1, getValue("qlxz", key, value));
                 } else if ("PZYT".equals(key)) {
 //                  36 H 土地使用用途
-                    labelH = new Label(36, index + 1, getValue("tdyt",key,value));
+                    labelH = new Label(36, index + 1, getValue("tdyt", key, value));
                 } else if ("TDSYKSSJ".equals(key)) {
 //                  37 H 土地起始时间
                     labelH = new Label(37, index + 1, AiUtil.GetValue(value, "", AiUtil.F_DATE));
@@ -941,7 +947,7 @@ public class Excel
                 // 14 房屋结构
 
                 if ("FWJG".equals(key)) {
-                    label = new Label(14, index + 1, getValue("fwjg",key,value));
+                    label = new Label(14, index + 1, getValue("fwjg", key, value));
                 }
                 // 15 建筑物状态
                 if ("JZWZT".equals(key)) {
@@ -990,6 +996,7 @@ public class Excel
             }
         }
     }
+
     // Excel
     public static Map<String, WritableSheet> getAllWritableWorkbook_South(WritableWorkbook workbook) throws WriteException {
         Map<String, WritableSheet> map = new HashMap<String, WritableSheet>();
@@ -1083,6 +1090,7 @@ public class Excel
         listC.add("水平投影面积");
         return listC;
     }
+
     // Excel 户
     public static List<String> getH_AttributeList_South() {
         ArrayList<String> listH = new ArrayList<>();
@@ -1128,6 +1136,7 @@ public class Excel
 
         return listH;
     }
+
     // Excel 开发商
     public static List<String> getKFS_AttributeList_South() {
         ArrayList<String> listKFS = new ArrayList<>();
@@ -1153,6 +1162,7 @@ public class Excel
 
         return listKFS;
     }
+
     // Excel 购房人
     public static List<String> getGFR_AttributeList_South() {
         ArrayList<String> listGFR = new ArrayList<>();
@@ -1189,6 +1199,7 @@ public class Excel
         listGFR.add("合同编号");
         return listGFR;
     }
+
     // region 中地不动产数据库
     public static List<String> getZXX_AttributeList_Zondy() {
         ArrayList<String> listZXX = new ArrayList<>();
@@ -1330,7 +1341,7 @@ public class Excel
                 if (FeatureHelper.TABLE_NAME_ZRZ.equals(Layername)) {
                     writeZRZ_Zondy(wSheets, fs);
                 } else if (FeatureHelper.TABLE_NAME_ZD.equals(Layername)) {
-                    writeZD_Zondy(wSheets,fs);
+                    writeZD_Zondy(wSheets, fs);
                 } else if (FeatureHelper.TABLE_NAME_H.equals(Layername)) {
                     writeH_Zondy(wSheets, fs);
                 } else if ("QLR".equals(Layername)) {
@@ -1370,7 +1381,7 @@ public class Excel
         return map;
     }
 
-    public static void writeZD_Zondy(Map<String, WritableSheet> wSheets,List<Feature> fs_zd) throws WriteException {
+    public static void writeZD_Zondy(Map<String, WritableSheet> wSheets, List<Feature> fs_zd) throws WriteException {
         Label label = null;
         WritableSheet wsZXX = wSheets.get("幢信息");
         for (Feature f : fs_zd) {
@@ -1622,6 +1633,7 @@ public class Excel
             }
         }
     }
+
     private static void writeZRZ_Zondy(Map<String, WritableSheet> wSheets, List<Feature> fs) throws WriteException {
         WritableSheet wsZXX = wSheets.get("幢信息");
         Label label = new Label(0, fs.size() + 1, "$E");
@@ -1637,7 +1649,7 @@ public class Excel
             if (f == null) {
                 continue;
             }
-            fwdh = FeatureHelper.Get(f, "FWDCY","");
+            fwdh = FeatureHelper.Get(f, "FWDCY", "");
             jdx = FeatureHelper.Get(f, "QJXHTR", "");
 
             int index = fs.indexOf(f);
@@ -1648,7 +1660,7 @@ public class Excel
                 String value = AiUtil.GetValue(entry.getValue(), "");
                 //                0 幢号
                 if ("ZH".equals(key)) {
-                    label = new Label(0, index + 1, StringUtil.substr(value,2));
+                    label = new Label(0, index + 1, StringUtil.substr(value, 2));
                 }
 //                1 建筑面积
                 if ("SCJZMJ".equals(key)) {
@@ -1703,16 +1715,16 @@ public class Excel
                 }
                 */
 //                12 总层数
-                if ("ZCS".equals(key)){
-                    label = new Label(12, index + 1, AiUtil.GetValue(entry.getValue(),"1",AiUtil.F_INT));
+                if ("ZCS".equals(key)) {
+                    label = new Label(12, index + 1, AiUtil.GetValue(entry.getValue(), "1", AiUtil.F_INT));
                 }
 //                13 地上层数
                 if ("DSCS".equals(key)) {
-                    label = new Label(13, index + 1, AiUtil.GetValue(entry.getValue(),"1",AiUtil.F_INT));
+                    label = new Label(13, index + 1, AiUtil.GetValue(entry.getValue(), "1", AiUtil.F_INT));
                 }
 //                14 地下层数
                 if ("DXCS".equals(key)) {
-                    label = new Label(14, index + 1, AiUtil.GetValue(entry.getValue(),"",AiUtil.F_INT));
+                    label = new Label(14, index + 1, AiUtil.GetValue(entry.getValue(), "", AiUtil.F_INT));
                 }
 //                15 单元总数
 //                if ("ZTS".equals(key)) {
@@ -1721,11 +1733,11 @@ public class Excel
 //                }
 //                16 建筑结构
                 if ("FWJG".equals(key)) {
-                    label = new Label(16, index + 1, getValue("fwjg",key,value));
+                    label = new Label(16, index + 1, getValue("fwjg", key, value));
                 }
 //                17 建筑用途
                 if ("JZWJBYT".equals(key)) {
-                    label = new Label(17, index + 1,  getValue("jzwjbyt",key,value));
+                    label = new Label(17, index + 1, getValue("jzwjbyt", key, value));
                 }
 //                18 占地面积
                 if ("ZZDMJ".equals(key)) {
@@ -1795,7 +1807,7 @@ public class Excel
                 */
 //                32 竣工日期
                 if ("JGRQ".equals(key)) {
-                    label = new Label(32, index + 1,AiUtil.GetValue(entry.getValue(),"",AiUtil.F_DATE));
+                    label = new Label(32, index + 1, AiUtil.GetValue(entry.getValue(), "", AiUtil.F_DATE));
                 }
 //                33 测绘状态
 //                if ("ZL".equals(key)) {
@@ -1878,13 +1890,14 @@ public class Excel
         wsZXX.addCell(label);
         label = null;
     }
+
     private static void writeH_Zondy(Map<String, WritableSheet> wSheets, List<Feature> fs) throws WriteException {
         Label label = null;
 
         WritableSheet wsFWXX = wSheets.get("房屋信息");
-        label = new Label(0, fs.size()+1, "$E");
+        label = new Label(0, fs.size() + 1, "$E");
         wsFWXX.addCell(label);
-        label=null;
+        label = null;
         for (Feature f : fs) {
             if (f == null) {
                 continue;
@@ -1896,7 +1909,7 @@ public class Excel
             wsFWXX.addCell(label);
             label = new Label(3, index + 1, jdx);
             wsFWXX.addCell(label);
-            label=null;
+            label = null;
 
             Iterator<Map.Entry<String, Object>> iterator = f.getAttributes().entrySet().iterator();
             while (iterator.hasNext()) {
@@ -1905,7 +1918,7 @@ public class Excel
                 String value = AiUtil.GetValue(entry.getValue(), "");
                 //0 Zondy FWXX 幢号
                 if ("ZRZH".equals(key)) {
-                    label = new Label(0, index + 1, StringUtil.substr_last(value,2));
+                    label = new Label(0, index + 1, StringUtil.substr_last(value, 2));
                 }
                 //1 Zondy FWXX 街道
                 if ("JD".equals(key)) {
@@ -1960,11 +1973,11 @@ public class Excel
                 }
                 //12 Zondy FWXX 房屋性质
                 if ("FWXZ".equals(key)) {
-                    label = new Label(12, index + 1, getValue("fwxz",key,value));
+                    label = new Label(12, index + 1, getValue("fwxz", key, value));
                 }
                 //13 Zondy FWXX 房屋类型
                 if ("FWLX".equals(key)) {
-                    label = new Label(13, index + 1, getValue("fwlx",key,value));
+                    label = new Label(13, index + 1, getValue("fwlx", key, value));
                 }
                 //14 Zondy FWXX 房屋用途
                 if ("YT".equals(key)) {
@@ -1996,20 +2009,20 @@ public class Excel
                 }*/
                 //21 Zondy FWXX 总层数
                 if ("ZCS".equals(key)) {
-                    label = new Label(21, index + 1, AiUtil.GetValue(entry.getValue(),"",AiUtil.F_INT));
+                    label = new Label(21, index + 1, AiUtil.GetValue(entry.getValue(), "", AiUtil.F_INT));
                 }
                 //22 Zondy FWXX 建筑面积
                 if ("SCJZMJ".equals(key)) {
                     label = new Label(22, index + 1
                             , AiUtil.GetValue(entry.getValue()
-                            , AiUtil.GetValue(FeatureHelper.Get(f,"YCJZMJ"),"",AiUtil.F_FLOAT2)
+                            , AiUtil.GetValue(FeatureHelper.Get(f, "YCJZMJ"), "", AiUtil.F_FLOAT2)
                             , AiUtil.F_FLOAT2));
                 }
                 //23 Zondy FWXX 套内建筑面积
                 if ("SCTNJZMJ".equals(key)) {
                     label = new Label(23, index + 1
                             , AiUtil.GetValue(entry.getValue()
-                            , AiUtil.GetValue(FeatureHelper.Get(f,"YCJZMJ"),"",AiUtil.F_FLOAT2)
+                            , AiUtil.GetValue(FeatureHelper.Get(f, "YCJZMJ"), "", AiUtil.F_FLOAT2)
                             , AiUtil.F_FLOAT2));
                 }
                 //24 Zondy FWXX 分摊建筑面积
@@ -2048,7 +2061,7 @@ public class Excel
                 }
                 //32 Zondy FWXX 房屋结构
                 if ("FWJG".equals(key)) {
-                    label = new Label(32, index + 1, getValue("fwjg",key,value));
+                    label = new Label(32, index + 1, getValue("fwjg", key, value));
                 }
                 //33 Zondy FWXX 栋号
 //                if ("FWDH".equals(key)) {
@@ -2061,11 +2074,11 @@ public class Excel
                 }
                 //35 Zondy FWXX 权利人类型
                 if ("QLRLX".equals(key)) {
-                    label = new Label(35, index + 1, getValue("qllx",key,value));
+                    label = new Label(35, index + 1, getValue("qllx", key, value));
                 }
                 //36 Zondy FWXX 证件种类
                 if ("QLRZJZL".equals(key)) {
-                    label = new Label(36, index + 1, getValue("zjzl",key,value));
+                    label = new Label(36, index + 1, getValue("zjzl", key, value));
                 }
                 //37 Zondy FWXX 证件号码
                 if ("QLRZJH".equals(key)) {
@@ -2085,7 +2098,7 @@ public class Excel
                 }
                 //41 Zondy FWXX 产别
                 if ("CB".equals(key)) {
-                    label = new Label(41, index + 1, getValue("fwcb",key,value));
+                    label = new Label(41, index + 1, getValue("fwcb", key, value));
                 }
                 //42 Zondy FWXX 要素代码
                 if ("YSDM".equals(key)) {
@@ -2152,7 +2165,7 @@ public class Excel
                 //57 Zondy FWXX 权利性质
                 if ("QLXZ".equals(key)) {
 //                    TODO something...
-                    label = new Label(57, index + 1, getValue("qlxz",key,value));
+                    label = new Label(57, index + 1, getValue("qlxz", key, value));
                 }
                 if (label != null) {
                     wsFWXX.addCell(label);
@@ -2161,8 +2174,9 @@ public class Excel
             }
         }
     }
+
     // region 京山台账
-    public static void CreateStandingBook_JingShang(com.ovit.app.map.model.MapInstance mapInstance, String sheerName, String filePath, List<Feature> fs_zd){
+    public static void CreateStandingBook_JingShang(com.ovit.app.map.model.MapInstance mapInstance, String sheerName, String filePath, List<Feature> fs_zd) {
         format();
         WritableWorkbook workbook = null;
         try {
@@ -2173,32 +2187,32 @@ public class Excel
             boolean isWrite = file.canWrite();
             workbook = Workbook.createWorkbook(file);
             WritableSheet wSheet = workbook.createSheet(sheerName, 0);
-            wSheet.addCell( new Label(0, 1, "宗地代码"));
-            wSheet.addCell( new Label(1, 1, "权利人"));
-            wSheet.addCell( new Label(2, 1, "身份证证明材料"));
-            wSheet.addCell( new Label(3, 1, "建筑面积"));
-            wSheet.addCell( new Label(4, 1, "宗地面积"));
-            wSheet.addCell( new Label(5, 1, "权属资料收集情况"));
-            wSheet.addCell( new Label(6, 1, "农房签字情况"));
-            wSheet.addCell( new Label(7, 1, "核实情况"));
+            wSheet.addCell(new Label(0, 1, "宗地代码"));
+            wSheet.addCell(new Label(1, 1, "权利人"));
+            wSheet.addCell(new Label(2, 1, "身份证证明材料"));
+            wSheet.addCell(new Label(3, 1, "建筑面积"));
+            wSheet.addCell(new Label(4, 1, "宗地面积"));
+            wSheet.addCell(new Label(5, 1, "权属资料收集情况"));
+            wSheet.addCell(new Label(6, 1, "农房签字情况"));
+            wSheet.addCell(new Label(7, 1, "核实情况"));
 
             for (Feature f_zd : fs_zd) {
-                int index=fs_zd.indexOf(f_zd)+1;
-                wSheet.addCell( new Label(0, index+1, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDDM,"")));
-                wSheet.addCell( new Label(1, index+1, FeatureHelper.Get(f_zd,"QLRXM","")));
+                int index = fs_zd.indexOf(f_zd) + 1;
+                wSheet.addCell(new Label(0, index + 1, FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "")));
+                wSheet.addCell(new Label(1, index + 1, FeatureHelper.Get(f_zd, "QLRXM", "")));
                 String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "权利人证件号";
                 String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "户口簿";
-                String sfzzmcl="";
-                if (FileUtils.getFileCount(image_sfzmcl) > 0){
-                    sfzzmcl="身份证";
+                String sfzzmcl = "";
+                if (FileUtils.getFileCount(image_sfzmcl) > 0) {
+                    sfzzmcl = "身份证";
                 }
-                if (FileUtils.getFileCount(image_hkb) > 0){
-                    sfzzmcl+=",户口簿";
+                if (FileUtils.getFileCount(image_hkb) > 0) {
+                    sfzzmcl += ",户口簿";
                 }
 
-                wSheet.addCell( new Label(2, index+1, sfzzmcl));
-                wSheet.addCell( new Label(3, index+1, FeatureHelper.Get(f_zd,"JZMJ",0.00)+""));
-                wSheet.addCell( new Label(4, index+1, FeatureHelper.Get(f_zd,FeatureHelper.TABLE_ATTR_ZDMJ,0.00)+""));
+                wSheet.addCell(new Label(2, index + 1, sfzzmcl));
+                wSheet.addCell(new Label(3, index + 1, FeatureHelper.Get(f_zd, "JZMJ", 0.00) + ""));
+                wSheet.addCell(new Label(4, index + 1, FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDMJ, 0.00) + ""));
 //                wSheet.addCell( new Label(5, index+1, FeatureHelper.Get(f_zd,"ZDDM","")));
 //                wSheet.addCell( new Label(6, index+1, FeatureHelper.Get(f_zd,"ZDDM","")));
             }
@@ -2209,6 +2223,7 @@ public class Excel
             e.printStackTrace();
         }
     }
+
     //  恩施总表
     public static void CreateStandingBook_EnShi(com.ovit.app.map.model.MapInstance mapInstance, String sheerName, String filePath, List<Feature> fs_zd) {
         format();
@@ -2320,9 +2335,9 @@ public class Excel
 
             for (Feature f_zd : fs_zd) {
                 int index = fs_zd.indexOf(f_zd) + 1;
-                String zddm=FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
-                wSheet.addCell(new Label(0, index , FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "")));
-                wSheet.addCell(new Label(1, index , FeatureHelper.Get(f_zd, "QLRXM", "")));
+                String zddm = FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
+                wSheet.addCell(new Label(0, index, FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "")));
+                wSheet.addCell(new Label(1, index, FeatureHelper.Get(f_zd, "QLRXM", "")));
                 String image_sfzmcl = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "权利人证件号";
                 String image_hkb = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + "户口簿";
                 String sfzzmcl = "";
@@ -2333,41 +2348,41 @@ public class Excel
                     sfzzmcl += ",户口簿";
                 }
 
-                wSheet.addCell(new Label(2, index , FeatureHelper.Get(f_zd, "QLRXM", "")+"(户主)"));
-                wSheet.addCell(new Label(3, index, DicUtil.dic("qlrlx",FeatureHelper.Get(f_zd,"QLRLX","1"))));
-                wSheet.addCell(new Label(4, index ,  DicUtil.dic("qllx",FeatureHelper.Get(f_zd,"QLLX","6"))));
-                wSheet.addCell(new Label(5, index ,  DicUtil.dic("qlxz",FeatureHelper.Get(f_zd,"QLXZ","203"))));
+                wSheet.addCell(new Label(2, index, FeatureHelper.Get(f_zd, "QLRXM", "") + "(户主)"));
+                wSheet.addCell(new Label(3, index, DicUtil.dic("qlrlx", FeatureHelper.Get(f_zd, "QLRLX", "1"))));
+                wSheet.addCell(new Label(4, index, DicUtil.dic("qllx", FeatureHelper.Get(f_zd, "QLLX", "6"))));
+                wSheet.addCell(new Label(5, index, DicUtil.dic("qlxz", FeatureHelper.Get(f_zd, "QLXZ", "203"))));
                 // TODO... 调查日期
                 wSheet.addCell(new Label(6, index, ""));
-                wSheet.addCell(new Label(7, index, FeatureHelper.Get(f_zd,"ZDSYQ","")));
-                wSheet.addCell(new Label(8, index,  DicUtil.dic("zjzl",FeatureHelper.Get(f_zd,"QLRZJZL","1"))));
-                wSheet.addCell(new Label(9, index, FeatureHelper.Get(f_zd,"QLRZJH","")));
-                wSheet.addCell(new Label(10, index, FeatureHelper.Get(f_zd,"QLRTXDZ","")));
-                wSheet.addCell(new Label(11, index, FeatureHelper.Get(f_zd,"ZL","")));
-                wSheet.addCell(new Label(12, index, FeatureHelper.Get(f_zd,"QLRDH","")));
-                wSheet.addCell(new Label(13, index,zddm.substring(zddm.length()-5)));
-                wSheet.addCell(new Label(14, index,FeatureHelper.Get(f_zd,"TFH","")));
-                wSheet.addCell(new Label(15, index,  DicUtil.dic("qlsdfs",FeatureHelper.Get(f_zd,"QLSDFS","1"))));
-                wSheet.addCell(new Label(16, index,  DicUtil.dic("tdyt",FeatureHelper.Get(f_zd,"PZYT","072"))));
-                wSheet.addCell(new Label(17, index, FeatureHelper.Get(f_zd,"PZYT","072")));
-                wSheet.addCell(new Label(18, index,  DicUtil.dic("tdyt",FeatureHelper.Get(f_zd,"SJYT","072"))));
-                wSheet.addCell(new Label(19, index, FeatureHelper.Get(f_zd,"SJYT","072")));
-                wSheet.addCell(new Label(20, index, FeatureHelper.Get(f_zd,"SYQMJ","")));
-                wSheet.addCell(new Label(21, index, FeatureHelper.Get(f_zd,"JZZDMJ","")));
-                wSheet.addCell(new Label(22, index, FeatureHelper.Get(f_zd,"JZMJ","")));
-                wSheet.addCell(new Label(23, index, FeatureHelper.Get(f_zd,"ZDSZB","")));
-                wSheet.addCell(new Label(24, index, FeatureHelper.Get(f_zd,"ZDSZD","")));
-                wSheet.addCell(new Label(25, index, FeatureHelper.Get(f_zd,"ZDSZN","")));
-                wSheet.addCell(new Label(26, index, FeatureHelper.Get(f_zd,"ZDSZX","")));
+                wSheet.addCell(new Label(7, index, FeatureHelper.Get(f_zd, "ZDSYQ", "")));
+                wSheet.addCell(new Label(8, index, DicUtil.dic("zjzl", FeatureHelper.Get(f_zd, "QLRZJZL", "1"))));
+                wSheet.addCell(new Label(9, index, FeatureHelper.Get(f_zd, "QLRZJH", "")));
+                wSheet.addCell(new Label(10, index, FeatureHelper.Get(f_zd, "QLRTXDZ", "")));
+                wSheet.addCell(new Label(11, index, FeatureHelper.Get(f_zd, "ZL", "")));
+                wSheet.addCell(new Label(12, index, FeatureHelper.Get(f_zd, "QLRDH", "")));
+                wSheet.addCell(new Label(13, index, zddm.substring(zddm.length() - 5)));
+                wSheet.addCell(new Label(14, index, FeatureHelper.Get(f_zd, "TFH", "")));
+                wSheet.addCell(new Label(15, index, DicUtil.dic("qlsdfs", FeatureHelper.Get(f_zd, "QLSDFS", "1"))));
+                wSheet.addCell(new Label(16, index, DicUtil.dic("tdyt", FeatureHelper.Get(f_zd, "PZYT", "072"))));
+                wSheet.addCell(new Label(17, index, FeatureHelper.Get(f_zd, "PZYT", "072")));
+                wSheet.addCell(new Label(18, index, DicUtil.dic("tdyt", FeatureHelper.Get(f_zd, "SJYT", "072"))));
+                wSheet.addCell(new Label(19, index, FeatureHelper.Get(f_zd, "SJYT", "072")));
+                wSheet.addCell(new Label(20, index, FeatureHelper.Get(f_zd, "SYQMJ", "")));
+                wSheet.addCell(new Label(21, index, FeatureHelper.Get(f_zd, "JZZDMJ", "")));
+                wSheet.addCell(new Label(22, index, FeatureHelper.Get(f_zd, "JZMJ", "")));
+                wSheet.addCell(new Label(23, index, FeatureHelper.Get(f_zd, "ZDSZB", "")));
+                wSheet.addCell(new Label(24, index, FeatureHelper.Get(f_zd, "ZDSZD", "")));
+                wSheet.addCell(new Label(25, index, FeatureHelper.Get(f_zd, "ZDSZN", "")));
+                wSheet.addCell(new Label(26, index, FeatureHelper.Get(f_zd, "ZDSZX", "")));
                 //todo 发证日期
                 wSheet.addCell(new Label(27, index, ""));
-                wSheet.addCell(new Label(28, index, FeatureHelper.Get(f_zd,"QLQKSM","家庭户合法共有人共有")));
-                wSheet.addCell(new Label(29, index, FeatureHelper.Get(f_zd,"BZ","")));
-                wSheet.addCell(new Label(30, index, FeatureHelper.Get(f_zd,"JZDWSM","")));
+                wSheet.addCell(new Label(28, index, FeatureHelper.Get(f_zd, "QLQKSM", "家庭户合法共有人共有")));
+                wSheet.addCell(new Label(29, index, FeatureHelper.Get(f_zd, "BZ", "")));
+                wSheet.addCell(new Label(30, index, FeatureHelper.Get(f_zd, "JZDWSM", "")));
                 //TODO 权属调查记事
-                wSheet.addCell(new Label(31, index, FeatureHelper.Get(f_zd,"JZDWSM","")));
+                wSheet.addCell(new Label(31, index, FeatureHelper.Get(f_zd, "JZDWSM", "")));
                 //TODO 地籍测量记事
-                wSheet.addCell(new Label(32, index, FeatureHelper.Get(f_zd,"JZDWSM","")));
+                wSheet.addCell(new Label(32, index, FeatureHelper.Get(f_zd, "JZDWSM", "")));
                 //TODO 测量日期
                 wSheet.addCell(new Label(33, index, ""));
                 //TODO 邮政编码
@@ -2396,15 +2411,15 @@ public class Excel
         }
     }
 
-    public static String getValue(String typeName, String key,String value) {
-        String value_="";
-        if (!TextUtils.isEmpty(value)&&!TextUtils.isEmpty(DicUtil.dic(key, value))){
-            value_=DicUtil.dic(typeName, value).substring(DicUtil.dic(typeName, value).lastIndexOf("]")+1);
+    public static String getValue(String typeName, String key, String value) {
+        String value_ = "";
+        if (!TextUtils.isEmpty(value) && !TextUtils.isEmpty(DicUtil.dic(key, value))) {
+            value_ = DicUtil.dic(typeName, value).substring(DicUtil.dic(typeName, value).lastIndexOf("]") + 1);
         }
         return value_;
     }
 
-    public static  List<Map<String, String>> getXlsData(String filePath) throws IOException, BiffException {
+    public static List<Map<String, String>> getXlsData(String filePath) throws IOException, BiffException {
 
         Map<Integer, String> xlsMap = getXlsMap(filePath);
 
@@ -2422,49 +2437,52 @@ public class Excel
 //                data.put(xlsMap.get(j),)
 //            }
             for (Integer integer : xlsMap.keySet()) {
-                data.put(xlsMap.get(integer),sheet.getCell(integer,i).getContents().trim());
+                data.put(xlsMap.get(integer), sheet.getCell(integer, i).getContents().trim());
             }
 
             datas.add(data);
         }
         return datas;
     }
+
     // 导入excel 数据
-    public static void UpdateDataToExcel(final com.ovit.app.map.model.MapInstance mapInstance, final List<Map<String, String>> datas, final AiRunnable callback){
-        final List<Feature> fs_zd=new ArrayList<>();
-        new AiForEach<Map<String, String>>(datas,callback){
+    public static void UpdateDataToExcel(final com.ovit.app.map.model.MapInstance mapInstance, final List<Map<String, String>> datas, final AiRunnable callback) {
+        final List<Feature> fs_zd = new ArrayList<>();
+        new AiForEach<Map<String, String>>(datas, callback) {
             @Override
             public void exec() {
                 final Map<String, String> item = datas.get(postion);
                 MapHelper.QueryOne(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "ZDDM='" + item.get(FeatureHelper.TABLE_ATTR_ZDDM) + "'", new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        Feature f_zd= (Feature) t_;
+                        Feature f_zd = (Feature) t_;
                         for (String key : item.keySet()) {
-                            FeatureHelper.Set(f_zd,key,item.get(key));
+                            FeatureHelper.Set(f_zd, key, item.get(key));
                         }
                         fs_zd.add(f_zd);
-                        AiRunnable.Ok(getNext(),t_,objects);
+                        AiRunnable.Ok(getNext(), t_, objects);
                         return null;
                     }
                 });
             }
+
             @Override
             public void complet() {
-                AiRunnable.Ok(callback,fs_zd,fs_zd);
+                AiRunnable.Ok(callback, fs_zd, fs_zd);
             }
         };
     }
+
     // 获取入库模板key
     public static Map<Integer, String> getXlsMap(String filePath) throws IOException, BiffException {
         InputStream stream = new FileInputStream(filePath);
         Workbook rwb = Workbook.getWorkbook(stream);
-        final Sheet sheet =  rwb.getSheet(0);
+        final Sheet sheet = rwb.getSheet(0);
         Map<Integer, String> map = new HashMap<>();
         for (int i = 1; i < sheet.getRows(); i++) {
             for (int j = 0; j < sheet.getColumns(); j++) {
                 if (i == 1) {
-                    String value  = sheet.getCell(j, i).getContents().trim();
+                    String value = sheet.getCell(j, i).getContents().trim();
                     if (StringUtil.IsNotEmpty(value)) {
                         map.put(j, value);
                     }
@@ -2474,14 +2492,15 @@ public class Excel
         }
         return map;
     }
-    // 获取入库模板key-value
-    public static  List<Map<String, String>> getXlsMap(String filePath,String sheetName,int keyRow) throws IOException, BiffException {
+
+    // 获取入库模板key-value     keyRow:数据从第几行开始
+    public static List<Map<String, String>> getXlsMap(String filePath, String sheetName, int keyRow) throws IOException, BiffException {
         InputStream stream = new FileInputStream(filePath);
         Workbook rwb = Workbook.getWorkbook(stream);
-        Sheet sheet=rwb.getSheet(sheetName);
+        Sheet sheet = rwb.getSheet(sheetName);
 
         Map<String, String> map = null;
-        List<Map<String, String>> maps= new ArrayList<>();
+        List<Map<String, String>> maps = new ArrayList<>();
         for (int i = 0; i < sheet.getRows(); i++) {
             if (i <= keyRow) {
                 continue;
@@ -2495,26 +2514,74 @@ public class Excel
                     map.put(key, value);
                 }
             }
-            if (map!=null&&map.size()>2){
+            if (map != null && map.size() > 2) {
                 maps.add(map);
             }
         }
         return maps;
     }
 
-    public static  Map<String,List<Map<String, String>>> getXlsMaps(String filePath) throws IOException, BiffException {
+
+    // 获取入库模板key-value  户籍信息（力智）
+    public static Map<String, List<Map<String, String>>> getXlsMapHjxx(String filePath, String sheetName, int keyRow) throws IOException, BiffException {
         InputStream stream = new FileInputStream(filePath);
         Workbook rwb = Workbook.getWorkbook(stream);
-        Map<Integer, String> map =null;
-        List<Map<String, String>> xlsList =null;
-        Map<String, String> mapData=null;
-        Map<String,List<Map<String, String>>> map_ =null;
+        Sheet sheet = rwb.getSheet(sheetName);
+
+        Map<String, String> map = null;
+        Map<String, List<Map<String, String>>> maps = new HashMap<>();
+        for (int i = 0; i < sheet.getRows(); i++) {
+            if (i <= keyRow) {
+                continue;
+            }
+            map = new HashMap<>();
+            for (int j = 0; j < sheet.getColumns(); j++) {
+                String value = sheet.getCell(j, i).getContents().trim();
+                String key = sheet.getCell(j, keyRow).getContents().trim();
+                if (StringUtil.IsNotEmpty(value) && StringUtil.IsNotEmpty(key)) {
+                    map.put(key, value);
+                }
+            }
+            if (maps.size() == 0) {
+                List<Map<String, String>> familys = new ArrayList<>();
+                familys.add(map);
+                maps.put(map.get("KEYID"), familys);
+            } else {
+                boolean isSame = false;
+                for (String key : maps.keySet()) {
+                    if (map.get("KEYID").equals(key)) {
+                        isSame = true;
+                    }
+                }
+                //相同，添加该key对应的list
+                if (isSame) {
+                    maps.get(map.get("KEYID")).add(map);
+                } else {
+                    //不同，添加整条list
+                    List<Map<String, String>> familys = new ArrayList<>();
+                    familys.add(map);
+                    maps.put(map.get("KEYID"), familys);
+                }
+            }
+        }
+        return maps;
+    }
+
+
+    public static Map<String, List<Map<String, String>>> getXlsMaps(String filePath) throws
+            IOException, BiffException {
+        InputStream stream = new FileInputStream(filePath);
+        Workbook rwb = Workbook.getWorkbook(stream);
+        Map<Integer, String> map = null;
+        List<Map<String, String>> xlsList = null;
+        Map<String, String> mapData = null;
+        Map<String, List<Map<String, String>>> map_ = null;
         for (Sheet sheet : rwb.getSheets()) {
-            xlsList= new ArrayList<>();
+            xlsList = new ArrayList<>();
 
             map_ = new HashMap<>();
             for (int i = 1; i < sheet.getRows(); i++) {
-                if (i==1){
+                if (i == 1) {
                     map = new HashMap<>();
                 }
                 for (int j = 0; j < sheet.getColumns(); j++) {
@@ -2526,28 +2593,31 @@ public class Excel
                         } else {
                             // 数据
                             mapData = new HashMap<>();
-                            mapData.put(map.get(j),value);
+                            mapData.put(map.get(j), value);
                         }
                     }
                 }
                 xlsList.add(mapData);
             }
-            map_.put(sheet.getName(),xlsList);
+            map_.put(sheet.getName(), xlsList);
         }
         return map_;
     }
+
     //  入库总表
-    public static void CreateStandingBook( List< Map<String, Object>> maps, Map<Integer, String> xlsData,String filePath, String filePath_badong) throws IOException, BiffException, WriteException {
+    public static void CreateStandingBook
+    (List<Map<String, Object>> maps, Map<Integer, String> xlsData, String
+            filePath, String filePath_badong) throws IOException, BiffException, WriteException {
         InputStream stream = new FileInputStream(filePath);
         Workbook rwb = Workbook.getWorkbook(stream);
-        WritableWorkbook workbook=Workbook.createWorkbook(new File(filePath_badong),rwb);
-        final WritableSheet sheet =  workbook.getSheet(0);
+        WritableWorkbook workbook = Workbook.createWorkbook(new File(filePath_badong), rwb);
+        final WritableSheet sheet = workbook.getSheet(0);
 
         for (int i = 0; i < maps.size(); i++) {
             // 每行
             Map<String, Object> map = maps.get(i);
             for (Integer j : xlsData.keySet()) {
-                sheet.addCell(new Label(j,i+1,map.get(xlsData.get(j))+""));
+                sheet.addCell(new Label(j, i + 1, map.get(xlsData.get(j)) + ""));
             }
         }
         workbook.write();
@@ -2555,8 +2625,9 @@ public class Excel
     }
 
     // 导出单图层数据
-    public static void CreateStandingBookToLayer(com.ovit.app.map.model.MapInstance mapInstance, String filePath, List<Feature> fs){
-        if (!FeatureHelper.isExistElement(fs)){
+    public static void CreateStandingBookToLayer(com.ovit.app.map.model.MapInstance
+                                                         mapInstance, String filePath, List<Feature> fs) {
+        if (!FeatureHelper.isExistElement(fs)) {
             // fs 没有元素
             return;
         }
@@ -2570,15 +2641,15 @@ public class Excel
             boolean isWrite = file.canWrite();
             workbook = Workbook.createWorkbook(file);
             WritableSheet wSheet = workbook.createSheet(fs.get(0).getFeatureTable().getTableName(), 0);
-            Object [] attrs=fs.get(0).getAttributes().keySet().toArray();
+            Object[] attrs = fs.get(0).getAttributes().keySet().toArray();
             for (int i = 0; i < fs.size(); i++) {
-                Label label=null;
+                Label label = null;
                 for (int j = 0; j < attrs.length; j++) {
-                    if (i==0){
-                        label = new Label(j, i,  attrs[j].toString());
+                    if (i == 0) {
+                        label = new Label(j, i, attrs[j].toString());
                         wSheet.addCell(label);
                     }
-                    label = new Label(j, i+1,FeatureHelper.Get(fs.get(i), attrs[j].toString(),""));
+                    label = new Label(j, i + 1, FeatureHelper.Get(fs.get(i), attrs[j].toString(), ""));
                     wSheet.addCell(label);
                 }
             }
@@ -2588,9 +2659,11 @@ public class Excel
             e.printStackTrace();
         }
     }
+
     // 导出多图层数据
-    public static void CreateStandingBookToLayers(com.ovit.app.map.model.MapInstance mapInstance, String filePath, List<List<Feature>> lists){
-        if (!FeatureHelper.isExistElement(lists)){
+    public static void CreateStandingBookToLayers(com.ovit.app.map.model.MapInstance
+                                                          mapInstance, String filePath, List<List<Feature>> lists) {
+        if (!FeatureHelper.isExistElement(lists)) {
             // fs 没有元素
             return;
         }
@@ -2602,19 +2675,19 @@ public class Excel
                 file.createNewFile();
             }
             boolean isWrite = file.canWrite();
-            WritableSheet wSheet =null;
+            WritableSheet wSheet = null;
             workbook = Workbook.createWorkbook(file);
             for (int a = 0; a < lists.size(); a++) {
-                List<Feature> fs=lists.get(a);
+                List<Feature> fs = lists.get(a);
                 wSheet = workbook.createSheet(fs.get(a).getFeatureTable().getTableName(), a);
-                Object [] attrs=fs.get(0).getAttributes().keySet().toArray();
+                Object[] attrs = fs.get(0).getAttributes().keySet().toArray();
                 for (int i = 0; i < fs.size(); i++) {
-                    Label label=null;
+                    Label label = null;
                     for (int j = 0; j < attrs.length; j++) {
-                        if (i==0){
-                            label = new Label(j, i,  attrs[j].toString());
-                        }else {
-                            label = new Label(j, i+1,FeatureHelper.Get(fs.get(i), attrs[j].toString(),""));
+                        if (i == 0) {
+                            label = new Label(j, i, attrs[j].toString());
+                        } else {
+                            label = new Label(j, i + 1, FeatureHelper.Get(fs.get(i), attrs[j].toString(), ""));
                         }
                         wSheet.addCell(label);
                     }
@@ -2626,7 +2699,6 @@ public class Excel
             e.printStackTrace();
         }
     }
-
 
 
 }
