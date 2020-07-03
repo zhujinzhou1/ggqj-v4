@@ -34,8 +34,8 @@ import java.util.Map;
 import static com.ovit.app.map.custom.FeatureHelper.Get;
 
 /**
- * Created by XW on 2018/9/29. 房产图 固定1:200 比例尺
- * 通山版房产分层图   杜帅
+ * 房屋分层平面图
+ * 通山
  */
 
 public class DxfFwfcpmt_tongshan {
@@ -52,11 +52,11 @@ public class DxfFwfcpmt_tongshan {
     private Feature f_zd;
     private Point o_center;   // o 点
     private Envelope o_extend;// 真实图形的范围
-    private  double o_split = 2d;// 单元间隔
-    private  double p_width = 57.376d;// 页面宽
-    private  double p_height = 42.408d;// 页面高
-    private  double h = 0.9d; // 行高
-    private float o_fontsize=0.5f;// 字体大小
+    private double o_split = 2d;// 单元间隔
+    private double p_width = 57.376d;// 页面宽
+    private double p_height = 42.408d;// 页面高
+    private double h = 0.9d; // 行高
+    private float o_fontsize = 0.5f;// 字体大小
     private double scale;
     private String o_fontstyle = "宋体";// 字体
     private String fontstyle = DxfHelper.FONT_STYLE_DENGXIANTI;// 字体 等线体
@@ -327,7 +327,7 @@ public class DxfFwfcpmt_tongshan {
 
                 // 右下基本信息表
                 x_ = x + w / 2;
-                y_ = y - p_height + 19 * h;
+                y_ = y - p_height + 19 * h;///8888888888888
                 Envelope cel_2_2 = new Envelope(x_, y_, x + w, y - p_height, p_extend.getSpatialReference());
                 //建筑面积计算
                 y_ = y_ - 1.5 * h;
@@ -479,7 +479,7 @@ public class DxfFwfcpmt_tongshan {
                 // 填充自然幢 基本信息
                 y_ = y - p_height + 13 * h;
                 Envelope cel_i_j = null;
-                for (int i = 0; i < 11; i++) {
+                for (int i = 0; i < 10; i++) {
                     x_ = x + w / 2 + w / 12;
                     y_ = y_ - h;
                     String[] z = map_z.get(i);
