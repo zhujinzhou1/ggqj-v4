@@ -55,6 +55,8 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFwfcpmt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFwqjxsyt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdctDefult;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_leiyang;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -1338,6 +1340,10 @@ public class FeatureViewZD extends FeatureView {
                 final String dxffwqjxsyt_tongshan = dxfDir + "房屋权界线示意图.dxf";
                 new DxfFwqjxsyt_tongshan(mapInstance).set(dxffwqjxsyt_tongshan).set(f_zd, mapfs).write().save();
 //              new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+            }else if (DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG){
+                String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) +  "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
+                final String dxfzdt_leiyang = dxfDir + "宗地图.dxf";
+                new DxfZdt_leiyang(mapInstance).set(dxfzdt_leiyang).set(f_zd, mapfs).write().save();
             }else {
                 new DxfZdctDefult(mapInstance).set(dxfpath_zdt).set(f_zd, mapfs).write().save();
             }
@@ -3064,9 +3070,10 @@ public void loadZdct(boolean reload, final AiRunnable callback) {
             ShapeUtil.writeShp(shpfile_hfsjg, fs_h_fsjg,spatialReference);
 
             String dxf_bdcdyh = bdcdyh;
-            if (DxfHelper.TYPE == DxfHelper.TYPE_JINSAN) {
-                // 京山 十堰 郧阳 冀保书
-                final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "分层分户图.dxf";// fs_zrz =0
+            if (DxfHelper.TYPE == DxfHelper.TYPE_JINSAN || DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG) {
+                // 京山 十堰 郧阳 冀保书   添加耒阳 (房产分层图)
+                //final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "分层分户图.dxf";// fs_zrz =0
+                final String dxf_fcfht = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "分层分户图.dxf";// fs_zrz =0   添加耒阳 (房产分层图)
                 new DxfFcfwh_jinshan(mapInstance).set(dxf_fcfht).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_BADONG) {
                 // 巴东 王总
