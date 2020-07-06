@@ -1832,6 +1832,11 @@ public class FeatureEditBDC extends FeatureEdit {
                     map_zrz.put("ZRZ.ZH","F"+zrzh);
                 }
             }
+            //墙体归属取自然幢
+            map_zrz.put("Z.QTGSD",FeatureHelper.Get(zrz,"QTGSD", "自墙"));
+            map_zrz.put("Z.QTGSN",FeatureHelper.Get(zrz,"QTGSN", "自墙"));
+            map_zrz.put("Z.QTGSX",FeatureHelper.Get(zrz,"QTGSX", "自墙"));
+            map_zrz.put("Z.QTGSB",FeatureHelper.Get(zrz,"QTGSB", "自墙"));
             maps_zrz.add(map_zrz);
             // 拷贝自然幢的内容
 //            FileUtils.copyFile(FileUtils.getAppDirAndMK(mapInstance.getpath_feature(zrz)), file_zrzs + mapInstance.getId(zrz));
@@ -1841,7 +1846,7 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZRZ.HZFWJG", StringUtil.Join(hzfwjgff, true));
         map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
-        if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN){
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN){
             for (int i = 0; i < 10-fs_zrz.size(); i++) {
                 Feature f = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
                 Map<String, Object> map_zrz = new LinkedHashMap<>();
@@ -1965,7 +1970,7 @@ public class FeatureEditBDC extends FeatureEdit {
         map.put("ZRZ.CSHZ", z_zcs > 1 ? ("1-" + z_zcs) : 1);
         map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 7));
         //建筑日期到年   通山模板   2020/06/04
-        if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI ) {
+        if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI|| DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN ) {
             if (map.get("ZRZ.JGRQ").toString().length() > 4) {
                 map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 4));
             }
@@ -1980,11 +1985,12 @@ public class FeatureEditBDC extends FeatureEdit {
         for (int i = 0; i < qp.length; i++) {
             map.put(qpk[i],qp[i]);
         }
-        Point point = GeometryEngine.labelPoint((Polygon) zrz.getGeometry());
-        Point p = MapHelper.geometry_get(point, SpatialReference.create(4490));
-        map.put("ZRZ.ZXDX", p.getX());
-        map.put("ZRZ.ZXDY", p.getY());
-
+        if(FeatureHelper.isPolygonGeometryValid(zrz.getGeometry())){
+            Point point = GeometryEngine.labelPoint((Polygon) zrz.getGeometry());
+            Point p = MapHelper.geometry_get(point, SpatialReference.create(4490));
+            map.put("ZRZ.ZXDX", p.getX());
+            map.put("ZRZ.ZXDY", p.getY());
+        }
         GetReplecData(map_, "", map);
     }
 

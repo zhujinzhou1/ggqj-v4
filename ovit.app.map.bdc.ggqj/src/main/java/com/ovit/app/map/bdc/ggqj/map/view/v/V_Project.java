@@ -11,9 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
@@ -121,6 +123,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             public void onClick(View v) {
                 // 查看列表
                 mapInstance.tool.map_opt_show("map_opt_projectlist", "", "project", getView_ProjectList(), false, true, null);
+            }
+        });
+        //通山  批量写入坐落 2020/07/03
+        tool_view.findViewById(R.id.ll_input_zl).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                inputZL((MapInstance) getMapInstance());
             }
         });
 
@@ -384,6 +393,96 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
         return tool_view;
+    }
+
+    public void inputZL(final MapInstance mapInstance) {
+        LinearLayout v_d = (LinearLayout) LayoutInflater.from(activity).inflate(
+                R.layout.app_ui_ai_dialog_edit, null);
+        final EditText et_name = (EditText) v_d.findViewById(R.id.et_name);
+
+        final Dialog dialog = new AlertDialog.Builder(activity).setView(v_d).create();
+        v_d.findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        v_d.findViewById(R.id.btn_enter).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final String zl = et_name.getText().toString().trim();
+                if (TextUtils.isEmpty(zl)) {
+                    dialog.dismiss();
+                    Toast.makeText(activity, "请输入坐落...", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                final List<Feature> fs_zd = new ArrayList<>();
+                final List<Feature> update_fs_zd = new ArrayList<>();
+                MapHelper.Query(FeatureEdit.GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_LENGTH_MAX, fs_zd, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        Toast.makeText(activity, "正在导入数据...", Toast.LENGTH_SHORT).show();
+                        for (Feature f_zd : fs_zd) {
+
+                            String f_zl = FeatureHelper.Get(f_zd, "ZL", "");
+                            if (DxfHelper.TYPE == DxfHelper.TYPE_JINSAN && !TextUtils.isEmpty(f_zl)) {
+
+                            } else if (!TextUtils.isEmpty(f_zl)) {
+                                continue;
+                            }
+
+                            String zddm = FeatureHelper.Get(f_zd, "ZDDM", "");
+                            String group = "";
+                            String A = "";
+                            if (zddm.contains("JC")) {
+                                group = zddm.substring(zddm.indexOf("JC") + 2, zddm.indexOf("JC") + 4) + "组";
+                                A = zddm.substring(zddm.indexOf("JC") + 2, zddm.indexOf("JC") + 4);
+                            } else if (zddm.contains("JB")) {
+                                group = zddm.substring(zddm.indexOf("JB") + 2, zddm.indexOf("JB") + 4) + "组";
+                                A = zddm.substring(zddm.indexOf("JB") + 2, zddm.indexOf("JB") + 4);
+                            } else if (zddm.contains("GB")) {
+                                group = zddm.substring(zddm.indexOf("GB") + 2, zddm.indexOf("GB") + 4) + "组";
+                                A = zddm.substring(zddm.indexOf("GB") + 2, zddm.indexOf("GB") + 4);
+                            }
+                            if (!TextUtils.isEmpty(group)) {
+                                group = group.indexOf("0") == 0 ? group.substring(1) : group;
+                                if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN|| DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN) {
+                                    String B;
+                                    A = A.indexOf("0") == 0 ? A.substring(1) : A;
+                                    int q = Integer.parseInt(A);
+                                    String[] i = {"一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十", "二十一", "二十二", "二十三", "二十四", "二十五"};
+                                    for (int j = 0; j <= i.length; j++) {
+                                        if (q == j) {
+                                            B = i[j - 1];
+                                            group = B + "组";
+                                        }
+                                    }
+                                }
+                                FeatureHelper.Set(f_zd, "ZL", zl + group);
+                                update_fs_zd.add(f_zd);
+                            } else {
+                                FeatureHelper.Set(f_zd, "ZL", zl);
+                                update_fs_zd.add(f_zd);
+                            }
+
+                        }
+                        MapHelper.updateFeature(update_fs_zd, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                dialog.dismiss();
+                                Toast.makeText(activity, "坐落批量写入完成", Toast.LENGTH_SHORT).show();
+                                return null;
+                            }
+                        });
+                        return null;
+                    }
+                });
+            }
+        });
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
 
     private void output_gyr(final MapInstance mapInstance) {
