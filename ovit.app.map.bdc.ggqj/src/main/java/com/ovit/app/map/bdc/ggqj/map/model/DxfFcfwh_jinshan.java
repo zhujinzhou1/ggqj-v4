@@ -232,10 +232,16 @@ public class DxfFcfwh_jinshan {
                 dxf.write(new Envelope(envelope.getCenter(), p_width + o_split * 3, p_height + o_split * 5)); // 图框
 
                 Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + o_split * 1, envelope.getSpatialReference());
-                dxf.writeText(p_title, "房产分层(分户)图", o_fontsize*2, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, null, null);
+                //京山 头部名称
+                //dxf.writeText(p_title, "房产分层(分户)图", o_fontsize*2, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, null, null);
+                //耒阳 房产分层图
+                dxf.writeText(p_title, "房产分层图", o_fontsize*2, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, null, null);
 
                 Point p_unit = new Point(envelope.getXMax() , envelope.getYMax() + o_split*0.5, envelope.getSpatialReference());
-                dxf.writeText(p_unit, "单位：米·平方米", o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_BYLAYER, null, null);
+                //京山 单位
+                //dxf.writeText(p_unit, "单位：米·平方米", o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_BYLAYER, null, null);
+                //耒阳 房产分层图
+                dxf.writeText(p_unit, "单位：m·㎡ ", o_fontsize * 0.8f, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_BYLAYER, null, null);
                 double w = p_width; //行宽
                 // 左上角
                 double x = envelope.getXMin();
@@ -412,8 +418,8 @@ public class DxfFcfwh_jinshan {
                 Envelope cel_4_0 = new Envelope(x_ - o_split, y_ + (hzdw.length() * o_fontsize) * 1.8, x_, y_, p_extend.getSpatialReference());
                 Point p_4_0 = new Point(cel_4_0.getCenter().getX(), cel_4_0.getCenter().getY(), p_extend.getSpatialReference());
                 dxf.writeMText(p_4_0, StringUtil.GetDxfStrFormat(hzdw,"\n"), o_fontsize, o_fontstyle, 0, 0, 3, 0, null, null);
-
-                Calendar c = Calendar.getInstance();
+                //京山版本的底部(绘图日期和审核日期在左)
+               /* Calendar c = Calendar.getInstance();
                 String auditDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH)+"日");
                 c.add(Calendar.DATE, -1);
                 String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH)+"日");
@@ -430,7 +436,25 @@ public class DxfFcfwh_jinshan {
                 dxf.writeText(p_chr, "测绘员："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR",""), o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
                 Point p_shr = new Point(envelope.getCenter().getX() + w * 1 / 3+w*1/10, envelope.getYMin() - 3*o_split * 0.3, envelope.getSpatialReference());
                 dxf.writeText(p_shr, "审核员："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"SHR",""), o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+*/
+               //耒阳的绘图日期和审核日期在右  测绘人和审核在左
+                Calendar c = Calendar.getInstance();
+                String auditDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH)+"日");
+                c.add(Calendar.DATE, -1);
+                String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH)+"日");
 
+                Point p_auditDate = new Point(envelope.getCenter().getX()+ w * 1 / 3, envelope.getYMin() -3* o_split * 0.3, envelope.getSpatialReference());
+                Point p_drawDate = new Point(envelope.getCenter().getX()+ w * 1 / 3 , envelope.getYMin() - o_split * 0.3, envelope.getSpatialReference());
+                dxf.writeText(p_drawDate, "绘图日期:"+drawDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+                dxf.writeText(p_auditDate,"审核日期:"+auditDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+
+                Point p_blc = new Point(envelope.getCenter().getX() , envelope.getYMin() - o_split * 0.3, envelope.getSpatialReference());
+                dxf.writeText(p_blc, "1:200", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+
+                Point p_chr = new Point(envelope.getCenter().getX() - w * 1 / 3-w * 1 / 20, envelope.getYMin() - o_split * 0.3, envelope.getSpatialReference());
+                dxf.writeText(p_chr, "制图人："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"HZR",""), o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
+                Point p_shr = new Point(envelope.getCenter().getX() - w * 1 / 3-w * 1 / 20, envelope.getYMin() - 3*o_split * 0.3, envelope.getSpatialReference());
+                dxf.writeText(p_shr, "审核人："+ GsonUtil.GetValue(mapInstance.aiMap.JsonData,"SHR",""), o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, 0, null, null);
             }
 
         }catch (Exception es){
