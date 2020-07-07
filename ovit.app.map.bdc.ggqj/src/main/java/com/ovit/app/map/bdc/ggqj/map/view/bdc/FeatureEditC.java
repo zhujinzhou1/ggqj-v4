@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Envelope;
+import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.Point;
 import com.ovit.R;
@@ -508,10 +509,32 @@ public class FeatureEditC extends FeatureEdit {
     }
 
     public static void createFCFHT_JPG(final MapInstance mapInstance, final Feature feature, String cs, String filename, List<Feature> fs, FwPc pc) {
-        List<com.esri.arcgisruntime.geometry.Geometry> gs = new ArrayList<>();
+        List<Geometry> gs = new ArrayList<>();
+        List<Geometry> mgs = new ArrayList<>();
+        List<Feature> mfs = new ArrayList<>();
+
+        Feature f_h = null ;
         for (Feature f : fs) {
-            gs.add(f.getGeometry());
+            com.esri.arcgisruntime.geometry.Geometry g = f.getGeometry();
+            String tableName = f.getFeatureTable().getTableName();
+            if (FeatureHelper.TABLE_NAME_H.equals(tableName)){
+                if (f_h == null){
+                    f_h = f;
+                }
+                mgs.add(g);
+            }else {
+                mfs.add(f);
+            }
+            gs.add(g);
         }
+        if(mgs.size()>0){
+            Geometry union = GeometryEngine.union(mgs);
+            f_h.setGeometry(MapHelper.geometry_trim(union));
+            mfs.add(0,f_h);
+        }
+
+
+
         gs.add(feature.getGeometry());
         Envelope extent = MapHelper.geometry_combineExtents(gs);
         // 获取适合比例
@@ -543,7 +566,7 @@ public class FeatureEditC extends FeatureEdit {
         img.getPaint().setAntiAlias(true);
         img.canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));
 
-        for (Feature f : fs) {
+        for (Feature f : mfs) {
             if (MapHelper.getLayerName(f).contains("附属")) {
                 img.getPaint().setPathEffect(new DashPathEffect(new float[]{4, 4}, 0));
             } else {
@@ -552,6 +575,7 @@ public class FeatureEditC extends FeatureEdit {
             }
             img.draw(f, mapInstance.getLabel(f), 16, pc);
         }
+
         img.getPaint().setPathEffect(null);
 //        img.draw(new android.graphics.Point(w / 2, 40), "第" + cs + "层", 0, 0, 0, 20);
         // 是否摆正幢
