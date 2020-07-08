@@ -1600,12 +1600,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                 final List<Feature> fs_hjxx = new ArrayList<>();
                                                 for (String key : sql_results.keySet()) {
                                                     List<Map<String, String>> familys = sql_results.get(key);
-                                                    List<Feature> fill_fs_hjxx = new ArrayList<>();
-                                                    List<Feature> fill_fs_hz = new ArrayList<>();
-                                                    for (Map<String, String> map : familys) {
+                                                    final List<Feature> fill_fs_hjxx = new ArrayList<>();
+                                                    final List<Feature> fill_fs_hz = new ArrayList<>();
+                                                    for (final Map<String, String> map : familys) {
 
                                                         if ("户主".equals(map.get("YHZGX"))) {
-                                                            Feature f_hz = mapInstance.getTable(FeatureHelper.LAYER_NAME_GYRXX).createFeature();
+                                                            String zddm="";
+                                                            final Feature f_hz = mapInstance.getTable(FeatureHelper.TABLE_NAME_GYRXX).createFeature();
                                                             for (String key1 : map.keySet()) {
                                                                 String value = map.get(key1);
                                                                 if (StringUtil.IsNotEmpty(value) && StringUtil.IsNotEmpty(key1)) {
@@ -1617,6 +1618,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                         }else{
                                                                             value = "男";
                                                                         }
+                                                                    }
+                                                                    if (key1.equals("ZDDM")) {
+                                                                        zddm=value;
                                                                     }
                                                                     try {
                                                                         Field filed = f_hz.getFeatureTable().getField(key1);
@@ -1648,8 +1652,22 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                             mapInstance.fillFeature(f_hz);
                                                             fs_hz.add(f_hz);
                                                             fill_fs_hz.add(f_hz);
+                                                            //有宗地代码的，直接绑定权利人
+                                                            if(!StringUtil.IsEmpty(zddm)){
+                                                                FeatureViewZD.From(mapInstance).loadByZddm(zddm, new AiRunnable() {
+                                                                    @Override
+                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        if (FeatureHelper.isExistFeature(t_)) {
+                                                                            Feature f_zd = (Feature) t_;
+                                                                            mapInstance.fillFeature(f_hz,f_zd);
+                                                                        }
+                                                                        return null;
+                                                                    }
+                                                                });
+                                                            }
+
                                                         } else {
-                                                            Feature f_hjxx = mapInstance.getTable(FeatureHelper.LAYER_NAME_HJXX).createFeature();
+                                                            Feature f_hjxx = mapInstance.getTable(FeatureHelper.TABLE_NAME_HJXX).createFeature();
                                                             for (String key1 : map.keySet()) {
                                                                 String value = map.get(key1);
                                                                 if (key1.equals("XB")) {
