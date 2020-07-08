@@ -209,8 +209,8 @@ public class DxfZdt_leiyang extends BaseDxf {
         c.add(Calendar.DATE, -1);
         String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
         Point p_jxf = new Point(envelope.getCenter().getX() - w * 1 / 3 - w * 1 / 20, envelope.getYMin() - h * o_fontsize, envelope.getSpatialReference());
-        Point p_auditDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - 3 * o_split * 0.3, envelope.getSpatialReference());
-        Point p_drawDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - o_split * 0.3, envelope.getSpatialReference());
+        Point p_auditDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - h * o_fontsize * 2, envelope.getSpatialReference());
+        Point p_drawDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() -h * o_fontsize, envelope.getSpatialReference());
         String tjsj = StringUtil.substr(auditDate, 0, auditDate.indexOf("月") + 1); // 图解时间
         dxf.writeText(p_jxf, tjsj + "解析法测绘界址点", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
         Point p_blc = new Point(envelope.getCenter().getX(), envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
@@ -226,7 +226,7 @@ public class DxfZdt_leiyang extends BaseDxf {
             hzr = getNiceString(hzr, shr.length() - hzr.length());
         }
 
-        Point p_chr = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
+        Point p_chr = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - h * o_fontsize, envelope.getSpatialReference());
         dxf.writeText(p_chr, "制图：" + hzr, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_BYLAYER, null, null);
         dxf.writeText(p_drawDate, "" + drawDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
         Point p_shr = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - h * (o_fontsize * 2), envelope.getSpatialReference());

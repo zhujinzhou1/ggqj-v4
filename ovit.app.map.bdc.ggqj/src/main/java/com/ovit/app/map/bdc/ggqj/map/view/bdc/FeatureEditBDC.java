@@ -1382,8 +1382,12 @@ public class FeatureEditBDC extends FeatureEdit {
             if (!TextUtils.isEmpty(FeatureHelper.Get(f_jzd, "JZDH", ""))) {
                 if (i == f_jzds.size()) {
                     v.put("JZD.JZDH", "J1");
+                    v.put("JZD.SXH", "1");
+                    v.put("JZD.FFXZBZ", "");
+                    v.put("JZD.FFYZBZ", "");
                 } else {
                     v.put("JZD.JZDH", "J" + (i + 1));
+                    v.put("JZD.SXH", (i + 1));
                 }
             }
 
@@ -1523,11 +1527,14 @@ public class FeatureEditBDC extends FeatureEdit {
                 map_jzd.put("JZD.ZJDH","");
                 map_jzd.put("JZD.END", "");
             }
-            map_jzd.put("JZX.CDF", AiUtil.Scale(FeatureHelper.Get(f_jzx, "JZXCD", 0d), 2, 0) + "m" );
+            //要求把m去掉
+            //map_jzd.put("JZX.CDF", AiUtil.Scale(FeatureHelper.Get(f_jzx, "JZXCD", 0d), 2, 0) + "m" );
+            map_jzd.put("JZX.CDF", AiUtil.Scale(FeatureHelper.Get(f_jzx, "JZXCD", 0d), 2, 0));
             if(FeatureHelper.Get(f_jzx2, "JZXCD", "").isEmpty()){
                 map_jzd.put("JZX.CDT","");
             } else {
-                map_jzd.put("JZX.CDT", AiUtil.Scale(FeatureHelper.Get(f_jzx2, "JZXCD", 0d), 2, 0) + "m" );
+//                map_jzd.put("JZX.CDT", AiUtil.Scale(FeatureHelper.Get(f_jzx2, "JZXCD", 0d), 2, 0) + "m" );
+                map_jzd.put("JZX.CDT", AiUtil.Scale(FeatureHelper.Get(f_jzx2, "JZXCD", 0d), 2, 0));
             }
             maps_jzd.add(map_jzd);
         }
