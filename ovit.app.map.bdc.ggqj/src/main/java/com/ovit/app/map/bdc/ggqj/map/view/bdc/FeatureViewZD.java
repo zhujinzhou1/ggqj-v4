@@ -434,53 +434,85 @@ public class FeatureViewZD extends FeatureView {
             ToastMessage.Send("请先选择要绑定权利人的宗地！");
             return;
         }
-
-        final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_GYRXX);
+        final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+        final FeatureTable table_gyr = mapInstance.getTable(FeatureHelper.TABLE_NAME_GYRXX);
         final int listItemRes = com.ovit.app.map.R.layout.app_ui_ai_lv_bdqlr;
         ViewGroup ll_view = (ViewGroup) LayoutInflater.from(mapInstance.activity).inflate(listItemRes, null);
-        View nodata = LayoutInflater.from(mapInstance.activity).inflate(R.layout.app_ui_ai_adapter_nodata, null);
+        final View nodata = LayoutInflater.from(mapInstance.activity).inflate(R.layout.app_ui_ai_adapter_nodata, null);
         final EditText search_et = (EditText) ll_view.findViewById(com.ovit.R.id.search_et);
         ImageView search_iv = (ImageView) ll_view.findViewById(com.ovit.R.id.search_iv);
         final ListView qlr_lv = (ListView) ll_view.findViewById(com.ovit.R.id.qlr_lv);
+
         final List<Feature> fs = new ArrayList<>();
         search_iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                queryFeature(table_qlr, search_et.getText().toString(), fs, new AiRunnable() {
+                fs.clear();
+                queryFeature(table_gyr, com.ovit.app.map.view.FeatureView.From(mapInstance, table_gyr).getSearchWhere(search_et.getText().toString()), fs, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        List<String> data = new ArrayList<>();
-                        for (Feature feature : fs) {
-                            data.add((String) feature.getAttributes().get("GYRXM"));
+                        if (fs.size() > 0) {
+                            qlr_lv.setVisibility(View.VISIBLE);
+                            List<String> data = new ArrayList<>();
+                            for (Feature feature : fs) {
+                                data.add(AiUtil.GetValue(feature.getAttributes().get("XM").toString(), "") + "     " + AiUtil.GetValue(feature.getAttributes().get("ZJH").toString(), ""));
+                            }
+                            qlrAdapter = new QlrAdapter(mapInstance.activity, data);
+                            qlr_lv.setAdapter(qlrAdapter);
+
+                        } else {
+                            ToastMessage.Send("未找到姓名或证件号为" + search_et.getText().toString() + "的权利人！");
+                            qlr_lv.setVisibility(View.GONE);
                         }
-                        qlrAdapter.updateListView(data);
                         return null;
                     }
                 });
             }
         });
-        queryFeature(table_qlr, search_et.getText().toString(), fs, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                List<String> data = new ArrayList<>();
-                for (Feature feature : fs) {
-                    data.add(AiUtil.GetValue(feature.getAttributes().get("GYRXM"), ""));
-                }
-                qlrAdapter = new QlrAdapter(mapInstance.activity, data);
-                qlr_lv.setAdapter(qlrAdapter);
-                return null;
-            }
-        });
+        final List<Feature> fs_bdcdy = new ArrayList<>();
+        final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
         qlr_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ToastMessage.Send("你点了" + position);
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                //宗地有不动产单元的，直接绑定.没有不动产单元的，创建之后再进行绑定
+                queryFeature(table_qlr, "", fs_bdcdy, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        List<Feature> fs= (List<Feature>) t_;
+                        if(fs.size()>0){
+                            mapInstance.fillFeature(fs.get(position), f_zd);
+
+                        }else{
+
+                            mapInstance.fillFeature(fs.get(position), fs_bdcdy.get(0));
+                        }
+                        aidialog.dismiss();
+                        ToastMessage.Send("绑定成功！");
+                        return null;
+                    }
+                });
+//                fv.checkBdcdy(f_zd, new AiRunnable() {
+//                    @Override
+//                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                        AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
+//                        if (t_ != null) {
+//
+//                        } else {
+//                            aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
+//                            aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
+//                        }
+//
+//                        return null;
+//                    }
+//                });
+
+
             }
         });
-        final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+
 
         aidialog.setHeaderView(R.mipmap.app_map_user, "绑定权利人")
-                .setContentView(fs.size() > 0 ? ll_view : nodata)
+                .setContentView(ll_view)
                 .setFooterView("", "取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(final DialogInterface dialog, int which) {

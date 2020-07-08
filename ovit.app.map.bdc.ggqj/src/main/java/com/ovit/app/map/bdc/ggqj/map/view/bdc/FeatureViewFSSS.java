@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.esri.arcgisruntime.data.Feature;
+import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.ovit.R;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
@@ -179,10 +180,14 @@ public class FeatureViewFSSS extends FeatureView {
             ToastMessage.Send("注意：缺少宗地信息");
         }
         final List<Feature> fs_update = new ArrayList<>();
-        fv.drawAndAutoCompelet(feature, fs_update, new AiRunnable(callback) {
+//        fv.drawAndAutoCompelet(feature, fs_update, new AiRunnable(callback) {
+        fv.draw( new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 // 填充
+                if(t_ instanceof Geometry){
+                    feature.setGeometry((Geometry) t_);
+                }
                 FeatureHelper.Set(feature,"JZWMC","杂屋");
                 FeatureHelper.Set(feature,"ZCS",1);
                 fv.fillFeature(feature, f_p);
