@@ -731,7 +731,7 @@ public class FeatureEditZD extends FeatureEdit {
                         @Override
                         public void onClick(final DialogInterface dialog, int which) {
                             // 加载界面
-                            fv.createBdcdy(feature, new AiRunnable() {
+                            fv.createBdcdy(feature,null,new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     final Feature featureBdcdy = (Feature) t_;

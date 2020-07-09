@@ -34,6 +34,7 @@ import com.ovit.app.core.License;
 import com.ovit.app.device.bluetooth.BTClient;
 import com.ovit.app.httphandler.pojo.CBXT_PROJECT;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
+import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -59,6 +60,7 @@ import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ResourceUtil;
+import com.ovit.app.util.Session;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.GdalAdapter;
 import com.ovit.app.util.gdal.cad.DxfAdapter;
@@ -447,7 +449,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                             }
                             if (!TextUtils.isEmpty(group)) {
                                 group = group.indexOf("0") == 0 ? group.substring(1) : group;
-                                if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN|| DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN) {
+                                if (DxfHelper.TYPE == DxfHelper.TYPE_XIANAN || DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN) {
                                     String B;
                                     A = A.indexOf("0") == 0 ? A.substring(1) : A;
                                     int q = Integer.parseInt(A);
@@ -1520,7 +1522,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         dialog.addContentView(dialog.getSelectView("图层", "map_tc", dataconfig, "tc"));
 
         dialog.addContentViewMenu(Arrays.asList(
-                new Object[]{R.mipmap.app_icon_shp, "导入家庭成员", new View.OnClickListener() {
+                new Object[]{R.mipmap.app_icon_excel_blue, "导入家庭成员", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         FileUtils.showChooser(activity, new AiRunnable() {
@@ -1545,39 +1547,19 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                 });
                             }
 
-                            void setComplete(final int icon, final String text, final boolean cancelable) {
+                            void setComplete(final List<Feature> fs_hz, final int icon, final String text, final boolean cancelable) {
                                 activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         dialog.setCancelable(cancelable);
-                                        dialog.setFooterView(dialog.getStateView(icon, text));
+                                        dialog.setFooterView("", "确定", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(final DialogInterface dialog, int which) {
+                                                GYRAutoLinkZD(mapInstance, fs_hz,dialog);
+                                            }
+                                        });
                                         addMessage(text, "");
 
-                                    }
-                                });
-                            }
-
-                            void save(final Map<String, Integer> map_fs, List<Feature> features, final boolean isComplete) {
-                                final List<Feature> fs = new ArrayList<>(features);
-                                features.clear();
-                                String messge_ = "";
-//                                for (String key:map_fs.keySet()){ messge_+="["+key+"："+map_fs.get(key)+"]"; }
-                                final String messge = messge_;
-                                MapHelper.saveFeature(fs, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        addMessage("", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "导入" + fs.size() + "个图形成功:" + messge + "...");
-                                        if (isComplete)
-                                            setComplete(R.mipmap.app_icon_ok_f, "导入" + messge + "成功！", true);
-                                        return null;
-                                    }
-
-                                    @Override
-                                    public <T_> T_ error(T_ t_, Object... objects) {
-                                        addMessage("导入失败:", ((Exception) t_).getMessage());
-                                        if (isComplete)
-                                            setComplete(R.mipmap.app_icon_error_smaller, "导入失败", true);
-                                        return null;
                                     }
                                 });
                             }
@@ -1603,110 +1585,13 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     final List<Feature> fill_fs_hjxx = new ArrayList<>();
                                                     final List<Feature> fill_fs_hz = new ArrayList<>();
                                                     for (final Map<String, String> map : familys) {
-
                                                         if ("户主".equals(map.get("YHZGX"))) {
-                                                            String zddm="";
-                                                            final Feature f_hz = mapInstance.getTable(FeatureHelper.TABLE_NAME_GYRXX).createFeature();
-                                                            for (String key1 : map.keySet()) {
-                                                                String value = map.get(key1);
-                                                                if (StringUtil.IsNotEmpty(value) && StringUtil.IsNotEmpty(key1)) {
-                                                                    if (key1.equals("XB")) {
-                                                                        if ("1".equals(value)) {
-                                                                            value = "男";
-                                                                        } else if ("2".equals(value)){
-                                                                            value =  "女";
-                                                                        }else{
-                                                                            value = "男";
-                                                                        }
-                                                                    }
-                                                                    if (key1.equals("ZDDM")) {
-                                                                        zddm=value;
-                                                                    }
-                                                                    try {
-                                                                        Field filed = f_hz.getFeatureTable().getField(key1);
-                                                                        Field.Type type = filed.getFieldType();
-                                                                        if (type.equals(Field.Type.TEXT)) {
-                                                                            f_hz.getAttributes().put(key1, value);
-                                                                        } else if (type.equals(Field.Type.DOUBLE)) {
-                                                                            f_hz.getAttributes().put(key1, AiUtil.GetValue(value, 0d));
-                                                                        } else if (type.equals(Field.Type.FLOAT)) {
-                                                                            f_hz.getAttributes().put(key1, AiUtil.GetValue(value, 0f));
-                                                                        } else if (type.equals(Field.Type.SHORT)) {
-                                                                            f_hz.getAttributes().put(key1, Short.valueOf(AiUtil.GetValue(value, (short) 0) + ""));
-                                                                        } else if (type.equals(Field.Type.DATE)) {
-                                                                            GregorianCalendar gregorianCalendar = new GregorianCalendar();
-                                                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                                                                            final Date parse = sdf.parse(value);
-                                                                            gregorianCalendar.setTime(parse);
-                                                                            f_hz.getAttributes().put(key1, gregorianCalendar);
-                                                                        } else if (type.equals(Field.Type.INTEGER)) {
-                                                                            f_hz.getAttributes().put(key1, AiUtil.GetValue(value, 0));
-                                                                        } else {
-                                                                            f_hz.getAttributes().put(key1, value);
-                                                                        }
-                                                                    } catch (Exception es) {
-                                                                        Log.e(TAG, "不支持更新的属性[" + key1 + ":" + value + "]", es);
-                                                                    }
-                                                                }
-                                                            }
+                                                            Feature f_hz = fillGYROrHJXX(mapInstance.getTable(FeatureHelper.TABLE_NAME_GYRXX).createFeature(), map);
                                                             mapInstance.fillFeature(f_hz);
                                                             fs_hz.add(f_hz);
                                                             fill_fs_hz.add(f_hz);
-                                                            //有宗地代码的，直接绑定权利人
-                                                            if(!StringUtil.IsEmpty(zddm)){
-                                                                FeatureViewZD.From(mapInstance).loadByZddm(zddm, new AiRunnable() {
-                                                                    @Override
-                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                        if (FeatureHelper.isExistFeature(t_)) {
-                                                                            Feature f_zd = (Feature) t_;
-                                                                            mapInstance.fillFeature(f_hz,f_zd);
-                                                                        }
-                                                                        return null;
-                                                                    }
-                                                                });
-                                                            }
-
                                                         } else {
-                                                            Feature f_hjxx = mapInstance.getTable(FeatureHelper.TABLE_NAME_HJXX).createFeature();
-                                                            for (String key1 : map.keySet()) {
-                                                                String value = map.get(key1);
-                                                                if (key1.equals("XB")) {
-                                                                    if ("1".equals(value)) {
-                                                                        value = "男";
-                                                                    } else if ("2".equals(value)){
-                                                                        value =  "女";
-                                                                    }else{
-                                                                        value = "男";
-                                                                    }
-                                                                }
-                                                                if (StringUtil.IsNotEmpty(value) && StringUtil.IsNotEmpty(key1)) {
-                                                                    try {
-                                                                        Field filed = f_hjxx.getFeatureTable().getField(key1);
-                                                                        Field.Type type = filed.getFieldType();
-                                                                        if (type.equals(Field.Type.TEXT)) {
-                                                                            f_hjxx.getAttributes().put(key1, value);
-                                                                        } else if (type.equals(Field.Type.DOUBLE)) {
-                                                                            f_hjxx.getAttributes().put(key1, AiUtil.GetValue(value, 0d));
-                                                                        } else if (type.equals(Field.Type.FLOAT)) {
-                                                                            f_hjxx.getAttributes().put(key1, AiUtil.GetValue(value, 0f));
-                                                                        } else if (type.equals(Field.Type.SHORT)) {
-                                                                            f_hjxx.getAttributes().put(key1, Short.valueOf(AiUtil.GetValue(value, (short) 0) + ""));
-                                                                        } else if (type.equals(Field.Type.DATE)) {
-                                                                            GregorianCalendar gregorianCalendar = new GregorianCalendar();
-                                                                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                                                                            final Date parse = sdf.parse(value);
-                                                                            gregorianCalendar.setTime(parse);
-                                                                            f_hjxx.getAttributes().put(key1, gregorianCalendar);
-                                                                        } else if (type.equals(Field.Type.INTEGER)) {
-                                                                            f_hjxx.getAttributes().put(key1, AiUtil.GetValue(value, 0));
-                                                                        } else {
-                                                                            f_hjxx.getAttributes().put(key1, value);
-                                                                        }
-                                                                    } catch (Exception es) {
-                                                                        Log.e(TAG, "不支持更新的属性[" + key1 + ":" + value + "]", es);
-                                                                    }
-                                                                }
-                                                            }
+                                                            Feature f_hjxx = fillGYROrHJXX(mapInstance.getTable(FeatureHelper.TABLE_NAME_HJXX).createFeature(), map);
                                                             mapInstance.fillFeature(fs_hjxx);
                                                             fs_hjxx.add(f_hjxx);
                                                             fill_fs_hjxx.add(f_hjxx);
@@ -1714,10 +1599,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     }
                                                     if (fill_fs_hjxx.size() > 1 && fill_fs_hz.size() == 1) {
                                                         for (int i = 0; i < fill_fs_hjxx.size(); i++) {
-                                                            mapInstance.fillFeature(fill_fs_hjxx.get(i),fill_fs_hz.get(0));
+                                                            mapInstance.fillFeature(fill_fs_hjxx.get(i), fill_fs_hz.get(0));
                                                         }
                                                     }
-
                                                 }
 
                                                 MapHelper.saveFeature(fs_hjxx, new AiRunnable() {
@@ -1727,7 +1611,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                         MapHelper.saveFeature(fs_hz, new AiRunnable() {
                                                             @Override
                                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                setComplete(R.mipmap.app_icon_ok_f, "导入成功！", true);
+                                                                setComplete(fs_hz, R.mipmap.app_icon_ok_f, "导入成功！如需与不动产单元自动挂接，请点击确定！\n 若导入的表格中没有ZDDM字段，则无法进行挂接！", true);
                                                                 return null;
                                                             }
                                                         });
@@ -1737,7 +1621,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
                                             } catch (Exception es) {
                                                 setMessage("读取文件失败：" + es.getMessage());
-                                                setComplete(R.mipmap.app_icon_error_smaller, "读取文件失败", true);
+                                                setComplete(null, R.mipmap.app_icon_error_smaller, "读取文件失败", true);
                                             }
                                         }
                                     }).start();
@@ -1942,6 +1826,141 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
     }
 
+    private Feature fillGYROrHJXX(Feature feature, Map<String, String> map) {
+        for (String key1 : map.keySet()) {
+            String value = map.get(key1);
+            if (StringUtil.IsNotEmpty(value) && StringUtil.IsNotEmpty(key1)) {
+                if (key1.equals("XB")) {
+                    if ("1".equals(value)) {
+                        value = "男";
+                    } else if ("2".equals(value)) {
+                        value = "女";
+                    }
+                }
+                try {
+                    Field filed = feature.getFeatureTable().getField(key1);
+                    Field.Type type = filed.getFieldType();
+                    if (type.equals(Field.Type.TEXT)) {
+                        feature.getAttributes().put(key1, value);
+                    } else if (type.equals(Field.Type.DOUBLE)) {
+                        feature.getAttributes().put(key1, AiUtil.GetValue(value, 0d));
+                    } else if (type.equals(Field.Type.FLOAT)) {
+                        feature.getAttributes().put(key1, AiUtil.GetValue(value, 0f));
+                    } else if (type.equals(Field.Type.SHORT)) {
+                        feature.getAttributes().put(key1, Short.valueOf(AiUtil.GetValue(value, (short) 0) + ""));
+                    } else if (type.equals(Field.Type.DATE)) {
+                        GregorianCalendar gregorianCalendar = new GregorianCalendar();
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        final Date parse = sdf.parse(value);
+                        gregorianCalendar.setTime(parse);
+                        feature.getAttributes().put(key1, gregorianCalendar);
+                    } else if (type.equals(Field.Type.INTEGER)) {
+                        feature.getAttributes().put(key1, AiUtil.GetValue(value, 0));
+                    } else {
+                        feature.getAttributes().put(key1, value);
+                    }
+                } catch (Exception es) {
+                    Log.e(TAG, "不支持更新的属性[" + key1 + ":" + value + "]", es);
+                }
+            }
+        }
+        return feature;
+    }
+
+    /**
+     * 导入家庭成员表后，自动进行以宗地为准的不动产单元挂接
+     *  @param mapInstance
+     * @param fs_hz
+     * @param dialog
+     */
+    FeatureView fv;
+    private void GYRAutoLinkZD(final MapInstance mapInstance, final List<Feature> fs_hz, final DialogInterface dialog) {
+        if (fs_hz.size() > 0) {
+            fv=new FeatureView();
+
+            new AiForEach<Feature>(fs_hz,null ){
+                @Override
+                public void exec() {
+                    final Feature f_hz=fs_hz.get(postion);
+                    String zddm = AiUtil.GetValue(f_hz.getAttributes().get("ZDDM"), "");
+                    if (!StringUtil.IsEmpty(zddm)) {
+                        FeatureViewZD.From(mapInstance).loadByZddm(zddm, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                if (FeatureHelper.isExistFeature(t_)) {
+                                    final Feature f_zd = (Feature) t_;
+                                    final String orid = mapInstance.getOrid(f_zd);
+                                    final String where = StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ";
+                                    final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
+                                    final List<Feature> fs_bdcdy = new ArrayList<>();
+                                    new FeatureView().queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            List<Feature> fs_bdcdy = (List<Feature>) t_;
+                                            //有且只有一个以宗地创建的不动产单元
+                                            if (fs_bdcdy.size() == 1) {
+                                                String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
+                                                if (orid_path.contains("[ZD]")) {
+                                                    mapInstance.fillFeature(f_hz, fs_bdcdy.get(0));
+                                                    new FeatureViewZD().fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, f_hz);
+                                                    List<Feature> fs_upt = new ArrayList<>();
+                                                    fs_upt.add(fs_bdcdy.get(0));
+                                                    fs_upt.add(f_zd);
+                                                    fs_upt.add(f_hz);
+                                                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            ToastMessage.Send("绑定成功！");
+                                                            return null;
+                                                        }
+                                                    });
+                                                    ToastMessage.Send("绑定成功！");
+                                                } else {
+                                                    ToastMessage.Send("不动产单元非宗地创建，绑定失败！");
+                                                }
+                                                //没有不动产单元的，以宗地创建不动产单元后进行绑定
+                                            } else if (fs_bdcdy.size() == 0) {
+                                                ((FeatureViewZD)mapInstance.newFeatureView(f_zd)).createBdcdy(f_zd, f_hz, new AiRunnable() {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                        final Feature featureBdcdy = (Feature) t_;
+                                                        mapInstance.fillFeature(f_hz, featureBdcdy);
+                                                        List<Feature> fs_upt = new ArrayList<>();
+                                                        fs_upt.add(f_hz);
+                                                        fs_upt.add(f_zd);
+                                                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                ToastMessage.Send("绑定成功！");
+                                                                return null;
+                                                            }
+                                                        });
+                                                        return null;
+                                                    }
+                                                });
+                                                //有多个的，不进行绑定操作
+                                            } else {
+                                                ToastMessage.Send("有多个不动产单元，绑定失败！");
+                                            }
+                                            AiRunnable.Ok(getNext(), t_, objects);
+
+                                            return null;
+                                        }
+                                    });
+                                }
+                                return null;
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void complet() {
+                    ToastMessage.Send("挂接成功！");
+                }
+            }.start();
+        }
+    }
     /**
      * 不动产单元与不动产进行挂接
      *

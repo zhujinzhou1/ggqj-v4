@@ -59,6 +59,7 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFwfcpmt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFwqjxsyt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdctDefult;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_leiyang;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
@@ -79,6 +80,7 @@ import com.ovit.app.util.ConvertUtil;
 import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.ImageUtil;
+import com.ovit.app.util.KeyboardUtil;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.ReportUtils;
 import com.ovit.app.util.StringUtil;
@@ -372,6 +374,30 @@ public class FeatureViewZD extends FeatureView {
         featureBdcdy.getAttributes().put("BDCQZH", FeatureHelper.Get(featureZd, "TDZH"));
         fillFeature(featureBdcdy, featureZd);
     }
+
+    //对于绑定权利人时自动创建的不动产单元，基本信息应继承自所选权利人，而非宗地
+    public void fillFeatureBdcdyByQLR(Feature featureBdcdy, Feature featureZd, Feature f_gyr) {
+        featureBdcdy.getAttributes().put("YHZGX", "户主");
+        featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(featureZd, "QLRXM"));
+        featureBdcdy.getAttributes().put("MZ", FeatureHelper.Get(featureZd, "QLRMZ"));
+        if (FeatureHelper.isExistFeature(f_gyr)) {
+            featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(f_gyr, "XM"));
+            featureBdcdy.getAttributes().put("ZJH", FeatureHelper.Get(f_gyr, "ZJH"));
+            featureBdcdy.getAttributes().put("XB", FeatureHelper.Get(f_gyr, "XB"));
+            featureZd.getAttributes().put("QLRXM", FeatureHelper.Get(f_gyr, "XM"));
+            featureZd.getAttributes().put("QLRZJH", FeatureHelper.Get(f_gyr, "ZJH"));
+            featureZd.getAttributes().put("QLRXB", FeatureHelper.Get(f_gyr, "XB"));
+        } else {
+            featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(featureZd, "QLRXM"));
+            featureBdcdy.getAttributes().put("ZJH", FeatureHelper.Get(featureZd, "QLRZJH"));
+            featureBdcdy.getAttributes().put("XB", FeatureHelper.Get(featureZd, "QLRXB"));
+        }
+        featureBdcdy.getAttributes().put("ZJZL", FeatureHelper.Get(featureZd, "QLRZJZL"));
+        featureBdcdy.getAttributes().put("DZ", FeatureHelper.Get(featureZd, "QLRTXDZ"));
+        featureBdcdy.getAttributes().put("DH", FeatureHelper.Get(featureZd, "QLRDH"));
+        featureBdcdy.getAttributes().put("BDCQZH", FeatureHelper.Get(featureZd, "TDZH"));
+        fillFeature(featureBdcdy, featureZd);
+    }
     ///endregion
 
     //region 公有函数
@@ -440,22 +466,23 @@ public class FeatureViewZD extends FeatureView {
         ViewGroup ll_view = (ViewGroup) LayoutInflater.from(mapInstance.activity).inflate(listItemRes, null);
         final View nodata = LayoutInflater.from(mapInstance.activity).inflate(R.layout.app_ui_ai_adapter_nodata, null);
         final EditText search_et = (EditText) ll_view.findViewById(com.ovit.R.id.search_et);
-        ImageView search_iv = (ImageView) ll_view.findViewById(com.ovit.R.id.search_iv);
+        final ImageView search_iv = (ImageView) ll_view.findViewById(com.ovit.R.id.search_iv);
         final ListView qlr_lv = (ListView) ll_view.findViewById(com.ovit.R.id.qlr_lv);
 
-        final List<Feature> fs = new ArrayList<>();
+        final List<Feature> fs_qlr = new ArrayList<>();
         search_iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fs.clear();
-                queryFeature(table_gyr, com.ovit.app.map.view.FeatureView.From(mapInstance, table_gyr).getSearchWhere(search_et.getText().toString()), fs, new AiRunnable() {
+                fs_qlr.clear();
+                KeyboardUtil.hideIM(search_iv, activity);
+                queryFeature(table_gyr, com.ovit.app.map.view.FeatureView.From(mapInstance, table_gyr).getSearchWhere(search_et.getText().toString()), fs_qlr, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        if (fs.size() > 0) {
+                        if (fs_qlr.size() > 0) {
                             qlr_lv.setVisibility(View.VISIBLE);
                             List<String> data = new ArrayList<>();
-                            for (Feature feature : fs) {
-                                data.add(AiUtil.GetValue(feature.getAttributes().get("XM").toString(), "") + "     " + AiUtil.GetValue(feature.getAttributes().get("ZJH").toString(), ""));
+                            for (Feature feature : fs_qlr) {
+                                data.add(AiUtil.GetValue(feature.getAttributes().get("XM"), "") + "     " + AiUtil.GetValue(feature.getAttributes().get("ZJH"), ""));
                             }
                             qlrAdapter = new QlrAdapter(mapInstance.activity, data);
                             qlr_lv.setAdapter(qlrAdapter);
@@ -471,42 +498,69 @@ public class FeatureViewZD extends FeatureView {
         });
         final List<Feature> fs_bdcdy = new ArrayList<>();
         final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
+        final String orid = getOrid();
+        final String where = StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ";
         qlr_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 //宗地有不动产单元的，直接绑定.没有不动产单元的，创建之后再进行绑定
-                queryFeature(table_qlr, "", fs_bdcdy, new AiRunnable() {
+                queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        List<Feature> fs= (List<Feature>) t_;
-                        if(fs.size()>0){
-                            mapInstance.fillFeature(fs.get(position), f_zd);
-
-                        }else{
-
-                            mapInstance.fillFeature(fs.get(position), fs_bdcdy.get(0));
+                        List<Feature> fs_bdcdy = (List<Feature>) t_;
+                        //有且只有一个以宗地创建的不动产单元
+                        if (fs_bdcdy.size() == 1) {
+                            String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
+                            if (orid_path.contains("[ZD]")) {
+                                mapInstance.fillFeature(fs_qlr.get(position), fs_bdcdy.get(0));
+                                fillFeatureBdcdyByQLR( fs_bdcdy.get(0),f_zd,fs_qlr.get(position));
+                                List<Feature> fs_upt = new ArrayList<>();
+                                fs_upt.add(fs_bdcdy.get(0));
+                                fs_upt.add(f_zd);
+                                fs_upt.add(fs_qlr.get(position));
+                                MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        ToastMessage.Send("绑定成功！");
+                                        aidialog.dismiss();
+                                        return null;
+                                    }
+                                });
+                                ToastMessage.Send("绑定成功！");
+                            } else {
+                                ToastMessage.Send("不动产单元非宗地创建，绑定失败！");
+                            }
+                            aidialog.dismiss();
+                            //没有不动产单元的，以宗地创建不动产单元后进行绑定
+                        } else if (fs_bdcdy.size() == 0) {
+                            createBdcdy(f_zd, fs_qlr.get(position), new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    final Feature featureBdcdy = (Feature) t_;
+//                                    mapInstance.viewFeature(featureBdcdy);
+                                    mapInstance.fillFeature(fs_qlr.get(position), featureBdcdy);
+                                    List<Feature> fs_upt = new ArrayList<>();
+                                    fs_upt.add(fs_qlr.get(position));
+                                    fs_upt.add(f_zd);
+                                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            ToastMessage.Send("绑定成功！");
+                                            aidialog.dismiss();
+                                            return null;
+                                        }
+                                    });
+                                    return null;
+                                }
+                            });
+                            //有多个的，不进行绑定操作
+                        } else {
+                            ToastMessage.Send("有多个不动产单元，绑定失败！");
+                            aidialog.dismiss();
                         }
-                        aidialog.dismiss();
-                        ToastMessage.Send("绑定成功！");
                         return null;
                     }
                 });
-//                fv.checkBdcdy(f_zd, new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        AiDialog aiDialog = AiDialog.get(activity).setHeaderView(R.mipmap.app_icon_more_blue, "不动产单元设定");
-//                        if (t_ != null) {
-//
-//                        } else {
-//                            aiDialog.addContentView("不能设定不动产单元", (String) objects[0] + "已经设定了不动产单元！");
-//                            aiDialog.setFooterView(AiDialog.CENCEL, AiDialog.COMFIRM, null).show();
-//                        }
-//
-//                        return null;
-//                    }
-//                });
-
-
             }
         });
 
@@ -518,7 +572,11 @@ public class FeatureViewZD extends FeatureView {
                     public void onClick(final DialogInterface dialog, int which) {
                         aidialog.dismiss();
                     }
-                }).show();
+                }).addContentView("注意事项：",
+                "1、若该宗地下没有不动产单元的，将会以宗地生成不动产单元，然后进行绑定",
+                "2、若该宗地下有且只有一个以宗地创建的不动产单元的，将会直接进行绑定",
+                "3、若该宗地下有多个不动产单元，则不会进行绑定操作"
+        ).show();
     }
 
 
@@ -1459,7 +1517,7 @@ public class FeatureViewZD extends FeatureView {
                 final String dxfzdt_leiyang = dxfDir + "宗地图.dxf";
                 new DxfZdt_leiyang(mapInstance).set(dxfzdt_leiyang).set(f_zd, mapfs).write().save();
             } else {
-                new DxfZdctDefult(mapInstance).set(dxfpath_zdt).set(f_zd, mapfs).write().save();
+                new DxfZdct_HuNan(mapInstance).set(dxfpath_zdt).set(f_zd, mapfs).write().save();
             }
         } catch (Exception es) {
             Log.e(TAG, "生成分层分户图失败");
@@ -2687,12 +2745,49 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    public void createBdcdy(Feature feature, final AiRunnable callback) {
+
+    // 选择权利人后新增不动产单元
+    public void newBdcdyToZrzAndGYR(final List<Feature> fs_zrz, final Feature f_gyr, final AiRunnable callback) {
+        final List<Feature> fs_upt = new ArrayList<>();
+        try {
+            FeatureEditQLR.CreateFeature(mapInstance, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    final Feature featureBdcdy = (Feature) t_;
+                    String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs_zrz, getZddm());
+                    fillFeatureBdcdyByQLR(featureBdcdy, feature, f_gyr);
+
+
+                    featureBdcdy.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                    //TODO 拷贝附件材料需要谨慎处理附件数据建议放到不动产单元
+//                  capyAttachments(feature, featureBdcdy);// 拷贝附件材料
+                    FeatureHelper.Set(fs_zrz, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                    fs_upt.addAll(fs_zrz);
+                    fs_upt.add(featureBdcdy);
+
+                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            AiRunnable.Ok(callback, featureBdcdy);
+                            return null;
+                        }
+                    });
+                    return null;
+                }
+            });
+
+        } catch (Exception es) {
+            Log.e(TAG, "通过与自然幢设定不动产单元!" + es);
+        }
+    }
+
+
+    public void createBdcdy(Feature feature, final Feature f_gyr, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
         fv.queryChildFeature(FeatureConstants.ZRZ_TABLE_NAME, feature, fs, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                newBdcdyToZrz(fs, callback);
+                newBdcdyToZrzAndGYR(fs, f_gyr, callback);
                 return null;
             }
         });
