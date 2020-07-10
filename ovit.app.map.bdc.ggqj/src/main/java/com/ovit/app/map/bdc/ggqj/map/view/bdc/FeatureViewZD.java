@@ -498,66 +498,85 @@ public class FeatureViewZD extends FeatureView {
         });
         final List<Feature> fs_bdcdy = new ArrayList<>();
         final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
+        final FeatureTable table_hjxx = mapInstance.getTable(FeatureHelper.TABLE_NAME_HJXX);
         final String orid = getOrid();
         final String where = StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ";
         qlr_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 //宗地有不动产单元的，直接绑定.没有不动产单元的，创建之后再进行绑定
-                queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
+                final List<Feature> fs_hjxx = new ArrayList<>();
+                String orid=FeatureHelper.Get(fs_qlr.get(position),"ORID","");
+//                mapInstance.newFeatureView(feature).queryChildFeature(FeatureHelper.TABLE_NAME_HJXX, fs_hjxx, new AiRunnable() {
+                queryFeature(table_hjxx, StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid+ "%' ", fs_hjxx, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        List<Feature> fs_bdcdy = (List<Feature>) t_;
-                        //有且只有一个以宗地创建的不动产单元
-                        if (fs_bdcdy.size() == 1) {
-                            String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
-                            if (orid_path.contains("[ZD]")) {
-                                mapInstance.fillFeature(fs_qlr.get(position), fs_bdcdy.get(0));
-                                fillFeatureBdcdyByQLR( fs_bdcdy.get(0),f_zd,fs_qlr.get(position));
-                                List<Feature> fs_upt = new ArrayList<>();
-                                fs_upt.add(fs_bdcdy.get(0));
-                                fs_upt.add(f_zd);
-                                fs_upt.add(fs_qlr.get(position));
-                                MapHelper.saveFeature(fs_upt, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                List<Feature> fs_bdcdy = (List<Feature>) t_;
+                                //有且只有一个以宗地创建的不动产单元
+                                if (fs_bdcdy.size() == 1) {
+                                    String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
+                                    if (orid_path.contains("[ZD]")) {
+                                        fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, fs_qlr.get(position));
+                                        mapInstance.fillFeature(fs_qlr.get(position), fs_bdcdy.get(0));
+                                        for (Feature fs_hjxx : fs_hjxx) {
+                                            mapInstance.fillFeature(fs_hjxx, fs_qlr.get(position));
+                                        }
+                                        List<Feature> fs_upt = new ArrayList<>();
+                                        fs_upt.add(fs_bdcdy.get(0));
+                                        fs_upt.add(f_zd);
+                                        fs_upt.add(fs_qlr.get(position));
+                                        fs_upt.addAll(fs_hjxx);
+                                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                ToastMessage.Send("绑定成功！");
+                                                aidialog.dismiss();
+                                                return null;
+                                            }
+                                        });
                                         ToastMessage.Send("绑定成功！");
-                                        aidialog.dismiss();
-                                        return null;
+                                    } else {
+                                        ToastMessage.Send("不动产单元非宗地创建，绑定失败！");
                                     }
-                                });
-                                ToastMessage.Send("绑定成功！");
-                            } else {
-                                ToastMessage.Send("不动产单元非宗地创建，绑定失败！");
-                            }
-                            aidialog.dismiss();
-                            //没有不动产单元的，以宗地创建不动产单元后进行绑定
-                        } else if (fs_bdcdy.size() == 0) {
-                            createBdcdy(f_zd, fs_qlr.get(position), new AiRunnable() {
-                                @Override
-                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                    final Feature featureBdcdy = (Feature) t_;
-//                                    mapInstance.viewFeature(featureBdcdy);
-                                    mapInstance.fillFeature(fs_qlr.get(position), featureBdcdy);
-                                    List<Feature> fs_upt = new ArrayList<>();
-                                    fs_upt.add(fs_qlr.get(position));
-                                    fs_upt.add(f_zd);
-                                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                    aidialog.dismiss();
+                                    //没有不动产单元的，以宗地创建不动产单元后进行绑定
+                                } else if (fs_bdcdy.size() == 0) {
+                                    createBdcdy(f_zd, fs_qlr.get(position), new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                            ToastMessage.Send("绑定成功！");
-                                            aidialog.dismiss();
+                                            final Feature featureBdcdy = (Feature) t_;
+                                            mapInstance.fillFeature(fs_qlr.get(position), featureBdcdy);
+                                            for (Feature fs_hjxx : fs_hjxx) {
+                                                mapInstance.fillFeature(fs_hjxx, fs_qlr.get(position));
+                                            }
+                                            List<Feature> fs_upt = new ArrayList<>();
+                                            fs_upt.add(fs_qlr.get(position));
+                                            fs_upt.add(f_zd);
+                                            fs_upt.addAll(fs_hjxx);
+                                            fs_upt.add(featureBdcdy);
+                                            MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                @Override
+                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                    ToastMessage.Send("绑定成功！");
+                                                    aidialog.dismiss();
+                                                    return null;
+                                                }
+                                            });
                                             return null;
                                         }
                                     });
-                                    return null;
+                                    //有多个的，不进行绑定操作
+                                } else {
+                                    ToastMessage.Send("有多个不动产单元，绑定失败！");
+                                    aidialog.dismiss();
                                 }
-                            });
-                            //有多个的，不进行绑定操作
-                        } else {
-                            ToastMessage.Send("有多个不动产单元，绑定失败！");
-                            aidialog.dismiss();
-                        }
+                                return null;
+                            }
+                        });
+
                         return null;
                     }
                 });

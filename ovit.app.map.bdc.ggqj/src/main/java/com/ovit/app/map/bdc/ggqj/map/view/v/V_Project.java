@@ -1547,15 +1547,20 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                 });
                             }
 
-                            void setComplete(final List<Feature> fs_hz, final int icon, final String text, final boolean cancelable) {
+                            void setComplete(final List<Feature> fs_hz, final List<Feature> fs_hjxx, final int icon, final String text, final boolean cancelable) {
                                 activity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         dialog.setCancelable(cancelable);
-                                        dialog.setFooterView("", "确定", new DialogInterface.OnClickListener() {
+                                        dialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(final DialogInterface dialog, int which) {
-                                                GYRAutoLinkZD(mapInstance, fs_hz,dialog);
+                                                if (fs_hz == null || fs_hz.size() == 0) {
+                                                    dialog.dismiss();
+                                                    ToastMessage.Send("未检测到户主！");
+                                                } else {
+                                                    GYRAutoLinkZD(mapInstance, fs_hz, fs_hjxx, dialog);
+                                                }
                                             }
                                         });
                                         addMessage(text, "");
@@ -1611,7 +1616,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                         MapHelper.saveFeature(fs_hz, new AiRunnable() {
                                                             @Override
                                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                setComplete(fs_hz, R.mipmap.app_icon_ok_f, "导入成功！如需与不动产单元自动挂接，请点击确定！\n 若导入的表格中没有ZDDM字段，则无法进行挂接！", true);
+                                                                setComplete(fs_hz, fs_hjxx, R.mipmap.app_icon_ok_f, "导入成功！如需与不动产单元自动挂接，请点击确定！\n 若导入的表格中没有ZDDM字段，则无法进行挂接！", true);
                                                                 return null;
                                                             }
                                                         });
@@ -1621,7 +1626,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
                                             } catch (Exception es) {
                                                 setMessage("读取文件失败：" + es.getMessage());
-                                                setComplete(null, R.mipmap.app_icon_error_smaller, "读取文件失败", true);
+                                                setComplete(null, null, R.mipmap.app_icon_error_smaller, "读取文件失败", true);
                                             }
                                         }
                                     }).start();
@@ -1869,19 +1874,21 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
     /**
      * 导入家庭成员表后，自动进行以宗地为准的不动产单元挂接
-     *  @param mapInstance
+     *
+     * @param mapInstance
      * @param fs_hz
      * @param dialog
      */
     FeatureView fv;
-    private void GYRAutoLinkZD(final MapInstance mapInstance, final List<Feature> fs_hz, final DialogInterface dialog) {
-        if (fs_hz.size() > 0) {
-            fv=new FeatureView();
 
-            new AiForEach<Feature>(fs_hz,null ){
+    private void GYRAutoLinkZD(final MapInstance mapInstance, final List<Feature> fs_hz, final List<Feature> fs_hjxx, final DialogInterface dialog) {
+        if (fs_hz.size() > 0) {
+            fv = new FeatureView();
+            final FeatureTable table_hjxx = mapInstance.getTable(FeatureHelper.TABLE_NAME_HJXX);
+            new AiForEach<Feature>(fs_hz, null) {
                 @Override
                 public void exec() {
-                    final Feature f_hz=fs_hz.get(postion);
+                    final Feature f_hz = fs_hz.get(postion);
                     String zddm = AiUtil.GetValue(f_hz.getAttributes().get("ZDDM"), "");
                     if (!StringUtil.IsEmpty(zddm)) {
                         FeatureViewZD.From(mapInstance).loadByZddm(zddm, new AiRunnable() {
@@ -1889,78 +1896,98 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 if (FeatureHelper.isExistFeature(t_)) {
                                     final Feature f_zd = (Feature) t_;
-                                    final String orid = mapInstance.getOrid(f_zd);
+                                    final String orid = mapInstance.getOrid(f_hz);
                                     final String where = StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ";
                                     final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
                                     final List<Feature> fs_bdcdy = new ArrayList<>();
-                                    new FeatureView().queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
+
+                                    final List<Feature> fs_hjxx = new ArrayList<>();
+//                                    String orid=FeatureHelper.Get(f_hz,"ORID","");
+                                    mapInstance.newFeatureView(f_zd).queryFeature(table_hjxx, StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ", fs_hjxx, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                            List<Feature> fs_bdcdy = (List<Feature>) t_;
-                                            //有且只有一个以宗地创建的不动产单元
-                                            if (fs_bdcdy.size() == 1) {
-                                                String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
-                                                if (orid_path.contains("[ZD]")) {
-                                                    mapInstance.fillFeature(f_hz, fs_bdcdy.get(0));
-                                                    new FeatureViewZD().fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, f_hz);
-                                                    List<Feature> fs_upt = new ArrayList<>();
-                                                    fs_upt.add(fs_bdcdy.get(0));
-                                                    fs_upt.add(f_zd);
-                                                    fs_upt.add(f_hz);
-                                                    MapHelper.saveFeature(fs_upt, new AiRunnable() {
-                                                        @Override
-                                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            ToastMessage.Send("绑定成功！");
-                                                            return null;
+                                            mapInstance.newFeatureView(f_zd).queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
+                                                @Override
+                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                    List<Feature> fs_bdcdy = (List<Feature>) t_;
+                                                    //有且只有一个以宗地创建的不动产单元
+                                                    if (fs_bdcdy.size() == 1) {
+                                                        String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
+                                                        if (orid_path.contains("[ZD]")) {
+                                                            FeatureViewZD.From(mapInstance).fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, f_hz);
+                                                            mapInstance.fillFeature(f_hz, fs_bdcdy.get(0));
+                                                            for (Feature fs_hjxx : fs_hjxx) {
+                                                                mapInstance.fillFeature(fs_hjxx, f_hz);
+                                                            }
+                                                            List<Feature> fs_upt = new ArrayList<>();
+                                                            fs_upt.add(fs_bdcdy.get(0));
+                                                            fs_upt.add(f_zd);
+                                                            fs_upt.add(f_hz);
+                                                            fs_upt.addAll(fs_hjxx);
+                                                            MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                                @Override
+                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                    return null;
+                                                                }
+                                                            });
                                                         }
-                                                    });
-                                                    ToastMessage.Send("绑定成功！");
-                                                } else {
-                                                    ToastMessage.Send("不动产单元非宗地创建，绑定失败！");
-                                                }
-                                                //没有不动产单元的，以宗地创建不动产单元后进行绑定
-                                            } else if (fs_bdcdy.size() == 0) {
-                                                ((FeatureViewZD)mapInstance.newFeatureView(f_zd)).createBdcdy(f_zd, f_hz, new AiRunnable() {
-                                                    @Override
-                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                                        final Feature featureBdcdy = (Feature) t_;
-                                                        mapInstance.fillFeature(f_hz, featureBdcdy);
-                                                        List<Feature> fs_upt = new ArrayList<>();
-                                                        fs_upt.add(f_hz);
-                                                        fs_upt.add(f_zd);
-                                                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                        //没有不动产单元的，以宗地创建不动产单元后进行绑定
+                                                    } else if (fs_bdcdy.size() == 0) {
+                                                        ((FeatureViewZD) mapInstance.newFeatureView(f_zd)).createBdcdy(f_zd, f_hz, new AiRunnable() {
                                                             @Override
                                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                ToastMessage.Send("绑定成功！");
+                                                                final Feature featureBdcdy = (Feature) t_;
+                                                                mapInstance.fillFeature(f_hz, featureBdcdy);
+                                                                for (Feature fs_hjxx : fs_hjxx) {
+                                                                    mapInstance.fillFeature(fs_hjxx, f_hz);
+                                                                }
+                                                                List<Feature> fs_upt = new ArrayList<>();
+                                                                fs_upt.add(f_hz);
+                                                                fs_upt.add(f_zd);
+                                                                fs_upt.addAll(fs_hjxx);
+                                                                fs_upt.add(featureBdcdy);
+                                                                MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                                    @Override
+                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        return null;
+                                                                    }
+                                                                });
                                                                 return null;
                                                             }
                                                         });
-                                                        return null;
+                                                        //有多个的，不进行绑定操作
+                                                    } else {
+                                                        ToastMessage.Send("有多个不动产单元，绑定失败！");
                                                     }
-                                                });
-                                                //有多个的，不进行绑定操作
-                                            } else {
-                                                ToastMessage.Send("有多个不动产单元，绑定失败！");
-                                            }
-                                            AiRunnable.Ok(getNext(), t_, objects);
-
+                                                    return null;
+                                                }
+                                            });
                                             return null;
                                         }
                                     });
                                 }
+                                AiRunnable.Ok(getNext(), true, true);
                                 return null;
                             }
                         });
+                    } else {
+                        AiRunnable.Ok(getNext(), true, true);
                     }
                 }
 
                 @Override
                 public void complet() {
+                    dialog.dismiss();
                     ToastMessage.Send("挂接成功！");
                 }
             }.start();
+        } else {
+            dialog.dismiss();
+            ToastMessage.Send("导入的表中没有户主信息，无法进行挂接操作！");
         }
     }
+
+
     /**
      * 不动产单元与不动产进行挂接
      *

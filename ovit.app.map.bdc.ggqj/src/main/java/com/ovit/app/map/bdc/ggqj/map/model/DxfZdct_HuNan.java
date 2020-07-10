@@ -57,6 +57,8 @@ public class DxfZdct_HuNan extends BaseDxf {
 //        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_JZD));
         fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_XZDW));
         fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_MZDW));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_FSSS));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_SJ));
         this.f_zd = f_zd;
         this.fs_jzd = mapfs.get(FeatureHelper.TABLE_NAME_JZD);
         this.fs_all = fs_all;
@@ -137,9 +139,18 @@ public class DxfZdct_HuNan extends BaseDxf {
         Envelope cel_4_1 = new Envelope(x, y_-h, x+ w, y-p_height,spatialReference);
         dxf.write(cel_4_1);
 
-        final double buffer = DxfHelper.getBufferDistance();
-        Geometry cutGeometey = GeometryEngine.buffer(f_zd.getGeometry(), buffer);
-        paint.setCutArea(cutGeometey);
+
+
+//        final double buffer = DxfHelper.getBufferDistance();
+//        Geometry cutGeometey = GeometryEngine.buffer(f_zd.getGeometry(), buffer);
+
+
+        Envelope cel_4_1_2 = new Envelope(x, y-2*h, x+ w, y-p_height+h,spatialReference);
+        Envelope cel_4_1_n = new Envelope(x+w-2*h, y-2*h, x+ w, y-6*h,spatialReference);
+        Geometry cut = GeometryEngine.difference(cel_4_1_2, cel_4_1_n);
+        paint.setCutArea(cut);
+
+
 
         dxf.write(mapInstance, fs_all);
         dxf.writeJZDS(fs_jzd);
@@ -147,7 +158,7 @@ public class DxfZdct_HuNan extends BaseDxf {
 
         paint.setTextAlign(DxfPaint.Align.RIGHT);
         Point p_z = new Point(x+w, p_extend.getYMin() + h*0.5, spatialReference);
-        dxf.writeText(p_z, "注：实际建筑占地面积为"+Get(f_zd,"JZZDMJ",0.00)+"平方米" );
+        dxf.writeText(p_z, "注：实际宗地占地面积："+Get(f_zd,"ZDMJ",0.00)+"平方米" );
 
     }
 
