@@ -1429,8 +1429,13 @@ public class FeatureEditBDC extends FeatureEdit {
             v.put("JZD.JZXWZFFN", jzxwz.equals("内") ? "√" : "");
             v.put("JZD.JZXWZFFZ", jzxwz.equals("中") ? "√" : "");
             v.put("JZD.JZXWZFFW", jzxwz.equals("外") ? "√" : "");
-            v.put("JZD.FFXZBZ", f_jzd.getAttributes().get("XZBZ") == null ? "" : f_jzd.getAttributes().get("XZBZ") + "");
-            v.put("JZD.FFYZBZ", f_jzd.getAttributes().get("YZBZ") == null ? "" : f_jzd.getAttributes().get("YZBZ") + "");
+            double xzbz = FeatureHelper.Get(f_jzd,"XZBZ",0.00);
+            double yzbz = FeatureHelper.Get(f_jzd,"YZBZ",0.00);
+//            v.put("JZD.FFXZBZ", String.format("%.3f", xzbz));
+//            v.put("JZD.FFYZBZ", String.format("%.3f",yzbz));
+            v.put("JZD.FFXZBZ", xzbz==0 ? "" : String.format("%.3f",xzbz));
+            v.put("JZD.FFYZBZ", yzbz==0 ? "" : String.format("%.3f",yzbz));
+            //v.put("JZD.FFYZBZ", f_jzd.getAttributes().get("YZBZ") == null ? "" : f_jzd.getAttributes().get("YZBZ") + "");
             if (f_jzd.getGeometry() == null) {
                 v.put("JZX.JZXCD", "");
             }
