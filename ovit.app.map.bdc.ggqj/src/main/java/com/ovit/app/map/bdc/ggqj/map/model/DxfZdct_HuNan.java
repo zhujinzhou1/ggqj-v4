@@ -134,7 +134,9 @@ public class DxfZdct_HuNan extends BaseDxf {
         // 单元格2-4
         x_ = x_ + w * 2 / 15;
         Envelope cel_2_4 = new Envelope(x_, y_, x+w, y_ - h, spatialReference);
-        dxf.writeText(cel_2_4.getCenter(),Get(f_zd,"ZDMJ",0.00)+"", paint);
+        Double dsyqmj =Get(f_zd,"SYQMJ",0.00);
+        String syqmj = dsyqmj == 0? "/" : String.format("%.2f",dsyqmj);
+        dxf.writeText(cel_2_4.getCenter(),syqmj+"", paint);
 
         Envelope cel_4_1 = new Envelope(x, y_-h, x+ w, y-p_height,spatialReference);
         dxf.write(cel_4_1);
@@ -158,7 +160,7 @@ public class DxfZdct_HuNan extends BaseDxf {
 
         paint.setTextAlign(DxfPaint.Align.RIGHT);
         Point p_z = new Point(x+w, p_extend.getYMin() + h*0.5, spatialReference);
-        dxf.writeText(p_z, "注：实际宗地占地面积："+Get(f_zd,"ZDMJ",0.00)+"平方米" );
+        dxf.writeText(p_z, "注：实际建筑占地面积为"+Get(f_zd,"ZDMJ",0.00)+"平方米" );
 
     }
 
