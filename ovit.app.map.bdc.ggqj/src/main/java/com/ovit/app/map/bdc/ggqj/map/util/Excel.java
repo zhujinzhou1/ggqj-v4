@@ -17,6 +17,8 @@ import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.StringUtil;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -2530,7 +2532,7 @@ public class Excel {
 
         Map<String, String> map = null;
         Map<String, List<Map<String, String>>> maps = new HashMap<>();
-        for (int i = 0; i < sheet.getRows(); i++) {
+        for (int i = 0; i < getRightRows(sheet); i++) {
             if (i <= keyRow) {
                 continue;
             }
@@ -2566,7 +2568,28 @@ public class Excel {
         }
         return maps;
     }
+    //获取Excel有数据的行数
+    private static int getRightRows(Sheet sheet) {
+        int rsCols = sheet.getColumns(); // 列数
+        int rsRows = sheet.getRows(); // 行数
+        int nullCellNum;
+        int afterRows = rsRows;
+        for (int i = 2; i < rsRows; i++) { // 统计行中为空的单元格数
+            nullCellNum = 0;
+            for (int j = 0; j < rsCols; j++) {
+                String val = sheet.getCell(j, i).getContents();//获取单元格内容
 
+                val = StringUtils.trimToEmpty(val);
+                if (StringUtils.isBlank(val))//判断单元格是否为空计算空单元格的数量
+                    nullCellNum++;
+            }
+
+            if (nullCellNum >= rsCols) { // 如果nullCellNum大于或等于总的列数
+                afterRows--; // 行数减一
+            }
+        }
+        return afterRows;
+    }
 
     public static Map<String, List<Map<String, String>>> getXlsMaps(String filePath) throws
             IOException, BiffException {
