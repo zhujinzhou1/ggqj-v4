@@ -4,6 +4,7 @@ config/data/template.db=v1.7
 config/data/不动产权籍调查表.docx=v1.7
 config/data/不动产测量报告.docx=v1.7
 config/data/不动产登记申请审核表.docx=v1.7
+config/data/农村居民切坡建房调查表.docx=v1.7
 data/_defealt/矢量库/_defealt.geodatabase=v1.7
 version.txt=v1.7
 data=v1.0
