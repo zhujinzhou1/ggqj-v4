@@ -1511,6 +1511,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
+
     /**
      * 输出excel
      */
@@ -1830,6 +1831,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 ).show();
 
     }
+
     /**
      * 获取到excel信息后填充共有人或户籍信息对象
      */
@@ -1898,17 +1900,19 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 if (FeatureHelper.isExistFeature(t_)) {
                                     final Feature f_zd = (Feature) t_;
-                                    final String orid = mapInstance.getOrid(f_hz);
-                                    final String where = StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ";
+                                    final String orid_hz = mapInstance.getOrid(f_hz);
+                                    final String orid_zd = mapInstance.getOrid(f_zd);
+                                    final String where_hz = StringUtil.WhereByIsEmpty(orid_hz) + " ORID_PATH like '%" + orid_hz + "%' ";
+                                    final String where_zd = StringUtil.WhereByIsEmpty(orid_zd) + " ORID_PATH like '%" + orid_zd + "%' ";
                                     final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
                                     final List<Feature> fs_bdcdy = new ArrayList<>();
 
                                     final List<Feature> fs_hjxx = new ArrayList<>();
 //                                    String orid=FeatureHelper.Get(f_hz,"ORID","");
-                                    mapInstance.newFeatureView(f_zd).queryFeature(table_hjxx, StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ", fs_hjxx, new AiRunnable() {
+                                    mapInstance.newFeatureView(f_zd).queryFeature(table_hjxx, where_hz, fs_hjxx, new AiRunnable() {
                                         @Override
                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                            mapInstance.newFeatureView(f_zd).queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
+                                            mapInstance.newFeatureView(f_zd).queryFeature(table_qlr, where_zd, fs_bdcdy, new AiRunnable() {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                                     List<Feature> fs_bdcdy = (List<Feature>) t_;
@@ -1916,23 +1920,53 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     if (fs_bdcdy.size() == 1) {
                                                         String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
                                                         if (orid_path.contains("[ZD]")) {
-                                                            FeatureViewZD.From(mapInstance).fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, f_hz);
-                                                            mapInstance.fillFeature(f_hz, fs_bdcdy.get(0));
-                                                            for (Feature fs_hjxx : fs_hjxx) {
-                                                                mapInstance.fillFeature(fs_hjxx, f_hz);
-                                                            }
-                                                            List<Feature> fs_upt = new ArrayList<>();
-                                                            fs_upt.add(fs_bdcdy.get(0));
-                                                            fs_upt.add(f_zd);
-                                                            fs_upt.add(f_hz);
-                                                            fs_upt.addAll(fs_hjxx);
-                                                            MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                            //已经生成了的，删除后再进行绑定
+                                                            MapHelper.deleteFeature(fs_bdcdy.get(0), new AiRunnable() {
                                                                 @Override
                                                                 public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                    ((FeatureViewZD) mapInstance.newFeatureView(f_zd)).createBdcdy(f_zd, f_hz, new AiRunnable() {
+                                                                        @Override
+                                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                            final Feature featureBdcdy = (Feature) t_;
+                                                                            mapInstance.fillFeature(f_hz, featureBdcdy);
+                                                                            for (Feature fs_hjxx : fs_hjxx) {
+                                                                                mapInstance.fillFeature(fs_hjxx, f_hz);
+                                                                            }
+                                                                            List<Feature> fs_upt = new ArrayList<>();
+                                                                            fs_upt.add(f_hz);
+                                                                            fs_upt.add(f_zd);
+                                                                            fs_upt.addAll(fs_hjxx);
+                                                                            fs_upt.add(featureBdcdy);
+                                                                            MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                                                @Override
+                                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                    return null;
+                                                                                }
+                                                                            });
+                                                                            return null;
+                                                                        }
+                                                                    });
                                                                     return null;
                                                                 }
                                                             });
                                                         }
+//                                                            FeatureViewZD.From(mapInstance).fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, f_hz);
+//                                                            mapInstance.fillFeature(f_hz, fs_bdcdy.get(0));
+//                                                            for (Feature fs_hjxx : fs_hjxx) {
+//                                                                mapInstance.fillFeature(fs_hjxx, f_hz);
+//                                                            }
+//                                                            List<Feature> fs_upt = new ArrayList<>();
+//                                                            fs_upt.add(fs_bdcdy.get(0));
+//                                                            fs_upt.add(f_zd);
+//                                                            fs_upt.add(f_hz);
+//                                                            fs_upt.addAll(fs_hjxx);
+//                                                            MapHelper.saveFeature(fs_upt, new AiRunnable() {
+//                                                                @Override
+//                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                                    return null;
+//                                                                }
+//                                                            });
+//                                                        }
                                                         //没有不动产单元的，以宗地创建不动产单元后进行绑定
                                                     } else if (fs_bdcdy.size() == 0) {
                                                         ((FeatureViewZD) mapInstance.newFeatureView(f_zd)).createBdcdy(f_zd, f_hz, new AiRunnable() {
@@ -1982,7 +2016,9 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     dialog.dismiss();
                     ToastMessage.Send("挂接成功！");
                 }
-            }.start();
+            }.
+
+                    start();
         } else {
             dialog.dismiss();
             ToastMessage.Send("导入的表中没有户主信息，无法进行挂接操作！");
@@ -2441,7 +2477,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     while ((f = dxf.readNext(encode)) != null) {
                                                         try {
                                                             String stdm = f.getExtendeds(0);
-                                                            if (StringUtil.IsEmpty(stdm)) continue;
+                                                            if (StringUtil.IsEmpty(stdm))
+                                                                continue;
 
                                                             if (index >= 100) {
                                                                 save(map_fs, fs, false);
@@ -2525,7 +2562,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    private boolean isEmptyStdm(DxfFeature f, Map<String, String> mapStbm, List<String> stdms) {
+    private boolean isEmptyStdm(DxfFeature
+                                        f, Map<String, String> mapStbm, List<String> stdms) {
         for (String s : f.getExtendeds()) {
             if (StringUtil.IsNotEmpty(s)) {
                 if (stdms.contains(s)) {
@@ -2538,7 +2576,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    private boolean isEmptyStdm(DxfFeature f, Map<String, String> mapStbm, Map<String, String> stdms) {
+    private boolean isEmptyStdm(DxfFeature
+                                        f, Map<String, String> mapStbm, Map<String, String> stdms) {
         for (String s : f.getExtendeds()) {
             if (StringUtil.IsNotEmpty(s)) {
                 if (stdms.containsKey(s)) {
@@ -2581,7 +2620,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    public boolean readZd(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readZd(FeatureTable
+                                  table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
         String name = FeatureHelper.LAYER_NAME_ZD;
         if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
             //  300000 宗地
@@ -2678,7 +2718,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    public boolean readZdAndReplace(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readZdAndReplace(FeatureTable
+                                            table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
         String name = FeatureHelper.LAYER_NAME_ZD;
         if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
             //  300000 宗地
@@ -2706,7 +2747,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
     }
 
 
-    public boolean readZrz(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readZrz(FeatureTable
+                                   table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
 
         String name = "幢";
         List<String> stdms = Arrays.asList("141101,141111,141121,141131,141141,141151,141161,141104,141103,141200,141300,141400".split(","));
@@ -2785,7 +2827,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    public boolean readLjz(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readLjz(FeatureTable
+                                   table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
 
         String name = FeatureHelper.LAYER_NAME_LJZ;
         List<String> stdms = Arrays.asList("141101,141111,141121,141131,141141,141151,141161,141104,141103,141200,141300,141400".split(","));
@@ -2874,7 +2917,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    public boolean readFSJG(FeatureTable table_z, FeatureTable table_h, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readFSJG(FeatureTable table_z, FeatureTable
+            table_h, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
 
         String name = "幢附属";
         List<String> stdms = Arrays.asList("141500,143130,141510,141600,141700,141800,143111,143112,143800,140001,143131,143140".split(","));
@@ -2960,7 +3004,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    public boolean readCLD(FeatureTable table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readCLD(FeatureTable
+                                   table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
         String name = "测量点";
         Map<String, String> stdms = DxfFeature.GetCassSTDM_KZD();
 
@@ -2986,7 +3031,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    public boolean readDw(FeatureTable table_d, FeatureTable table_x, FeatureTable table_m, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
+    public boolean readDw(FeatureTable table_d, FeatureTable table_x, FeatureTable
+            table_m, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
         String name = "地物";
         Map<String, String> stdms = DxfFeature.GetCassSTDM_DW();
 

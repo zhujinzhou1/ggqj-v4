@@ -499,6 +499,7 @@ public class FeatureViewZD extends FeatureView {
         final List<Feature> fs_bdcdy = new ArrayList<>();
         final FeatureTable table_qlr = mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX);
         final FeatureTable table_hjxx = mapInstance.getTable(FeatureHelper.TABLE_NAME_HJXX);
+        final FeatureTable table_gyrxx = mapInstance.getTable(FeatureHelper.TABLE_NAME_GYRXX);
         final String orid = getOrid();
         final String where = StringUtil.WhereByIsEmpty(orid) + " ORID_PATH like '%" + orid + "%' ";
         qlr_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -514,34 +515,83 @@ public class FeatureViewZD extends FeatureView {
                         queryFeature(table_qlr, where, fs_bdcdy, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                List<Feature> fs_bdcdy = (List<Feature>) t_;
+                                final List<Feature> fs_bdcdy = (List<Feature>) t_;
                                 //有且只有一个以宗地创建的不动产单元
                                 if (fs_bdcdy.size() == 1) {
                                     String orid_path = AiUtil.GetValue(fs_bdcdy.get(0).getAttributes().get("ORID_PATH"), "");
                                     if (orid_path.contains("[ZD]")) {
-                                        fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, fs_qlr.get(position));
-                                        mapInstance.fillFeature(fs_qlr.get(position), fs_bdcdy.get(0));
-                                        for (Feature fs_hjxx : fs_hjxx) {
-                                            mapInstance.fillFeature(fs_hjxx, fs_qlr.get(position));
-                                        }
-                                        List<Feature> fs_upt = new ArrayList<>();
-                                        fs_upt.add(fs_bdcdy.get(0));
-                                        fs_upt.add(f_zd);
-                                        fs_upt.add(fs_qlr.get(position));
-                                        fs_upt.addAll(fs_hjxx);
-                                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
-                                            @Override
-                                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                                ToastMessage.Send("绑定成功！");
-                                                aidialog.dismiss();
-                                                return null;
-                                            }
-                                        });
-                                        ToastMessage.Send("绑定成功！");
+                                        //已经生成了的，删除后再进行绑定
+                                        MapHelper.deleteFeature(fs_bdcdy.get(0),new AiRunnable() {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                createBdcdy(f_zd, fs_qlr.get(position), new AiRunnable() {
+                                                                    @Override
+                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        final Feature featureBdcdy = (Feature) t_;
+                                                                        mapInstance.fillFeature(fs_qlr.get(position), featureBdcdy);
+                                                                        for (Feature fs_hjxx : fs_hjxx) {
+                                                                            mapInstance.fillFeature(fs_hjxx, fs_qlr.get(position));
+                                                                        }
+                                                                        List<Feature> fs_upt = new ArrayList<>();
+                                                                        fs_upt.add(fs_qlr.get(position));
+                                                                        fs_upt.add(f_zd);
+                                                                        fs_upt.addAll(fs_hjxx);
+                                                                        fs_upt.add(featureBdcdy);
+                                                                        MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                                                                            @Override
+                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                ToastMessage.Send("绑定成功！");
+                                                                                aidialog.dismiss();
+                                                                                return null;
+                                                                            }
+                                                                        });
+                                                                        return null;
+                                                                    }
+                                                                });
+                                                                return null;
+                                                            }
+                                                        });
+
+//                                        String bdcdyORID=FeatureHelper.Get(fs_bdcdy.get(0),"ORID","");
+//                                        final List<Feature> fs_gyrxx = new ArrayList<>();
+//                                        queryFeature(table_gyrxx, StringUtil.WhereByIsEmpty(bdcdyORID) + " ORID_PATH like '%" + bdcdyORID+ "%' ", fs_gyrxx,  new AiRunnable() {
+//                                            @Override
+//                                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                //删除原先绑定
+//                                                if(fs_gyrxx.size()>0){
+//                                                        MapHelper.deleteFeature(fs_gyrxx,new AiRunnable() {
+//                                                            @Override
+//                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                                fillFeatureBdcdyByQLR(fs_bdcdy.get(0), f_zd, fs_qlr.get(position));
+//                                                                mapInstance.fillFeature(fs_qlr.get(position), fs_bdcdy.get(0));
+//                                                                MapHelper.deleteFeature(feature,null);
+//                                                                for (Feature fs_hjxx : fs_hjxx) {
+//                                                                    mapInstance.fillFeature(fs_hjxx, fs_qlr.get(position));
+//                                                                }
+//                                                                List<Feature> fs_upt = new ArrayList<>();
+//                                                                fs_upt.add(fs_bdcdy.get(0));
+//                                                                fs_upt.add(f_zd);
+//                                                                fs_upt.add(fs_qlr.get(position));
+//                                                                fs_upt.addAll(fs_hjxx);
+//                                                                MapHelper.saveFeature(fs_upt, new AiRunnable() {
+//                                                                    @Override
+//                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                                        ToastMessage.Send("绑定成功！");
+//                                                                        aidialog.dismiss();
+//                                                                        return null;
+//                                                                    }
+//                                                                });
+//                                                                return null;
+//                                                            }
+//                                                        });
+//                                                }
+//
+//                                                return null;
+//                                            }
+//                                        });
                                     } else {
                                         ToastMessage.Send("不动产单元非宗地创建，绑定失败！");
                                     }
-                                    aidialog.dismiss();
                                     //没有不动产单元的，以宗地创建不动产单元后进行绑定
                                 } else if (fs_bdcdy.size() == 0) {
                                     createBdcdy(f_zd, fs_qlr.get(position), new AiRunnable() {
@@ -573,6 +623,7 @@ public class FeatureViewZD extends FeatureView {
                                     ToastMessage.Send("有多个不动产单元，绑定失败！");
                                     aidialog.dismiss();
                                 }
+                                aidialog.dismiss();
                                 return null;
                             }
                         });
@@ -2064,7 +2115,6 @@ public class FeatureViewZD extends FeatureView {
                                         TextSymbol symbol_t_ = new TextSymbol(7, "", Color.BLACK, TextSymbol.HorizontalAlignment.CENTER, TextSymbol.VerticalAlignment.MIDDLE);
                                         symbol_t_.setAngleAlignment(MarkerSymbol.AngleAlignment.MAP);
                                         glayer.getGraphics().clear();
-
                                         for (Feature f : fs_zd) {
                                             if (!FeatureHelper.isPolygonFeatureValid(f)) {
                                                 continue;
