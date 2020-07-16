@@ -1511,7 +1511,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
-
     /**
      * 输出excel
      */
@@ -1552,13 +1551,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     @Override
                                     public void run() {
                                         dialog.setCancelable(cancelable);
-                                        dialog.setFooterView("取消", "确定", new DialogInterface.OnClickListener() {
+                                        dialog.setFooterView("取消", "自动挂接", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(final DialogInterface dialog, int which) {
                                                 if (fs_hz == null || fs_hz.size() == 0) {
                                                     dialog.dismiss();
                                                     ToastMessage.Send("未检测到户主！");
                                                 } else {
+                                                    ToastMessage.Send("开始挂接，请稍候！");
                                                     GYRAutoLinkZD(mapInstance, fs_hz, fs_hjxx, dialog);
                                                 }
                                             }
@@ -1830,12 +1830,14 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 ).show();
 
     }
-
+    /**
+     * 获取到excel信息后填充共有人或户籍信息对象
+     */
     private Feature fillGYROrHJXX(Feature feature, Map<String, String> map) {
         for (String key1 : map.keySet()) {
             String value = map.get(key1);
             if (StringUtil.IsNotEmpty(value) && StringUtil.IsNotEmpty(key1)) {
-                if (key1.equals("XB")) {
+                if ("XB".equals(key1)) {
                     if ("1".equals(value)) {
                         value = "男";
                     } else if ("2".equals(value)) {
