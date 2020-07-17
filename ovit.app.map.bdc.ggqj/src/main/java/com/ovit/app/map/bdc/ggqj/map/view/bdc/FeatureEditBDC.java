@@ -2396,7 +2396,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 } else {
                     int j1 = z % size;
                     // 最后一个
-                    if (z == fs_h.size()) {
+                    if (z == map_chs.size()) {
                         for (int i1 = j1; i1 < size; i1++) {
                             map_p.put("CP.CH" + (i1 + 1), "");
                             map_p.put("CP.JZMJ" + (i1 + 1), "");
