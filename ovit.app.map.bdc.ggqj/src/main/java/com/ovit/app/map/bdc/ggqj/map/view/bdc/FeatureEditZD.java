@@ -1504,7 +1504,7 @@ public class FeatureEditZD extends FeatureEdit {
                 try {
                     String filename = t_ + "";
                     TextView et_glblc = (TextView) view.findViewById(R.id.et_glblc);
-                    et_glblc.setText(objects.length > 0 ? ("1:" + objects[0] + "") : "");
+
                     ImageUtil.set(iv_ct, filename);
                 } catch (Exception es) {
                     Log.e(TAG, "load_fct: 绘制房产图错误", es);

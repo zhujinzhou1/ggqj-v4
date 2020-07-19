@@ -58,7 +58,6 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFct_xianan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFwfcpmt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFwqjxsyt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfZdctDefult;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_leiyang;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -2121,6 +2120,7 @@ public class FeatureViewZD extends FeatureView {
                                             }
                                             if (!FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "").equals(FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, ""))) {
                                                 glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 1f)));
+                                                new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 1f));
                                             }
                                         }
                                         glayer.getGraphics().add(new Graphic(g, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 2)));
@@ -2972,9 +2972,8 @@ public class FeatureViewZD extends FeatureView {
         } else {
             //长沙县
 
-            cczdmj = zdmj - syqmj > 0 ? zdmj - syqmj : 0.0d; // 超出宗地面积
-
             djzdmj = (zdmj <= syqmj + 5) ? zdmj : syqmj; // 登记宗地面积
+            cczdmj = zdmj - djzdmj > 0 ? zdmj - djzdmj : 0.0d; // 超出宗地面积 调整为实际宗地面积减登记宗地面积
 
             //登记建筑面积
             ArrayList<Map.Entry<String, List<Feature>>> fs_c = FeatureViewZRZ.GroupbyC_Sort(fs_h);

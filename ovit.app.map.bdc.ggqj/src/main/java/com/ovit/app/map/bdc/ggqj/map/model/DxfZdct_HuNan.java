@@ -160,7 +160,7 @@ public class DxfZdct_HuNan extends BaseDxf {
 
         paint.setTextAlign(DxfPaint.Align.RIGHT);
         Point p_z = new Point(x+w, p_extend.getYMin() + h*0.5, spatialReference);
-        dxf.writeText(p_z, "注：实际建筑占地面积为"+Get(f_zd,"ZDMJ",0.00)+"平方米" );
+        dxf.writeText(p_z, "注：实际宗地占地面积为"+Get(f_zd,"ZDMJ",0.00)+"平方米" );
 
     }
 

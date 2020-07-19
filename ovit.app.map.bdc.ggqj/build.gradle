@@ -11,7 +11,7 @@ android {
         versionName appVersionName
     }
     dexOptions {
-      //  incremental true
+        //  incremental true
         javaMaxHeapSize "4g"
     }
     signingConfigs {
@@ -47,15 +47,13 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    compileOnly fileTree(include: ['*.jar'], dir: 'libs')
     // 相机
     //    implementation(name: 'ovit.google.camera_v4.0', ext: 'aar')
     // opencv
     //    implementation(name: 'ovit-opencv-v4.0', ext: 'aar')
-    implementation 'com.squareup.picasso:picasso:2.5.2'
-    implementation 'com.esri.arcgisruntime:arcgis-android:100.2.0'
-//    compileOnly 'com.squareup.picasso:picasso:2.5.2'
-//    compileOnly 'com.esri.arcgisruntime:arcgis-android:100.2.0'
+    compileOnly 'com.squareup.picasso:picasso:2.5.2'
+    compileOnly 'com.esri.arcgisruntime:arcgis-android:100.2.0'
     implementation project(':ovit.app')
     implementation project(':ovit.app.map')
     implementation 'com.android.support:multidex:1.0.1'

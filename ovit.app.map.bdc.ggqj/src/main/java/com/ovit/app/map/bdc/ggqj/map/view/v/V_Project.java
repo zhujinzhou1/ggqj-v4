@@ -34,7 +34,6 @@ import com.ovit.app.core.License;
 import com.ovit.app.device.bluetooth.BTClient;
 import com.ovit.app.httphandler.pojo.CBXT_PROJECT;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
-import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -60,7 +59,6 @@ import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.ResourceUtil;
-import com.ovit.app.util.Session;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.GdalAdapter;
 import com.ovit.app.util.gdal.cad.DxfAdapter;
@@ -78,7 +76,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import jxl.read.biff.BiffException;
 
@@ -2831,7 +2828,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                    table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
 
         String name = FeatureHelper.LAYER_NAME_LJZ;
-        List<String> stdms = Arrays.asList("141101,141111,141121,141131,141141,141151,141161,141104,141103,141200,141300,141400".split(","));
+        List<String> stdms = Arrays.asList("141500,141101,141111,141121,141131,141141,141151,141161,141104,141103,141200,141300,141400".split(","));
 
 //        141101	0	一般房屋
 //        141111	砼	砼房屋
@@ -2902,6 +2899,10 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     // 破坏房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "破");// 房屋结构 [破][破]破坏房屋
                     FeatureHelper.Set(f_ljz, "FWJG", "破");
+                } else if ("141500".equalsIgnoreCase(stdm)) {
+                    // 破坏房屋
+                    FeatureHelper.Set(f_ljz, fwjg1, "棚");// 房屋结构 [破][破]破坏房屋
+                    FeatureHelper.Set(f_ljz, "FWJG", "棚房");
                 } else {
                     //141101	0	一般房屋
                     FeatureHelper.Set(f_ljz, fwjg1, "6");// 其他房屋
@@ -2921,11 +2922,11 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             table_h, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
 
         String name = "幢附属";
-        List<String> stdms = Arrays.asList("141500,143130,141510,141600,141700,141800,143111,143112,143800,140001,143131,143140".split(","));
-        List<String> zStdm = Arrays.asList("141500,143130,141510,141600,141700,143111,143112,143800,143131,143140".split(","));
+        List<String> stdms = Arrays.asList("143130,141510,141600,141700,141800,143111,143112,143800,140001,143131,143140".split(","));
+        List<String> zStdm = Arrays.asList("143130,141510,141600,141700,143111,143112,143800,143131,143140".split(","));
         List<String> hStdms = Arrays.asList("141800,140001".split(","));
 
-//        141500	0	棚房
+//        141500	0	棚房  逻辑幢
 //        143130        檐廊
 //        141510	0	无墙的棚房
 //        141600	0	架空房屋
@@ -2978,7 +2979,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                         FeatureHelper.Set(ff, "FHMC", "门顶");
                         FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
                     } else {
-                        FeatureHelper.Set(ff, "FHMC", "棚房");
+                        FeatureHelper.Set(ff, "FHMC", "柱廊");
                         FeatureHelper.Set(ff, "TYPE", "0");// 核算面积类型 0 不算面积
                     }
                 } else {
