@@ -17,30 +17,50 @@ import com.ovit.app.util.gdal.dxf.DxfHelper;
 import com.ovit.app.util.gdal.dxf.DxfPaint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by xw on 2020/4/1.
- */
-
-public class DxfFwqjxsyt_tongshan extends BaseDxf {
+public class Dxfzdct_tongshan extends BaseDxf {
     private Feature f_zd;
     private List<Feature> fs_all;
     private List<Feature> fs_jzd;
-
-
-    public DxfFwqjxsyt_tongshan(MapInstance mapInstance) {
+    public Dxfzdct_tongshan(MapInstance mapInstance) {
         super(mapInstance);
     }
-
     @Override
-    public DxfFwqjxsyt_tongshan set(String dxfpath) {
+    public Dxfzdct_tongshan set(String dxfpath) {
         super.set(dxfpath);
         return this;
     }
 
-    public DxfFwqjxsyt_tongshan set(Feature f_zd, Map<String, List<Feature>> mapfs) {
+    @Override
+    protected void getHeader() throws Exception {
+        Point p_c = p_extend.getCenter();
+
+//        paint.setLayer(DxfConstant.DXF_LAYER_TK);
+//        paint.setFontstyle(DxfHelper.FONT_STYLE_HZ);
+//        paint.setLinewidth(DxfHelper.LINE_WIDTH_3);
+//        dxf.write(new Envelope(p_c, boxWidth, boxHeight), ""); // 图框
+        //  图形范围
+        paint.setLayer(DxfConstant.DXF_LAYER_BKZJ);
+        paint.setLinewidth(DxfHelper.LINE_WIDTH_DEFULT);
+        dxf.write(p_extend, "");
+        Envelope envelope = p_extend;
+        double w = p_width;
+//        Envelope line = new Envelope(p_c.getX(), envelope.getYMax(), p_c.getX() + o_fontsize * 4, envelope.getYMax() -  o_split , p_extend.getSpatialReference());
+//        dxf.write(line, null, "", o_fontsize, o_fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
+//        dxf.writeLine(Arrays.asList(new Point[]{new Point(p_c.getX(),envelope.getYMax()),new Point(p_c.getX() + o_fontsize *4 ,envelope.getYMax()-o_split)}),DxfHelper.LINETYPE_SOLID_LINE,false,DxfHelper.COLOR_BYLAYER,0);
+        dxf.writeLine(Arrays.asList(new Point[]{new Point(p_c.getX() - w/5,p_extend.getYMax() - 3 *h),
+                new Point(p_c.getX() + w/5,envelope.getYMax()-3 * h)}), DxfHelper.LINETYPE_SOLID_LINE, false, DxfHelper.COLOR_BYLAYER, 0);
+
+
+        Point p_title = new Point(p_c.getX(), p_extend.getYMax() - o_split, spatialReference);
+        paint.setFontsize(o_fontsize * 4);
+        dxf.writeText(p_title, DxfConstant.DXF_ZDCT);
+    }
+
+    public Dxfzdct_tongshan set(Feature f_zd, Map<String,List<Feature>> mapfs){
         List<Feature> fs_all = new ArrayList<>();
         List<Feature> fs_fsjg = new ArrayList<>();
         List<Feature> mfs_fsjg = new ArrayList<>(); // 筛选后的附属结构
@@ -53,46 +73,64 @@ public class DxfFwqjxsyt_tongshan extends BaseDxf {
         mfs_fsjg = getFilterFsjg(fs_fsjg);// 筛选后的附属结构
         fs_all.addAll(mfs_fsjg);
 
-      //  fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_JZD));
+//        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_JZD));
         fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_ZJX));
         fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_XZDW));
         fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_MZDW));
-
-        this.fs_jzd= mapfs.get(FeatureHelper.TABLE_NAME_JZD);
         this.f_zd = f_zd;
+        this.fs_jzd= mapfs.get(FeatureHelper.TABLE_NAME_JZD);
         this.fs_all = fs_all;
         return this;
     }
-
     @Override
     protected void getDxfRenderer() {
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_ZRZ,false);
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_ZD,true);
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_JZD,true);
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_LJZ,false);
-        dxfRenderer.setLayerLableFlag("ZRZ.ZRZH",true);
+        dxfRenderer.setLayerLableFlag("ZRZ.ZRZH",false);
         dxfRenderer.setZDDM(mapInstance.getId(f_zd));
     }
+    private List<Feature> getFilterFsjg(List<Feature> fs_fsjg) {
 
-    @Override
-    protected void getHeader() throws Exception {
-        Point p_c = p_extend.getCenter();
+        if (FeatureHelper.isExistElement(fs_fsjg)) {
+            if (fs_fsjg.size() == 1) {
+                return fs_fsjg;
+            }
+            List<Feature> fs = new ArrayList<>();
+            for (Feature fsjg : fs_fsjg) {
+                if (FeatureHelper.isPolygonFeatureValid(fsjg)) {
+                    Feature f = getMaxLCFs(fs_fsjg, fs, fsjg);
+                    if (f != null) {
+                        fs.add(f);
+                    }
+                }
+            }
+            return fs;
 
-        paint.setLayer(DxfConstant.DXF_LAYER_TK);
-        paint.setFontstyle(DxfHelper.FONT_STYLE_HZ);
-        paint.setLinewidth(DxfHelper.LINE_WIDTH_3);
-        dxf.write(new Envelope(p_c, boxWidth, boxHeight), ""); // 图框
-        //  图形范围
-        paint.setLayer(DxfConstant.DXF_LAYER_BKZJ);
-        paint.setLinewidth(DxfHelper.LINE_WIDTH_DEFULT);
-        dxf.write(p_extend, "");
-        Envelope envelope = p_extend;
-        Envelope line = new Envelope(envelope.getXMin(), envelope.getYMax(), envelope.getXMax(), envelope.getYMax() - o_split , p_extend.getSpatialReference());
-        dxf.write(line, null, "", o_fontsize, o_fontstyle, false, DxfHelper.COLOR_BYLAYER, 0);
+        } else {
+            return fs_fsjg;
+        }
+    }
 
-        Point p_title = new Point(p_c.getX(), p_extend.getYMax() - 0.5 * o_split, spatialReference);
-        paint.setFontsize(o_fontsize * 2);
-        dxf.writeText(p_title, DxfConstant.DXF_FWQJXSYT);
+    private Feature getMaxLCFs(List<Feature> fs_fsjg, List<Feature> fs, Feature fsjg) {
+
+        Point point = GeometryEngine.labelPoint((Polygon) fsjg.getGeometry());
+        Feature mFeature = fsjg;
+        for (Feature f : fs) {
+            int szc = FeatureHelper.Get(mFeature, "SZC", 1);
+            int cszc = FeatureHelper.Get(f, "SZC", 1);
+            if (MapHelper.geometry_contains(f.getGeometry(), point) && cszc > szc) {
+                mFeature = f;
+            }
+        }
+        for (Feature feature : fs_fsjg) {
+            if (MapHelper.geometry_contains(feature.getGeometry(), point)) {
+                return null;
+            }
+
+        }
+        return mFeature;
     }
 
     @Override
@@ -114,11 +152,10 @@ public class DxfFwqjxsyt_tongshan extends BaseDxf {
 
         dxf.write(mapInstance, fs_all);
         dxf.writeJZDS(fs_jzd);
+
         paint.setLayer(DxfConstant.DXF_LAYER_ZDSZZJ);
         //写宗地四至
-        //writeZdsz(dxf, f_zd);
-        DxfHelper.writeZdsz(dxf,f_zd,f_zd.getGeometry().getExtent(),o_split,0.8f,o_fontstyle);
-
+        writeZdsz(dxf, f_zd);
 
         paint.setLayer(DxfConstant.DXF_LAYER_BKZJ);
         Envelope cel_4_2 = new Envelope(x_, y_, x_ + w, y - p_height, spatialReference);
@@ -130,7 +167,7 @@ public class DxfFwqjxsyt_tongshan extends BaseDxf {
         x_ = x;
         y_ = y - p_height + 2 * h;
         String auditDate = "2020年5月1日";
-        String drawDate = "2020年5月8日";
+        String drawDate = "2020年5月1日";
 
         String drawPerson = GsonUtil.GetValue(mapInstance.aiMap.JsonData, FeatureHelper.HZR, "");
         String auditPerson = GsonUtil.GetValue(mapInstance.aiMap.JsonData, FeatureHelper.SHR, "");
@@ -178,13 +215,21 @@ public class DxfFwqjxsyt_tongshan extends BaseDxf {
 
         Point point = new Point(x + w * 21 / 24, y - p_height + 2.5 * h);
         paint.setTextAlign(DxfPaint.Align.LEFT);
-        dxf.writeText(point, "说明：图中单位为米。");
+        dxf.writeText(point, "单位为米");
+    }
+
+    private void writeN(Point p, double w)throws Exception {
+        PointCollection ps = new PointCollection(p.getSpatialReference());
+        ps.add(p);
+        ps.add(new Point(p.getX() - w / 6, p.getY() - w / 2));
+        ps.add(new Point(p.getX(), p.getY() + w / 2));
+        ps.add(new Point(p.getX() + w / 6, p.getY() - w / 2));
+        dxf.write(new Polygon(ps, p.getSpatialReference()),  "");
     }
 
     @Override
     protected void getFooter() throws Exception {
-        // 单元格4-0  绘制单位
-//        getDefultFooter();
+
     }
 
     @Override
@@ -201,60 +246,5 @@ public class DxfFwqjxsyt_tongshan extends BaseDxf {
     public Envelope getChildExtend() {
         Geometry buffer = GeometryEngine.buffer(f_zd.getGeometry(), DxfHelper.getBufferDistance());
         return MapHelper.geometry_get(buffer.getExtent(), spatialReference);
-    }
-
-    @Override
-    public double getPictureBoxBufferFactor() {
-        return 0.15;
-    }
-
-    private void writeN(Point p, double w) throws Exception {
-        PointCollection ps = new PointCollection(p.getSpatialReference());
-        ps.add(p);
-        ps.add(new Point(p.getX() - w / 6, p.getY() - w / 2));
-        ps.add(new Point(p.getX(), p.getY() + w / 2));
-        ps.add(new Point(p.getX() + w / 6, p.getY() - w / 2));
-        dxf.write(new Polygon(ps, p.getSpatialReference()),  "");
-    }
-
-    private List<Feature> getFilterFsjg(List<Feature> fs_fsjg) {
-
-        if (FeatureHelper.isExistElement(fs_fsjg)) {
-            if (fs_fsjg.size() == 1) {
-                return fs_fsjg;
-            }
-            List<Feature> fs = new ArrayList<>();
-            for (Feature fsjg : fs_fsjg) {
-                if (FeatureHelper.isPolygonFeatureValid(fsjg)) {
-                    Feature f = getMaxLCFs(fs_fsjg, fs, fsjg);
-                    if (f != null) {
-                        fs.add(f);
-                    }
-                }
-            }
-            return fs;
-
-        } else {
-            return fs_fsjg;
-        }
-    }
-
-    private Feature getMaxLCFs(List<Feature> fs, List<Feature> fs_container, Feature fsjg) {
-        Point point = GeometryEngine.labelPoint((Polygon) fsjg.getGeometry());
-        Feature mFeature = fsjg;
-        for (Feature f : fs) {
-            int szc = FeatureHelper.Get(mFeature, "SZC", 1);
-            int cszc = FeatureHelper.Get(f, "SZC", 1);
-            if (MapHelper.geometry_contains(f.getGeometry(), point) && cszc > szc) {
-                mFeature = f;
-            }
-        }
-        for (Feature feature : fs_container) {
-            if (MapHelper.geometry_contains(feature.getGeometry(), point)) {
-                return null;
-            }
-
-        }
-        return mFeature;
     }
 }

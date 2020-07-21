@@ -60,6 +60,7 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFwqjxsyt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_leiyang;
+import com.ovit.app.map.bdc.ggqj.map.model.Dxfzdct_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -1580,7 +1581,8 @@ public class FeatureViewZD extends FeatureView {
                 String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                 final String dxffwqjxsyt_tongshan = dxfDir + "房屋权界线示意图.dxf";
                 new DxfFwqjxsyt_tongshan(mapInstance).set(dxffwqjxsyt_tongshan).set(f_zd, mapfs).write().save();
-//              new DxfZdct(mapInstance).set(dxfpath_zdt).set(f_zd, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, fs_jzd).write().save();
+                final String dxfzdct_tongshan = dxfDir + "宗地草图.dxf";
+                new Dxfzdct_tongshan(mapInstance).set(dxfzdct_tongshan).set(f_zd, mapfs).write().save();
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG) {
                 String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                 final String dxfzdt_leiyang = dxfDir + "宗地图.dxf";
@@ -2102,7 +2104,7 @@ public class FeatureViewZD extends FeatureView {
                                         mapfs.put(FeatureHelper.TABLE_NAME_JZD, features_jzd);
                                         loadZdct_Dxf(mapInstance, feature, mapfs);
                                         //这些图层是要隐藏的
-                                        List<Layer> ls = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.TABLE_NAME_ZRZ, "LJZ", "BZ_SJ", "FSSS", "JZD", "JZX", FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG, "KZD");
+                                        List<Layer> ls = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.TABLE_NAME_ZRZ, "LJZ", "BZ_SJ", "BZ_D","DZDW","FSSS", "JZD", "JZX", FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG, "KZD");
                                         for (Layer l : ls) {
                                             if (l.isVisible()) {
                                                 l.setVisible(false);
@@ -2131,6 +2133,13 @@ public class FeatureViewZD extends FeatureView {
                                             }
                                             glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.DASH, Color.BLUE, 0.8f)));
 
+                                        }
+                                        for (Feature f : fs_dzdw) {
+                                            if (!FeatureHelper.isPolygonFeatureValid(f)) {
+                                                continue;
+                                            }
+                                            Geometry g_d=GeometryEngine.buffer(f.getGeometry(),0.3);
+                                            glayer.getGraphics().add(new Graphic(g_d, new SimpleLineSymbol(SimpleLineSymbol.Style.DASH, Color.BLUE, 0.8f)));
                                         }
 
                                         for (Feature f : fs_h_fsjg) {

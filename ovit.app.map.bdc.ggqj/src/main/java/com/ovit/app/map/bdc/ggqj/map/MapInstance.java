@@ -170,6 +170,8 @@ public class MapInstance extends com.ovit.app.map.model.MapInstance {
                     +FeatureHelper.Get(feature,"JZWMC","");
         }else if (tableName.equals(FeatureHelper.TABLE_NAME_SJ)) {
             label = FeatureHelper.Get(feature,"TITLE","") ;
+        }else if (tableName.endsWith("DW")){
+
         }else {
             label = getName(feature);
         }

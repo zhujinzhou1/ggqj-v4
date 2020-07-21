@@ -38,6 +38,7 @@ import com.ovit.app.lzdb.bean.JZD;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh;
+import com.ovit.app.map.bdc.ggqj.map.model.Dxfzdct_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -1217,6 +1218,19 @@ public class FeatureEditBDC extends FeatureEdit {
             mfs_hjxx.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_HJXX).createFeature());
         }
         GetReplecData(mapInstance.activity, map_, "list.hjxx", mfs_hjxx, "");
+
+        List<Map<String,String>> mHjxx = (List<Map<String, String>>) map_.get("list.hjxx");
+        for (int i = 0; i < mHjxx.size(); i++) {
+           if (i<fs_hjxx.size()){
+               mHjxx.get(i).put("HJXX.HB","农业户口");
+               mHjxx.get(i).put("HJXX.XH",i+2 + "");
+           }else {
+               mHjxx.get(i).put("HJXX.HB","");
+               mHjxx.get(i).put("ZD.QLRTXDZ","");
+               mHjxx.get(i).put("HJXX.XH","");
+               mHjxx.get(i).put("HJXX.XB","");
+           }
+        }
     }
 
     public static void Put_data_hjxx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_hjxx,int size) {
@@ -1359,9 +1373,13 @@ public class FeatureEditBDC extends FeatureEdit {
             fs_jzd.add(f_jzd_);
         }
 
-        // 界址点最少14个
-        if (fs_jzd.size() < 14) {
-            for (int i = fs_jzd.size(); i < 14; i++) {
+        // 界址点最少14个，通山要求两页
+        int jzdSize = 14;
+        if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN) {
+            jzdSize = 35;
+        }
+        if (fs_jzd.size() < jzdSize) {
+            for (int i = fs_jzd.size(); i < jzdSize; i++) {
                 fs_jzd.add(GetTable(mapInstance, "JZD").createFeature());
             }
         }
@@ -1839,7 +1857,7 @@ public class FeatureEditBDC extends FeatureEdit {
             map_zrz.put("img.fwzp", image_fwzp);
             map_zrz.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(zrz, "JZWJBYT", "")));
             map_zrz.put("ZRZ.CG", StringUtil.Join(hzcg, true));
-            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI ||DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN){
+            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI){
                 String zrzh = (String) map_zrz.get("ZRZ.ZH");
                 if (!TextUtils.isEmpty(zrzh)){
                     map_zrz.put("ZRZ.ZH","F"+zrzh);
@@ -1860,7 +1878,7 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("ZRZ.HZJGRQ", StringUtil.Join(hzjgrq, true));
         map_.put("ZRZ.HZZ", fs_zrzs.size() + "");
         if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN){
-            for (int i = 0; i < 10-fs_zrz.size(); i++) {
+            for (int i = 0; i < 7-fs_zrz.size(); i++) {
                 Feature f = mapInstance.getTable(FeatureHelper.LAYER_NAME_ZRZ).createFeature();
                 Map<String, Object> map_zrz = new LinkedHashMap<>();
                 Put_data_zrz(mapInstance, map_zrz, f);
