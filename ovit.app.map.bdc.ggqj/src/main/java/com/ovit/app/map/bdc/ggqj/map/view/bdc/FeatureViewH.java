@@ -12,6 +12,8 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
+import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.Polygon;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
@@ -574,23 +576,23 @@ public class FeatureViewH extends FeatureView {
     }
 
     // 识别显示结果返回
-    public void identyH_FSJG(Feature f_h, final boolean isShow, final AiRunnable callback) {
+    public void identyH_FSJG(final Feature f_h, final boolean isShow, final AiRunnable callback) {
         final List<Feature> fs_h_fsjg = new ArrayList<>();
         identyH_FSJG(fs_h_fsjg, new AiRunnable(callback) {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 FeatureViewH fv_ = FeatureViewH.From(mapInstance);
+                Point p_h_l = GeometryEngine.labelPoint((Polygon) f_h.getGeometry());
                 for (Feature f : fs_h_fsjg) {
-                    Geometry bufferHfsjg = GeometryEngine.buffer(f.getGeometry(), 0.02);
-                    Geometry g = GeometryEngine.intersection(feature.getGeometry(), bufferHfsjg);
-                    if (MapHelper.getArea(mapInstance, g) < 1 * 0.02) {
+                    // 判断附属结构是否属于本户
+                    if (isNotBzdFsjg(f_h,f)){
                         continue;
                     }
-                    fv.fillFeature(f, feature);
+                    fv.fillFeature(f, f_h);
                 }
 
                 if (isShow) {
-                    fv_.fs_ref = ListUtil.asList(feature);
+                    fv_.fs_ref = ListUtil.asList(f_h);
                     QuickAdapter<Feature> adapter = fv_.getListAdapter(fs_h_fsjg, 0);
                     AiDialog dialog = AiDialog.get(mapInstance.activity, adapter);
                     dialog.setHeaderView(R.mipmap.app_map_layer_zrz, "识别到" + fs_h_fsjg.size() + "个户附属");
@@ -608,6 +610,7 @@ public class FeatureViewH extends FeatureView {
             }
         });
     }
+
 
     public void identyZ_Fsjg(List<Feature> features_zrz, final AiRunnable callback) {
         MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_Z_FSJG), feature.getGeometry(), features_zrz, callback);

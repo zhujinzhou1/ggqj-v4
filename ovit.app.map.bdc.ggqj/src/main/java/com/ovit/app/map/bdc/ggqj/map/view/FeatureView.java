@@ -11,7 +11,9 @@ import android.widget.LinearLayout;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.data.FeatureTable;
+import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.Geometry;
+import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
 import com.esri.arcgisruntime.geometry.ImmutablePart;
 import com.esri.arcgisruntime.geometry.Multipart;
@@ -1418,6 +1420,68 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public void hsmj(Feature f, MapInstance mapInstance) {
 
 
+    }
+    protected boolean isBzdFsjg(Feature f_, Feature f_fsjg_) {
+//        Geometry g_f = f.getGeometry();
+//        Point p_fsjg_l = GeometryEngine.labelPoint((Polygon) f_fsjg.getGeometry());
+//        Point p_f_l = GeometryEngine.labelPoint((Polygon) g_f);
+//        Polyline polyline = new Polyline(new PointCollection(Arrays.asList(new Point[]{p_f_l, p_fsjg_l})));
+//        Geometry union = GeometryEngine.union(g_f, f_fsjg.getGeometry());
+//
+//        Geometry bufferHfsjg = GeometryEngine.buffer(f_fsjg.getGeometry(), 0.02);
+//        Geometry g = GeometryEngine.intersection(g_f, bufferHfsjg);
+//
+//        Envelope g_e = g.getExtent();
+//        double width = g_e.getWidth();
+//        double height = g_e.getHeight();
+//        double iMax = width>height?width:height;
+//
+//        Envelope f_e = f_fsjg.getGeometry().getExtent();
+//        double f_width = f_e.getWidth();
+//        double f_height = f_e.getHeight();
+//        double fMax = f_width>f_height?f_width:f_height;
+//
+//        if (!(Math.abs(iMax-fMax) < 1.2)){
+//            return false;
+//        }
+//
+//        if (!MapHelper.geometry_contains(union,polyline)){
+//            return  false;
+//        }
+
+
+        if (FeatureHelper.isPolygonFeatureInValid(f_) || FeatureHelper.isPolygonFeatureInValid(f_fsjg_)) {
+            return false;
+        }
+
+        Geometry g = f_.getGeometry();
+        Geometry g_fsjg_ = f_fsjg_.getGeometry();
+
+        float alpha = (float) (Math.PI * MapHelper.geometry_get_azimuth(g) / 180);
+        Point p_c = MapHelper.Geometry_get(g, DxfHelper.POINT_TYPE_RIGHT_BOTTOM);
+
+        // 图形旋转
+        Geometry g_f = MapHelper.geometry_get(g, p_c, -alpha);
+        Geometry g_fsjg = MapHelper.geometry_get(g_fsjg_, p_c, -alpha);
+
+        Envelope e_f = g_f.getExtent();
+        double a_f = MapHelper.getArea(mapInstance, e_f);
+
+        Envelope e_fsjg = g_fsjg.getExtent();
+        double a_g_fsjg = MapHelper.getArea(mapInstance, g_fsjg);
+        double a_e_fsjg = MapHelper.getArea(mapInstance, e_fsjg);
+
+        Geometry g_fAndFsjg = GeometryEngine.union(g_fsjg, g_f);
+        Envelope e_fAndFsjg = g_fAndFsjg.getExtent();
+        double a_fAndFsjg = MapHelper.getArea(mapInstance, e_fAndFsjg);
+        // 空间分析
+        if (a_fAndFsjg - a_f < a_g_fsjg * 3) {
+            return true;
+        }
+        return false;
+    }
+    protected boolean isNotBzdFsjg(Feature f, Feature f_fsjg) {
+        return !isBzdFsjg(f,f_fsjg);
     }
 
 

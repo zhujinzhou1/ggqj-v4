@@ -15,6 +15,7 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.GeometryType;
+import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.Polygon;
 import com.esri.arcgisruntime.layers.FeatureLayer;
 import com.ovit.R;
@@ -717,13 +718,12 @@ public class FeatureViewLJZ extends FeatureView {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 FeatureViewZ_FSJG fv_ = FeatureViewZ_FSJG.From(mapInstance);
-                Geometry mG = feature.getGeometry();
+                Point p_h_l = GeometryEngine.labelPoint((Polygon) feature.getGeometry());
                 for (Feature f : fs_z_fsjg) {
-                    Geometry bufferHfsjg = GeometryEngine.buffer(f.getGeometry(), 0.02);
-                    Geometry g = GeometryEngine.intersection(mG, bufferHfsjg);
-                    if (MapHelper.getArea(mapInstance, g) > 1.5 * 0.02) {
-                        fv_.fillFeature(f, feature);
-                    }
+                   if (isNotBzdFsjg(feature,f)){
+                       continue;
+                   }
+                    fv.fillFeature(f, feature);
                 }
 
                 if (isShow) {
