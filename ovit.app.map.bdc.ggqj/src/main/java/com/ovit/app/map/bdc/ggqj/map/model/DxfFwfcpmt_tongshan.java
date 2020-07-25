@@ -327,7 +327,7 @@ public class DxfFwfcpmt_tongshan {
 
                 // 右下基本信息表
                 x_ = x + w / 2;
-                y_ = y - p_height + 19 * h;///8888888888888
+                y_ = y - p_height + 19 * h;///
                 Envelope cel_2_2 = new Envelope(x_, y_, x + w, y - p_height, p_extend.getSpatialReference());
                 //建筑面积计算
                 y_ = y_ - 1.5 * h;

@@ -60,6 +60,8 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFwqjxsyt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_leiyang;
+import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_xiantao;
+import com.ovit.app.map.bdc.ggqj.map.model.Dxffcfcfht_xiantao;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxfzdct_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
@@ -1587,6 +1589,10 @@ public class FeatureViewZD extends FeatureView {
                 String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                 final String dxfzdt_leiyang = dxfDir + "宗地图.dxf";
                 new DxfZdt_leiyang(mapInstance).set(dxfzdt_leiyang).set(f_zd, mapfs).write().save();
+            }else if(DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO){
+                String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
+                final String dxfzdt_xiantao = dxfDir + "宗地图.dxf";
+                new DxfZdt_xiantao(mapInstance).set(dxfzdt_xiantao).set(f_zd, mapfs).write().save();
             } else {
                 new DxfZdct_HuNan(mapInstance).set(dxfpath_zdt).set(f_zd, mapfs).write().save();
             }
@@ -3379,7 +3385,10 @@ public class FeatureViewZD extends FeatureView {
                 // 通山
                 final String dxf_fwfcpmt_tongshan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
                 new DxfFwfcpmt_tongshan(mapInstance).set(dxf_fwfcpmt_tongshan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-            } else {
+            } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO){
+                final String dxf_fcfcfht_xiantao = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层分户图.dxf";// fs_zrz =0
+                new Dxffcfcfht_xiantao(mapInstance).set(dxf_fcfcfht_xiantao).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            }else {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
             }
         } catch (Exception es) {

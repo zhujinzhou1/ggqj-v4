@@ -1059,19 +1059,29 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                         public void exec() {
                                             final Feature f_zd = fs_zd.get(postion);
                                             final List<Feature> fs_zrz = new ArrayList<>();
-                                            String orid = mapInstance.getOrid(f_zd);
-                                            String where = " ORID_PATH like '%" + orid + "%' ";
+                                            final List<Feature> fs_ljz = new ArrayList<>();
+                                            final String orid = mapInstance.getOrid(f_zd);
+                                           final String where = " ORID_PATH like '%" + orid + "%' ";
                                             MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                                    Map<String, Object> map_ = new LinkedHashMap<>();
-                                                    FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
-                                                    FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
-                                                    maps.add(map_);
-                                                    AiRunnable.Ok(getNext(), t_, objects);
+                                                    MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(orid) + where, "22", "asc", -1, fs_ljz, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            AiRunnable.Ok(getNext(), t_, objects);
+                                                            Map<String, Object> map_ = new LinkedHashMap<>();
+                                                            FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
+                                                            FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
+                                                            FeatureEditBDC.Put_data_ljz(mapInstance, map_,f_zd,fs_ljz);
+                                                            maps.add(map_);
+                                                            AiRunnable.Ok(getNext(), t_, objects);
+                                                            return null;
+                                                        }
+                                                    });
                                                     return null;
                                                 }
                                             });
+
                                         }
                                     }.start();
                                     return null;
