@@ -74,6 +74,7 @@ public class DxfZdt_leiyang extends BaseDxf {
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_ZD, true);
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_JZD, true);
         dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_LJZ, false);
+        dxfRenderer.setLayerLableFlag(FeatureHelper.LAYER_NAME_FSSS, true);
         dxfRenderer.setZDDM(mapInstance.getId(f_zd));
     }
 
@@ -179,7 +180,9 @@ public class DxfZdt_leiyang extends BaseDxf {
 
         dxf.write(mapInstance, fs_all);
         dxf.writeJZDS(fs_jzd);
-        writeZdsz(dxf, f_zd);
+        //写宗地四至
+        //writeZdsz(dxf, f_zd);
+        DxfHelper.writeZdsz(dxf,f_zd,f_zd.getGeometry().getExtent(),o_split,0.8f,o_fontstyle);
 
         paint.setTextAlign(DxfPaint.Align.RIGHT);
         Point p_z = new Point(x + w, p_extend.getYMin() + h * 0.5, spatialReference);

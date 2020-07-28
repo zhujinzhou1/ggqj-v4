@@ -61,6 +61,7 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_leiyang;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_xiantao;
+import com.ovit.app.map.bdc.ggqj.map.model.Dxffcfcfht_leiyang;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxffcfcfht_xiantao;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxfzdct_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
@@ -3388,6 +3389,9 @@ public class FeatureViewZD extends FeatureView {
             } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO){
                 final String dxf_fcfcfht_xiantao = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层分户图.dxf";// fs_zrz =0
                 new Dxffcfcfht_xiantao(mapInstance).set(dxf_fcfcfht_xiantao).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+            }else if (DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG){
+                final String dxf_fcfcfht_leiyang = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层分户图.dxf";// fs_zrz =0
+                new Dxffcfcfht_leiyang(mapInstance).set(dxf_fcfcfht_leiyang).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
             }

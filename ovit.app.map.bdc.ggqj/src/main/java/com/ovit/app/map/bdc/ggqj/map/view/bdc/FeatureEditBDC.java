@@ -35,6 +35,7 @@ import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.authentication.pojo.AppDevice;
 import com.ovit.app.core.License;
 import com.ovit.app.lzdb.bean.JZD;
+import com.ovit.app.lzdb.bean.QLRXX;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.constant.FeatureConstants;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfFcfwh;
@@ -1378,7 +1379,7 @@ public class FeatureEditBDC extends FeatureEdit {
         // 界址点最少14个，通山要求两页
         int jzdSize = 14;
         if (DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN) {
-            jzdSize = 35;
+            jzdSize = 30;//单行倍距
         }
         if (fs_jzd.size() < jzdSize) {
             for (int i = fs_jzd.size(); i < jzdSize; i++) {
@@ -1576,20 +1577,24 @@ public class FeatureEditBDC extends FeatureEdit {
 
 
         //云梦身份证照片和户口薄照片拍到不动产单元下面
-        String signDirPath = mapInstance.getpath_root() + "运行时/权利人信息/";  //路径
+        //路径   身份证 data/全国/资料库/运行时/权利人信息/QLRXX/附件材料/证件号
+        //路径   户口薄 data/全国/资料库/运行时/权利人信息/QLRXX/附件材料/户口薄
+        String signDirPath = mapInstance.getpath_root() + "运行时/权利人信息/[QLRXX]/";  //路径
         String image_sfzzp = FileUtils.getAppDirAndMK(signDirPath + "附件材料/") + "证件号";  //路径
+        String image_sfzzp1 = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/权利人信息/QLRXX") + "证件号";
+
         File file_zjh = new File(image_sfzzp);
 
         File[] files_zjh = file_zjh.listFiles();
-        if (files_zjh != null) {
-            for (int i = 0; i < files_zjh.length; i++) {
-                FileUtils.rename(files_zjh[i].getAbsolutePath(), files_zjh + "/证件号" + (i + 1) + ".temp");
-            }
-            files_zjh = file_zjh.listFiles();
-            for (int i = 0; i < files_zjh.length; i++) {
-                FileUtils.rename(files_zjh[i].getAbsolutePath(), files_zjh + "/证件号" + (i + 1) + ".jpg");
-            }
-        }
+//        if (files_zjh != null) {
+//            for (int i = 0; i < files_zjh.length; i++) {
+//                FileUtils.rename(files_zjh[i].getAbsolutePath(), files_zjh + "/证件号" + (i + 1) + ".temp");
+//            }
+//            files_zjh = file_zjh.listFiles();
+//            for (int i = 0; i < files_zjh.length; i++) {
+//                FileUtils.rename(files_zjh[i].getAbsolutePath(), files_zjh + "/证件号" + (i + 1) + ".jpg");
+//            }
+//        }
         List<String> sfzzp = new ArrayList<>();
         sfzzp.addAll(FileUtils.getAllImgePath(image_sfzzp));
         if (sfzzp.size()>0) {
@@ -2052,6 +2057,42 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void Put_data_ljz(MapInstance mapInstance, Map<String, Object> map_, Feature fs_ljz){
         GetReplecData(mapInstance.activity, map_, fs_ljz, "", "FHYT", "FWJG");
         map_.put("LJZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map_.get("LJZ.JGRQ"), ""), 0, 4));
+        Map<String, Object> map_ljz = new LinkedHashMap<>();
+
+        //幢号？？？
+
+        //户号
+
+        //总套数  1
+
+        //总层数
+        map_.put("LJZ.ZCS","1");
+        //所在层
+        map_.put("LJZ.SZC","");
+        //房屋结构
+
+        String fwjg_h = (String) map_ljz.get("LJZ.FWJG1");
+        if (fwjg_h.contains("结构")) {
+            fwjg_h = fwjg_h.substring(0,fwjg_h.lastIndexOf("结构"));
+        }
+        map_.put("LJZ.FWJG1",fwjg_h);
+//        竣工时间
+
+        //占地面积
+        //建筑面积
+        //专有建筑面积
+        //分摊建筑面积
+        //产权来源
+        //墙体归属  东南西北
+
+        //墙体归属取逻辑幢
+        map_ljz.put("LJZ.QTGSD",FeatureHelper.Get(fs_ljz,"QTGSD", "自墙"));
+        map_ljz.put("LJZ.QTGSN",FeatureHelper.Get(fs_ljz,"QTGSN", "自墙"));
+        map_ljz.put("LJZ.QTGSX",FeatureHelper.Get(fs_ljz,"QTGSX", "自墙"));
+        map_ljz.put("LJZ.QTGSB",FeatureHelper.Get(fs_ljz,"QTGSB", "自墙"));
+
+
+        map_.put("list.ljz",map_ljz);
     }
 
     //  设置幢的基本信息
