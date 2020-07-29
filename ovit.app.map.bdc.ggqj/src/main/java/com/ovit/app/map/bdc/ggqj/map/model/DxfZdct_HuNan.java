@@ -134,7 +134,9 @@ public class DxfZdct_HuNan extends BaseDxf {
         // 单元格2-4
         x_ = x_ + w * 2 / 15;
         Envelope cel_2_4 = new Envelope(x_, y_, x+w, y_ - h, spatialReference);
-        Double dsyqmj =Get(f_zd,"SYQMJ",0.00);
+        //力智要求宗地面积为 登记面积
+//        Double dsyqmj =Get(f_zd,"SYQMJ",0.00);
+        Double dsyqmj =Get(f_zd,"DJJZMJ",0.00);
         String syqmj = dsyqmj == 0? "/" : String.format("%.2f",dsyqmj);
         dxf.writeText(cel_2_4.getCenter(),syqmj+"", paint);
 
@@ -157,6 +159,9 @@ public class DxfZdct_HuNan extends BaseDxf {
         dxf.write(mapInstance, fs_all);
         dxf.writeJZDS(fs_jzd);
         writeZdsz(dxf, f_zd);
+
+        //添加文字宗地四至
+        DxfHelper.writeZdsz(dxf,f_zd,f_zd.getGeometry().getExtent(),o_split,0.8f,o_fontstyle);
 
         paint.setTextAlign(DxfPaint.Align.RIGHT);
         Point p_z = new Point(x+w, p_extend.getYMin() + h*0.5, spatialReference);
