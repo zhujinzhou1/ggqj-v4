@@ -242,7 +242,7 @@ public class FeatureViewFSSS extends FeatureView {
         double qtjzzdmj = 0d;
         for (Feature f : fs_fsss) {
             String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒坪")&&!mJzwmc.equals("用地范围线")) {
+            if (!mJzwmc.equals("杂屋")&&!mJzwmc.equals("庭院晒坪")&&!mJzwmc.equals("全貌范围")) {
                 Double zzdmj = FeatureHelper.Get(f, "ZZDMJ", 0d);
                 qtjzzdmj += zzdmj;
             }
@@ -255,7 +255,7 @@ public class FeatureViewFSSS extends FeatureView {
         double zjzmj = 0d;
         for (Feature f : fs_fsss) {
             String mJzwmc = FeatureHelper.Get(f, "JZWMC", "");
-            if (!mJzwmc.equals("庭院晒坪")&&!mJzwmc.equals("用地范围线")) {
+            if (!mJzwmc.equals("庭院晒坪")&&!mJzwmc.equals("全貌范围")) {
                 Double zzdmj = FeatureHelper.Get(f, "SCJZMJ", 0d);
                 zjzmj += zzdmj;
             }
@@ -307,7 +307,7 @@ public class FeatureViewFSSS extends FeatureView {
     }
 
     public static boolean IsSc(String jzwmc) {
-        if ("庭院晒坪".equals(jzwmc)||"用地范围线".equals(jzwmc)){
+        if ("庭院晒坪".equals(jzwmc)||"全貌范围".equals(jzwmc)){
             return true;
         }
         return false;

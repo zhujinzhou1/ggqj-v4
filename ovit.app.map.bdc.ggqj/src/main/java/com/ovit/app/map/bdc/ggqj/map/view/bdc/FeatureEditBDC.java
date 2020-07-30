@@ -1779,7 +1779,7 @@ public class FeatureEditBDC extends FeatureEdit {
         map_.put("FSSS.SSZDMJ", "");
         map_.put("FSSS.SPZDMJ", "");
         map_.put("FSSS.PFZDMJ", ""); // 棚房占地面积
-        map_.put("FSSS.YDFWXZDMJ", ""); // 用地范围线占地面积
+        map_.put("FSSS.YDFWXZDMJ", ""); // 全貌范围占地面积
         map_.put("FSSS.QTZDMJ", ""); // 其他占地面积
         double zzdmj = FeatureHelper.Get(f_zd,"JZZDMJ",0d);
         map_.put("FSSS.ZZDMJ", String.format("%.2f",AiUtil.Scale(zzdmj, 2)));
@@ -1790,7 +1790,7 @@ public class FeatureEditBDC extends FeatureEdit {
             double csmj = fv.GetJZZDMJ(fs_fsss, "厕所");
             double ssmj = fv.GetJZZDMJ(fs_fsss, "畜舍");
             double spmj = fv.GetJZZDMJ(fs_fsss, "庭院晒坪");
-            double ydfwxmj = fv.GetJZZDMJ(fs_fsss, "用地范围线");
+            double ydfwxmj = fv.GetJZZDMJ(fs_fsss, "全貌范围");
             double pfmj = fv.GetJZZDMJ(fs_fsss, "棚房");
             zzdmj += zwmj+csmj+ssmj+spmj+pfmj;
 
@@ -1800,7 +1800,7 @@ public class FeatureEditBDC extends FeatureEdit {
             map_.put("FSSS.SSZDMJ",String.format("%.2f",AiUtil.Scale(ssmj, 2)));
             map_.put("FSSS.SPZDMJ", String.format("%.2f",AiUtil.Scale(spmj, 2)));
             map_.put("FSSS.PFZDMJ",  String.format("%.2f",AiUtil.Scale(pfmj, 2))); // 棚房占地面积
-            map_.put("FSSS.YDFWXZDMJ",  String.format("%.2f",AiUtil.Scale(ydfwxmj, 2))); // 用地范围线占地面积
+            map_.put("FSSS.YDFWXZDMJ",  String.format("%.2f",AiUtil.Scale(ydfwxmj, 2))); // 全貌范围占地面积
             map_.put("FSSS.ZZDMJ", String.format("%.2f",AiUtil.Scale(zzdmj, 2)));
             map_.put("FSSS.QTZDMJ", String.format("%.2f",AiUtil.Scale(qtmj, 2)));
         }
@@ -1897,7 +1897,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 map_fssslx.put("ZRZ.FWJGFF", "");
             }
 
-            if (jzwmc.contains("庭院晒坪")|| jzwmc.contains("用地范围线")){
+            if (jzwmc.contains("庭院晒坪")|| jzwmc.contains("全貌范围")){
                 map_fssslx.put("ZRZ.ZH"," ");
                 map_fssslx.put("H.FWLXFF"," ");
                 map_fssslx.put("ZRZ.FWJGFF"," ");
