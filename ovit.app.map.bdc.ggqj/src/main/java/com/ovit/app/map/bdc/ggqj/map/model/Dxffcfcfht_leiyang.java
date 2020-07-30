@@ -244,7 +244,7 @@ public class Dxffcfcfht_leiyang {
 
                 Envelope envelope = getPageExtend(page);
 //                    dxf.write(new Envelope(envelope.getCenter(), p_width + o_split * 3, p_height + o_split * 5)); // 图框
-                dxf.write(new Envelope(envelope.getCenter(), p_width + o_split * 3, p_height + o_split * 5), DxfHelper.LINETYPE_SOLID_LINE,"",2*o_fontsize, DxfHelper.FONT_STYLE_HZ,false, DxfHelper.COLOR_BYLAYER,0);
+//                dxf.write(new Envelope(envelope.getCenter(), p_width + o_split * 3, p_height + o_split * 5), DxfHelper.LINETYPE_SOLID_LINE,"",2*o_fontsize, DxfHelper.FONT_STYLE_HZ,false, DxfHelper.COLOR_BYLAYER,0);
                 Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + o_split * 1, envelope.getSpatialReference());
                 dxf.writeText(p_title, "房产分户图", o_fontsize*2, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, null, null);
 
@@ -343,7 +343,8 @@ public class Dxffcfcfht_leiyang {
                 if (cs.size()==1){
                     cel_3_1_1 = new Envelope(x_,y_,x_+w,y_-w,p_extend.getSpatialReference());
                 }else if (cs.size()==2){
-                    cel_3_1_1 = new Envelope(x_,y_,x_+w* 1/2,y_-w,p_extend.getSpatialReference()) ;
+//                    cel_3_1_1 = new Envelope(x_,y_,x_+w* 1/2,y_-w,p_extend.getSpatialReference()) ;
+                    cel_3_1_1 = new Envelope(x_,y_,x_+w,y_-w,p_extend.getSpatialReference()) ;
                 }
                 writeC(cs,0,cel_3_1_1);
 //

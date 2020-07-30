@@ -136,7 +136,7 @@ public class DxfZdct_HuNan extends BaseDxf {
         Envelope cel_2_4 = new Envelope(x_, y_, x+w, y_ - h, spatialReference);
         //力智要求宗地面积为 登记面积
 //        Double dsyqmj =Get(f_zd,"SYQMJ",0.00);
-        Double dsyqmj =Get(f_zd,"DJJZMJ",0.00);
+        Double dsyqmj =Get(f_zd,"DJZDMJ",0.00);
         String syqmj = dsyqmj == 0? "/" : String.format("%.2f",dsyqmj);
         dxf.writeText(cel_2_4.getCenter(),syqmj+"", paint);
 

@@ -1811,7 +1811,9 @@ public class FeatureEditBDC extends FeatureEdit {
         List<Feature> fs_zrzs = new ArrayList<>(fs_zrz);
         List<Feature> fs_zrz_fsss = new ArrayList<>(fs_fsss);
         List<Map<String, Object>> maps_fsss = new ArrayList<>();
+        List<Map<String, Object>> maps_fssslx = new ArrayList<>();
         List<Map<String, Object>> maps_zrz_fsss = new ArrayList<>();
+        List<Map<String, Object>> maps_zrz_fssslx = new ArrayList<>();
         // 自然幢最少1个
         if (fs_zrzs.size() < 1) {
             fs_zrzs.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ).createFeature());
@@ -1856,6 +1858,60 @@ public class FeatureEditBDC extends FeatureEdit {
 
 
             maps_fsss.add(map_fsss);
+        }
+        for (Feature fsFssslx : fs_fsss) {
+            Map<String, Object> map_fssslx = new LinkedHashMap<>();
+            String jzwmc = FeatureHelper.Get(fsFssslx, "JZWMC", "");
+            map_fssslx.put("H.FWLXFF",jzwmc);
+            map_fssslx.put("ZRZ.ZH", "");
+            String fwjg = DicUtil.dic("fwjg", FeatureHelper.Get(fsFssslx, "FWJG", "4"));
+            if (!TextUtils.isEmpty(fwjg) && fwjg.contains("]")) {
+                fwjg = StringUtil.substr(fwjg, fwjg.lastIndexOf("]")+1);
+            }
+//            map_fsss.put("ZRZ.FFJZWJBYT", DicUtil.dic("fwyt", FeatureHelper.Get(fsFsss, "JZWJBYT", "")));
+            map_fssslx.put("ZRZ.FFJZWJBYT", "");
+            map_fssslx.put("H.YT", "");
+            map_fssslx.put("ZRZ.FWDPG", "");
+            map_fssslx.put("ZRZ.FWJGFF", "");
+            map_fssslx.put("ZRZ.CG", FeatureHelper.Get(fsFssslx,"LCGD",""));
+            map_fssslx.put("ZRZ.WDLX", "");
+            map_fssslx.put("ZRZ.SCJZMJ", AiUtil.Scale(FeatureHelper.Get(fsFssslx,"SCJZMJ",0d), 2)+"");
+            map_fssslx.put("ZRZ.QTGSD", FeatureHelper.Get(fsFssslx, "QTGSD", "自墙"));
+            map_fssslx.put("ZRZ.QTGSN", FeatureHelper.Get(fsFssslx, "QTGSN", "自墙"));
+            map_fssslx.put("ZRZ.QTGSX", FeatureHelper.Get(fsFssslx, "QTGSX", "自墙"));
+            map_fssslx.put("ZRZ.QTGSB", FeatureHelper.Get(fsFssslx, "QTGSB", "自墙"));
+
+
+            if (!FeatureViewFSSS.IsSc(jzwmc)){
+                map_fssslx.put("ZRZ.JGRQ",AiUtil.GetValue(fsFssslx.getAttributes().get("JGRQ"),"2020-01-01").substring(0,7));
+                map_fssslx.put("ZRZ.FWJGFF", fwjg);
+                map_fssslx.put("ZRZ.ZCS", FeatureHelper.Get(fsFssslx, "ZCS", 1)+"");
+            }else {
+                map_fssslx.put("ZRZ.JGRQ", "");
+                map_fssslx.put("ZRZ.SCJZMJ", String.format("%.2f",AiUtil.Scale(FeatureHelper.Get(fsFssslx,"ZZDMJ",0d), 2)));
+                map_fssslx.put("ZRZ.QTGSD", FeatureHelper.Get(fsFssslx, "QTGSD", ""));
+                map_fssslx.put("ZRZ.QTGSN", FeatureHelper.Get(fsFssslx, "QTGSN", ""));
+                map_fssslx.put("ZRZ.QTGSX", FeatureHelper.Get(fsFssslx, "QTGSX", ""));
+                map_fssslx.put("ZRZ.QTGSB", FeatureHelper.Get(fsFssslx, "QTGSB", ""));
+                map_fssslx.put("ZRZ.ZCS", "");
+                map_fssslx.put("ZRZ.FWJGFF", "");
+            }
+
+            if (jzwmc.contains("庭院晒坪")|| jzwmc.contains("用地范围线")){
+                map_fssslx.put("ZRZ.ZH"," ");
+                map_fssslx.put("H.FWLXFF"," ");
+                map_fssslx.put("ZRZ.FWJGFF"," ");
+                map_fssslx.put("ZRZ.SCJZMJ"," ");
+                map_fssslx.put("ZRZ.ZCS"," ");
+                map_fssslx.put("ZRZ.ZTS"," ");
+                map_fssslx.put("ZRZ.SJGRQ"," ");
+                map_fssslx.put("ZRZ.ZZDMJ"," ");
+                map_fssslx.put("Z.QTGSD"," ");
+                map_fssslx.put("Z.QTGSN"," ");
+                map_fssslx.put("Z.QTGSX"," ");
+                map_fssslx.put("Z.QTGSB"," ");
+            }
+            maps_fssslx.add(map_fssslx);
         }
 
         List<Map<String, Object>> maps_zrz = new ArrayList<>();
@@ -1952,8 +2008,10 @@ public class FeatureEditBDC extends FeatureEdit {
                 map_zrz.put("Z.QTGSB"," ");
             }
         }
-
         map_.put("list.zrz", maps_zrz);
+        maps_zrz_fssslx.addAll(maps_zrz);
+        maps_zrz_fssslx.addAll(maps_fssslx);
+        map_.put("list.fszrzlx", maps_zrz_fssslx);
         maps_zrz_fsss.addAll(maps_zrz);
         maps_zrz_fsss.addAll(maps_fsss);
         map_.put("list.fszrz", maps_zrz_fsss);
