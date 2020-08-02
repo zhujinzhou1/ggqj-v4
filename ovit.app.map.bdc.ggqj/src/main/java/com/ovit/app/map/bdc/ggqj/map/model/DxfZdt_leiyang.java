@@ -50,8 +50,9 @@ public class DxfZdt_leiyang extends BaseDxf {
         List<Feature> fs_fsjg = new ArrayList<>();
         List<Feature> mfs_fsjg = new ArrayList<>(); // 筛选后的附属结构
         fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_ZD));
-        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_ZRZ));
+//        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_ZRZ));
         fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_LJZ));
+        fs_all.addAll(mapfs.get(FeatureHelper.TABLE_NAME_FSSS));
 
         fs_fsjg.addAll(mapfs.get(FeatureHelper.TABLE_NAME_H_FSJG));
         fs_fsjg.addAll(mapfs.get(FeatureHelper.TABLE_NAME_Z_FSJG));
@@ -174,7 +175,7 @@ public class DxfZdt_leiyang extends BaseDxf {
         Envelope cel_4_1 = new Envelope(x, y_ - h, x + w, y - p_height, spatialReference);
         dxf.write(cel_4_1);
 
-        final double buffer = DxfHelper.getBufferDistance();
+        final double buffer = 15;
         Geometry cutGeometey = GeometryEngine.buffer(f_zd.getGeometry(), buffer);
         paint.setCutArea(cutGeometey);
 
@@ -250,7 +251,7 @@ public class DxfZdt_leiyang extends BaseDxf {
 
     @Override
     public Envelope getChildExtend() {
-        Geometry buffer = GeometryEngine.buffer(f_zd.getGeometry(), DxfHelper.getBufferDistance());
+        Geometry buffer = GeometryEngine.buffer(f_zd.getGeometry(), 15);
         return MapHelper.geometry_get(buffer.getExtent(), spatialReference);
     }
 

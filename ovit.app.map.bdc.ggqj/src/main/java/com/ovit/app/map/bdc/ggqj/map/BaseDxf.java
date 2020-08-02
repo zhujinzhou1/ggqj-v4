@@ -2,8 +2,12 @@ package com.ovit.app.map.bdc.ggqj.map;
 
 import com.esri.arcgisruntime.data.Feature;
 import com.esri.arcgisruntime.geometry.Envelope;
+import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
+import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
@@ -11,6 +15,7 @@ import com.ovit.app.map.model.MapInstance;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.StringUtil;
+import com.ovit.app.util.gdal.cad.DxfTemplet;
 import com.ovit.app.util.gdal.dxf.DxfAdapter;
 import com.ovit.app.util.gdal.dxf.DxfConstant;
 import com.ovit.app.util.gdal.dxf.DxfHelper;
@@ -327,4 +332,33 @@ public abstract class BaseDxf {
         dxf.writeLine(Arrays.asList(new Point[]{new Point(p_r_b.getX() + 3, p_r_b.getY()), new Point(p_r_b.getX(), p_r_b.getY())}), DxfHelper.LINETYPE_SOLID_LINE, false, DxfHelper.COLOR_BYLAYER, 0,paint.getLayer(),"");
         dxf.writeLine(Arrays.asList(new Point[]{new Point(p_r_b.getX(), p_r_b.getY()), new Point(p_r_b.getX(), p_r_b.getY() - 3)}), DxfHelper.LINETYPE_SOLID_LINE, false, DxfHelper.COLOR_BYLAYER, 0,paint.getLayer(),"");
     }
+    public Envelope getPageExtend(int page) {
+        double m = page *(p_width+3*o_split);
+        double x_min = p_extend.getXMin() + m;
+        double x_max = p_extend.getXMax() + m;
+        double y_min = p_extend.getYMin();
+        double y_max = p_extend.getYMax();
+        return  new Envelope( x_min,y_min , x_max,y_max ,p_extend.getSpatialReference());
+    }
+
+    protected void writeN(Point p, double w, float alpha) throws Exception {
+        PointCollection ps = new PointCollection(p.getSpatialReference());
+        ps.add(p);
+        ps.add(new Point(p.getX() - w / 6, p.getY() - w / 2));
+        ps.add(new Point(p.getX(), p.getY() + w / 2));
+        ps.add(new Point(p.getX() + w / 6, p.getY() - w / 2));
+        Polygon polygon = new Polygon(ps, p.getSpatialReference());
+        Envelope extent = polygon.getExtent();
+        dxf.write(MapHelper.geometry_get(polygon, p, alpha), null);
+        // N
+        PointCollection p_ = new PointCollection(p.getSpatialReference());
+        p_.add(new Point(p.getX() - w / 12, p.getY() - w / 8 + w));
+        p_.add(new Point(p.getX() - w / 12, p.getY() + w / 8 + w));
+        p_.add(new Point(p.getX() + w / 12, p.getY() - w / 8 + w));
+        p_.add(new Point(p.getX() + w / 12, p.getY() + w / 8 + w));
+        Polyline polyline = new Polyline(p_, p.getSpatialReference());
+        Geometry geometry = MapHelper.geometry_get(polyline, p, alpha);
+        dxf.writeLine(DxfTemplet.Get_POLYLINE(MapHelper.geometry_getPoints(geometry), "Continuous", 0, 0, "0", "", "JMD"));
+    }
+
 }

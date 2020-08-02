@@ -934,8 +934,8 @@ public class FeatureViewZD extends FeatureView {
 
                                 } else {
                                     //宗地内有自然幢
-                                    aidialog.addContentView("数据一键处理中断", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "该宗地内已存在自然幢，您可能需要进行图形识别功能。");
-                                    aidialog.setFooterView(AiDialog.COMPLET, null, null, null, AiDialog.EXECUTE_NEXT, new DialogInterface.OnClickListener() {
+                                    aidialog.addContentView("提前自然幢失败！", AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "该宗地内已存在自然幢，您可能需要进行图形识别功能。");
+                                    aidialog.setFooterView(AiDialog.COMPLET, null, null, null, "图形识别", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             dialog.dismiss();
@@ -949,6 +949,51 @@ public class FeatureViewZD extends FeatureView {
                         });
                     }
                 }).show();
+    }
+    //提取逻辑幢
+
+    private void extractZrz(final AiRunnable callback) {
+        //宗地范围内的自然幢数据集合
+       final List<Feature> fs_zrz = new ArrayList<>();
+        //宗地范围内的房屋数据集合
+        final List<Feature> fs_ljz = new ArrayList<>();
+        //需要更新的数据
+        final List<Feature> fs_upt = new ArrayList<>();
+        //查询宗地范围内
+        queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, fs_zrz, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                // 通过逻辑幢合成自然幢
+                if (!FeatureHelper.isExistElement(fs_zrz)) {
+                    queryChildFeature(FeatureHelper.TABLE_NAME_LJZ, fs_ljz, new AiRunnable() {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            // 通过逻辑幢合成自然幢
+                            final List<Feature> featuresZRZ = new ArrayList<>();
+                            creatZrzToLjzUnion(fs_ljz, featuresZRZ, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    MapHelper.saveFeature(featuresZRZ, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            feature.setGeometry(MapHelper.Geometry_get(feature.getGeometry()));
+                                            MapHelper.saveFeature(feature,callback);
+                                            return null;
+                                        }
+                                    });
+                                    return null;
+                                }
+                            });
+                            return null;
+                        }
+                    });
+                } else {
+                    AiRunnable.Ok(callback,t_,objects);
+                }
+                return null;
+            }
+        });
+
     }
 
     private void creatZrzToLjzUnion(List<Feature> featuresLJZ, final List<Feature> featuresZRZ, final AiRunnable callback) {
@@ -1602,423 +1647,6 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    //    public void loadZdct(boolean reload, final AiRunnable callback) {
-//        try {
-//            final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/宗地草图/") + "宗地草图.jpg";
-//            if ((!reload) && FileUtils.exsit(filename)) {
-//                AiRunnable.Ok(callback, filename);
-//            } else if (!FeatureHelper.isPolygonFeatureValid(feature)) {
-//                CrashHandler.WriteLog("出宗地图异常", "宗地图形数据异常请检查：编号："
-//                        + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "")
-//                        + "权利人" + FeatureHelper.Get(feature, "QLRXM", ""));
-//                AiRunnable.Ok(callback, filename);
-//            } else {
-//                final List<Feature> features_jzd = new ArrayList<>();
-//                loadJzds(mapInstance, feature, features_jzd, new AiRunnable() {
-//                    @Override
-//                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                        MapHelper.geometry_ct(mapInstance.map, feature.getGeometry(), "", new AiRunnable() {
-//                            @Override
-//                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                final AiRunnable runnable = (AiRunnable) t_;
-//                                final Envelope e = (Envelope) objects[0];
-//                                final GraphicsOverlay glayer = (GraphicsOverlay) objects[1];
-//                                final List<Layer> layers = (List<Layer>) objects[2];
-//                                final int scale = (Integer) objects[4];
-//                                final List<Feature> fs_zd = new ArrayList<Feature>();
-//                                final List<Feature> fs_zrz = new ArrayList<Feature>();
-//                                final List<Feature> fs_ljz = new ArrayList<Feature>();
-//                                final List<Feature> fs_fsss = new ArrayList<Feature>();
-//                                final List<Feature> fs_h_fsjg = new ArrayList<Feature>();
-//                                final List<Feature> fs_z_fsjg = new ArrayList<Feature>();
-//                                final List<Feature> fs_zj_x = new ArrayList<Feature>();
-//                                final List<Feature> fs_zj_d = new ArrayList<Feature>();
-//                                final List<Feature> fs_zj_sj = new ArrayList<Feature>();
-//                                final List<Feature> fs_mzdw = new ArrayList<Feature>();
-//                                final List<Feature> fs_xzdw = new ArrayList<Feature>();
-//                                final List<Feature> fs_dzdw = new ArrayList<Feature>();
-//                                final Geometry g = GeometryEngine.bufferGeodetic(feature.getGeometry(), 1, MapHelper.U_L, 0.01, MapHelper.GC);
-//                                // 范围内所有宗地
-//                                final double buffer = DxfHelper.getZdctBuffer();
-//                                MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, g, buffer, fs_zd, new AiRunnable(runnable) {
-//                                    @Override
-//                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                        // 范围内所有自然幢
-//                                        MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_ZRZ, g, buffer, fs_zrz, new AiRunnable(runnable) {
-//                                            @Override
-//                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_LJZ, g, buffer, fs_ljz, new AiRunnable(runnable) {
-//                                                    @Override
-//                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                        MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_FSSS, g, buffer, fs_fsss, new AiRunnable(runnable) {
-//                                                            @Override
-//                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_H_FSJG, g, buffer, fs_h_fsjg, new AiRunnable(runnable) {
-//                                                                    @Override
-//                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                        // 范围内所有幢附属
-//                                                                        MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_Z_FSJG, g, buffer, fs_z_fsjg, new AiRunnable(runnable) {
-//                                                                            @Override
-//                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                                MapHelper.Query(mapInstance.map, "BZ_X", g, buffer, fs_zj_x, new AiRunnable(runnable) {
-//                                                                                    @Override
-//                                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                                        MapHelper.Query(mapInstance.map, "BZ_D", g, buffer, fs_zj_d, new AiRunnable(runnable) {
-//                                                                                            @Override
-//                                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                                                MapHelper.Query(mapInstance.map, "BZ_SJ", g, buffer, fs_zj_sj, new AiRunnable(runnable) {
-//                                                                                                    @Override
-//                                                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                                                        MapHelper.Query(mapInstance.map, "MZDW", g, buffer, fs_mzdw, new AiRunnable(runnable) {
-//                                                                                                            @Override
-//                                                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//
-//                                                                                                                MapHelper.Query(mapInstance.map, "XZDW", g, buffer, fs_xzdw, new AiRunnable(runnable) {
-//                                                                                                                    @Override
-//                                                                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                                                                                        MapHelper.Query(mapInstance.map, "DZDW", g, buffer, fs_dzdw, new AiRunnable(runnable) {
-//                                                                                                                            @Override
-//                                                                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//
-//                                                                                                                                List<Geometry> lablePoints = new ArrayList<>();
-//                                                                                                                                String jxlx = FeatureHelper.Get(feature, "JXLX", "J");
-//                                                                                                                                if (true) {
-//                                                                                                                                    for (Feature feature : features_jzd) {
-//                                                                                                                                        feature.getAttributes().put("JZDH", jxlx + (features_jzd.indexOf(feature) + 1));
-//                                                                                                                                    }
-//                                                                                                                                }
-//                                                                                                                                //生成dxf
-//                                                                                                                                loadZdct_Dxf(mapInstance, feature, fs_zd, fs_zrz, fs_z_fsjg, fs_h_fsjg, features_jzd, fs_zj_x, fs_zj_d, fs_xzdw, fs_mzdw, fs_dzdw, fs_fsss);
-//                                                                                                                                //这些图层是要隐藏的
-//                                                                                                                                List<Layer> ls = MapHelper.getLayers(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.TABLE_NAME_ZRZ, "LJZ", "BZ_SJ", "FSSS", "JZD", "JZX", FeatureHelper.TABLE_NAME_Z_FSJG, FeatureHelper.TABLE_NAME_H, FeatureHelper.TABLE_NAME_H_FSJG, "KZD");
-//                                                                                                                                for (Layer l : ls) {
-//                                                                                                                                    if (l.isVisible()) {
-//                                                                                                                                        l.setVisible(false);
-//                                                                                                                                        layers.add(l);
-//                                                                                                                                    }
-//                                                                                                                                }
-//                                                                                                                                // 加粗绘制当前图形
-//                                                                                                                                Geometry g = feature.getGeometry();
-//                                                                                                                                TextSymbol symbol_t_ = new TextSymbol(7, "", Color.BLACK, TextSymbol.HorizontalAlignment.CENTER, TextSymbol.VerticalAlignment.MIDDLE);
-//                                                                                                                                symbol_t_.setAngleAlignment(MarkerSymbol.AngleAlignment.MAP);
-//                                                                                                                                glayer.getGraphics().clear();
-//
-//                                                                                                                                for (Feature f : fs_zd) {
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    if (!FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDDM, "").equals(FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, ""))) {
-//                                                                                                                                        glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 1f)));
-//                                                                                                                                    }
-//                                                                                                                                }
-//                                                                                                                                glayer.getGraphics().add(new Graphic(g, new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 2)));
-//
-//                                                                                                                                for (Feature f : fs_z_fsjg) {
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.DASH, Color.BLUE, 0.8f)));
-//
-//                                                                                                                                }
-//
-//                                                                                                                                for (Feature f : fs_h_fsjg) {
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.DASH_DOT, Color.BLUE, 0.8f)));
-//                                                                                                                                }
-//
-//                                                                                                                                for (Feature f : fs_zj_sj) {
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.rgb(112,168,0), 0.8f)));
-//                                                                                                                                }
-//
-//                                                                                                                                for (Feature f : fs_z_fsjg) {
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//                                                                                                                                    textSymbol.setColor(Color.GREEN); // 112 .168.0 龙蒿绿
-//                                                                                                                                    textSymbol.setSize(6);
-//                                                                                                                                    textSymbol.setText(mapInstance.getLabel(f));
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(GeometryEngine.labelPoint((Polygon) f.getGeometry()), textSymbol));
-//                                                                                                                                }
-//                                                                                                                                for (Feature f : fs_zj_sj) {
-//                                                                                                                                    Geometry intersectionGeometry = GeometryEngine.intersection(e, f.getGeometry());
-//                                                                                                                                    PointCollection ps = MapHelper.geometry_getPoints(intersectionGeometry);
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//
-//                                                                                                                                    Graphic graphic_mid = MapHelper.geometry_get_mid_label(mapInstance.map, ps.get(0), ps.get(1), textSymbol, 6,mapInstance.getLabel(f));
-//                                                                                                                                    glayer.getGraphics().add(graphic_mid);
-//                                                                                                                                }
-//
-//                                                                                                                                for (Feature f : fs_zd) {
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        CrashHandler.WriteLog("出宗地图异常", "宗地图形异常：编号："
-//                                                                                                                                                + FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ZDDM, "")
-//                                                                                                                                                + "权利人" + FeatureHelper.Get(f, "QLRXM", ""));
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    Geometry intersectionGeometry = GeometryEngine.intersection(e, f.getGeometry());
-//                                                                                                                                    if (intersectionGeometry == null || MapHelper.getArea(intersectionGeometry) < 0.0001d) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//                                                                                                                                    textSymbol.setColor(Color.RED);
-//                                                                                                                                    textSymbol.setSize(8);
-//                                                                                                                                    textSymbol.setFontDecoration(TextSymbol.FontDecoration.UNDERLINE);
-//                                                                                                                                    textSymbol.setText(mapInstance.getLabel(f));
-//                                                                                                                                    float x_deviation = 0f;
-//                                                                                                                                    Point p = GeometryEngine.labelPoint((Polygon) intersectionGeometry);
-//                                                                                                                                    lablePoints.add(intersectionGeometry);
-//
-//                                                                                                                                    if (DxfHelper.TYPE == DxfHelper.TYPE_BADONG) {
-//                                                                                                                                        String qlrxm = FeatureHelper.Get(f, "QLRXM", "");
-//                                                                                                                                        String zddm_f = FeatureHelper.Get(feature, "PRO_ZDDM_F", "");
-//                                                                                                                                        x_deviation = textSymbol.getSize() * (zddm_f.length() * 1.5f) * scale / 10000;
-//                                                                                                                                        // 权利人姓名
-//                                                                                                                                        TextSymbol textSymbol2 = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//                                                                                                                                        textSymbol2.setColor(Color.RED);
-//                                                                                                                                        textSymbol2.setSize(8);
-//                                                                                                                                        textSymbol2.setFontDecoration(TextSymbol.FontDecoration.UNDERLINE);
-//                                                                                                                                        textSymbol2.setText(qlrxm);
-//                                                                                                                                        glayer.getGraphics().add(new Graphic(new Point(p.getX() - x_deviation, p.getY(), p.getSpatialReference()), textSymbol2));
-//                                                                                                                                    }
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(new Point(p.getX() + x_deviation, p.getY(), p.getSpatialReference()), textSymbol));
-//                                                                                                                                }
-//
-//                                                                                                                                // 宗地四至
-//                                                                                                                                float offset = 100;
-//                                                                                                                                Envelope e_z = feature.getGeometry().getExtent();
-//                                                                                                                                double g_t_x = e_z.getXMax() - e_z.getXMin();
-//                                                                                                                                double g_t_y = e_z.getYMax() - e_z.getYMin();
-//                                                                                                                                double g_t = g_t_x > g_t_y ? g_t_x : g_t_y;
-//                                                                                                                                // 范围扩大一倍
-//                                                                                                                                Envelope e_zs = GeometryEngine.buffer(e_z, g_t / 5).getExtent();
-//
-//                                                                                                                                TextSymbol symbol_sz = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//                                                                                                                                symbol_sz.setSize(symbol_sz.getSize());
-//                                                                                                                                SpatialReference sp = mapInstance.map.getSpatialReference();
-//                                                                                                                                String zdsz = FeatureHelper.Get(feature, "ZDSZD", "");
-//                                                                                                                                if (StringUtil.IsNotEmpty(zdsz)) {
-//                                                                                                                                    Point p_mid = MapHelper.point_getMidPoint(new Point(e_zs.getXMax(), e_zs.getYMax(), sp), new Point(e_zs.getXMax(), e_zs.getYMax(), sp), sp);
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_sz.toJson());
-//                                                                                                                                    textSymbol.setText(zdsz);
-//                                                                                                                                    textSymbol.setOffsetX(offset);
-//                                                                                                                                    textSymbol.setAngle(90);
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(p_mid, textSymbol));
-//                                                                                                                                }
-//                                                                                                                                zdsz = FeatureHelper.Get(feature, "ZDSZN", "");
-//                                                                                                                                if (StringUtil.IsNotEmpty(zdsz)) {
-//                                                                                                                                    Point p_mid = MapHelper.point_getMidPoint(new Point(e_zs.getXMin(), e_zs.getYMin(), sp), new Point(e_zs.getXMax(), e_zs.getYMin(), sp), sp);
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_sz.toJson());
-//                                                                                                                                    textSymbol.setText(zdsz);
-//                                                                                                                                    // textSymbol.setOffsetY(-offset);
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(p_mid, textSymbol));
-//                                                                                                                                }
-//
-//                                                                                                                                zdsz = FeatureHelper.Get(feature, "ZDSZX", "");
-//                                                                                                                                if (StringUtil.IsNotEmpty(zdsz)) {
-//                                                                                                                                    Point p_mid = MapHelper.point_getMidPoint(new Point(e_zs.getXMin(), e_zs.getYMax(), sp), new Point(e_zs.getXMin(), e_zs.getYMax(), sp), sp);
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_sz.toJson());
-//                                                                                                                                    textSymbol.setText(zdsz);
-//                                                                                                                                    textSymbol.getHaloWidth();
-//                                                                                                                                    textSymbol.setOffsetX(-offset);
-//                                                                                                                                    textSymbol.setAngle(-90);
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(p_mid, textSymbol));
-//                                                                                                                                }
-//                                                                                                                                zdsz = FeatureHelper.Get(feature, "ZDSZB", "");
-//                                                                                                                                if (StringUtil.IsNotEmpty(zdsz)) {
-//                                                                                                                                    Point p_mid = MapHelper.point_getMidPoint(new Point(e_zs.getXMax(), e_zs.getYMax(), sp), new Point(e_zs.getXMin(), e_zs.getYMax(), sp), sp);
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_sz.toJson());
-//                                                                                                                                    textSymbol.setText(zdsz);
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(p_mid, textSymbol));
-//                                                                                                                                }
-//
-//                                                                                                                                // 逻辑幢
-//                                                                                                                                for (Feature f : fs_ljz) {
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 1)));
-//                                                                                                                                }
-//                                                                                                                                for (Feature f : fs_ljz) {
-//                                                                                                                                    // 天门
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        CrashHandler.WriteLog("逻辑幢图形异常",
-//                                                                                                                                                "  逻辑幢号：" + FeatureHelper.Get(f, "LJZH", ""));
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    Geometry intersectionGeometry = GeometryEngine.intersection(e, f.getGeometry());
-//                                                                                                                                    if (intersectionGeometry == null || MapHelper.getArea(intersectionGeometry) < 0.0001d) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//                                                                                                                                    textSymbol.setColor(Color.BLUE);
-//                                                                                                                                    textSymbol.setHorizontalAlignment(TextSymbol.HorizontalAlignment.LEFT);
-//                                                                                                                                    textSymbol.setSize(7);
-//                                                                                                                                    String textLable = mapInstance.getLabel(f, DxfHelper.TYPE);
-//                                                                                                                                    textSymbol.setText(textLable);
-//                                                                                                                                    Point p_z_lable = MapHelper.getNiceLablePoint(intersectionGeometry, lablePoints);
-//                                                                                                                                    if (p_z_lable == null) {
-//                                                                                                                                        p_z_lable = GeometryEngine.labelPoint((Polygon) intersectionGeometry);
-//                                                                                                                                    }
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(p_z_lable, textSymbol));
-//                                                                                                                                }
-//                                                                                                                                //fsss
-//                                                                                                                                for (Feature f : fs_fsss) {
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(f.getGeometry(), new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 1)));
-//                                                                                                                                }
-//                                                                                                                                for (Feature f : fs_fsss) {
-//                                                                                                                                    // 天门
-//                                                                                                                                    if (!FeatureHelper.isPolygonFeatureValid(f)) {
-//                                                                                                                                        CrashHandler.WriteLog("逻辑幢图形异常",
-//                                                                                                                                                "  逻辑幢号：" + FeatureHelper.Get(f, "LJZH", ""));
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    Geometry intersectionGeometry = GeometryEngine.intersection(e, f.getGeometry());
-//                                                                                                                                    if (intersectionGeometry == null || MapHelper.getArea(intersectionGeometry) < 0.0001d) {
-//                                                                                                                                        continue;
-//                                                                                                                                    }
-//                                                                                                                                    TextSymbol textSymbol = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//                                                                                                                                    textSymbol.setColor(Color.BLUE);
-//                                                                                                                                    textSymbol.setHorizontalAlignment(TextSymbol.HorizontalAlignment.LEFT);
-//                                                                                                                                    textSymbol.setSize(7);
-//                                                                                                                                    String textLable = mapInstance.getLabel(f, DxfHelper.TYPE);
-//                                                                                                                                    textSymbol.setText(textLable);
-////                                                                                            Point p_z_lable = MapHelper.getNiceLablePoint(intersectionGeometry,lablePoints);
-//                                                                                                                                    glayer.getGraphics().add(new Graphic(GeometryEngine.labelPoint((Polygon) intersectionGeometry), textSymbol));
-//                                                                                                                                }
-//
-//                                                                                                                                if (g instanceof Multipoint) {
-//                                                                                                                                    //  不做操作
-//                                                                                                                                } else if (g instanceof Multipart) {
-//                                                                                                                                    int jzd_i = 1;
-//                                                                                                                                    for (ImmutablePart part : ((Multipart) g).getParts()) {
-//
-//                                                                                                                                        List<Point> ps = new ArrayList<Point>();
-//                                                                                                                                        for (Point p : part.getPoints()) {
-//                                                                                                                                            ps.add(p);
-//                                                                                                                                        }
-//                                                                                                                                        if (ps.size() > 1) {
-//                                                                                                                                            if (MapHelper.geometry_equals(ps.get(0), ps.get(ps.size() - 1))) {
-//                                                                                                                                                // 首位相同 移除
-//                                                                                                                                                ps.remove(ps.size() - 1);
-//                                                                                                                                            }
-//                                                                                                                                            for (int i = 0; i < ps.size(); i++) {
-//                                                                                                                                                Point p_per = ps.get((i < 1 ? ps.size() : i) - 1);
-//                                                                                                                                                Point p = ps.get(i);
-//                                                                                                                                                Point p_next = ps.get((i < (ps.size() - 1) ? i : -1) + 1);
-//
-//                                                                                                                                                // 添加长度标识
-//                                                                                                                                                Graphic graphic_mid = MapHelper.geometry_get_mid_label(mapInstance.map, p, p_next, symbol_t_, 6);
-//                                                                                                                                                glayer.getGraphics().add(graphic_mid);
-//                                                                                                                                            }
-//
-//                                                                                                                                            for (int i = 0; i < ps.size(); i++) {
-//                                                                                                                                                Point p_per = ps.get((i < 1 ? ps.size() : i) - 1);
-//                                                                                                                                                Point p = ps.get(i);
-//                                                                                                                                                Point p_next = ps.get((i < (ps.size() - 1) ? i : -1) + 1);
-//                                                                                                                                                String label = jxlx + (jzd_i++);
-//                                                                                                                                                boolean isBriefCode = true;
-//                                                                                                                                                if (!true) {
-//                                                                                                                                                    for (Feature f_jzd : features_jzd) {
-//                                                                                                                                                        if (MapHelper.geometry_equals(f_jzd.getGeometry(), p)) {
-//                                                                                                                                                            label = AiUtil.GetValue(f_jzd.getAttributes().get("JZDH"), label);
-//                                                                                                                                                        }
-//                                                                                                                                                    }
-//                                                                                                                                                }
-//                                                                                                                                                // 添加拐点标识
-//                                                                                                                                                GeodeticDistanceResult distance_per = MapHelper.geometry_distanceGeodetic(p_per, p, MapHelper.U_L, MapHelper.U_A, MapHelper.GC);
-//                                                                                                                                                GeodeticDistanceResult distance_next = MapHelper.geometry_distanceGeodetic(p, p_next, MapHelper.U_L, MapHelper.U_A, MapHelper.GC);
-//
-//                                                                                                                                                CompositeSymbol symbol_jzd = new CompositeSymbol();
-//                                                                                                                                                SimpleMarkerSymbol symbol_point = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, ColorUtil.get("#ffffff"), 4);
-//                                                                                                                                                symbol_point.setOutline(new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.RED, 1));
-//                                                                                                                                                symbol_jzd.getSymbols().add(symbol_point);
-//                                                                                                                                                TextSymbol symbol_text = (TextSymbol) TextSymbol.fromJson(symbol_t_.toJson());
-//                                                                                                                                                symbol_text.setColor(Color.RED);
-//                                                                                                                                                symbol_text.setText(label);
-//                                                                                                                                                MapHelper.geometry_get_vertex_label(distance_per, distance_next, symbol_text, 10);
-//                                                                                                                                                symbol_jzd.getSymbols().add(symbol_text);
-//                                                                                                                                                glayer.getGraphics().add(new Graphic(p, symbol_jzd));
-//
-//                                                                                                                                            }
-//                                                                                                                                        }
-//                                                                                                                                    }
-//                                                                                                                                }
-//                                                                                                                                AiRunnable.Ok(runnable, null);
-//                                                                                                                                return null;
-//                                                                                                                            }
-//                                                                                                                        });
-//                                                                                                                        return null;
-//                                                                                                                    }
-//                                                                                                                });
-//                                                                                                                return null;
-//                                                                                                            }
-//                                                                                                        });
-//                                                                                                        return null;
-//                                                                                                    }
-//                                                                                                });
-//                                                                                                return null;
-//                                                                                            }
-//                                                                                        });
-//                                                                                        return null;
-//                                                                                    }
-//                                                                                });
-//                                                                                return null;
-//                                                                            }
-//                                                                        });
-//                                                                        return null;
-//                                                                    }
-//                                                                });
-//                                                                return null;
-//                                                            }
-//                                                        });
-//                                                        return null;
-//                                                    }
-//                                                });
-//                                                return null;
-//                                            }
-//                                        });
-//                                        return null;
-//                                    }
-//                                });
-//
-//                                return null;
-//                            }
-//                        }, new AiRunnable() {
-//                            @Override
-//                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                Bitmap bitmap = (Bitmap) t_;
-//                                int scale_ = (int) objects[0];
-//                                feature.getAttributes().put("GLBLC", "1:" + scale_);
-//                                if (bitmap != null) {
-//                                    try {
-//                                        FileUtils.writeFile(filename, ConvertUtil.convert(bitmap));
-//                                        MapImage.getZoomBitmap(filename, filename, 1000, 1000);
-//                                        AiRunnable.Ok(callback, filename, objects);
-//                                        return null;
-//                                    } catch (Exception es) {
-//                                        ToastMessage.Send("生成宗地草图失败！", es);
-//                                    } finally {
-//                                        ImageUtil.recycle(bitmap);
-//                                    }
-//                                }
-//                                AiRunnable.No(callback, null);
-//                                return null;
-//                            }
-//                        });
-//                        return null;
-//                    }
-//                });
-//            }
-//        } catch (Exception es) {
-//            Log.e(TAG, "load_zdct: 绘制宗地图错误", es);
-//        }
-//    }
     public void loadZdct(boolean reload, final AiRunnable callback) {
         try {
             final String filename = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/宗地草图/") + "宗地草图.jpg";
@@ -2726,6 +2354,35 @@ public class FeatureViewZD extends FeatureView {
             }
         });
     }
+
+    //加载所有的宗地提取自然幢
+
+    // 查询所有宗地 识别幢
+    public static void LaodAllZDExtractZrz(final MapInstance mapInstance, final AiRunnable callback) {
+        final List<Feature> fs = new ArrayList<>();
+        LoadAllZD(mapInstance, fs, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final FeatureViewZD fv = FeatureViewZD.From(mapInstance);
+                // 递归执行
+                new AiForEach<Feature>(fs, callback) {
+                    @Override
+                    public void exec() {
+                        fv.set(fs.get(postion));
+                        fv.extractZrz(getNext());
+                    }
+                }.start();
+                return null;
+            }
+        });
+    }
+
+
+
+
+
+
+
     ///endregion
 
     //region 不动产单元设定
@@ -2933,7 +2590,7 @@ public class FeatureViewZD extends FeatureView {
             }
         });
     }
-
+    //宗地重新计算面积
     public void hsmj(List<Feature> f_zrzs, List<Feature> fs_fsss, List<Feature> fs_h, List<Feature> fs_hfs, List<Feature> fs_zfs) {
         String orid = FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID, "");
         Geometry g = feature.getGeometry();
@@ -3093,7 +2750,7 @@ public class FeatureViewZD extends FeatureView {
                     loadall(mapInstance, bdcdyh, featureBdcdy, fs_hjxx, fs_qlr, f_zd, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_fsss, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, where, new AiRunnable() {
                         @Override
                         public <T_> T_ ok(T_ t_, Object... objects) {
-                            createDOCX(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_fsss, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
+                            createDOCX(mapInstance, bdcdyh, featureBdcdy, f_zd,fs_qlr, fs_hjxx, fs_zd, fs_jzd, fs_jzx, map_jzx, fs_jzqz, fs_zrz, fs_fsss, fs_ljz, fs_c, fs_z_fsjg, fs_h, fs_h_fsjg, isRelaod, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
                                     outputData(mapInstance, bdcdyh, featureBdcdy, f_zd, fs_jzd, fs_jzx, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg, fs_c, fs_qlr, fs_hjxx, fs_fsss);
@@ -3110,7 +2767,8 @@ public class FeatureViewZD extends FeatureView {
         }
     }
 
-    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_bdcdy, final Feature f_zd, final List<Feature> fs_hjxx, final List<Feature> fs_zd,
+    private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_bdcdy
+            , final Feature f_zd, final List<Feature> fs_qlr,final List<Feature> fs_hjxx, final List<Feature> fs_zd,
                             final List<Feature> fs_jzd, final List<Feature> fs_jzx, final Map<String, Feature> map_jzx,
                             final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, final List<Feature> fs_fsss, List<Feature> fs_ljz
             , final List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
@@ -3159,7 +2817,7 @@ public class FeatureViewZD extends FeatureView {
                             // 宗地草图
                             FeatureEditBDC.Put_data_zdct(mapInstance, map_, f_zd);
                             // 附件材料
-                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd);
+                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd,fs_qlr,fs_hjxx);
                             put_data_zd(map_, fs_zd);
 
 
@@ -3391,7 +3049,7 @@ public class FeatureViewZD extends FeatureView {
                 new Dxffcfcfht_xiantao(mapInstance).set(dxf_fcfcfht_xiantao).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else if (DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG){
                 final String dxf_fcfcfht_leiyang = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层分户图.dxf";// fs_zrz =0
-                new Dxffcfcfht_leiyang(mapInstance).set(dxf_fcfcfht_leiyang).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+                new Dxffcfcfht_leiyang(mapInstance).set(dxf_fcfcfht_leiyang).set(dxf_bdcdyh, f_zd, fs_zrz, fs_c,fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else {
                 final String dxf_fcfht_tianmen = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房产分层平面图.dxf";// fs_zrz =0
             }
@@ -3429,6 +3087,50 @@ public class FeatureViewZD extends FeatureView {
                     });
                 }
             });
+        }
+
+    }
+
+    /**
+     * 界址签章数据规整，将领宗地的指界人签章数据拷贝写入本宗地
+     * @param f 当前宗地
+     * @param callback 处理完后回调
+     */
+    public void signNeaten(final Feature f, final AiRunnable callback) {
+        if (FeatureHelper.isPolygonFeatureValid(f)) {
+            final String orid = FeatureHelper.Get(f,FeatureHelper.TABLE_ATTR_ORID,"");
+            final String targerPath = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f) + "附件材料/电子签章/指界人签章举证/");
+            final List<Feature> fs_zd = new ArrayList<>();
+            MapHelper.Query(mapInstance.map, FeatureHelper.TABLE_NAME_ZD, f.getGeometry(), 0.01, fs_zd, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    if (FeatureHelper.isExistElement(fs_zd)&&fs_zd.size()>1){
+                        // 有邻宗
+                        for (Feature f_zd : fs_zd) {
+                            String morid =FeatureHelper.Get(f_zd,"ORID","");
+                            if (StringUtil.IsNotEmpty(orid)&&!orid.equals(morid)){
+                                String dirPath = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd)
+                                        + "附件材料/电子签章/指界人签章举证/");
+                                String fileName = "指界人[#ORID#]电子签章.jpg";
+                                fileName = fileName.replace("[#ORID#]",morid);
+                                String path = dirPath+fileName;
+                                File file = new File(path);
+                                if (file.exists()){
+                                    FileUtils.copyFile(path,targerPath+fileName);
+                                }
+                            }
+                        }
+                        AiRunnable.Ok(callback, f);
+                    }else {
+                        // 没有邻宗
+                        AiRunnable.Ok(callback, f);
+                    }
+                    return null;
+                }
+            });
+        } else {
+            // zd 不存在或者geometry 非法
+            AiRunnable.Ok(callback, f);
         }
 
     }

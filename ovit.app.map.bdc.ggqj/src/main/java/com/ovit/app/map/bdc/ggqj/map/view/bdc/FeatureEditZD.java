@@ -1389,11 +1389,8 @@ public class FeatureEditZD extends FeatureEdit {
                     ImageView iv_zjrqz = (ImageView) helper.getView().findViewById(R.id.iv_zjrqz);
                     TextView tv_zjrqz = (TextView) helper.getView().findViewById(R.id.tv_zjrqz);
                     final String path = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(feature) + "附件材料/电子签章/");
-                    String signName = AiUtil.GetValue(f_jzqz.get("JZQZ.XLZDZDDM"), "");
-//                    if (TextUtils.isEmpty(signName)) {
-//                        signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ORID"), "");
-//                    }
-                    signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ORID"), "");
+
+                   String signName = AiUtil.GetValue(f_jzqz.get("JZQZ.ORID"), "");
 
                     fv.setSign(tv_zjrqz, iv_zjrqz, path, signName);
                 }

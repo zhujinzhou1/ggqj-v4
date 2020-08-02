@@ -3,7 +3,6 @@ package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +38,9 @@ import java.util.Map;
 public class FeatureEditZRZ extends FeatureEdit {
 
     final static String TAG = "FeatureEditZRZ";
+    TextView et_dscs;
+    TextView et_dxcs;
+    TextView et_zcs;
     FeatureViewZRZ fv;
     private String old_zrzh;
 
@@ -69,7 +71,6 @@ public class FeatureEditZRZ extends FeatureEdit {
             if (feature != null) {
                 mapInstance.fillFeature(feature);
                 fillView(v_feature);
-
                 CustomImagesView civ_fwzp = (CustomImagesView) v_feature.findViewById(R.id.civ_fwzp);
                 String fileDescription = AiUtil.GetValue(civ_fwzp.getContentDescription(), FeatureHelper.CDES_DEFULT_NAME);
                 old_zrzh = AiUtil.GetValue(feature.getAttributes().get("ZRZH"), "");
@@ -86,27 +87,27 @@ public class FeatureEditZRZ extends FeatureEdit {
                 ((TextView) v_feature.findViewById(R.id.et_dscs)).setText(AiUtil.GetValue(FeatureHelper.Get(feature, "DSCS"), "0", "#.##"));
                 ((TextView) v_feature.findViewById(R.id.et_dxcs)).setText(AiUtil.GetValue(FeatureHelper.Get(feature, "DXCS"), "0", "#.##"));
 
-                TextWatcher tw_cs = new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                        Log.i(TAG, "beforeTextChanged---" + s.toString());
-                    }
-
+                et_dscs = ((TextView) v_feature.findViewById(R.id.et_dscs));
+                et_dxcs = ((TextView) v_feature.findViewById(R.id.et_dxcs));
+                et_zcs = ((TextView) v_feature.findViewById(R.id.et_zcs));
+                et_dscs.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        // 层数变化
-                        cs_change();
-                        Log.i(TAG, "onTextChanged---" + s.toString());
+                        cs_change(et_dscs);
                     }
-
+                });
+                et_dxcs.addTextChangedListener(new TextWatcher() {
                     @Override
-                    public void afterTextChanged(Editable s) {
-                        Log.i(TAG, "afterTextChanged---" + s.toString());
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        cs_change(et_dxcs);
                     }
-                };
-//                ((TextView) v_feature.findViewById(R.id.et_dscs)).addTextC hangedListener(tw_cs);
-//                ((TextView) v_feature.findViewById(R.id.et_dxcs)).addTextChangedListener(tw_cs);
-                ((TextView) v_feature.findViewById(R.id.et_zcs)).addTextChangedListener(tw_cs);
+                });
+                et_zcs.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        cs_change(et_zcs);
+                    }
+                });
 
                 v_feature.findViewById(R.id.et_tv_drawljz).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -446,6 +447,25 @@ public class FeatureEditZRZ extends FeatureEdit {
     }
 
     View view_t;
+    private void cs_change(TextView v) {
+        int dscs = AiUtil.GetValue(et_dscs.getText(), 1);
+        int dxcs = AiUtil.GetValue(et_dxcs.getText(), 0);
+        int zcs = AiUtil.GetValue(et_zcs.getText(), 1);
+        if (v == et_zcs) {
+            // 总层数发生变化，改变地上
+            int dscs_ = zcs - Math.abs(dxcs);
+            if (dscs_ != dscs) {
+                et_dscs.setText(dscs_ + "");
+            }
+        } else {
+            // 地上或是地下发生变化，改变总层数
+            int zcs_ = Math.abs(dscs) + Math.abs(dxcs);
+            if (zcs_ != zcs) {
+                et_zcs.setText(zcs_ + "");
+            }
+        }
+        view_t = null;
+    }
 
     // 分层分户图
     private void load_fcfh() {
@@ -476,6 +496,23 @@ public class FeatureEditZRZ extends FeatureEdit {
     }
 
     //region 属性页
+    //region 内部类或接口
+    class TextWatcher implements android.text.TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    }
+    ///endregion
     //end-----------------------------------20180709----------------------------------------------------------------------------------------------
 }

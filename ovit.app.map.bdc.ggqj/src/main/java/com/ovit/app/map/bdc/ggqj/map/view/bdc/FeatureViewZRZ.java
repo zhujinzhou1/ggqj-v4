@@ -680,6 +680,45 @@ public class FeatureViewZRZ extends FeatureView {
             }
         }.start();
     }
+    // 加载所有的幢，识别图形
+    public static void LaodAllZRZ_IdentyLjzAndHAndZFSJG(final MapInstance mapInstance, final AiRunnable callback) {
+        final List<Feature> fs = new ArrayList<>();
+        LoadAllZRZ(mapInstance, fs, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final FeatureViewZRZ fv = From(mapInstance);
+                fv.indentyLjzFromZrzs(fs, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        fv.ipug(fs, callback);
+                        AiRunnable.Ok(callback, fs, objects);
+                        return null;
+                    }
+                });
+
+                // 递归执行
+//                new AiForEach<Feature>(fs, callback) {
+//                    @Override
+//                    public void exec() {
+//                        fv.set(fs.get(postion));
+//                        fv.indenty(getNext());
+//                    }
+//                }.start();
+                return null;
+            }
+        });
+
+
+    }
+    //识别逻辑幢，逻辑幢识别户
+    private void indenty(AiRunnable callback) {
+
+
+
+
+
+
+    }
 
     // 核算宗地 占地面积、建筑面积
     public void update_Area(final AiRunnable callback) {

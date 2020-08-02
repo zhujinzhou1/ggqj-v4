@@ -340,6 +340,21 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 });
             }
         });
+        //电子签章整理
+        tool_view.findViewById(R.id.v_cggl_sign).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String fundesc = "电子签章归整";
+                FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        Sign(mapInstance);
+                        return null;
+                    }
+                });
+            }
+        });
+
 
         // 测距仪
         tool_view.findViewById(R.id.ll_tool_sb_cjy).setOnClickListener(new View.OnClickListener() {
@@ -392,6 +407,76 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
         return tool_view;
+    }
+
+    private void Sign(final MapInstance mapInstance) {
+        {
+            final String funcdesc = "该功能将逐一对项目中每宗地电子签章 进行整理。";
+            License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+                @Override
+                public <T_> T_ ok(T_ t_, Object... objects) {
+                    final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                    aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "整理资料");
+                    aidialog.setContentView("注意：属于不可逆操作，如果您已经整理过成果，请注意备份谨慎处理！", funcdesc);
+                    aidialog.setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // 完成后的回掉
+                            final AiRunnable callback = new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    aidialog.addContentView("处理数据完成。"+t_);
+                                    aidialog.setFooterView(null, "关闭", null);
+                                    return null;
+                                }
+
+                                @Override
+                                public <T_> T_ no(T_ t_, Object... objects) {
+                                    aidialog.addContentView("处理数据失败！");
+                                    aidialog.setFooterView(null, "关闭", null);
+                                    return null;
+                                }
+
+                                @Override
+                                public <T_> T_ error(T_ t_, Object... objects) {
+                                    aidialog.addContentView("处理数据异常！");
+                                    aidialog.setFooterView(null, "关闭", null);
+                                    return null;
+                                }
+                            };
+                            // 设置不可中断
+                            aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                            aidialog.setContentView("开始处理数据");
+                            aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
+                            final List<Feature> fs_zd = new ArrayList<>();
+                            FeatureViewZD.LoadAllZD(mapInstance, fs_zd, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    final int size = fs_zd.size();
+                                    new AiForEach<Feature>(fs_zd,null){
+                                        @Override
+                                        public void exec() {
+                                            Feature f = fs_zd.get(postion);
+                                            if((postion+1)%100==0){
+                                              aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "电子签章数据规整进度"+(postion+1)+"/"+size);
+                                            }
+                                            FeatureViewZD fv =  FeatureViewZD.From(mapInstance,f);
+                                            fv.signNeaten(f,getNext());
+                                        }
+                                        @Override
+                                        public void complet() {
+                                            AiRunnable.Ok(callback,size);
+                                        }
+                                    }.start();
+                                    return null;
+                                }
+                            });
+                        }
+                    }).show();
+                    return null;
+                }
+            });
+        }
     }
 
     public void inputZL(final MapInstance mapInstance) {
@@ -592,7 +677,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return project.getCurrent().ID;
     }
 
-    // 智能处理
+/*    // 智能处理
     public static void Zlcl(final MapInstance mapInstance) {
         final String funcdesc = "该功能将逐一对项目中所有宗地进行处理："
                 + "\n 1、宗地范围内幢、户、附属等自动识别；"
@@ -708,8 +793,135 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 return null;
             }
         });
-    }
+    }*/
 
+
+
+    // 智能处理
+    public static void Zlcl(final MapInstance mapInstance) {
+        final String funcdesc = "该功能将逐一对项目中所有宗地进行处理："
+                + "\n 1、宗地范围内幢、户、附属等自动识别；"
+                + "\n 2、重新核算建筑面积；"
+                + "\n 3、重新生成宗地草图、房产图、分层分户图。";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
+                aidialog.setHeaderView(R.mipmap.app_icon_rgzl_blue, "智能处理");
+                aidialog.setContentView("注意：属于不可逆操作，将对宗地面积、宗地草图、分层分幅图重新智能处理，如果您已经输出过成果，请注意备份谨慎处理！", funcdesc);
+                aidialog.setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 完成后的回掉
+                        final AiRunnable callback = new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                aidialog.addContentView("处理数据完成，你可能还需要重新生成成果。");
+                                aidialog.setFooterView("重新生成成果", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        Cgsc(mapInstance, true);
+                                    }
+                                }, null, null, "完成", null);
+                                return null;
+                            }
+
+                            @Override
+                            public <T_> T_ no(T_ t_, Object... objects) {
+                                aidialog.addContentView(AiRunnable.NO);
+                                aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                return null;
+                            }
+
+                            @Override
+                            public <T_> T_ error(T_ t_, Object... objects) {
+                                aidialog.addContentView(AiRunnable.ERROR);
+                                aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                return null;
+                            }
+                        };
+                        // 设置不可中断
+//                                aidialog.setCancelable(false).setFooterView("正在数据处理，可能需要一段时间，暂时不允许操作！");
+                        aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+                        aidialog.setContentView("开始处理数据");
+
+                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "加载所有宗地提取自然幢");
+                        Log.d(TAG, "智能处理:查找所有宗地，并提取自然幢");
+                        List<Feature> fs_zd = new ArrayList<>();
+                        // 1、加载所有宗地提取自然幢
+                        FeatureViewZD.LaodAllZDExtractZrz(mapInstance, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗地。");
+                                FeatureViewZD.LaodAllZD_IdentyZrz(mapInstance, new AiRunnable(callback) {
+                                    @Override
+                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗地。");
+                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有幢，并识别户、幢附属");
+//                                        Log.d(TAG, "智能处理:查找所有幢，并识别户、幢附属");
+                                        FeatureViewZRZ.LaodAllZRZ_IdentyLjzAndHAndZFSJG(mapInstance, new AiRunnable(callback) {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "幢。");
+                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有户，并识别户附属");
+                                                Log.d(TAG, "智能处理:查找所有户，并识别户附属");
+//                                                FeatureEditH.LaodAllH_IdentyHFSJG(mapInstance, new AiRunnable(callback) {
+//                                                    @Override
+//                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "户。");
+//                                                        aidialog.addContentView(null, AiU til.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，重新算建筑面积");
+//                                                        Log.d(TAG, "智能处理:查找所有宗地，重新算建筑面积");
+                                                        FeatureViewZD.LaodAllZDAndUpdateArea(mapInstance, new AiRunnable(callback) {
+                                                            @Override
+                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗地。");
+                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有幢，重新生成分层分户图");
+                                                                Log.d(TAG, "智能处理:查找所有幢，重新生成分层分户图");
+                                                                FeatureViewZRZ.LaodAllZRZ_CreateFCFHT(mapInstance, new AiRunnable(callback) {
+                                                                    @Override
+                                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "幢。");
+                                                                        aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，重新生成宗地草图、房产图");
+                                                                        Log.d(TAG, "智能处理:查找所有宗地，重新生成宗地草图、房产图");
+                                                                        FeatureViewZD.LaodAllZDCreateCTAddFCT(mapInstance, new AiRunnable(callback) {
+                                                                            @Override
+                                                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "宗。");
+                                                                                Log.d(TAG, "智能处理:已完成" + objects[0] + "宗。");
+                                                                                AiRunnable.Ok(callback, null);
+                                                                                return null;
+                                                                            }
+                                                                        });
+                                                                        return null;
+                                                                    }
+                                                                });
+
+                                                                return null;
+                                                            }
+                                                        });
+//                                                        return null;
+//                                                    }
+//                                                });
+                                                return null;
+                                            }
+                                        });
+                                        return null;
+                                    }
+                                });
+                                return null;
+                            }
+                        });
+
+                    }
+                });
+                aidialog.show();
+                ;
+
+                return null;
+            }
+        });
+    }
     // 成果输出
     public static void Cgsc(final MapInstance mapinstance, final boolean isReload) {
         final String funcdesc = "该功能将逐一对项目中所有不动产单元" + (isReload ? "重新" : "") + "生成word成果。";
