@@ -1864,6 +1864,9 @@ public class FeatureEditBDC extends FeatureEdit {
                 map_fsss.put("ZRZ.ZCS", "");
                 map_fsss.put("ZRZ.FWJGFF", "");
             }
+            if (jzwmc.contains("庭院晒坪")|| jzwmc.contains("全貌范围")){
+                map_fsss.put("ZRZ.SJGRQ"," ");
+            }
 
 
             maps_fsss.add(map_fsss);
@@ -2139,18 +2142,14 @@ public class FeatureEditBDC extends FeatureEdit {
         //房屋结构
 
         String fwjg_h = (String) map_ljz.get("LJZ.FWJG1");
-        if (fwjg_h.contains("结构")) {
-            fwjg_h = fwjg_h.substring(0,fwjg_h.lastIndexOf("结构"));
+        if (StringUtil.IsNotEmpty(fwjg_h)) {
+            if (fwjg_h.contains("结构")) {
+                fwjg_h = fwjg_h.substring(0, fwjg_h.lastIndexOf("结构"));
+            }
         }
         map_.put("LJZ.FWJG1",fwjg_h);
 //        竣工时间
 
-        //占地面积
-        //建筑面积
-        //专有建筑面积
-        //分摊建筑面积
-        //产权来源
-        //墙体归属  东南西北
 
         //墙体归属取逻辑幢
         map_ljz.put("LJZ.QTGSD",FeatureHelper.Get(fs_ljz,"QTGSD", "自墙"));

@@ -1273,7 +1273,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                             final List<Feature> fs_zrz = new ArrayList<>();
                                             final List<Feature> fs_ljz = new ArrayList<>();
                                             final String orid = mapInstance.getOrid(f_zd);
-                                           final String where = " ORID_PATH like '%" + orid + "%' ";
+                                            final String where = " ORID_PATH like '%" + orid + "%' ";
                                             MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) {

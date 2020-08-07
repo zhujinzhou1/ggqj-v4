@@ -1,6 +1,7 @@
 package com.ovit.app.map.bdc.ggqj.map.view;
 
 import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,6 +50,7 @@ import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.FileUtils;
+import com.ovit.app.util.GsonUtil;
 import com.ovit.app.util.Session;
 import com.ovit.app.util.StringUtil;
 import com.ovit.app.util.gdal.cad.DxfHelper;
@@ -1063,12 +1065,29 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
                     map.put("img.qlr", qlrPath);
                     map.put("JZQZ.ZDZHDM", zddm);
                     map.put("JZQZ.JZXQDH", jzxqdh);
-                    map.put("JZQZ.XLZDQLR", "");
-                    map.put("JZQZ.XLZDZDDM", xlzdzddm);
-                    map.put("JZQZ.ORID", orid);
-                    map.put("JZQZ.BZDQLR", bzdxlr);
-                    ps = new PointCollection(f_jzd1.getGeometry().getSpatialReference());
-                    ps.add((Point) f_jzd1.getGeometry());
+
+
+                    //没有相邻宗地时候填充村名 + 组名
+                    String xlzdqlr = FeatureHelper.Get(f_jzd1, "XLZDQLR", "");
+                    String xzmc = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "XZMC", "");//乡镇名称
+                    String czmc = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "CZMC", "");//村名称
+                    String zmc = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "CCXZMC", "");//小组名
+                    String zl = czmc + zmc;
+                    if (TextUtils.isEmpty(xlzdqlr)){
+                        map.put("JZQZ.XLZDQLR", zl);
+                        map.put("JZQZ.XLZDZDDM", xlzdzddm);
+                        map.put("JZQZ.ORID", orid);
+                        map.put("JZQZ.BZDQLR", bzdxlr);
+                        ps = new PointCollection(f_jzd1.getGeometry().getSpatialReference());
+                        ps.add((Point) f_jzd1.getGeometry());
+                    }else {
+                        map.put("JZQZ.XLZDQLR", "");
+                        map.put("JZQZ.XLZDZDDM", xlzdzddm);
+                        map.put("JZQZ.ORID", orid);
+                        map.put("JZQZ.BZDQLR", bzdxlr);
+                        ps = new PointCollection(f_jzd1.getGeometry().getSpatialReference());
+                        ps.add((Point) f_jzd1.getGeometry());
+                    }
                 }
 
 //                if (!jzdh2.equalsIgnoreCase(jzxqdh)) {
