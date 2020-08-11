@@ -20,7 +20,6 @@ import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
 import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
-import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.ui.dialog.AiDialog;
@@ -146,7 +145,6 @@ public class FeatureEditH_FSJG extends FeatureEdit {
                                         ToastMessage.Send(activity, "初始化完成！");
                                         return null;
                                     }
-
                                 });
                                 return null;
                             }

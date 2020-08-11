@@ -1255,7 +1255,7 @@ public class FeatureEditZD extends FeatureEdit {
 
     // 初始化界址点线签字缓存数据
     private void int_jzdxqz() {
-        FeatureEditJZD.UpdateJZD(mapInstance, feature, new AiRunnable() {
+        FeatureEditJZD.UpdateJZD(mapInstance, feature,true, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 FeatureEditJZX.UpdateJZX(mapInstance, feature, new AiRunnable() {

@@ -111,6 +111,7 @@ public class FeatureViewZD extends FeatureView {
     //region 常量
     final static String TAG = "FeatureViewZD";
     final public static String TABLE_ATTR_FTXS_ZD = "FTXS";
+    final public static java.lang.String TABLE_ATTR_JZDJXLX = "SOVIT4";
     ///endregion
 
     //region 字段
@@ -1635,7 +1636,7 @@ public class FeatureViewZD extends FeatureView {
                 String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                 final String dxfzdt_leiyang = dxfDir + "宗地图.dxf";
                 new DxfZdt_leiyang(mapInstance).set(dxfzdt_leiyang).set(f_zd, mapfs).write().save();
-            }else if(DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO){
+            }else if(DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO || DxfHelper.TYPE == DxfHelper.TYPE_ANQIU  ){
                 String dxfDir = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + "附件材料/宗地草图/") + FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, "");
                 final String dxfzdt_xiantao = dxfDir + "宗地图.dxf";
                 new DxfZdt_xiantao(mapInstance).set(dxfzdt_xiantao).set(f_zd, mapfs).write().save();
@@ -1728,7 +1729,7 @@ public class FeatureViewZD extends FeatureView {
                                         final List<Feature> fs_dzdw = mapfs.get(FeatureHelper.TABLE_NAME_DZDW);
 
                                         List<Geometry> lablePoints = new ArrayList<>();
-                                        String jxlx = FeatureHelper.Get(feature, "JXLX", "J");
+                                        String jxlx = FeatureHelper.Get(feature, FeatureViewZD.TABLE_ATTR_JZDJXLX, "J");
                                         if (true) {
                                             for (Feature feature : features_jzd) {
                                                 feature.getAttributes().put("JZDH", jxlx + (features_jzd.indexOf(feature) + 1));
@@ -2207,6 +2208,50 @@ public class FeatureViewZD extends FeatureView {
         });
     }
 
+    // 生成所有的界址点线
+    public static void initAllJzdx(final MapInstance mapInstance, final AiRunnable callback) {
+        final List<Feature> fs = new ArrayList<>();
+        MapHelper.Query(GetTable(mapInstance,FeatureHelper.LAYER_NAME_ZD), "", "ZDDM", "asc",-1, fs, new AiRunnable() {
+            // 递归调用，直到全部完成
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+
+                new AiForEach<Feature>(fs, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        MapHelper.saveFeature(fs,callback);
+                        return null;
+                    }
+                }){
+                    @Override
+                    public void exec() {
+                        final Feature f_zd = fs.get(postion);
+                        String zddm = FeatureHelper.Get(f_zd,"ZDDM","");
+                        String qlrxm = FeatureHelper.Get(f_zd,"QLRXM","");
+                        Log.i(TAG, "生成界址点线" + postion + "/" + fs.size() +"======ZDDM="+ zddm);
+                        if (FeatureHelper.isPolygonFeatureValid(f_zd) && FeatureHelper.isZDDMHValid(zddm)){
+                            final Geometry g = MapHelper.Geometry_get(f_zd.getGeometry()); //设置西北角为起点
+                            f_zd.setGeometry(g);
+                            FeatureEditJZD.UpdateJZD(mapInstance, f_zd, false, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    FeatureEditJZX.UpdateJZX(mapInstance, f_zd,getNext());
+                                    return null;
+                                }
+                            });
+                        }else {
+                            ToastMessage.Send("宗地图形缺失请检查--->" + "宗地代码：" + AiUtil.GetValue(zddm,qlrxm));
+                            CrashHandler.WriteLog("宗地图形缺失请检查", "编号：" +AiUtil.GetValue(zddm,qlrxm));
+                            AiRunnable.Ok(getNext(),"");
+                        }
+                    }
+                }.start();
+                return null;
+            }
+        });
+    }
+
+
     public static String GetZdzhdm_LZ(String zddm, String zdzhdm1, String zdzhdm2) {
         String lz = "";
         if (StringUtil.IsEmpty(zdzhdm1) || zdzhdm1.equalsIgnoreCase(zddm) || StringUtil.IsEmpty(zdzhdm2) || zdzhdm2.equalsIgnoreCase(zddm)) {
@@ -2229,6 +2274,11 @@ public class FeatureViewZD extends FeatureView {
         String zdzhdm1 = FeatureHelper.Get(f_jzd1, "ZDZHDM", "");
         String zdzhdm2 = FeatureHelper.Get(f_jzd2, "ZDZHDM", "");
         return GetZdzhdm_LZ(zddm, zdzhdm1, zdzhdm2);
+    }
+
+    // 获取解析类型
+    public static String GetJxlx(Feature f_zd) {
+        return FeatureHelper.Get(f_zd, TABLE_ATTR_JZDJXLX,"J");
     }
     ///endregion
 
@@ -3044,9 +3094,9 @@ public class FeatureViewZD extends FeatureView {
                 // 通山
                 final String dxf_fwfcpmt_tongshan = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层平面图.dxf";// fs_zrz =0
                 new DxfFwfcpmt_tongshan(mapInstance).set(dxf_fwfcpmt_tongshan).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
-            } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO){
+            } else if (DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO || DxfHelper.TYPE == DxfHelper.TYPE_ANQIU){
                 final String dxf_fcfcfht_xiantao = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层分户图.dxf";// fs_zrz =0
-                new Dxffcfcfht_xiantao(mapInstance).set(dxf_fcfcfht_xiantao).set(dxf_bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
+                new Dxffcfcfht_xiantao(mapInstance).set(dxf_fcfcfht_xiantao).set(dxf_bdcdyh, f_zd, fs_zrz, fs_c,fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
             }else if (DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG){
                 final String dxf_fcfcfht_leiyang = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + dxf_bdcdyh + "房屋分层分户图.dxf";// fs_zrz =0
                 new Dxffcfcfht_leiyang(mapInstance).set(dxf_fcfcfht_leiyang).set(dxf_bdcdyh, f_zd, fs_zrz, fs_c,fs_z_fsjg, fs_h, fs_h_fsjg).write().save();
@@ -3134,7 +3184,6 @@ public class FeatureViewZD extends FeatureView {
         }
 
     }
-
 
     ///endregion
 

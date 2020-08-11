@@ -6,6 +6,7 @@ import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReference;
+import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewZD;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
 import com.ovit.app.map.model.MapInstance;
@@ -222,7 +223,7 @@ public class DxfZdct_zhuxi {
                 dxf.write(f_fsjg.getGeometry(), DxfHelper.LINETYPE_DOTTED_LINE, "", 0, "", false, DxfHelper.COLOR_BYLAYER, 0);
             }
             dxf.writeZD(f_zd,null, DxfHelper.LINE_LABEL_OUTSIDE);
-
+            String jzlx = FeatureViewZD.GetJxlx(f_zd);
             Point p_basic = new Point(o_extend.getXMin(), o_extend.getYMax(), spatialReference);
             double minLen=10000d;
             Map<Double,Feature> map_len_jzd= new LinkedHashMap<>();
@@ -249,7 +250,7 @@ public class DxfZdct_zhuxi {
                     }
 
                     for (int i = 0 ;i<fs_jzd_new.size();i++) {
-                        fs_jzd_new.get(i).getAttributes().put("JZDH","J"+(i+1));
+                        fs_jzd_new.get(i).getAttributes().put("JZDH",jzlx+(i+1));
                     }
                 }else {
                     dxf.write(mapInstance, fs_jzd);

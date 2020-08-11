@@ -25,8 +25,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import static com.ovit.app.map.custom.FeatureHelper.Get;
-
 /**
  * 仙桃宗地图
  */
@@ -180,7 +178,7 @@ public class DxfZdt_xiantao extends BaseDxf {
         // 单元格2-3
         x_ = x_ + w * 3 / 10;
         Envelope cel_2_3 = new Envelope(x_, y_, x_ + w * 1 / 5, y_ - h, p_extend.getSpatialReference());
-        dxf.write(cel_2_3, null, "宗地面积", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
+        dxf.write(cel_2_3, null, "调查面积", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
 
         // 单元格2-4
         x_ = x_ + w * 1 / 5;
@@ -225,22 +223,26 @@ public class DxfZdt_xiantao extends BaseDxf {
         dxf.writeJZDS(fs_jzd);
         // 宗地四至
         DxfHelper.writeZdsz(dxf,f_zd,f_zd.getGeometry().getExtent(),o_split,0.8f,o_fontstyle);
-        paint.setTextAlign(DxfPaint.Align.RIGHT);
-        Point p_z = new Point(x + w, p_extend.getYMin() + h * 0.5, spatialReference);
-        dxf.writeText(p_z, "注：实际建筑占地面积为" + Get(f_zd, "JZZDMJ", 0.00) + "平方米");
-
+//        paint.setTextAlign(DxfPaint.Align.RIGHT);
+//        Point p_z = new Point(x + w, p_extend.getYMin() + h * 0.5, spatialReference);
+//        dxf.writeText(p_z, "注：实际建筑占地面积为" + Get(f_zd, "JZZDMJ", 0.00) + "平方米");
     }
 
     @Override
     protected void getFooter() throws Exception {
         paint.setLayer(DxfConstant.DXF_LAYER_BKZJ);
+        paint.setFontsize(o_fontsize);
         Envelope envelope = p_extend;
         double x = envelope.getXMin();
         double y = envelope.getYMax();
         double x_ = p_extend.getXMin();
         double y_ = y - p_height;
         double w = p_width;
-        String hzdw = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZDW", "");
+//        String hzdw = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZDW", "");
+        String hzdw ="仙桃市自然资源和规划局";
+        if (com.ovit.app.util.gdal.cad.DxfHelper.TYPE == com.ovit.app.util.gdal.cad.DxfHelper.TYPE_ANQIU){
+            hzdw ="安丘市自然资源和规划局";
+        }
         Envelope cel_4_0 = new Envelope(x_ - o_split, y_ + (hzdw.length() * o_fontsize) * 1.8, x_, y_, p_extend.getSpatialReference());
         Point p_4_0 = new Point(cel_4_0.getCenter().getX(), cel_4_0.getCenter().getY(), p_extend.getSpatialReference());
         dxf.writeMText(p_4_0, StringUtil.GetDxfStrFormat(hzdw, "\n"), o_fontsize, o_fontstyle, 0, 0, 3, 0, null, null);
@@ -249,12 +251,15 @@ public class DxfZdt_xiantao extends BaseDxf {
         String auditDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
         c.add(Calendar.DATE, -1);
         String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
-        Point p_jxf = new Point(x, envelope.getYMin() - h * (o_fontsize * 1.5), envelope.getSpatialReference());
+        Point p_jxf = new Point(x, envelope.getYMin()-2*o_fontsize, spatialReference);
         String tjsj = StringUtil.substr(auditDate, 0, auditDate.indexOf("月") + 1); // 图解时间
-        dxf.writeText(p_jxf, tjsj + "解析法测绘界址点", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
-        Point p_blc = new Point(envelope.getCenter().getX(), envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
-        dxf.writeText(p_blc, "1:" + (int) blc, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
+        paint.setTextAlign(DxfPaint.Align.LEFT);
+        dxf.writeMText(p_jxf, tjsj + "解析法测绘界址点", paint);
 
+        // 比例尺
+        Point p_blc =  new Point(envelope.getCenter().getX(), envelope.getYMin()-2*o_fontsize, spatialReference);;
+        paint.setTextAlign(DxfPaint.Align.CENTER);
+        dxf.writeMText(p_blc, "1:" + (int) blc, paint);
 
         String hzr = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZR", "");
         String shr = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "SHR", "");
@@ -264,15 +269,13 @@ public class DxfZdt_xiantao extends BaseDxf {
         } else if (hzr.length() < shr.length()) {
             hzr = getNiceString(hzr, shr.length() - hzr.length());
         }
+        // 制图
+        Point p_chr = new Point(x + w , envelope.getYMin() - o_fontsize, spatialReference);
+        paint.setTextAlign(DxfPaint.Align.RIGHT);
+        dxf.writeMText(p_chr, "制图：" + hzr+"  "+drawDate, paint);
 
-        Point p_chr = new Point(x + w -w/8 , envelope.getYMin() - h * o_fontsize, envelope.getSpatialReference());
-        dxf.writeText(p_chr, "制图：" + hzr, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_BYLAYER, null, null);
-        Point p_shr = new Point(x + w-w/8, envelope.getYMin() - h * (o_fontsize * 2), envelope.getSpatialReference());
-        dxf.writeText(p_shr, "审核：" + shr, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 2, 2, DxfHelper.COLOR_BYLAYER, null, null);
-        Point p_auditDate = new Point(x + w-w/10  , envelope.getYMin() - h * o_fontsize , envelope.getSpatialReference());
-        dxf.writeText(p_auditDate, "" + auditDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
-        Point p_drawDate = new Point(x + w-w/10 , envelope.getYMin() -h * o_fontsize * 2, envelope.getSpatialReference());
-        dxf.writeText(p_drawDate, "" + drawDate, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
+        Point p_shr = new Point(x + w, envelope.getYMin() - (o_fontsize * 3),spatialReference);
+        dxf.writeMText(p_shr, "审核：" + shr+"  "+auditDate, paint);
 
     }
 

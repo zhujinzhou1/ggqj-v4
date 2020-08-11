@@ -20,7 +20,6 @@ import com.ovit.app.map.bdc.ggqj.map.MapInstance;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
-import com.ovit.app.ui.dialog.AiDialog;
 import com.ovit.app.ui.dialog.ToastMessage;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
@@ -146,17 +145,17 @@ public class FeatureEditJZX extends FeatureEdit {
         return null;
     }
 
-    public static void UpdateJZX(final MapInstance mapInstance,final  Feature f_zd, AiRunnable callback_) {
-        final AiDialog dialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_kzd, "生成界址线")
-                .addContentView("将根据宗地的范围更新或删除原有的界址线，重新生成界址线", "该操作不可逆转，如果已经生成过界址线请谨慎操作");
-        dialog.setFooterView(dialog.getProgressView("正在处理，请稍后..."));//.setCancelable(false);
-
-        final AiRunnable callback = new AiRunnable(callback_) {
-            @Override
-            public <T_> void finlly(T_ t_, Object... objects) {
-                dialog.setCancelable(true).dismiss();
-            }
-        };
+    public static void UpdateJZX(final MapInstance mapInstance, final  Feature f_zd, final AiRunnable callback_) {
+//        final AiDialog dialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_kzd, "生成界址线")
+//                .addContentView("将根据宗地的范围更新或删除原有的界址线，重新生成界址线", "该操作不可逆转，如果已经生成过界址线请谨慎操作");
+//        dialog.setFooterView(dialog.getProgressView("正在处理，请稍后..."));//.setCancelable(false);
+//
+//        final AiRunnable callback = new AiRunnable(callback_) {
+//            @Override
+//            public <T_> void finlly(T_ t_, Object... objects) {
+//                dialog.setCancelable(true).dismiss();
+//            }
+//        };
         final List<Feature> fs_jzx = new ArrayList<>();
         final String zddm = FeatureEditZD.GetID(f_zd);
         final FeatureTable table = GetTable(mapInstance);
@@ -165,22 +164,22 @@ public class FeatureEditJZX extends FeatureEdit {
         final List<Feature> fs_del = new ArrayList<>();
 
         // 查出所有相关的界址线
-        MapHelper.Query(table, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM like '%" + zddm + "%' ", -1, fs_jzx, new AiRunnable(callback) {
+        MapHelper.Query(table, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM like '%" + zddm + "%' ", -1, fs_jzx, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 //查出范围内的界址线,注意不要查重复了
-                MapHelper.Query(table, f_zd.getGeometry(), 0.01, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM not like '%" + zddm + "%' ", "", "", -1, true, fs_jzx, new AiRunnable(callback) {
+                MapHelper.Query(table, f_zd.getGeometry(), 0.01, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM not like '%" + zddm + "%' ", "", "", -1, true, fs_jzx, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         // 查出周围的宗地,其中可能包含本宗地
-                        MapHelper.Query(FeatureEditZD.GetTable(mapInstance,FeatureHelper.TABLE_NAME_ZD), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable(callback) {
+                        MapHelper.Query(FeatureEditZD.GetTable(mapInstance,FeatureHelper.TABLE_NAME_ZD), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 // 根据宗地去识别界址线
                                 IndentyJZX(mapInstance, fs_jzx, fs_save, fs_del, f_zd, fs_zd, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.saveFeature(fs_save, fs_del, callback);
+                                        MapHelper.saveFeature(fs_save, fs_del, callback_);
                                         return null;
                                     }
                                 });

@@ -85,17 +85,23 @@ public class FeatureEditJZD extends FeatureEdit {
         return AiUtil.Scale(p.getX(),3,0)+","+ AiUtil.Scale(p.getY(),3,0);
     }
 
-    public static void UpdateJZD(final MapInstance mapInstance,final  Feature f_zd, AiRunnable callback_) {
-        final AiDialog dialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_kzd, "生成界址点")
-                .addContentView("将根据宗地的范围删除原有的界址点，重新生成界址点", "该操作不可逆转，如果已经生成过界址点请谨慎操作");
-        dialog.setFooterView(dialog.getProgressView("正在处理，请稍后..."));//.setCancelable(false);
+    public static void UpdateJZD(final MapInstance mapInstance,final  Feature f_zd, final boolean isDisplayDialog, AiRunnable callback_) {
+        AiRunnable callback = callback_;
+        if (isDisplayDialog){
+            final AiDialog dialog = AiDialog.get(mapInstance.activity).setHeaderView(R.mipmap.app_map_layer_kzd, "生成界址点")
+                    .addContentView("将根据宗地的范围删除原有的界址点，重新生成界址点", "该操作不可逆转，如果已经生成过界址点请谨慎操作");
+            dialog.setFooterView(dialog.getProgressView("正在处理，请稍后..."));//.setCancelable(false);
+            final AiDialog finalDialog = dialog;
+             callback = new AiRunnable(callback_) {
+                @Override
+                public <T_> void finlly(T_ t_, Object... objects) {
+                    if (isDisplayDialog) {
+                        finalDialog.setCancelable(true).dismiss();
+                    }
+                }
+            };
+        }
 
-        final AiRunnable callback = new AiRunnable(callback_) {
-            @Override
-            public <T_> void finlly(T_ t_, Object... objects) {
-                dialog.setCancelable(true).dismiss();
-            }
-        };
         final List<Feature> fs_jzd = new ArrayList<>();
         final String zddm = FeatureEditZD.GetID(f_zd);
         final FeatureTable table = GetTable(mapInstance);
@@ -104,22 +110,23 @@ public class FeatureEditJZD extends FeatureEdit {
         final List<Feature> fs_del = new ArrayList<>();
 
         // 查出所有相关的界址点
-        MapHelper.Query(table, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM like '%" + zddm + "%' ", -1, fs_jzd, new AiRunnable(callback) {
+        final AiRunnable finalCallback = callback;
+        MapHelper.Query(table, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM like '%" + zddm + "%' ", -1, fs_jzd, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
                 //查出范围内的界址点,注意不要查重复了
-                MapHelper.Query(table, f_zd.getGeometry(), 0.01, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM not like '%" + zddm + "%' ", "", "", -1, true, fs_jzd, new AiRunnable(callback) {
+                MapHelper.Query(table, f_zd.getGeometry(), 0.01, StringUtil.WhereByIsEmpty(zddm)+"ZDZHDM not like '%" + zddm + "%' ", "", "", -1, true, fs_jzd, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
                         // 查出周围的宗地,其中可能包含本宗地
-                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable(callback) {
+                        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD), f_zd.getGeometry(), 0.01, fs_zd, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 // 根据宗地去识别界址点
                                 IndentyJZD(mapInstance, fs_jzd, fs_save, fs_del, f_zd, fs_zd, new AiRunnable() {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
-                                        MapHelper.saveFeature(fs_save, fs_del, callback);
+                                        MapHelper.saveFeature(fs_save, fs_del, finalCallback);
                                         return null;
                                     }
                                 });
@@ -237,7 +244,7 @@ public class FeatureEditJZD extends FeatureEdit {
         String jzdh = FeatureHelper.Get(f_jzd, "JZDH", "");
         if (zdzhdms.size() == 1 || zdzhdms.get(0).equals(zddm)) {
             // 如果是本宗地
-            jzdh = "J" + zddm.substring(zddm.length() - 5) + (index > 10 ? (index + 1) + "" : "0" + index);
+            jzdh = FeatureViewZD.GetJxlx(f_zd) + zddm.substring(zddm.length() - 5) + (index > 10 ? (index + 1) + "" : "0" + index);
             FeatureHelper.Set(f_jzd, "SXH", "" + index);
         }
         FeatureHelper.Set(f_jzd, "JZDH", jzdh);

@@ -35,6 +35,7 @@ import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.AppConfig;
+import com.ovit.app.util.DicUtil;
 import com.ovit.app.util.FileUtils;
 import com.ovit.app.util.ListUtil;
 import com.ovit.app.util.ReportUtils;
@@ -59,7 +60,9 @@ import static com.ovit.app.map.view.FeatureEdit.GetTable;
 
 public class FeatureViewZRZ extends FeatureView {
     final static String TAG = "FeatureViewZRZ";
+    //region 构造函数与构造方法
 
+    ///endregion
     // region 重写父类方法
     @Override
     public void onCreate() {
@@ -1513,6 +1516,23 @@ public class FeatureViewZRZ extends FeatureView {
             Log.e(TAG, "导出数据失败", es);
         }
     }
-
+    // 获取房屋结构
+    public String getFwjg() {
+        return getFwjg(feature);
+    }
+    public String getFwjg(Feature feature) {
+        String fwjg = "";
+        if (FeatureHelper.isPolygonFeatureValid(feature)) {
+            fwjg = DicUtil.dic("fwjg", FeatureHelper.Get(feature, "FWJG", "4"));
+            if (fwjg.contains("]")) {
+                if (fwjg.contains("结构")) {
+                    fwjg = fwjg.substring(fwjg.lastIndexOf("]") + 1, fwjg.lastIndexOf("结构"));
+                } else {
+                    fwjg = fwjg.substring(fwjg.lastIndexOf("]") + 1);
+                }
+            }
+        }
+        return fwjg;
+    }
     //endregion 输出生果
 }

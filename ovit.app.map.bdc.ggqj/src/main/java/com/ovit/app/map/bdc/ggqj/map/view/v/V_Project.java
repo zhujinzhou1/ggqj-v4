@@ -38,7 +38,6 @@ import com.ovit.app.map.bdc.ggqj.map.util.Excel;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC;
-import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditH;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditQLR;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditZD;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewGYR;
@@ -287,7 +286,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                 FeatureHelper.vaildfunc(mapInstance, fundesc, DxfHelper.IsCheckArea, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        FeatureEditH.Sjjc_h(mapInstance);
+//                        FeatureEditH.Sjjc_h(mapInstance);
+                        Sjjc(mapInstance);
                         return null;
                     }
                 });
@@ -989,17 +989,19 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
             }
         });
     }
-
     // 数据检查
-    public void Sjjc(final MapInstance mapinstance) {
-        final String funcdesc = "该功能将逐一对项目中所有宗地的代码进行更新。";
-        License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
+    public static void Sjjc(final MapInstance mapInstance) {
+        final String funcdesc = "该功能将逐一对项目中所有宗地进行检查。"
+                + "\n 1、宗地的界址点检查并重新生成；"
+                + "\n 2、宗地范围内的户进行检查并更新"
+                + "\n 3、宗地范围内的自然幢进行检查并更新";
+        License.vaildfunc(mapInstance.activity, funcdesc, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                final AiDialog aidialog = AiDialog.get(mapinstance.activity);
+                final AiDialog aidialog = AiDialog.get(mapInstance.activity);
                 aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "")
                         .setContentView("注意：属于不可逆操作，请注意备份谨慎处理！", funcdesc)
-                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+                        .setFooterView("取消", "确定，我要继续", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // 完成后的回掉
@@ -1007,92 +1009,139 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                     @Override
                                     public <T_> T_ ok(T_ t_, Object... objects) {
                                         aidialog.addContentView("处理数据完成。");
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        aidialog.setFooterView(null, "关闭", null);
                                         return null;
                                     }
 
                                     @Override
                                     public <T_> T_ no(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.NO);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        aidialog.addContentView("处理数据失败！");
+                                        aidialog.setFooterView(null, "关闭", null);
                                         return null;
                                     }
 
                                     @Override
                                     public <T_> T_ error(T_ t_, Object... objects) {
-                                        aidialog.addContentView(AiRunnable.ERROR);
-                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+                                        aidialog.addContentView("处理数据异常！");
+                                        aidialog.setFooterView(null, "关闭", null);
                                         return null;
                                     }
                                 };
-                                // 设置不可中断
-//                                aidialog.setCancelable(false).setFooterView("正在处理中，可能需要一段时间，暂时不允许操作！");
                                 aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
                                 aidialog.setContentView("开始处理数据");
-                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并生成资料");
-
-//                                FeatureEditBDC.LaodAlLBDC_CreateDOCX(mapinstance, isReload, new AiRunnable() {
-//                                    @Override
-//                                    public <T_> T_ ok(T_ t_, Object... objects) {
-//                                        aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 已完成"+objects[0]+"宗。");
-//                                        AiRunnable.Ok(callback,null);
-//                                        return  null;
-//                                    } 15527836688
-//                                });
-
-
+                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并检查界址点线");
                                 // 查看列表
-
-                                final List<Feature> fs_zd = new ArrayList<Feature>();
-                                MapHelper.Query(FeatureEdit.GetTable(mapinstance, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", -1, fs_zd, new AiRunnable() {
-
-                                    void zljc_zd(final List<Feature> fs, final int i, final AiRunnable identy_callback) {
-                                        if (fs.size() > i) {
-                                            mapinstance.newFeatureView().load_djzq(fs.get(i).getGeometry(), new AiRunnable() {
-                                                @Override
-                                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                                    String djzq = t_ + "";
-
-                                                    ZnjcUpdateZd(mapinstance, djzq, fs.get(i), new AiRunnable() {
-                                                        @Override
-                                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            zljc_zd(fs, i + 1, identy_callback);
-                                                            return null;
-                                                        }
-                                                    });
-
-                                                    return null;
-                                                }
-                                            });
-                                        } else {
-                                            AiRunnable.Ok(identy_callback, i);
-                                        }
-                                    }
-
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        zljc_zd(fs_zd, 0, new AiRunnable() {
-                                            @Override
-                                            public <T_> T_ ok(T_ t_, Object... objects) {
-//                                                AiRunnable.Ok(callback,null);
-//                                                return super.ok(t_, objects);
-                                                AiRunnable.Ok(callback, t_, objects);
-                                                return null;
-                                            }
-                                        });
-                                        return null;
-                                    }
-                                });
-
-
+                                FeatureViewZD.initAllJzdx(mapInstance, callback);
                             }
                         }).show();
                 ;
-
                 return null;
             }
         });
     }
+//    // 数据检查
+//    public void Sjjc(final MapInstance mapinstance) {
+//        final String funcdesc = "该功能将逐一对项目中所有宗地的代码进行更新。";
+//        License.vaildfunc(mapinstance.activity, funcdesc, new AiRunnable() {
+//            @Override
+//            public <T_> T_ ok(T_ t_, Object... objects) {
+//                final AiDialog aidialog = AiDialog.get(mapinstance.activity);
+//                aidialog.setHeaderView(R.mipmap.app_icon_dangan_blue, "")
+//                        .setContentView("注意：属于不可逆操作，请注意备份谨慎处理！", funcdesc)
+//                        .setFooterView(AiDialog.CENCEL, "确定，我要继续", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                // 完成后的回掉
+//                                final AiRunnable callback = new AiRunnable() {
+//                                    @Override
+//                                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                                        aidialog.addContentView("处理数据完成。");
+//                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+//                                        return null;
+//                                    }
+//
+//                                    @Override
+//                                    public <T_> T_ no(T_ t_, Object... objects) {
+//                                        aidialog.addContentView(AiRunnable.NO);
+//                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+//                                        return null;
+//                                    }
+//
+//                                    @Override
+//                                    public <T_> T_ error(T_ t_, Object... objects) {
+//                                        aidialog.addContentView(AiRunnable.ERROR);
+//                                        aidialog.setFooterView(null, AiDialog.COLSE, null);
+//                                        return null;
+//                                    }
+//                                };
+//                                // 设置不可中断
+////                                aidialog.setCancelable(false).setFooterView("正在处理中，可能需要一段时间，暂时不允许操作！");
+//                                aidialog.setCancelable(false).setFooterView(aidialog.getProgressView("正在处理，可能需要较长时间，暂时不允许操作"));
+//                                aidialog.setContentView("开始处理数据");
+//                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有宗地，并生成资料");
+//
+////                                FeatureEditBDC.LaodAlLBDC_CreateDOCX(mapinstance, isReload, new AiRunnable() {
+////                                    @Override
+////                                    public <T_> T_ ok(T_ t_, Object... objects) {
+////                                        aidialog.addContentView(null,AiUtil.GetValue(new Date(),AiUtil.F_TIME)+" 已完成"+objects[0]+"宗。");
+////                                        AiRunnable.Ok(callback,null);
+////                                        return  null;
+////                                    } 15527836688
+////                                });
+//
+//
+//                                // 查看列表
+//
+//                                final List<Feature> fs_zd = new ArrayList<Feature>();
+//                                MapHelper.Query(FeatureEdit.GetTable(mapinstance, FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", -1, fs_zd, new AiRunnable() {
+//
+//                                    void zljc_zd(final List<Feature> fs, final int i, final AiRunnable identy_callback) {
+//                                        if (fs.size() > i) {
+//                                            mapinstance.newFeatureView().load_djzq(fs.get(i).getGeometry(), new AiRunnable() {
+//                                                @Override
+//                                                public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                    String djzq = t_ + "";
+//
+//                                                    ZnjcUpdateZd(mapinstance, djzq, fs.get(i), new AiRunnable() {
+//                                                        @Override
+//                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                            zljc_zd(fs, i + 1, identy_callback);
+//                                                            return null;
+//                                                        }
+//                                                    });
+//
+//                                                    return null;
+//                                                }
+//                                            });
+//                                        } else {
+//                                            AiRunnable.Ok(identy_callback, i);
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public <T_> T_ ok(T_ t_, Object... objects) {
+//                                        zljc_zd(fs_zd, 0, new AiRunnable() {
+//                                            @Override
+//                                            public <T_> T_ ok(T_ t_, Object... objects) {
+////                                                AiRunnable.Ok(callback,null);
+////                                                return super.ok(t_, objects);
+//                                                AiRunnable.Ok(callback, t_, objects);
+//                                                return null;
+//                                            }
+//                                        });
+//                                        return null;
+//                                    }
+//                                });
+//
+//
+//                            }
+//                        }).show();
+//                ;
+//
+//                return null;
+//            }
+//        });
+//    }
 
     // 智能检测宗地代码
     public void ZnjcUpdateZd(final MapInstance mapInstance, final String djzq, final Feature f_zd, final AiRunnable callback) {
@@ -2842,10 +2891,11 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
     public boolean readZd(FeatureTable
                                   table, List<Feature> fs, Map<String, Integer> map_fs, DxfFeature f, int wkid) {
         String name = FeatureHelper.LAYER_NAME_ZD;
-        if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
-            //  300000 宗地
-            String stdm = f.getExtendeds(0);
-            boolean flag = isEmptyStdm(f, stdm, "300000");// 是否包含实体编码
+//        if ("JZD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline")) {
+        //  300000 宗地
+        String stdm = f.getExtendeds(0);
+        boolean flag = isEmptyStdm(f, stdm, "300000");// 是否包含实体编码
+        if ((f.SubClasses + "").contains("Polyline") && flag) {
             if (flag) {
                 Geometry g = GdalAdapter.convert(f.getGeometry());
                 g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference(mapInstance, wkid));
@@ -3065,7 +3115,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 //        141300	建	建筑房屋
 //        141400	破	破坏房屋
         boolean flag = isEmptyStdm(f, mapStbm, stdms);
-        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag) {
+//        if ("JMD".equals(f.Layer) && (f.SubClasses + "").contains("Polyline") && flag)
+        if ((f.SubClasses + "").contains("Polyline") && flag) {
             // 幢
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
@@ -3165,7 +3216,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
         boolean flag = isEmptyStdm(f, mapStbm, stdms);// 是否包含实体编码
 
-        if (("JMD".equals(f.Layer) || "FWFS".equals(f.Layer)) && (f.SubClasses + "").contains("Polyline") && flag) {
+//        if (("JMD".equals(f.Layer) || "FWFS".equals(f.Layer)) && (f.SubClasses + "").contains("Polyline") && flag) {
+        if ( (f.SubClasses + "").contains("Polyline") && flag) {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference(mapInstance, wkid));

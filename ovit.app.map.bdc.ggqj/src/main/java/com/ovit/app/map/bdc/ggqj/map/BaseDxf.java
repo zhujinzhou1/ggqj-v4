@@ -269,11 +269,11 @@ public abstract class BaseDxf {
         paint.setLinewidth(DxfHelper.LINE_WIDTH_DEFULT);
         dxf.write(p_extend, "");
         Point p_title = new Point(envelope.getCenter().getX(), envelope.getYMax() + h, spatialReference);
-        dxf.writeText(p_title, "宗地图", paint);
+        dxf.writeMText(p_title, "宗地图", paint);
         paint.setFontsize(o_fontsize*0.8f);
         Point p_unit = new Point(envelope.getXMax(), envelope.getYMax() + h * 0.5, spatialReference);
         paint.setTextAlign(DxfPaint.Align.RIGHT);
-        dxf.writeText(p_unit, "单位：m·㎡ ", paint);
+        dxf.writeMText(p_unit, "单位：m·㎡ ", paint);
         paint.setTextAlign(align);
         paint.setFontsize(o_fontsize);
     }

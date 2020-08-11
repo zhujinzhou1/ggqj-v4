@@ -1348,13 +1348,14 @@ public class FeatureEditBDC extends FeatureEdit {
             Map<String, Object> f_jzqz_def = new LinkedHashMap<>();
             f_jzqz_def.put("JZQZ.JZXQDH", "");
             f_jzqz_def.put("JZQZ.JZXZJDH", "");
+            f_jzqz_def.put("JZQZ.JZXZJH", "");
+            f_jzqz_def.put("JZQZ.XLZDQLR", "");
             f_jzqz_def.put("JZQZ.JZXZDH", "");
             f_jzqz_def.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
             f_jzqz_def.put("JZQZ.LZDZJR", " ");
             f_jzqz_def.put("img.lzzjqz","");
             f_jzqz_def.put("img.qlr","");
             f_jzqzs.add(f_jzqz_def);
-
         }
         map_.put("list.jzqz", f_jzqzs);
 
@@ -1363,13 +1364,16 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void Put_data_jzdx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, String zddm, List<Feature> f_jzds, List<Feature> f_jzxs, Map<String, Feature> map_jzx) {
         List<Feature> fs_jzd = new ArrayList<>(f_jzds);
         map_.put("ZD.JZDS", f_jzds.size());
+        String jzlx = "J";
         if (fs_jzd.size() > 0) {
             // 界址点首位相连
             Feature f_jzd_ = GetTable(mapInstance, "JZD").createFeature();
+            String jzdh = FeatureHelper.Get(fs_jzd.get(0),"JZDH","");
             f_jzd_.getAttributes().put("JZDH", fs_jzd.get(0).getAttributes().get("JZDH"));
             f_jzd_.getAttributes().put("JBLX", fs_jzd.get(0).getAttributes().get("JBLX"));
             f_jzd_.getAttributes().put("JZJG", fs_jzd.get(0).getAttributes().get("JZJG"));
             fs_jzd.add(f_jzd_);
+            jzlx = AiUtil.GetValue(StringUtil.substr(jzdh,0,1),"J");
         }
 
         // 界址点最少14个，通山要求两页
@@ -1398,12 +1402,12 @@ public class FeatureEditBDC extends FeatureEdit {
 
             if (!TextUtils.isEmpty(FeatureHelper.Get(f_jzd, "JZDH", ""))) {
                 if (i == f_jzds.size()) {
-                    v.put("JZD.JZDH", "J1");
+                    v.put("JZD.JZDH", jzlx+"1");
                     v.put("JZD.SXH", "1");
                     v.put("JZD.FFXZBZ", "");
                     v.put("JZD.FFYZBZ", "");
                 } else {
-                    v.put("JZD.JZDH", "J" + (i + 1));
+                    v.put("JZD.JZDH", jzlx + (i + 1));
                     v.put("JZD.SXH", (i + 1));
                 }
             }
@@ -1487,7 +1491,7 @@ public class FeatureEditBDC extends FeatureEdit {
 
         List<Map<String, Object>> maps_jzd = new ArrayList<>();
         Map<String, Object> map_jzd = new LinkedHashMap<>();
-        String jzlx = AiUtil.GetValue(map_.get("ZD.JXLX"), "J");
+        String jzlx = AiUtil.GetValue(map_.get("ZD."+FeatureViewZD.TABLE_ATTR_JZDJXLX), "J"); // 获取界址类型
 
         for (int i = 0; i < f_jzds.size(); i++) {
 
@@ -1532,7 +1536,7 @@ public class FeatureEditBDC extends FeatureEdit {
         List<Map<String, Object>> maps_jzd = new ArrayList<>();
         for (int i = 0; i < f_jzds.size(); i = i + 2) {
             Map<String, Object> map_jzd = new LinkedHashMap<>();
-            String jzlx = AiUtil.GetValue(map_.get("ZD.JXLX"), "J");
+            String jzlx = AiUtil.GetValue(map_.get("ZD."+FeatureViewZD.TABLE_ATTR_JZDJXLX), "J");
             int j = i + 1 < f_jzds.size() ? i + 1 : 0;
             int k = i + 2 < f_jzds.size() ? i + 2 : 0;
             Feature f_jzd = f_jzds.get(i);
@@ -2639,6 +2643,10 @@ public class FeatureEditBDC extends FeatureEdit {
         int z = 0;
         double jzmj = 0;
         int cshz = (int) map_.get("ZD.ZRZCSHZ");
+
+        String mjjsgc = GetMJJSGC(fs_z_fsjg,fs_h);
+
+        map_.put("ZD.JSGCMJ",mjjsgc);
         for (Feature zrz : features) {
             int i = 0;
             String zrzh = AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), "");
@@ -2734,6 +2742,8 @@ public class FeatureEditBDC extends FeatureEdit {
         // 为幢设置层
         map_.put("list.cps", maps_p);
     }
+
+
 
     public static void Put_data_hgs(Map<String, Object> map_) {
 //
@@ -2897,6 +2907,56 @@ public class FeatureEditBDC extends FeatureEdit {
             scjzmj_count += AiUtil.GetValue(f.getAttributes().get("HSMJ"), 0d);
         }
         return scjzmj_count;
+    }
+
+    //获取面积计算过程
+    private static String GetMJJSGC(List<Feature> fs_z_fsjg, List<Feature> fs_h) {
+        Map<String, List<Feature>> cs = new LinkedHashMap<>();
+
+        // 获取户
+        if (fs_h.size() > 0) {
+            for (Feature f_h : fs_h) {
+                String h_ch = AiUtil.GetValue(f_h.getAttributes().get("SZC"), "");
+                List fs = cs.get(h_ch);
+                if (fs == null) {
+                    fs = new ArrayList();
+                    cs.put(h_ch, fs);
+                }
+                fs.add(f_h);
+            }
+        }
+        // 获取附属
+        if (fs_z_fsjg.size() > 0) {
+            for (Feature f : fs_z_fsjg) {
+                String f_ch = AiUtil.GetValue(f.getAttributes().get("LC"), "");
+                List fs = cs.get(f_ch);
+                if (fs == null) {
+                    fs = new ArrayList();
+                    cs.put(f_ch, fs);
+                    fs.add(f);
+                }
+            }
+        }
+        if (cs.size() < 1) {
+            cs.put("1", new ArrayList<Feature>());
+        }
+
+        double jzmjhz = 0d;
+        String mjjsgc = "";
+        for (String c : cs.keySet()) {
+            List<Feature> fs = cs.get(c);
+            double jzmj = GetJZMJ(fs);
+            jzmj = AiUtil.GetValue(String.format("%.2f",jzmj),0.0);
+            jzmjhz += jzmj;
+            mjjsgc+= jzmj+"+";
+        }
+        if (jzmjhz == 0){
+            mjjsgc = "";
+        }else {
+            // 面积计算过程 125.3 +100+200 = 425.3
+            mjjsgc = StringUtil.substr(mjjsgc,0,mjjsgc.lastIndexOf("+"))+"="+jzmjhz;
+        }
+        return mjjsgc;
     }
 
 
