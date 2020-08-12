@@ -244,7 +244,7 @@ public class FeatureEditJZD extends FeatureEdit {
         String jzdh = FeatureHelper.Get(f_jzd, "JZDH", "");
         if (zdzhdms.size() == 1 || zdzhdms.get(0).equals(zddm)) {
             // 如果是本宗地
-            jzdh = FeatureViewZD.GetJxlx(f_zd) + zddm.substring(zddm.length() - 5) + (index > 10 ? (index + 1) + "" : "0" + index);
+            jzdh = "J" + zddm.substring(zddm.length() - 5) + (index >= 10 ? (index) + "" : "0" + index);
             FeatureHelper.Set(f_jzd, "SXH", "" + index);
         }
         FeatureHelper.Set(f_jzd, "JZDH", jzdh);

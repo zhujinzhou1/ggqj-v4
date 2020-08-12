@@ -1334,6 +1334,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                             FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
                                                             FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
                                                             FeatureEditBDC.Put_data_ljz(mapInstance, map_,f_zd,fs_ljz);
+                                                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_,f_zd);
                                                             maps.add(map_);
                                                             AiRunnable.Ok(getNext(), t_, objects);
                                                             return null;
@@ -3174,7 +3175,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     FeatureHelper.Set(f_ljz, "FWJG", "破");
                 } else if ("141500".equalsIgnoreCase(stdm)) {
                     // 破坏房屋
-                    FeatureHelper.Set(f_ljz, fwjg1, "棚");// 房屋结构 [破][破]破坏房屋
+                    FeatureHelper.Set(f_ljz, fwjg1, "棚");// 房屋结构 [棚][棚]棚房
                     FeatureHelper.Set(f_ljz, "FWJG", "棚房");
                 } else {
                     //141101	0	一般房屋

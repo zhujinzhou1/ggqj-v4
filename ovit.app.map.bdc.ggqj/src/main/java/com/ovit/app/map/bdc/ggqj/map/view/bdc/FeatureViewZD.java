@@ -64,6 +64,7 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_xiantao;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxffcfcfht_leiyang;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxffcfcfht_xiantao;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxfzdct_tongshan;
+import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -2818,9 +2819,9 @@ public class FeatureViewZD extends FeatureView {
     }
 
     private void createDOCX(final MapInstance mapInstance, final String bdcdyh, final Feature f_bdcdy
-            , final Feature f_zd, final List<Feature> fs_qlr,final List<Feature> fs_hjxx, final List<Feature> fs_zd,
+            , final Feature f_zd, final List<Feature> fs_qlr, final List<Feature> fs_hjxx, final List<Feature> fs_zd,
                             final List<Feature> fs_jzd, final List<Feature> fs_jzx, final Map<String, Feature> map_jzx,
-                            final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, final List<Feature> fs_fsss, List<Feature> fs_ljz
+                            final List<Map<String, Object>> fs_jzqz, final List<Feature> fs_zrz, final List<Feature> fs_fsss, final List<Feature> fs_ljz
             , final List<Feature> fs_c, final List<Feature> fs_z_fsjg, final List<Feature> fs_h, List<Feature> fs_h_fsjg, boolean isRelaod, final AiRunnable callback) {
 
         {
@@ -2857,6 +2858,9 @@ public class FeatureViewZD extends FeatureView {
                             FeatureEditBDC.Put_data_fsss(mapInstance, map_, f_zd, fs_fsss);
                             // 自然幢
                             FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_c, fs_fsss);
+
+                            //逻辑幢
+                            FeatureEditBDC.Put_data_ljz(mapInstance,map_,f_zd,fs_ljz);
                             // 在全局放所有户
                             FeatureEditBDC.Put_data_hs(mapInstance, map_, fs_h);
                             // 在全局放一个户
