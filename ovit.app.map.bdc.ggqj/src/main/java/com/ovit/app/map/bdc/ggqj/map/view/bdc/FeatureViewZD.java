@@ -112,6 +112,7 @@ public class FeatureViewZD extends FeatureView {
     final static String TAG = "FeatureViewZD";
     final public static String TABLE_ATTR_FTXS_ZD = "FTXS";
     final public static java.lang.String TABLE_ATTR_JZDJXLX = "SOVIT4";
+    final public static java.lang.String TABLE_ATTR_JFSJ = "SOVIT5";
     ///endregion
 
     //region 字段
@@ -2417,6 +2418,7 @@ public class FeatureViewZD extends FeatureView {
             }
         }
         // 来更新其他字段内容
+        String jfsj = FeatureHelper.Get(f_zd,FeatureViewZD.TABLE_ATTR_JFSJ,"");
         for (Feature f : features_zrz) {
             double z_zcs = AiUtil.GetValue(f.getAttributes().get("ZCS"), 1d);
             double z_area = MapHelper.getArea(mapInstance, f.getGeometry());
@@ -2430,6 +2432,9 @@ public class FeatureViewZD extends FeatureView {
 
             f.getAttributes().put("SCJZMJ", AiUtil.Scale(z_scjzmj, 2));
             f.getAttributes().put("ZCS", z_zcs);
+            if (StringUtil.IsNotEmpty(jfsj)){
+                FeatureHelper.Set(f,"JGRQ",jfsj,true,false);
+        }
         }
         f_zd.getAttributes().put("JZMJ", AiUtil.Scale(area_jzmj, 2));
         f_zd.getAttributes().put("JZZDMJ", AiUtil.Scale(area_jzzdmj, 2));
@@ -2438,14 +2443,9 @@ public class FeatureViewZD extends FeatureView {
         if (StringUtil.IsNotEmpty(zddm)) {
             features_update.addAll(features_zrz);
         }
-//        features_update.add(f_zd);
-        MapHelper.saveFeature(f_zd, new AiRunnable() {
-            @Override
-            public <T_> T_ ok(T_ t_, Object... objects) {
-                MapHelper.saveFeature(features_update, callback);
-                return null;
-            }
-        });
+
+        features_update.add(f_zd);
+        MapHelper.saveFeature(features_update, callback);
 
     }
 

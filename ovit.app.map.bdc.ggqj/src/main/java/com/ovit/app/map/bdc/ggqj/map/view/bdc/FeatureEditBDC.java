@@ -1736,11 +1736,9 @@ public class FeatureEditBDC extends FeatureEdit {
         File file_hkbvdctz = new File(img_hkb_bdc);
         File[] files_hkbbdctz = file_hkbvdctz.listFiles();
 
-
-
-        if (files_hkbzdtz != null || files_hkbzdtz.length == 0 ) {
-            map_.put("ZD.HKB",files_hkbzdtz.length);
-        }
+//        if (files_hkbzdtz != null || files_hkbzdtz.length == 0 ) {
+//            map_.put("ZD.HKB",files_hkbzdtz.length);
+//        }
         Put_data_Imgs(map_, hkbPath, "hkb", 2);
         Put_data_Imgs(map_, hkbPath, "hkb", 4);
         String sfzmcl_s = "1、申请书" + "SYS.ENTER" + "2、调查表" + "SYS.ENTER";

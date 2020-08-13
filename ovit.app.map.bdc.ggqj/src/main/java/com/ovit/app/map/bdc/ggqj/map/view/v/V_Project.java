@@ -2777,8 +2777,6 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                     Log.d(TAG, f.getExtendeds(0) + "： -> 【未处理】" + f.toString());
                                                                 }
                                                             }
-
-
                                                             index--;
                                                         } catch (Exception es) {
                                                             addMessage("", "读取实体失败,跳过：" + es.getMessage());
