@@ -2871,7 +2871,7 @@ public class FeatureViewZD extends FeatureView {
                             // 宗地草图
                             FeatureEditBDC.Put_data_zdct(mapInstance, map_, f_zd);
                             // 附件材料
-                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd,fs_qlr,fs_hjxx);
+                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd,f_bdcdy,fs_qlr,fs_hjxx);
                             put_data_zd(map_, fs_zd);
 
 

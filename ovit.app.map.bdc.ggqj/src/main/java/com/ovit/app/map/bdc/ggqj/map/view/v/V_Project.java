@@ -1290,6 +1290,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                         aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 查找所有不动产单元，并生成资料");
                         {
                             final List<Feature> fs_zd = new ArrayList<>();
+                            final List<Feature> fs_bdc = new ArrayList<>();
 
                             MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_LENGTH_MAX, fs_zd, new AiRunnable() {
                                 @Override
@@ -1319,22 +1320,30 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                         @Override
                                         public void exec() {
                                             final Feature f_zd = fs_zd.get(postion);
+
+                                            final Feature f_bdcdy = fs_bdc.get(postion);
+
                                             final List<Feature> fs_zrz = new ArrayList<>();
                                             final List<Feature> fs_ljz = new ArrayList<>();
+
+                                            final List<Feature> fs_qlrxx = new ArrayList<>();
+                                            final List<Feature> fs_hjxx = new ArrayList<>();
                                             final String orid = mapInstance.getOrid(f_zd);
+
                                             final String where = " ORID_PATH like '%" + orid + "%' ";
                                             MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_ZRZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_ZRZH, "asc", -1, fs_zrz, new AiRunnable() {
                                                 @Override
                                                 public <T_> T_ ok(T_ t_, Object... objects) {
-                                                    MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(orid) + where, "22", "asc", -1, fs_ljz, new AiRunnable() {
+                                                    MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_LJZH, "asc", -1, fs_ljz, new AiRunnable() {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            AiRunnable.Ok(getNext(), t_, objects);
                                                             Map<String, Object> map_ = new LinkedHashMap<>();
                                                             FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
                                                             FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
                                                             FeatureEditBDC.Put_data_ljz(mapInstance, map_,f_zd,fs_ljz);
-                                                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_,f_zd);
+
+                                                            FeatureEditBDC.Put_data_fjcl( mapInstance, map_, f_zd, f_bdcdy,fs_qlrxx, fs_hjxx);
+
                                                             maps.add(map_);
                                                             AiRunnable.Ok(getNext(), t_, objects);
                                                             return null;
