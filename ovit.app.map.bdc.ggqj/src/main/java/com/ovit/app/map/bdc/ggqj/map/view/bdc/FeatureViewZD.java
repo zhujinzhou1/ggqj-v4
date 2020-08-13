@@ -60,11 +60,10 @@ import com.ovit.app.map.bdc.ggqj.map.model.DxfFwqjxsyt_tongshan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdct_HuNan;
 import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_leiyang;
-import com.ovit.app.map.bdc.ggqj.map.model.DxfZdt_xiantao;
+import com.ovit.app.map.bdc.ggqj.map.model.xiantao.DxfZdt_xiantao;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxffcfcfht_leiyang;
-import com.ovit.app.map.bdc.ggqj.map.model.Dxffcfcfht_xiantao;
+import com.ovit.app.map.bdc.ggqj.map.model.xiantao.Dxffcfcfht_xiantao;
 import com.ovit.app.map.bdc.ggqj.map.model.Dxfzdct_tongshan;
-import com.ovit.app.map.bdc.ggqj.map.view.FeatureEdit;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.LayerConfig;
@@ -321,6 +320,7 @@ public class FeatureViewZD extends FeatureView {
         FeatureHelper.Set(feature, "PRO_ZDDM_F", StringUtil.substr_last(zddm, 7));
         FeatureHelper.Set(feature, "PZYT", "0702", true, false);
         FeatureHelper.Set(feature, "YT", "0702", true, false);
+        FeatureHelper.Set(feature, "SJYT", "0702", true, false);
 
         if (feature.getGeometry() != null && 0d == FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ZDMJ, 0d)) {
             FeatureHelper.Set(feature, FeatureHelper.TABLE_ATTR_ZDMJ, MapHelper.getArea(feature.getGeometry()));
@@ -382,25 +382,25 @@ public class FeatureViewZD extends FeatureView {
 
     //对于绑定权利人时自动创建的不动产单元，基本信息应继承自所选权利人，而非宗地
     public void fillFeatureBdcdyByQLR(Feature featureBdcdy, Feature featureZd, Feature f_gyr) {
-        featureBdcdy.getAttributes().put("YHZGX", "户主");
-        featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(featureZd, "QLRXM"));
-        featureBdcdy.getAttributes().put("MZ", FeatureHelper.Get(featureZd, "QLRMZ"));
         if (FeatureHelper.isExistFeature(f_gyr)) {
-            featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(f_gyr, "XM"));
-            featureBdcdy.getAttributes().put("ZJH", FeatureHelper.Get(f_gyr, "ZJH"));
-            featureBdcdy.getAttributes().put("XB", FeatureHelper.Get(f_gyr, "XB"));
-            featureZd.getAttributes().put("QLRXM", FeatureHelper.Get(f_gyr, "XM"));
-            featureZd.getAttributes().put("QLRZJH", FeatureHelper.Get(f_gyr, "ZJH"));
-            featureZd.getAttributes().put("QLRXB", FeatureHelper.Get(f_gyr, "XB"));
-        } else {
-            featureBdcdy.getAttributes().put("XM", FeatureHelper.Get(featureZd, "QLRXM"));
-            featureBdcdy.getAttributes().put("ZJH", FeatureHelper.Get(featureZd, "QLRZJH"));
-            featureBdcdy.getAttributes().put("XB", FeatureHelper.Get(featureZd, "QLRXB"));
+            FeatureHelper.Set(featureBdcdy, "XM", FeatureHelper.Get(f_gyr, "XM", ""));
+            FeatureHelper.Set(featureBdcdy, "ZJH", FeatureHelper.Get(f_gyr, "ZJH", ""));
+            FeatureHelper.Set(featureBdcdy, "XB", FeatureHelper.Get(f_gyr, "XB", ""));
+            FeatureHelper.Set(featureZd, "QLRXM", FeatureHelper.Get(f_gyr, "XM", ""));
+            FeatureHelper.Set(featureZd, "QLRZJH", FeatureHelper.Get(f_gyr, "ZJH", ""));
+            FeatureHelper.Set(featureZd, "QLRXB", FeatureHelper.Get(f_gyr, "XB", ""));
+            FeatureHelper.Set(featureZd, "QLRTXDZ", FeatureHelper.Get(f_gyr, "TXDZ", ""));
+            FeatureHelper.Set(featureZd, "QLRLX", "1");
+            FeatureHelper.Set(featureZd, "QLRZJZL", "1");
         }
-        featureBdcdy.getAttributes().put("ZJZL", FeatureHelper.Get(featureZd, "QLRZJZL"));
-        featureBdcdy.getAttributes().put("DZ", FeatureHelper.Get(featureZd, "QLRTXDZ"));
-        featureBdcdy.getAttributes().put("DH", FeatureHelper.Get(featureZd, "QLRDH"));
-        featureBdcdy.getAttributes().put("BDCQZH", FeatureHelper.Get(featureZd, "TDZH"));
+        FeatureHelper.Set(featureBdcdy, "YHZGX", "户主");
+        FeatureHelper.Set(featureBdcdy, "XM", FeatureHelper.Get(featureZd, "QLRXM", ""));
+        FeatureHelper.Set(featureBdcdy, "MZ", FeatureHelper.Get(featureZd, "QLRMZ", ""));
+        FeatureHelper.Set(featureBdcdy, "XB", FeatureHelper.Get(featureZd, "QLRXB", ""));
+        FeatureHelper.Set(featureBdcdy, "ZJZL", FeatureHelper.Get(featureZd, "QLRZJZL", "1"));
+        FeatureHelper.Set(featureBdcdy, "DZ", FeatureHelper.Get(featureZd, "QLRTXDZ", ""));
+        FeatureHelper.Set(featureBdcdy, "DH", FeatureHelper.Get(featureZd, "QLRDH", ""));
+        FeatureHelper.Set(featureBdcdy, "BDCQZH", FeatureHelper.Get(featureZd, "TDZH", ""));
         fillFeature(featureBdcdy, featureZd);
     }
     ///endregion
@@ -924,7 +924,7 @@ public class FeatureViewZD extends FeatureView {
                                                                     return null;
                                                                 }
                                                             });
-                                                            return super.ok(t_, objects);
+                                                            return null;
                                                         }
                                                     });
                                                     return null;
@@ -952,8 +952,73 @@ public class FeatureViewZD extends FeatureView {
                     }
                 }).show();
     }
-    //提取逻辑幢
 
+    /**
+     * 通过宗地智能提取自然幢
+     *
+     * @param f_zd
+     */
+    private void yjcl(final Feature f_zd, final AiRunnable callback) {
+        final List<Feature> fs_zrz = new ArrayList<>();
+        final List<Feature> fs_ljz = new ArrayList<>();
+        queryChildFeature(FeatureHelper.TABLE_NAME_ZRZ, fs_zrz, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                // 通过逻辑幢合成自然幢
+                if (!FeatureHelper.isExistElement(fs_zrz)) {
+                    queryChildFeature(FeatureHelper.TABLE_NAME_LJZ, fs_ljz, new AiRunnable() {
+                        @Override
+                        public <T_> T_ ok(T_ t_, Object... objects) {
+                            // 通过逻辑幢合成自然幢
+                            final List<Feature> featuresZRZ = new ArrayList<>();
+                            creatZrzToLjzUnion(fs_ljz, featuresZRZ, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    ToastMessage.Send("通过逻辑幢合成自然幢");
+                                    MapHelper.saveFeature(featuresZRZ, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            txsb(f_zd, new AiRunnable() {
+                                                @Override
+                                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                                    FeatureViewZRZ fv_zrz = FeatureViewZRZ.From(mapInstance);
+                                                    final List<Feature> mfs_zrz = (List<Feature>) t_;
+                                                    fv_zrz.ipug(mfs_zrz, new AiRunnable() {
+                                                        @Override
+                                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                                            f_zd.setGeometry(MapHelper.Geometry_get(f_zd.getGeometry()));
+                                                            MapHelper.saveFeature(f_zd, callback);
+                                                            return null;
+                                                        }
+                                                    });
+                                                    return null;
+                                                }
+                                            });
+                                            return null;
+                                        }
+                                    });
+                                    return null;
+                                }
+                            });
+                            return null;
+                        }
+                    });
+
+                } else {
+                    //宗地内有自然幢
+                }
+                return null;
+            }
+        });
+
+    }
+
+    /**
+     * 通过宗地智能提取自然幢
+     *
+     */
+
+    //提取逻辑幢
     private void extractZrz(final AiRunnable callback) {
         //宗地范围内的自然幢数据集合
        final List<Feature> fs_zrz = new ArrayList<>();
@@ -1042,7 +1107,6 @@ public class FeatureViewZD extends FeatureView {
             AiRunnable.Ok(callback, featuresZRZ);
         }
     }
-
 
     private Map<String, List<Feature>> getLsFromFeatureLjz(List<Feature> fs, String attr) {
         Map<String, List<Feature>> map = null;
@@ -2406,9 +2470,11 @@ public class FeatureViewZD extends FeatureView {
         });
     }
 
-    //加载所有的宗地提取自然幢
-
-    // 查询所有宗地 识别幢
+    /**
+     * 加载所有的宗地提取自然幢
+     * @param mapInstance
+     * @param callback 执行完回调
+     */
     public static void LaodAllZDExtractZrz(final MapInstance mapInstance, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
         LoadAllZD(mapInstance, fs, new AiRunnable(callback) {
@@ -2428,7 +2494,38 @@ public class FeatureViewZD extends FeatureView {
         });
     }
 
+    /**
+     * 加载所有的宗地一键处理
+     * @param mapInstance
+     * @param callback
+     */
+    public static void LaodAllZD_ZNCLS(final MapInstance mapInstance, final AiRunnable callback){
+        final List<Feature> fs = new ArrayList<>();
+        LoadAllZD(mapInstance, fs, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
 
+                if (FeatureHelper.isExistElement(fs)){
+                    new AiForEach<Feature>(fs,callback){
+
+                        @Override
+                        public void exec() {
+                            Feature feature = fs.get(postion);
+                            FeatureViewZD fv = From(mapInstance);
+                            fv.set(feature);
+                            fv.yjcl(feature,getNext());
+                        }
+                    }.start();
+                }else {
+                    // 没有查到宗地数据
+                    AiRunnable.Ok(callback,t_,objects);
+                }
+                return null;
+            }
+        });
+
+
+    }
 
 
 
@@ -2549,13 +2646,13 @@ public class FeatureViewZD extends FeatureView {
                     final Feature featureBdcdy = (Feature) t_;
                     String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs_zrz, getZddm());
                     fillFeatureBdcdyByQLR(featureBdcdy, feature, f_gyr);
-
-
-                    featureBdcdy.getAttributes().put(FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
                     //TODO 拷贝附件材料需要谨慎处理附件数据建议放到不动产单元
 //                  capyAttachments(feature, featureBdcdy);// 拷贝附件材料
+                    FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                    FeatureHelper.Set(featureBdcdy,FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
                     FeatureHelper.Set(fs_zrz, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
                     fs_upt.addAll(fs_zrz);
+                    fs_upt.add(feature);
                     fs_upt.add(featureBdcdy);
 
                     MapHelper.saveFeature(fs_upt, new AiRunnable() {
@@ -2576,6 +2673,16 @@ public class FeatureViewZD extends FeatureView {
 
 
     public void createBdcdy(Feature feature, final Feature f_gyr, final AiRunnable callback) {
+        final List<Feature> fs = new ArrayList<>();
+        fv.queryChildFeature(FeatureConstants.ZRZ_TABLE_NAME, feature, fs, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                newBdcdyToZrzAndGYR(fs, f_gyr, callback);
+                return null;
+            }
+        });
+    }
+    public void updataBdcdy(Feature feature, final Feature f_gyr, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
         fv.queryChildFeature(FeatureConstants.ZRZ_TABLE_NAME, feature, fs, new AiRunnable() {
             @Override
@@ -2752,6 +2859,49 @@ public class FeatureViewZD extends FeatureView {
             }
         });
     }
+
+    // 加载所有的宗地并设定不动产单元
+    public static void LaodAllZDAndCreateBDCDY(final MapInstance mapInstance, final AiRunnable callback) {
+        final List<Feature> fs = new ArrayList<>();
+        LoadAllZD(mapInstance, fs, new AiRunnable(callback) {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final FeatureViewZD fv = From(mapInstance);
+                // 递归执行
+                new AiForEach<Feature>(fs, callback) {
+                    @Override
+                    public void exec() {
+                        final Feature feature = fs.get(postion);
+                        fv.set(feature);
+                        fv.checkBdcdy(feature, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                if (t_ != null) {
+                                    //可以设定不动产单元
+                                    fv.createBdcdy(feature, null, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            final Feature featureBdcdy = (Feature) t_;
+                                            FeatureViewQLR featureViewQLR = (FeatureViewQLR) mapInstance.newFeatureView(featureBdcdy);
+                                            featureViewQLR.update_gyrxx(getNext());
+                                            return null;
+                                        }
+                                    });
+                                } else {
+                                    //该宗地已经存在不动产单元
+                                    AiRunnable.Ok(getNext(), "");
+                                }
+                                return null;
+                            }
+                        });
+                    }
+                }.start();
+                return null;
+            }
+        });
+    }
+
+
     ///endregion
 
     //region 生成资料
@@ -2841,6 +2991,7 @@ public class FeatureViewZD extends FeatureView {
                             //  设置宗地参数
                             FeatureEditBDC.Put_data_zd(mapInstance, map_, bdcdyh, f_zd);
                             FeatureEditBDC.Put_data_hjxx(mapInstance, map_, fs_hjxx);
+                            FeatureEditBDC.Put_data_qlrxx(mapInstance, map_, fs_qlr);
                             FeatureEditBDC.Put_data_hjxx(mapInstance, map_, fs_hjxx, 3);
                             // 界址签字
                             FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
@@ -2896,12 +3047,16 @@ public class FeatureViewZD extends FeatureView {
                                         // 资料已经发生改变，移除压缩包
                                         FileUtils.deleteFile(file_zd_zip);
                                         Log.i(TAG, "生成资料: 生成完成");
-                                        AiRunnable.U_Ok(mapInstance.activity, callback, file_dcb_doc, map_);
                                     } else {
                                         ToastMessage.Send("《不动产权籍调查表》模板文件不存在！");
                                         AiRunnable.U_No(mapInstance.activity, callback, null);
                                     }
                                     AiRunnable.Ok(getNext(), null);
+                                }
+
+                                @Override
+                                public void complet() {
+                                    AiRunnable.U_Ok(mapInstance.activity, callback, file_dcb_doc, map_);
                                 }
                             }.start();
                         } catch (Exception es) {

@@ -671,7 +671,6 @@ public class FeatureEditBDC extends FeatureEdit {
         });
     }
 
-
     private void OutputAllBdcdyResultsToZD(Feature feature, final AiRunnable callback) {
         if (feature.getFeatureTable().getTableName().equals(FeatureHelper.TABLE_NAME_ZD)) {
             String where = "ORID_PATH like'%" + FeatureHelper.Get(feature, FeatureHelper.TABLE_ATTR_ORID) + "%'";
@@ -1100,14 +1099,13 @@ public class FeatureEditBDC extends FeatureEdit {
                 new AiForEach<Feature>(fs, callback) {
                     @Override
                     public void exec() {
-                        final AiForEach ai = this ;
+                        Feature f = fs.get(postion);
                         CreateDOCXFromFeatureBdc(mapInstance, getValue(), new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 AiRunnable.Ok(getNext(),t_,objects);
                                 return null;
                             }
-
                             @Override
                             public <T_> T_ error(T_ t_, Object... objects) {
                                 AiRunnable.Error(callback,t_,objects);
@@ -1210,6 +1208,14 @@ public class FeatureEditBDC extends FeatureEdit {
     public static void Put_data_bdcdy(MapInstance mapInstance, Map<String, Object> map_, Feature featureBdc) {
         GetReplecData(mapInstance.activity, map_, featureBdc, "", "ZJZL", "XB", "");
     }
+    //设置权利人的内容
+    public static void Put_data_qlrxx(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_qlr) {
+        List<Feature> mfs_qlrxx = new ArrayList<>(fs_qlr);
+        if (!FeatureHelper.isExistElement(mfs_qlrxx)){
+            mfs_qlrxx.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_GYRXX).createFeature());
+        }
+        GetReplecData(mapInstance.activity, map_, mfs_qlrxx.get(0),  "","");
+    }
 
     public static void Put_data_hjxx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_hjxx) {
         List<Feature> mfs_hjxx = new ArrayList<>(fs_hjxx);
@@ -1309,6 +1315,7 @@ public class FeatureEditBDC extends FeatureEdit {
         map.put("ZD.DJZQDM", StringUtil.substr_last(bdcdyh, 12, 16));
 
         map.put("ZD.DZWDM", StringUtil.substr_last(bdcdyh, 9));
+        map.put("ZD.FFDZWDM", StringUtil.substr_last(bdcdyh, 9));
         map.put("ZD.ZDDMFF", StringUtil.substr_last(bdcdyh, 7, 9));
 
         //拼接宗地代码（宗地+附属宗地）
@@ -3635,7 +3642,5 @@ public class FeatureEditBDC extends FeatureEdit {
                     }
                 });
     }
-
-
 
 }

@@ -395,55 +395,7 @@ public class FeatureViewZRZ extends FeatureView {
                 final AiForEach<Feature> that = this;
                 // 逻辑幢识别幢附属结构
                 final FeatureViewLJZ fv_ljz = (FeatureViewLJZ) mapInstance.newFeatureView(featureLjz);
-                fv_ljz.identyZ_Fsjg(new AiRunnable() {
-                    @Override
-                    public <T_> T_ ok(T_ t_, Object... objects) {
-                        fv_ljz.identyH(false, new AiRunnable() {
-                            @Override
-                            public <T_> T_ ok(T_ t_, Object... objects) {
-                                final List<Feature> fs_h = (List<Feature>) t_;
-                                FeatureViewH.InitFeatureAll(mapInstance, featureLjz, fs_h, new AiRunnable() {
-                                    @Override
-                                    public <T_> T_ ok(T_ t_, Object... objects) {
-                                        // 户识别户附属结构
-                                        final List<Feature> featuresH = (List<Feature>) t_;
-                                        featuresH.addAll(fs_h);
-                                        new AiForEach<Feature>(featuresH, that.getNext()) {
-                                            @Override
-                                            public void exec() {
-                                                final Feature featureH = this.getValue();
-                                                FeatureViewH featureViewH = (FeatureViewH) mapInstance.newFeatureView(featureH);
-                                                final AiForEach<Feature> that_h = this;
-                                                Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
-                                                {
-                                                    featureViewH.identyH_FSJG(featureH, false, new AiRunnable() {
-                                                        //                                            FeatureEditH_FSJG.IdentyH_FSJG_(mapInstance,featureH, new AiRunnable() {
-                                                        @Override
-                                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
-                                                                @Override
-                                                                public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                    AiRunnable.Ok(that_h.getNext(), t_, t_);
-                                                                    return null;
-                                                                }
-                                                            });
-                                                            return null;
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        }.start();
-                                        return null;
-                                    }
-                                });
-
-                                return null;
-                            }
-                        });
-
-                        return null;
-                    }
-                });
+                fv_ljz.initHAndIdentyFsjg(getNext());
             }
         }.start();
     }
@@ -713,13 +665,35 @@ public class FeatureViewZRZ extends FeatureView {
 
 
     }
+
+    //自然幢识别说有的逻辑幢
+
+    /**
+     * 加载所有的自然幢识别逻辑幢
+     * @param mapInstance
+     * @param callback
+     */
+    public static void LaodAllZRZ_IdentyLjz(final MapInstance mapInstance, final AiRunnable callback) {
+        final List<Feature> fs = new ArrayList<>();
+        LoadAllZRZ(mapInstance, fs, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final FeatureViewZRZ fv = From(mapInstance);
+                new AiForEach<Feature>(fs, callback) {
+                    public void exec() {
+                        final Feature featureZrz = getValue();
+                        fv.set(featureZrz);
+                        fv.identyLjz(false, getNext());
+                    }
+                }.start();
+                return null;
+            }
+        });
+    }
+
+
     //识别逻辑幢，逻辑幢识别户
     private void indenty(AiRunnable callback) {
-
-
-
-
-
 
     }
 

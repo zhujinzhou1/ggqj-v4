@@ -1,4 +1,4 @@
-package com.ovit.app.map.bdc.ggqj.map.model;
+package com.ovit.app.map.bdc.ggqj.map.model.xiantao;
 
 import android.text.TextUtils;
 
@@ -193,7 +193,7 @@ public class DxfZdt_xiantao extends BaseDxf {
         dxf.write(cel_3_1, null, "土地权属性质", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
         // 单元格2-2
         x_ = x_ + w * 1 / 5;
-        Envelope cel_3_2 = new Envelope(x_, y_, x_ + w * 3 / 10, y_ - h, p_extend.getSpatialReference());
+        Envelope cel_3_2 = new Envelope(x_, y_, x + w , y_ - h, p_extend.getSpatialReference());
         //qllx
         String dicQlType = DicUtil.dic("qllx", FeatureHelper.Get(f_zd, "QLLX", ""));
         if (!TextUtils.isEmpty(dicQlType)&&dicQlType.contains("]")){
@@ -201,19 +201,19 @@ public class DxfZdt_xiantao extends BaseDxf {
         }
         dxf.write(cel_3_2, null,dicQlType, o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
 
-        // 单元格2-3
-        x_ = x_ + w * 3 / 10;
-        Envelope cel_3_3 = new Envelope(x_, y_, x_ + w * 1 / 5, y_ - h, p_extend.getSpatialReference());
-        dxf.write(cel_3_3, null, "登记面积", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
-
-        // 单元格2-4
-        x_ = x_ + w * 1 / 5;
-        Envelope cel_3_4 = new Envelope(x_, y_, x+w, y_ - h, p_extend.getSpatialReference());
-        double dsyqmj = FeatureHelper.Get(f_zd,"SYQMJ",0.00);
-        String syqmj =dsyqmj==0.00d?"/":String.format("%.2f",dsyqmj);
-        dxf.write(cel_3_4, null, syqmj, o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
-        Envelope cel_4_1 = new Envelope(x, y_ - h, x + w, y - p_height, spatialReference);
-        dxf.write(cel_4_1);
+//        // 单元格2-3
+//        x_ = x_ + w * 3 / 10;
+//        Envelope cel_3_3 = new Envelope(x_, y_, x_ + w * 1 / 5, y_ - h, p_extend.getSpatialReference());
+//        dxf.write(cel_3_3, null, "登记面积", o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
+//
+//        // 单元格2-4
+//        x_ = x_ + w * 1 / 5;
+//        Envelope cel_3_4 = new Envelope(x_, y_, x+w, y_ - h, p_extend.getSpatialReference());
+//        double dsyqmj = FeatureHelper.Get(f_zd,"SYQMJ",0.00);
+//        String syqmj =dsyqmj==0.00d?"/":String.format("%.2f",dsyqmj);
+//        dxf.write(cel_3_4, null, syqmj, o_fontsize, null, false, DxfHelper.COLOR_BYLAYER, 0);
+//        Envelope cel_4_1 = new Envelope(x, y_ - h, x + w, y - p_height, spatialReference);
+//        dxf.write(cel_4_1);
 
         final double buffer = DxfHelper.getBufferDistance();
         Geometry cutGeometey = GeometryEngine.buffer(f_zd.getGeometry(), buffer);

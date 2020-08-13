@@ -1,9 +1,7 @@
 package com.ovit.app.map.bdc.ggqj.map.view.bdc;
 
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.esri.arcgisruntime.data.Feature;
@@ -16,15 +14,13 @@ import com.ovit.app.map.bdc.ggqj.map.pojo.FeaturePojo;
 import com.ovit.app.map.bdc.ggqj.map.view.FeatureView;
 import com.ovit.app.map.custom.FeatureHelper;
 import com.ovit.app.map.custom.MapHelper;
-import com.ovit.app.ui.dialog.AiDialog;
+import com.ovit.app.util.AiForEach;
 import com.ovit.app.util.AiRunnable;
 import com.ovit.app.util.AiUtil;
 import com.ovit.app.util.StringUtil;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureViewH.GetTable;
 
@@ -189,6 +185,81 @@ public class FeatureViewH_FSJG extends FeatureView {
         AiRunnable.Ok(callback, fs_h);
     }
 
+    // H_FSJG_ZJ 通过户附属结构标注生成户附属结构
+    public static void InitAllFsjgFromDZJ(final MapInstance instance, final AiRunnable callback) {
+        final List<Feature> fs_dbz = new ArrayList<>();
+        String where = "FHMC = 'H_FSJG_ZJ'";
+        final FeatureTable table = instance.getTable(FeatureHelper.TABLE_NAME_ZJD);
+        final FeatureTable table_hfsjg = instance.getTable(FeatureHelper.TABLE_NAME_H_FSJG);
+        MapHelper.Query(table, where, MapHelper.QUERY_LENGTH_MAX, fs_dbz, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                if (FeatureHelper.isExistElement(fs_dbz)) {
+                    new AiForEach<Feature>(fs_dbz, callback) {
+                        @Override
+                        public void exec() {
+                            final Feature f = fs_dbz.get(postion);
+                            final List<Feature> fs_hfsjg = new ArrayList<>();
+                            MapHelper.Query(table_hfsjg, f.getGeometry(), fs_hfsjg, new AiRunnable() {
+                                @Override
+                                public <T_> T_ ok(T_ t_, Object... objects) {
+                                    if (FeatureHelper.isExistElement(fs_hfsjg)) {
+                                        if (fs_hfsjg.size() == 1) {
+                                            Feature f_hsjg = fs_hfsjg.get(0);
+                                            Geometry f_hsjg_g = f_hsjg.getGeometry();
+                                            if (FeatureHelper.isPolygonGeometryValid(f_hsjg_g)) {
+                                                //需要更新的户附属结构
+                                                final List<Feature> fs_upt = new ArrayList<>();
+                                                // 查找到一个附属机构
+                                                String des = FeatureHelper.Get(f, "TITLE", ""); // 注记描述
+                                                String[] items = des.split(";");
+                                                for (int i = 0; i < items.length; i++) {
+                                                    String item = items[i];
+                                                    String[] s_i = item.split(",");
+                                                    if (s_i.length == 3) {
+                                                        if (i == 0) {
+                                                            // 第一条数据
+//                                                          FeatureHelper.Set(f, "SZC", value, true);
+                                                            FeatureHelper.Set(f_hsjg, "LC", s_i[0]);
+                                                            FeatureHelper.Set(f_hsjg, "FHMC", s_i[1]); // 类型 ..阳台
+                                                            FeatureHelper.Set(f_hsjg, "TYPE", s_i[2]); // 类型 ..阳台
+                                                            fs_upt.add(f_hsjg);
+
+                                                        } else {
+                                                            Feature f_i = table_hfsjg.createFeature();
+                                                            f_i.setGeometry(f_hsjg_g);
+                                                            FeatureHelper.Set(f_i, "LC", s_i[0]);
+                                                            FeatureHelper.Set(f_i, "FHMC", s_i[1]); // 类型 ..阳台
+                                                            FeatureHelper.Set(f_i, "TYPE", s_i[2]); // 类型 ..阳台
+                                                            instance.fillFeature(f_i);
+                                                            fs_upt.add(f_i);
+                                                        }
+                                                    }
+                                                }
+                                                MapHelper.saveFeature(fs_upt,getNext());
+                                            } else {
+                                                AiRunnable.Ok(getNext(), t_,objects);
+                                            }
+                                        } else {
+                                            AiRunnable.Ok(getNext(),t_,objects);
+                                        }
+                                    } else {
+                                        AiRunnable.Ok(getNext(), t_,objects);
+                                    }
+                                    return null;
+                                }
+                            });
+                        }
+                    }.start();
+                } else {
+                    AiRunnable.Ok(callback, t_,objects);
+                }
+                return null;
+            }
+        });
+    }
+
+
     public void identyH_fsjg(final MapInstance mapInstance, final Feature f_h, final AiRunnable callback) {
         final String hid = FeatureHelper.Get(f_h, "ID", "");
         final int hch = FeatureHelper.Get(f_h, "SZC", 1);
@@ -241,6 +312,7 @@ public class FeatureViewH_FSJG extends FeatureView {
     public FeatureTable getFeatureTable() {
         return mapInstance.getTable(FeatureHelper.TABLE_NAME_H_FSJG);
     }
+
 
     public void fsjg_init(final AiRunnable callback) {
         final Feature h_fsjg = getFeatureTable().createFeature();

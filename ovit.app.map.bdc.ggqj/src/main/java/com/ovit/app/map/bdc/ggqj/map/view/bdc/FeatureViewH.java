@@ -303,7 +303,7 @@ public class FeatureViewH extends FeatureView {
         if (featureLJZ != null) {
             // 户的id 是根据ZRZH 来遍的，要注意
             final String zrzh = FeatureHelper.Get(featureLJZ, "ZRZH", "");
-            GetMaxID(mapInstance, zrzh, new AiRunnable(callback) {
+            GetMaxID(mapInstance, zrzh, new AiRunnable() {
                 @Override
                 public <T_> T_ ok(T_ t_, Object... objects) {
                     int count = 1;

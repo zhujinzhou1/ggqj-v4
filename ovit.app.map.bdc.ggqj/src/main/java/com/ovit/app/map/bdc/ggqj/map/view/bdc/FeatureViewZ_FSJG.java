@@ -443,8 +443,6 @@ public class FeatureViewZ_FSJG extends FeatureView {
                     double area_jzmj = FeatureHelper.Get(f_ljz, "SCJZMJ", 0d);
                     int count = 0;
                     for (Feature f : features_zfsjg) {
-
-
                         String orid = FeatureHelper.GetOrid(FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, ""), FeatureHelper.TABLE_NAME_LJZ);
                         if (StringUtil.IsNotEmpty(oridLjz) && (TextUtils.isEmpty(orid) || oridLjz.equals(orid))) {
                             // 幢附属结构 orid 为空或者 或者包含 oridLjz
@@ -631,7 +629,6 @@ public class FeatureViewZ_FSJG extends FeatureView {
                     }
                 });
     }
-
 
     public static void addFtqk(MapInstance mapInstance, Feature new_feature_ft, Feature feature) {
         FeatureEditFTQK.initAddFt(new_feature_ft, feature);

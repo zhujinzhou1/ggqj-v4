@@ -396,7 +396,12 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
 
             Point p = new Point(cell.getXMin() + cell.getWidth() / 2, cell.getYMin() + o_split / 2);
             String text = c.getName() + "平面图"+"([#CG#]m)";
-            text=text.replace("[#CG#]",map_cg.get(lc));
+            try {
+                text=text.replace("[#CG#]",map_cg.get(lc));
+
+            }catch (Exception e1){
+
+            }
             dxf.write(p, text, paint);
             List<Feature> fs_h = new ArrayList<>();
             for (Feature f : fs_) {

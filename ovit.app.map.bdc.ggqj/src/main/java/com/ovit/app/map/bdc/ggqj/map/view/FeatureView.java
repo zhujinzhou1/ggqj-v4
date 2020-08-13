@@ -1188,7 +1188,9 @@ public class FeatureView extends com.ovit.app.map.view.FeatureView {
     public static void LoadAllZD(final MapInstance mapInstance, final List<Feature> fs_zd, AiRunnable callback) {
         MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD), "", FeatureHelper.TABLE_ATTR_ZDDM, "", -1, fs_zd, callback);
     }
-
+    public static void LoadAllLJZ(final MapInstance mapInstance, final List<Feature> fs_zd, AiRunnable callback) {
+        MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_LJZ), "", FeatureHelper.TABLE_ATTR_LJZH, "", -1, fs_zd, callback);
+    }
     // 适合 逻辑幢、自然幢 调用
     public static void LoadH_And_Fsjg(final MapInstance mapInstance, final Feature f,
                                       final List<Feature> fs_z_fsjg,

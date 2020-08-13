@@ -1,4 +1,4 @@
-package com.ovit.app.map.bdc.ggqj.map.model;
+package com.ovit.app.map.bdc.ggqj.map.model.xiantao;
 
 import android.text.TextUtils;
 

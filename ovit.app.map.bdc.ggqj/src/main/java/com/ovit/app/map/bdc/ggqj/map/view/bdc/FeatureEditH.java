@@ -405,7 +405,6 @@ public class FeatureEditH extends FeatureEdit {
     }
 
     public static void hsmj(Feature feature, MapInstance mapInstance, List<Feature> f_h_fsjgs) {
-//        String id = AiUtil.GetValue(feature.getAttributes().get("ID"));
         String id = AiUtil.GetValue(feature.getAttributes().get(FeatureHelper.TABLE_ATTR_ORID));
         Geometry g = feature.getGeometry();
         double area = 0;
@@ -428,101 +427,6 @@ public class FeatureEditH extends FeatureEdit {
         feature.getAttributes().put("YCJZMJ", AiUtil.Scale(area, 2));
         feature.getAttributes().put("SCJZMJ", AiUtil.Scale(hsmj, 2));
     }
-
-
-//    public static void Load(MapInstance mapInstance, String hid, final AiRunnable callback){
-//        if (StringUtil.IsNotEmpty(hid)) {
-//            MapHelper.QueryOne(GetTable(mapInstance), StringUtil.WhereByIsEmpty(hid)+"ID='" + hid + "'", new AiRunnable(callback) {
-//                @Override
-//                public <T_> T_ ok(T_ t_, Object... objects) {
-//                    if (objects != null && objects.length > 0) {
-//                        AiRunnable.Ok(callback,objects[0]);
-//                    }else {
-//                        AiRunnable.Ok(callback, null);
-//                    }
-//                    return null;
-//                }
-//            });
-//        }else{
-//            AiRunnable.Ok(callback,null);
-//        }
-//    }
-
-    // 获取id
-
-//    public static void InitFeatureAll(final MapInstance mapInstance, final Feature featureZD, final Feature featureZRZ,int i, final AiRunnable callback)  {
-//        final LinkedHashMap<String, List<Feature>> map_all = new LinkedHashMap<String, List<Feature>>();
-//        if (featureZRZ != null) {
-//            final String zrzh =FeatureHelper.Get(featureZRZ,"ZRZH", "");
-//            GetMaxID(mapInstance, zrzh, new AiRunnable(callback) {
-//                @Override
-//                public <T_> T_ ok(T_ t_, final Object... objectsMax) {
-//                    final int zcs = FeatureHelper.Get(featureZRZ,"ZCS", 1);
-//                    final List<Feature> features = new ArrayList<Feature>();
-//                    // 查询户
-//                    FeatureEditZD.Load_FsAndH_GroupbyC(mapInstance, zrzh, map_all, new AiRunnable() {
-//                        @Override
-//                        public <T_> T_ ok(T_ t_, Object... objects) {
-//                            int count = 1;
-//                            if (objectsMax.length > 1) {
-//                                count = AiUtil.GetValue(objectsMax[1], 0) + 1;
-//                            }
-//                            final List<Integer> cs = new ArrayList<Integer>();
-//                            for (int i = 1; i <= zcs; i++) {
-//                                cs.add(i);
-//                            }
-//                            for (String key : map_all.keySet()) {
-//                                int c = AiUtil.GetValue(key, 0);
-//                                if (!cs.contains(c)) {
-//                                    cs.add(c);
-//                                }
-//                            }
-//                            Collections.sort(cs);
-//
-//                            List<Feature> features_h= GetMaxHH(mapInstance, map_all, features, featureZD, featureZRZ, zrzh, count, zcs, 1);
-//                            MapHelper.saveFeature(features_h, callback);
-//                            return null;
-//                        }
-//                    });
-//
-//                    return null;
-//                }
-//            });
-//
-//        } else {
-//            ToastMessage.Send( "没有幢信息！");
-//            AiRunnable.No(callback,null);
-////            draw("H", callback);
-//        }
-//    }
-//    public static List<Feature> GetMaxHH(MapInstance mapInstance, LinkedHashMap<String, List<Feature>> map_all, List<Feature> features ,Feature featureZD, Feature featureZRZ , String zrzh , int maxId, int zcs, int c) {
-//        if (c<=zcs){
-//            List<Feature> features_c = map_all.get(c+"");
-//            int hh_max =1;
-//            if (features_c!=null&&features_c.size()>0){
-//                for (Feature feature : features_c) {
-//                    String hh = FeatureHelper.Get(feature,"HH","");
-//                    int bh = AiUtil.GetValue(StringUtil.substr_last(hh,2),1);
-//                    hh_max = bh>hh_max?bh:hh_max;
-//                }
-//            }
-//            String hh= String.format("%02d",c)+String.format("%02d",hh_max+1);
-//            String bdcdyh=zrzh+hh;
-//            String  id = zrzh+ String.format("%04d", maxId);
-//            Feature f= GetTable(mapInstance).createFeature();
-//            FeatureHelper.Set(f,"ID",id);
-//            FeatureHelper.Set(f,"BDCDYH",bdcdyh);
-//            FeatureHelper.Set(f,"SZC",c);
-//            f.setGeometry(MapHelper.geometry_copy(featureZRZ.getGeometry()));
-//            mapInstance.fillFeature(f,featureZRZ);
-////            FillFeature(featureZD,featureZRZ,c+"",f);
-//            features.add(f);
-//            maxId++;
-//            GetMaxHH(mapInstance,map_all,features,featureZD,featureZRZ,zrzh,maxId,zcs,c+1);
-//        }
-//
-//        return features;
-//    }
 
     public static void IdentyLJZ_H(final MapInstance mapInstance, final Feature f_ljz, final AiRunnable callback) {
         final String ljzh = FeatureHelper.Get(f_ljz, "LJZH", "");
@@ -637,7 +541,6 @@ public class FeatureEditH extends FeatureEdit {
         });
     }
 
-
     // 核算户 占地面积、建筑面积
     public static void IdentyH_Area(final MapInstance mapInstance, final Feature f_h, final AiRunnable callback) {
 //        final String hid =FeatureHelper.Get(f_h,"HID", "");
@@ -699,20 +602,6 @@ public class FeatureEditH extends FeatureEdit {
             }
         });
     }
-
-//    public static View GetView_H(MapInstance mapInstance, Feature f_zrz, String zcs) {
-//        LinearLayout ll_view = (LinearLayout) LayoutInflater.from(mapInstance.activity).inflate(
-//                R.layout.app_ui_ai_aimap_c, null);
-//        ll_view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-////        ListView lv_list = (ListView)ll_view.findViewById(R.id.lv_list);
-//        LinearLayout ll_list = (LinearLayout) ll_view.findViewById(R.id.ll_list);
-//        BuildView_H(mapInstance,ll_list, f_zrz, zcs, 0);
-//        return ll_view;
-//    }
-
-//    public static void BuildView_H(MapInstance mapInstance,final LinearLayout ll_list, final String zrzh, final int deep) {
-//        BuildView_H(mapInstance,ll_list, zrzh, null, deep);
-//    }
 
     public static void BuildView_H(final MapInstance mapInstance, final LinearLayout ll_list, final Feature f_ljz, final String cs, final int deep) {
         if (ll_list.getTag() == null) {

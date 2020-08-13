@@ -760,40 +760,84 @@ public class FeatureViewLJZ extends FeatureView {
 
     }
 
-    // 查询所有逻辑幢，识别户和幢附属
-    public static void LaodAllLJZ_IdentyHAndZFSJG(final MapInstance mapInstance, final AiRunnable callback) {
-        final List<Feature> fs = new ArrayList<>();
-        MapHelper.Query(GetTable(mapInstance), "", -1, fs, new AiRunnable(callback) {
-            // 递归调用，直到全部完成
-            void identy(final List<Feature> fs, final int index, final AiRunnable identy_callback) {
-                if (index < fs.size()) {
-                    FeatureViewLJZ.IdentyLJZ_HAndZFSJG(mapInstance, fs.get(index), new AiRunnable(callback) {
-                        @Override
-                        public <T_> T_ ok(T_ t_, Object... objects) {
-                            identy(fs, index + 1, identy_callback);
-                            return null;
-                        }
-                    });
-                } else {
-                    AiRunnable.Ok(identy_callback, index);
-                }
-            }
+    /**
+     * 实例化户并且识别附属结构
+     */
+    public void initHAndIdentyFsjg(final AiRunnable callback) {
 
+        identyZ_Fsjg(new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                identy(fs, 0, new AiRunnable(callback) {
+              identyH(false, new AiRunnable() {
                     @Override
                     public <T_> T_ ok(T_ t_, Object... objects) {
-                        AiRunnable.Ok(callback, fs, fs.size());
+                        final List<Feature> fs_h = (List<Feature>) t_;
+                        FeatureViewH.InitFeatureAll(mapInstance, feature, fs_h, new AiRunnable() {
+                            @Override
+                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                // 户识别户附属结构
+                                final List<Feature> featuresH = (List<Feature>) t_;
+                                featuresH.addAll(fs_h);
+                                new AiForEach<Feature>(featuresH, callback) {
+                                    @Override
+                                    public void exec() {
+                                        final Feature featureH = this.getValue();
+                                        FeatureViewH featureViewH = (FeatureViewH) mapInstance.newFeatureView(featureH);
+                                        Log.i(TAG, "户识别户附属结构===" + featureH.getAttributes().get("ID") + "====" + this.postion);
+                                        featureViewH.identyH_FSJG(featureH, false, new AiRunnable() {
+                                            @Override
+                                            public <T_> T_ ok(T_ t_, Object... objects) {
+                                                FeatureEditH.IdentyH_Area(mapInstance, featureH, new AiRunnable() {
+                                                    @Override
+                                                    public <T_> T_ ok(T_ t_, Object... objects) {
+                                                        AiRunnable.Ok(getNext(), t_, t_);
+                                                        return null;
+                                                    }
+                                                });
+                                                return null;
+                                            }
+                                        });
+                                    }
+                                }.start();
+                                return null;
+                            }
+                        });
+
                         return null;
                     }
                 });
+
+                return null;
+            }
+        });
+    }
+
+    /**
+     *  查询所有逻辑幢，识别户和幢附属
+     * @param mapInstance
+     * @param callback
+     */
+    public static void LaodAllLJZ_IdentyHAndZFSJG(final MapInstance mapInstance, final AiRunnable callback) {
+
+        final List<Feature> fs = new ArrayList<>();
+        LoadAllLJZ(mapInstance, fs, new AiRunnable() {
+            @Override
+            public <T_> T_ ok(T_ t_, Object... objects) {
+                final FeatureViewLJZ fv = From(mapInstance);
+                new AiForEach<Feature>(fs, callback){
+                    @Override
+                    public void exec() {
+                        Feature f = fs.get(postion);
+                        fv.set(f);
+                        fv.initHAndIdentyFsjg(getNext());
+//                      FeatureViewLJZ.IdentyLJZ_HAndZFSJG(mapInstance, f,getNext());
+                    }
+                }.start();
                 return null;
             }
         });
     }
     ///endregion
-
     //region 图层转换
     //转幢附属
     public void featureConversionToZfsjg(final AiRunnable callback) {
@@ -946,6 +990,7 @@ public class FeatureViewLJZ extends FeatureView {
                     }
                 });
     }
+
 
     ///endregion
 
