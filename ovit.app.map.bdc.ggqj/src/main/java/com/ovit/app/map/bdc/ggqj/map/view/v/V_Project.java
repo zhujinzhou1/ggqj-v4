@@ -1323,6 +1323,17 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                             MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_ZD, FeatureHelper.LAYER_NAME_ZD), "", MapHelper.QUERY_LENGTH_MAX, fs_zd, new AiRunnable() {
                                 @Override
                                 public <T_> T_ ok(T_ t_, Object... objects) {
+                                    MapHelper.Query(mapInstance.getTable(FeatureHelper.TABLE_NAME_QLRXX, FeatureHelper.LAYER_NAME_QLRXX), "", MapHelper.QUERY_LENGTH_MAX, fs_bdc, new AiRunnable() {
+                                        @Override
+                                        public <T_> T_ ok(T_ t_, Object... objects) {
+                                            new AiForEach<Feature>(fs_bdc, new AiRunnable() {
+
+
+                                            });
+                                            return null;
+                                        }
+                                    });
+
                                     final List<Map<String, Object>> maps = new ArrayList<>();
                                     new AiForEach<Feature>(fs_zd, new AiRunnable() {
                                         @Override
@@ -1348,9 +1359,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                         @Override
                                         public void exec() {
                                             final Feature f_zd = fs_zd.get(postion);
-
                                             final Feature f_bdcdy = fs_bdc.get(postion);
-
                                             final List<Feature> fs_zrz = new ArrayList<>();
                                             final List<Feature> fs_ljz = new ArrayList<>();
 
@@ -1365,17 +1374,30 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                     MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_LJZ), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_ATTR_LJZH, "asc", -1, fs_ljz, new AiRunnable() {
                                                         @Override
                                                         public <T_> T_ ok(T_ t_, Object... objects) {
-                                                            Map<String, Object> map_ = new LinkedHashMap<>();
-                                                            FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
-                                                            FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
-                                                            FeatureEditBDC.Put_data_ljz(mapInstance, map_, f_zd, fs_ljz);
-                                                            FeatureEditBDC.Put_data_ljz(mapInstance, map_,f_zd,fs_ljz);
+//                                                            MapHelper.Query(GetTable(mapInstance, FeatureHelper.TABLE_NAME_QLRXX), StringUtil.WhereByIsEmpty(orid) + where, FeatureHelper.TABLE_NAME_QLRXX, "asc", -1, fs_bdc, new AiRunnable() {
+//                                                                @Override
+//                                                                public <T_> T_ ok(T_ t_, Object... objects) {
+//                                                                    new AiForEach<Feature>(fs_bdc, new AiRunnable() {
+//
+//                                                                    });
+                                                                    Map<String, Object> map_ = new LinkedHashMap<>();
+                                                                    FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
+                                                                    FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
+                                                                    FeatureEditBDC.Put_data_ljz(mapInstance, map_, f_zd, fs_ljz);
+                                                                    FeatureEditBDC.Put_data_ljz(mapInstance, map_,f_zd,fs_ljz);
+                                                                    FeatureEditBDC.Put_data_fjcl( mapInstance, map_, f_zd, f_bdcdy,fs_qlrxx, fs_hjxx);
+                                                                    maps.add(map_);
+                                                                    AiRunnable.Ok(getNext(), t_, objects);
+                                                                    return null;
 
-                                                            FeatureEditBDC.Put_data_fjcl( mapInstance, map_, f_zd, f_bdcdy,fs_qlrxx, fs_hjxx);
 
-                                                            maps.add(map_);
-                                                            AiRunnable.Ok(getNext(), t_, objects);
-                                                            return null;
+//
+//                                                                }
+//                                                            });
+//                                                            return null;
+
+
+
                                                         }
                                                     });
                                                     return null;
@@ -1384,6 +1406,8 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 
                                         }
                                     }.start();
+
+
                                     return null;
                                 }
                             });

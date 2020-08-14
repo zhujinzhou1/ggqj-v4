@@ -1726,19 +1726,25 @@ public class FeatureEditBDC extends FeatureEdit {
         }
 
         String img_hkb_bdc = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_bdcdy) + "附件材料/") + "户口簿";
-//        hkbPath.add(img_hkb_bdc);
+        hkbPath.add(img_hkb_bdc);
         map_.put("img.hkb", image_hkb);
+
+
+
+        File file_hkbvdctz = new File(img_hkb_bdc);
+        File[] files_hkbbdctz = file_hkbvdctz.listFiles();
+        if (files_hkbbdctz != null ) {
+            map_.put("ZD.HKB",files_hkbbdctz.length);
+        }
 
         //云梦户口本台账
         File file_hkbzdtz = new File(image_hkb);
         File[] files_hkbzdtz = file_hkbzdtz.listFiles();
 
-        File file_hkbvdctz = new File(img_hkb_bdc);
-        File[] files_hkbbdctz = file_hkbvdctz.listFiles();
 
-//        if (files_hkbzdtz != null || files_hkbzdtz.length == 0 ) {
-//            map_.put("ZD.HKB",files_hkbzdtz.length);
-//        }
+        if (files_hkbzdtz != null ) {
+            map_.put("ZD.HKB",files_hkbzdtz.length);
+        }
         Put_data_Imgs(map_, hkbPath, "hkb", 2);
         Put_data_Imgs(map_, hkbPath, "hkb", 4);
         String sfzmcl_s = "1、申请书" + "SYS.ENTER" + "2、调查表" + "SYS.ENTER";
@@ -2202,7 +2208,9 @@ public class FeatureEditBDC extends FeatureEdit {
             if (StringUtil.IsNotEmpty(fwjg_h)&&fwjg_h.contains("[")){
                 fwjg_h = fwjg_h.substring(fwjg_h.lastIndexOf("]") + 1,fwjg_h.lastIndexOf("结构"));
             }
-
+            //map_zrz.get("ZRZ.CSHZ") + "/" + map_zrz.get("ZRZ.ZCS")
+            String hzszc = "1"+ "-" +map_ljz.get("LJZ.ZCS");
+            map_ljz.put("LJZ.HZSZC",hzszc);
             map_ljz.put("LJZ.FWJG",fwjg_h);
 //          竣工时间
             map_ljz.put("LJZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map_ljz.get("LJZ.JGRQ"), ""), 0, 4));
@@ -2213,9 +2221,8 @@ public class FeatureEditBDC extends FeatureEdit {
             //幢号
             map_ljz.put("LJZ.SLJZH",StringUtil.substr(AiUtil.GetValue(map_ljz.get("LJZ.LJZH"),""),10,14));
             //逻辑幢占地面积
-//            int zcs = (int) map_ljz.get("LJZ.ZCS");
-//            int scjzmj = (int) map_ljz.get("LJZ.SCJZMJ");
-//            map_ljz.put("LJZ.ZDJZMJ",String.format("%.2f",scjzmj % zcs ));
+            double ljz_area = MapHelper.getArea(mapInstance,ljz.getGeometry());
+            map_ljz.put("LJZ.ZDJZMJ",String.format("%.2f", ljz_area));
             //墙体归属取逻辑幢
             map_ljz.put("LJZ.QTGSD",FeatureHelper.Get(ljz,"QTGSD", "自墙"));
             map_ljz.put("LJZ.QTGSN",FeatureHelper.Get(ljz,"QTGSN", "自墙"));
@@ -2236,6 +2243,7 @@ public class FeatureEditBDC extends FeatureEdit {
                 map_ljz.put("H.HH"," ");
                 map_ljz.put("LJZ.ZTS"," ");
                 map_ljz.put("LJZ.ZCS"," ");
+                map_ljz.put("LJZ.HZSZC"," ");
                 map_ljz.put("LJZ.FWJG"," ");
                 map_ljz.put("LJZ.SJGRQ"," ");
                 //占地面积
