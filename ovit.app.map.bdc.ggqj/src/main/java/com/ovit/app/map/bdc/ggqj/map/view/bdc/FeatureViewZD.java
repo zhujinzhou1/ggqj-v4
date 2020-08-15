@@ -2682,12 +2682,29 @@ public class FeatureViewZD extends FeatureView {
             }
         });
     }
-    public void updataBdcdy(Feature feature, final Feature f_gyr, final AiRunnable callback) {
+    public void updataBdcdy(final Feature featureBdcdy, final Feature feature, final Feature f_gyr, final AiRunnable callback) {
         final List<Feature> fs = new ArrayList<>();
         fv.queryChildFeature(FeatureConstants.ZRZ_TABLE_NAME, feature, fs, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
-                newBdcdyToZrzAndGYR(fs, f_gyr, callback);
+                List<Feature> fs_upt = new ArrayList<>();
+                String bdcdyh = FeatureViewQLR.GetBdcdyhFromFeature(fs, getZddm());
+                fillFeatureBdcdyByQLR(featureBdcdy, feature, f_gyr);
+                //TODO 拷贝附件材料需要谨慎处理附件数据建议放到不动产单元
+//                  capyAttachments(feature, featureBdcdy);// 拷贝附件材料
+                FeatureHelper.Set(feature,FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                FeatureHelper.Set(featureBdcdy,FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                FeatureHelper.Set(fs, FeatureHelper.TABLE_ATTR_BDCDYH, bdcdyh);
+                fs_upt.addAll(fs);
+                fs_upt.add(feature);
+                fs_upt.add(featureBdcdy);
+                MapHelper.saveFeature(fs_upt, new AiRunnable() {
+                    @Override
+                    public <T_> T_ ok(T_ t_, Object... objects) {
+                        AiRunnable.Ok(callback, featureBdcdy);
+                        return null;
+                    }
+                });
                 return null;
             }
         });
@@ -2878,18 +2895,20 @@ public class FeatureViewZD extends FeatureView {
                             public <T_> T_ ok(T_ t_, Object... objects) {
                                 if (t_ != null) {
                                     //可以设定不动产单元
-                                    fv.createBdcdy(feature, null, new AiRunnable() {
-                                        @Override
-                                        public <T_> T_ ok(T_ t_, Object... objects) {
-                                            final Feature featureBdcdy = (Feature) t_;
-                                            FeatureViewQLR featureViewQLR = (FeatureViewQLR) mapInstance.newFeatureView(featureBdcdy);
-                                            featureViewQLR.update_gyrxx(getNext());
-                                            return null;
-                                        }
-                                    });
-                                } else {
+                                    fv.createBdcdy(feature, null, getNext());
+                                 } else {
                                     //该宗地已经存在不动产单元
-                                    AiRunnable.Ok(getNext(), "");
+                                    if (objects[1] instanceof List) {
+                                        List<Feature> fs = (List<Feature>) objects[1];
+                                        if (FeatureHelper.isExistElement(fs) && fs.size() == 1) {
+                                            //更新不动产单元
+                                            fv.updataBdcdy(fs.get(0), feature, null, getNext());
+                                        } else {
+                                            AiRunnable.Ok(getNext(), "");
+                                        }
+                                    } else {
+                                        AiRunnable.Ok(getNext(), "");
+                                    }
                                 }
                                 return null;
                             }
@@ -2921,7 +2940,6 @@ public class FeatureViewZD extends FeatureView {
                         AiRunnable.Error(callback, t_, objects);
                         return null;
                     }
-
                     final List<Feature> fs_hjxx = new ArrayList<Feature>();
                     final List<Feature> fs_qlr = new ArrayList<Feature>();
                     final List<Feature> fs_zrz = new ArrayList<Feature>();
@@ -2993,8 +3011,12 @@ public class FeatureViewZD extends FeatureView {
                             FeatureEditBDC.Put_data_hjxx(mapInstance, map_, fs_hjxx);
                             FeatureEditBDC.Put_data_qlrxx(mapInstance, map_, fs_qlr);
                             FeatureEditBDC.Put_data_hjxx(mapInstance, map_, fs_hjxx, 3);
+                            // 申请人信息
+//                            FeatureEditBDC.Put_data_sqr(mapInstance, map_,fs_qlr,fs_hjxx);
+
                             // 界址签字
                             FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
+                            //默认四条界址签章
                             // 界址点
                             FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
                             if (DxfHelper.AREA_DJZQDM_BASE.equals(DxfHelper.AREA_DJZQDM_WangCheng)) {
@@ -3010,8 +3032,8 @@ public class FeatureViewZD extends FeatureView {
                             // 自然幢
                             FeatureEditBDC.Put_data_zrz(mapInstance, map_, bdcdyh, f_zd, fs_zrz, fs_z_fsjg, fs_h, fs_c, fs_fsss);
 
-                            //逻辑幢
-                            FeatureEditBDC.Put_data_ljz(mapInstance,map_,f_zd,fs_ljz);
+//                            //逻辑幢
+//                            FeatureEditBDC.Put_data_ljz(mapInstance,map_,f_zd,fs_ljz);
                             // 在全局放所有户
                             FeatureEditBDC.Put_data_hs(mapInstance, map_, fs_h);
                             // 在全局放一个户
@@ -3037,11 +3059,15 @@ public class FeatureViewZD extends FeatureView {
                             }
 
                             new AiForEach<String>(files, null) {
+                                String fileDocPath = "";
                                 @Override
                                 public void exec() {
                                     String mfile = files.get(postion);
                                     String mbID = StringUtil.substr(mfile, mfile.lastIndexOf("/") + 1, mfile.lastIndexOf("."));
                                     final String file_dcb_doc = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + mbID + bdcdyh + ".docx";
+                                    if(file_dcb_doc.contains("不动产权籍调查表")){
+                                        fileDocPath = file_dcb_doc;
+                                    }
                                     String file_zd_zip = GetPath_ZD_zip(mapInstance, f_zd);
                                     if (FileUtils.exsit(mfile)) {
                                         ReportUtils.exportWord(mfile, file_dcb_doc, map_);
@@ -3057,7 +3083,12 @@ public class FeatureViewZD extends FeatureView {
 
                                 @Override
                                 public void complet() {
-                                    AiRunnable.U_Ok(mapInstance.activity, callback, file_dcb_doc, map_);
+                                    if (files.size()>0 && TextUtils.isEmpty(file_dcb_doc)){
+                                        String mfile = files.get(0);
+                                        String mbID = StringUtil.substr(mfile, mfile.lastIndexOf("/") + 1, mfile.lastIndexOf("."));
+                                        fileDocPath = FileUtils.getAppDirAndMK(mapInstance.getpath_feature(f_zd) + FeatureHelper.FJCL) + mbID + bdcdyh + ".docx";
+                                    }
+                                    AiRunnable.U_Ok(mapInstance.activity, callback, fileDocPath, map_);
                                 }
                             }.start();
                         } catch (Exception es) {

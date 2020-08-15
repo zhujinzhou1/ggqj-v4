@@ -8,7 +8,9 @@ import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.GeodeticDistanceResult;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
+import com.esri.arcgisruntime.geometry.ImmutablePart;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
 import com.ovit.app.map.bdc.ggqj.map.BaseDxf;
 import com.ovit.app.map.bdc.ggqj.map.view.bdc.FeatureEditBDC;
@@ -28,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -84,12 +85,14 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
 
     @Override
     protected void getBody() throws Exception {
-        alpha = (float) (Math.PI * MapHelper.geometry_get_azimuth(f_zd.getGeometry()) / 180);
         ArrayList<Map.Entry<String, List<Feature>>> fs_map_croup = FeatureViewZRZ.GroupbyC_Sort(fs_hAndFs);
         try {
             int page_count = (int) Math.ceil(fs_map_croup.size() / 2f);  //  多少页
+            String fwjg = null;
+            if (FeatureHelper.isExistElement(fs_zrz)){
+                fwjg = FeatureViewZRZ.GetSfwjg(fs_zrz.get(0));
+            }
             for (int page = 1; page < page_count + 1; page++) {
-                String fwjg = "";
                 List<C> cs = new ArrayList<>();
                 int i1 = 1 + (page - 1) * 2;
                 for (; i1 <= page * 2; i1++) {
@@ -115,9 +118,6 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
 
                 double x_ = x;
                 double y_ = y;
-                if (TextUtils.isEmpty(fwjg)) {
-                    fwjg = cs.get(0).getJzcl();
-                }
                 // 单元格1-1
                 Envelope cel_1_1 = new Envelope(x_, y_, x_ + w * 2 / 15, y_ - h, p_extend.getSpatialReference());
                 paint.setFontsize(o_fontsize);
@@ -208,8 +208,8 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
                 writeC(cs, 0, cel_3_1_1);
 //
                 // 单元格3-2
-                y_ = y_ - height;
-                Envelope cel_3_2_2 = new Envelope(x_, y_, x + w, y_ - height, p_extend.getSpatialReference());
+                y_ = y_ - height-h;
+                Envelope cel_3_2_2 = new Envelope(x_, y_, x + w, y_ - height-h, p_extend.getSpatialReference());
                 writeC(cs, 1, cel_3_2_2);
 
                 Point p_n = new Point(cel_5_1.getXMax() - o_split, cel_5_1.getYMax() - 1.5*o_split);
@@ -222,12 +222,12 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
                 Point p_4_0 = new Point(cel_4_0.getCenter().getX(), cel_4_0.getCenter().getY(), p_extend.getSpatialReference());
                 dxf.writeMText(p_4_0, StringUtil.GetDxfStrFormat(hzdw, "\n"), paint);
                 // 测绘日期
-                Calendar c = Calendar.getInstance();
-                c.add(Calendar.DATE, -1);
-                String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
+//                Calendar c = Calendar.getInstance();
+//                c.add(Calendar.DATE, -1);
+//                String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
 
                 // 测绘日期
-                String strRight = "测绘日期：" + drawDate;
+                String strRight = "测绘日期：2020年7月20日" ;
                 Point p_auditDate = new Point(envelope.getXMin() + w * 9 / 12, envelope.getYMin() - o_split * 0.2);
                 paint.setTextAlign(DxfPaint.Align.LEFT);
                 dxf.writeText(p_auditDate, strRight, paint);
@@ -236,7 +236,6 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
                 paint.setFontsize(o_fontsize * 1.5f);
                 paint.setTextAlign(DxfPaint.Align.CENTER);
                 dxf.writeText(p_blc, "1:" + (int) blc, paint);
-
             }
 
         } catch (Exception es) {
@@ -263,8 +262,16 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
 
     @Override
     public Envelope getChildExtend() {
-        Geometry buffer = GeometryEngine.buffer(f_zd.getGeometry(), 15);
-        return MapHelper.geometry_get(buffer.getExtent(), spatialReference);
+        Geometry g_zd = f_zd.getGeometry();
+        alpha = (float) (Math.PI * MapHelper.geometry_get_azimuth(g_zd) / 180);
+        Point p_b = MapHelper.Geometry_get(g_zd, DxfHelper.POINT_TYPE_RIGHT_BOTTOM);
+        Geometry g = MapHelper.geometry_get(g_zd, p_b, -alpha);
+
+        Envelope extent = GeometryEngine.buffer(g,2).getExtent();
+        double width = extent.getWidth();
+        double height = extent.getHeight();
+        extent = new Envelope(extent.getCenter(), width, height * 2);
+        return MapHelper.geometry_get(extent, spatialReference);
     }
 
     @Override
@@ -377,7 +384,7 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
     private void writeC(List<C> cs, int index, Envelope cell) throws Exception {
         if (index < cs.size()) {
             C c = cs.get(index);
-            Map<String, String> map_cg = FeatureEditBDC. GetCGbyZrzOrid(mapInstance.getOrid(fs_zrz.get(0)), fs_c);
+            Map<String, String> map_cg = FeatureEditBDC.GetCGbyZrzOrid(mapInstance.getOrid(fs_zrz.get(0)), fs_c);
             GeodeticDistanceResult d_move = null;
             List<Feature> fs = c.fs;
             Envelope e = MapHelper.geometry_combineExtents_Feature(fs);
@@ -392,9 +399,8 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
 
             Point p_b = MapHelper.Geometry_get(fs_m.get(0).getGeometry(), DxfHelper.POINT_TYPE_RIGHT_BOTTOM);
             List<Feature> fs_ = MapHelper.geometry_get(fs_m, p_b, -alpha);                                    //先统一坐标系，后计算旋转后的坐标
-//            dxf.write(mapInstance, fs, null, d_move, DxfHelper.TYPE_LEIYANG, DxfHelper.LINE_LABEL_OUTSIDE,new LineLabel());
 
-            Point p = new Point(cell.getXMin() + cell.getWidth() / 2, cell.getYMin() + o_split / 2);
+            Point p = new Point(cell.getXMin() + cell.getWidth() / 2, cell.getYMin() - h);
             String text = c.getName() + "平面图"+"([#CG#]m)";
             try {
                 text=text.replace("[#CG#]",map_cg.get(lc));
@@ -414,29 +420,40 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
             // 绘制合逻辑幢后的户
             List<Geometry> gs = MapHelper.geometry_get(fs_h);
             Geometry g = GeometryEngine.union(gs);
+
             g = MapHelper.geometry_move(g, d_move);
             g = MapHelper.geometry_trim(g);
-            Point p_c = GeometryEngine.labelPoint((Polygon) g);
-            Point p_jzmj = new Point(p_c.getX(), p_c.getY() + paint.getFontsize());
-            dxf.writeMText(p_jzmj, String.format("%.2f", jzmj), paint);
-            List<Point> ps = Arrays.asList(new Point[]{new Point(p_c.getX() - 2 * paint.getFontsize(), p_c.getY()), new Point(p_c.getX() + 2 * paint.getFontsize(), p_c.getY())});
-            dxf.writeLine(ps, "", false, DxfHelper.COLOR_BYLAYER, 0, "JZD", "302002");
-            Point p_lc = new Point(p_c.getX(), p_c.getY() - paint.getFontsize());
-            dxf.writeMText(p_lc, lc, paint);
-            dxf.write(g
-                    , paint.getLineType()
-                    , ""
-                    , paint.getFontstyle(), paint.getFontsize()
-                    , paint.getFontWidth()
-                    , paint.getColor(), paint.getLinewidth()
-                    , true
-                    , 1
-                    , paint.getLineLabel()
-                    , paint.getLayer()
-                    , paint.getStbm());
+
+            if (g instanceof Polygon) {
+                for (ImmutablePart segments : ((Polygon) g).getParts()) {
+                    Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
+
+                    Point p_c = GeometryEngine.labelPoint(polygon);
+                    Point p_jzmj = new Point(p_c.getX(), p_c.getY() + paint.getFontsize());
+                    dxf.writeMText(p_jzmj, String.format("%.2f", jzmj), paint);
+                    List<Point> ps = Arrays.asList(new Point[]{new Point(p_c.getX() - 2 * paint.getFontsize(), p_c.getY()), new Point(p_c.getX() + 2 * paint.getFontsize(), p_c.getY())});
+                    dxf.writeLine(ps, "", false, DxfHelper.COLOR_BYLAYER, 0, "JZD", "302002");
+                    Point p_lc = new Point(p_c.getX(), p_c.getY() - paint.getFontsize());
+                    dxf.writeMText(p_lc, lc, paint);
+                    dxf.write(polygon
+                            , paint.getLineType()
+                            , ""
+                            , paint.getFontstyle(), paint.getFontsize()
+                            , paint.getFontWidth()
+                            , paint.getColor(), paint.getLinewidth()
+                            , true
+                            , 1
+                            , paint.getLineLabel()
+                            , paint.getLayer()
+                            , paint.getStbm());
+                }
+            }
 
 
-        }
+
+            }
+
+
     }
 
 

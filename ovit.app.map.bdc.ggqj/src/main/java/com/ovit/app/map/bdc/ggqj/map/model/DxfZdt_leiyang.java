@@ -133,7 +133,7 @@ public class DxfZdt_leiyang extends BaseDxf {
         // 单元格2-2
         x_ = x_ + w * 3 / 15;
         Envelope cel_2_2 = new Envelope(x_, y_, x_ + w * 3 / 10, y_ - h, spatialReference);
-        dxf.write(cel_2_2, DxfHelper.LINETYPE_SOLID_LINE, FeatureHelper.Get(f_zd, "TFH", "") + "", o_fontsize, o_fontstyle, false,DxfHelper.COLOR_BYLAYER, 0);
+        dxf.write(cel_2_2, DxfHelper.LINETYPE_SOLID_LINE,   "/", o_fontsize, o_fontstyle, false,DxfHelper.COLOR_BYLAYER, 0);
 
 
         // 单元格2-3
@@ -209,17 +209,15 @@ public class DxfZdt_leiyang extends BaseDxf {
         dxf.writeMText(p_4_0, StringUtil.GetDxfStrFormat(hzdw, "\n"), o_fontsize, o_fontstyle, 0, 0, 3, 0, null, null);
 
         Calendar c = Calendar.getInstance();
-        String auditDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
-        c.add(Calendar.DATE, -1);
-        String drawDate = c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + (c.get(Calendar.DAY_OF_MONTH) + "日");
+        String auditDate ="  2020年7月20日";
+        String drawDate ="  2020年7月21日";
         Point p_jxf = new Point(envelope.getCenter().getX() - w * 1 / 3 - w * 1 / 20, envelope.getYMin() - h * o_fontsize, envelope.getSpatialReference());
         Point p_auditDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - h * o_fontsize * 2, envelope.getSpatialReference());
         Point p_drawDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() -h * o_fontsize, envelope.getSpatialReference());
         String tjsj = StringUtil.substr(auditDate, 0, auditDate.indexOf("月") + 1); // 图解时间
-        dxf.writeText(p_jxf, tjsj + "解析法测绘界址点", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
+        dxf.writeText(p_jxf,  "2020年5月图解法测绘界址点", o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 0, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
         Point p_blc = new Point(envelope.getCenter().getX(), envelope.getYMin() - h * 0.5, envelope.getSpatialReference());
         dxf.writeText(p_blc, "1:" + (int) blc, o_fontsize, DxfHelper.FONT_WIDTH_DEFULT, o_fontstyle, 0, 1, 2, DxfHelper.COLOR_BYLAYER, paint.getLayer(), paint.getStbm());
-
 
         String hzr = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "HZR", "");
         String shr = GsonUtil.GetValue(mapInstance.aiMap.JsonData, "SHR", "");

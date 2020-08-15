@@ -3230,9 +3230,12 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         boolean flag = isEmptyStdm(f, mapStbm, stdms);// 是否包含实体编码
 
 //        if (("JMD".equals(f.Layer) || "FWFS".equals(f.Layer)) && (f.SubClasses + "").contains("Polyline") && flag) {
-        if ( flag) {
+        if ( flag&&(f.SubClasses + "").contains("Polyline")) {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
+            if (g instanceof Point){
+                return false;
+            }
             g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference(mapInstance, wkid));
             g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
             if (FeatureHelper.isPolygonGeometryValid(g)) {
@@ -3352,7 +3355,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         Map<String, String> stdms = DxfFeature.GetCassSTDM_DW();
 
         boolean flag = isEmptyStdm(f, mapStbm, stdms);// 是否包含实体编码
-        if (flag) {
+        if (flag && !"H_FSJG".equals(f.Layer)) {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
             g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference(mapInstance, wkid));

@@ -483,7 +483,7 @@ public class Dxffcfcfht_xiantao extends BaseDxf {
             List<Feature> fs_ = MapHelper.geometry_get(fs_m, p_b, -alpha);
             // 描述
             Point p = new Point(cell.getXMin() + cell.getWidth() / 2, cell.getYMin() + o_split / 2);
-            String text = ArabicToChineseUtils.formatFractionalPart(Integer.valueOf(lc)) + "平面图";
+            String text = ArabicToChineseUtils.formatFractionalPart(Integer.valueOf(lc)) + "层平面图";
             dxf.write(p, text, paint);
             for (Feature f_zrz : fs_zrz) {
                 String lable = getLable(f_zrz);

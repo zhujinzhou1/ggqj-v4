@@ -224,7 +224,7 @@ public class FeatureEditBDC extends FeatureEdit {
     }
 
     public static String GetPath(MapInstance mapInstance, String bdcdyh) {
-        return mapInstance.getpath_root() + "/资料库/不动产单元/" + bdcdyh + "/";
+        return mapInstance.getpath_root() + "/资料库/运行时/不动产单元/" + bdcdyh + "/";
     }
 
     // 模板所在文件夹
@@ -1219,7 +1219,7 @@ public class FeatureEditBDC extends FeatureEdit {
 
     public static void Put_data_hjxx(com.ovit.app.map.model.MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_hjxx) {
         List<Feature> mfs_hjxx = new ArrayList<>(fs_hjxx);
-        map_.put("ZD.HJXX", fs_hjxx.size()+"");
+        map_.put("ZD.HJXX", String.valueOf(fs_hjxx.size()+1));
 
         for (int i = mfs_hjxx.size(); i < 4; i++) {
             mfs_hjxx.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_HJXX).createFeature());
@@ -1299,7 +1299,25 @@ public class FeatureEditBDC extends FeatureEdit {
 
     }
 
-
+//    public static void Put_data_sqr(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_qlr, List<Feature> fs_hjxx) {
+//        if(FeatureHelper.isExistElement(fs_qlr)){
+//            Feature f_qlr = fs_qlr.get(0);
+//            // 是否申请人
+//            String sfsqr_qlr = FeatureHelper.Get(f_qlr,"HJMB","否");
+//            if ("是".equals(sqsqr_qlr)){
+//                map_.put("SQRXX.XM",FeatureHelper.Get(f_qlr,"XM","/"));
+//                map_.put("SQRXX.HJBM",FeatureHelper.Get(f_qlr,"HJBM","/"));
+//                map_.put("SQRXX.YHZGX",FeatureHelper.Get(f_qlr,"YHZGX","/"));
+//                map_.put("SQRXX.ZJH",FeatureHelper.Get(f_qlr,"ZJH","/"));
+//                map_.put("SQRXX.TXDZ",FeatureHelper.Get(f_qlr,"TXDZ","/"));
+//            }else {
+//
+//
+//            }
+//
+//        }
+//
+//    }
     // 设置宗地的内容
     public static void Put_data_zd(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd) {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -2271,31 +2289,30 @@ public class FeatureEditBDC extends FeatureEdit {
         Map<String, Object> map = new LinkedHashMap<>();
         // 设置单个幢信息
         // 提前防止覆盖
-        map.put("ZRZ.ZHFF", AiUtil.GetValue(zrz.getAttributes().get("ZH"), 1) + "");
-        if ((zrz.getAttributes().get(FeatureHelper.TABLE_ATTR_BDCDYH) + "").contains("F99990001")) {
-
+        map.put("ZRZ.ZHFF", String.valueOf(FeatureHelper.Get(zrz,"ZH",1)));
+        if (FeatureHelper.Get(zrz,"BDCDYH","").contains("F99990001")) {
+            // 宗地内存在多幢
         } else {
-            map.put("ZRZ.ZHFS", StringUtil.substr_last(AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), ""), 5));
+            map.put("ZRZ.ZHFS", StringUtil.substr_last(FeatureHelper.Get(zrz,"ZRZH",""), 5));
         }
         map.put("ZRZ.ZTS", "");
         map.put("ZRZ.GYQK", "");
         GetReplecData(mapInstance.activity, map, zrz, "", "FHYT", "FWJG");
         map.put("ZRZ.ZCS", AiUtil.GetValue(zrz.getAttributes().get("ZCS"), "", "0.#"));
         map.put("ZRZ.CSHZ", z_zcs > 1 ? ("1-" + z_zcs) : 1);
-        map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 7));
-        //建筑日期到年   通山模板   2020/06/04
-        if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI|| DxfHelper.TYPE == DxfHelper.TYPE_TONGSHAN  || DxfHelper.TYPE == DxfHelper.TYPE_XIANTAO) {
-            if (map.get("ZRZ.JGRQ").toString().length() > 4) {
-            }
-            map.put("ZRZ.SJGRQ", StringUtil.substr(AiUtil.GetValue(map.get("ZRZ.JGRQ"), ""), 0, 4));
+        // 自然幢竣工日期到月2020/07
+        String jgrq = AiUtil.GetValue(map.get("ZRZ.JGRQ"));
+        map.put("ZRZ.MJGRQ", StringUtil.substr(jgrq, 0, 7));
+        // 自然幢竣工日期到月
+        map.put("ZRZ.SJGRQ", StringUtil.substr(jgrq, 0, 4));
+        // 获取房屋结构简写
+        map.put("ZRZ.SFWJG", FeatureViewZRZ.GetSfwjg(zrz));
 
-        }
-
-        String qpkg = FeatureHelper.Get(zrz, "SOVIT2", "");// 切坡数据,宽，高，后墙距离
+        // 切坡数据,宽，高，后墙距离
+        String qpkg = FeatureHelper.Get(zrz, "SOVIT2", "");
         map.put("ZRZ.QPKD", "");
         map.put("ZRZ.QPGD", "");
         map.put("ZRZ.HQYPJJL", "");
-
         String[] qp = qpkg.split("/");
         String[] qpk = {"ZRZ.QPKD","ZRZ.QPGD","ZRZ.HQYPJJL"};;
         for (int i = 0; i < qp.length; i++) {
@@ -2742,6 +2759,9 @@ public class FeatureEditBDC extends FeatureEdit {
         int z = 0;
         double jzmj = 0;
         int cshz = (int) map_.get("ZD.ZRZCSHZ");
+
+        String mjjsgc = GetMJJSGC(fs_z_fsjg,fs_h);
+        map_.put("ZD.FFMJJSGC",mjjsgc);
         for (Feature zrz : features) {
             int i = 0;
             String zrzh = AiUtil.GetValue(zrz.getAttributes().get("ZRZH"), "");
@@ -3004,6 +3024,56 @@ public class FeatureEditBDC extends FeatureEdit {
             scjzmj_count += AiUtil.GetValue(f.getAttributes().get("HSMJ"), 0d);
         }
         return scjzmj_count;
+    }
+
+    //获取面积计算过程
+    private static String GetMJJSGC(List<Feature> fs_z_fsjg, List<Feature> fs_h) {
+        Map<String, List<Feature>> cs = new LinkedHashMap<>();
+
+        // 获取户
+        if (fs_h.size() > 0) {
+            for (Feature f_h : fs_h) {
+                String h_ch = AiUtil.GetValue(f_h.getAttributes().get("SZC"), "");
+                List fs = cs.get(h_ch);
+                if (fs == null) {
+                    fs = new ArrayList();
+                    cs.put(h_ch, fs);
+                }
+                fs.add(f_h);
+            }
+        }
+        // 获取附属
+        if (fs_z_fsjg.size() > 0) {
+            for (Feature f : fs_z_fsjg) {
+                String f_ch = AiUtil.GetValue(f.getAttributes().get("LC"), "");
+                List fs = cs.get(f_ch);
+                if (fs == null) {
+                    fs = new ArrayList();
+                    cs.put(f_ch, fs);
+                    fs.add(f);
+                }
+            }
+        }
+        if (cs.size() < 1) {
+            cs.put("1", new ArrayList<Feature>());
+        }
+
+        double jzmjhz = 0d;
+        String mjjsgc = "";
+        for (String c : cs.keySet()) {
+            List<Feature> fs = cs.get(c);
+            double jzmj = GetJZMJ(fs);
+            jzmj = AiUtil.GetValue(String.format("%.2f",jzmj),0.00);
+            jzmjhz += jzmj;
+            mjjsgc+= jzmj+"+";
+        }
+        if (jzmjhz == 0){
+            mjjsgc = "";
+        }else {
+            // 面积计算过程 125.3 +100+200 = 425.3
+            mjjsgc = StringUtil.substr(mjjsgc,0,mjjsgc.lastIndexOf("+"))+"="+String.format("%.2f",jzmjhz);
+        }
+        return mjjsgc;
     }
 
 
@@ -3648,5 +3718,6 @@ public class FeatureEditBDC extends FeatureEdit {
                     }
                 });
     }
+
 
 }

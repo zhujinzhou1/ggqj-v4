@@ -457,9 +457,11 @@ public class FeatureViewZRZ extends FeatureView {
         int zcs = FeatureHelper.Get(feature, "ZCS", 1);
         Geometry g = feature.getGeometry();
         double area = 0;
+        double f_area = 0;
         double hsmj = 0;
         if (g != null) {
             area = MapHelper.getArea(mapInstance, g);
+            f_area=area;
 
             for (Feature f : f_hs) {
                 String orid_path = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
@@ -471,20 +473,34 @@ public class FeatureViewZRZ extends FeatureView {
             for (Feature f : f_z_fsjgs) {
                 String orid_path = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
                 if (orid_path.contains(id)) {
+                    // 更新幢占地面积
+                    int lc = FeatureHelper.Get(f, "LC", 0);
+                    if (lc == 1 && !MapHelper.geometry_contains(g,f.getGeometry())) {
+                        String mj = FeatureHelper.Get(f, "MJ", "");
+                        area += Double.parseDouble(mj);
+                    }
                     double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
                     hsmj += f_hsmj;
                 }
             }
             for (Feature f : f_h_fsjgs) {
                 String orid_path = FeatureHelper.Get(f, FeatureHelper.TABLE_ATTR_ORID_PATH, "");
+
                 if (orid_path.contains(id)) {
+                    // 更新幢占地面积
+                    int lc = FeatureHelper.Get(f, "LC", 0);
+                    //附属在第一次并且自然幢不包含附属
+                    if (lc == 1 && !MapHelper.geometry_contains(g,f.getGeometry())) {
+                        String mj = FeatureHelper.Get(f, "MJ", "");
+                        area += Double.parseDouble(mj);
+                    }
                     double f_hsmj = FeatureHelper.Get(f, "HSMJ", 0d);
                     hsmj += f_hsmj;
                 }
             }
 
             if (hsmj <= 0) {
-                hsmj = area * zcs;
+                hsmj = f_area * zcs;
             }
             FeatureHelper.Set(feature, "ZZDMJ", AiUtil.Scale(area, 2));
             FeatureHelper.Set(feature, "SCJZMJ", AiUtil.Scale(hsmj, 2));
@@ -575,6 +591,26 @@ public class FeatureViewZRZ extends FeatureView {
                 return null;
             }
         });
+    }
+
+    /**
+     * 通过feature 获取房屋结构 simple
+     * @param feature
+     * @return
+     */
+    public static  String GetSfwjg(Feature feature){
+        String fwjg = "";
+        if (FeatureHelper.isExistFeature(feature)){
+            fwjg = DicUtil.dic("fwjg", FeatureHelper.Get(feature, "FWJG", "4"));
+            if (!TextUtils.isEmpty(fwjg)) {
+                if (fwjg.contains("结构")&&fwjg.contains("]")) {
+                    fwjg = fwjg.substring(fwjg.lastIndexOf("]") + 1, fwjg.lastIndexOf("结构"));
+                } else {
+                    fwjg = fwjg.substring(fwjg.lastIndexOf("]") + 1);
+                }
+            }
+        }
+        return fwjg ;
     }
 
     //查询、排序、分组数据，生成分层分户图、汇总图
