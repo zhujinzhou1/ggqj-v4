@@ -1064,7 +1064,7 @@ public class FeatureViewZD extends FeatureView {
 
     }
 
-    private void creatZrzToLjzUnion(List<Feature> featuresLJZ, final List<Feature> featuresZRZ, final AiRunnable callback) {
+    private void  creatZrzToLjzUnion(List<Feature> featuresLJZ, final List<Feature> featuresZRZ, final AiRunnable callback) {
         if (featuresLJZ.size() > 0) {
             List<List<Feature>> ls = new ArrayList<>();
             final Map<String, List<Feature>> fs_map = getLsFromFeatureLjz(featuresLJZ, "FWJG1");
@@ -1113,7 +1113,7 @@ public class FeatureViewZD extends FeatureView {
         Map<String, List<Feature>> map = null;
         if (FeatureHelper.isExistElement(fs) && StringUtil.IsNotEmpty(attr)) {
             map = new HashMap<>();
-            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI) {
+            if (DxfHelper.TYPE == DxfHelper.TYPE_LIZHI || DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG) {
                 String attrValue = FeatureHelper.Get(fs.get(0), attr, "");
                 map.put(attrValue, fs);
                 return map;

@@ -420,14 +420,11 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
             // 绘制合逻辑幢后的户
             List<Geometry> gs = MapHelper.geometry_get(fs_h);
             Geometry g = GeometryEngine.union(gs);
-
             g = MapHelper.geometry_move(g, d_move);
-            g = MapHelper.geometry_trim(g);
 
             if (g instanceof Polygon) {
                 for (ImmutablePart segments : ((Polygon) g).getParts()) {
                     Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
-
                     Point p_c = GeometryEngine.labelPoint(polygon);
                     Point p_jzmj = new Point(p_c.getX(), p_c.getY() + paint.getFontsize());
                     dxf.writeMText(p_jzmj, String.format("%.2f", jzmj), paint);
@@ -435,7 +432,7 @@ public class Dxffcfcfht_leiyang extends BaseDxf {
                     dxf.writeLine(ps, "", false, DxfHelper.COLOR_BYLAYER, 0, "JZD", "302002");
                     Point p_lc = new Point(p_c.getX(), p_c.getY() - paint.getFontsize());
                     dxf.writeMText(p_lc, lc, paint);
-                    dxf.write(polygon
+                    dxf.write(MapHelper.geometry_trim(polygon)
                             , paint.getLineType()
                             , ""
                             , paint.getFontstyle(), paint.getFontsize()

@@ -209,8 +209,8 @@ public class DxfZdt_leiyang extends BaseDxf {
         dxf.writeMText(p_4_0, StringUtil.GetDxfStrFormat(hzdw, "\n"), o_fontsize, o_fontstyle, 0, 0, 3, 0, null, null);
 
         Calendar c = Calendar.getInstance();
-        String auditDate ="  2020年7月20日";
-        String drawDate ="  2020年7月21日";
+        String auditDate ="  2020年7月21日";
+        String drawDate ="  2020年7月20日";
         Point p_jxf = new Point(envelope.getCenter().getX() - w * 1 / 3 - w * 1 / 20, envelope.getYMin() - h * o_fontsize, envelope.getSpatialReference());
         Point p_auditDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() - h * o_fontsize * 2, envelope.getSpatialReference());
         Point p_drawDate = new Point(envelope.getCenter().getX() + w * 1 / 3, envelope.getYMin() -h * o_fontsize, envelope.getSpatialReference());

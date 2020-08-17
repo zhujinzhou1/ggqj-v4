@@ -19,7 +19,10 @@ import com.esri.arcgisruntime.data.FeatureTable;
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
+import com.esri.arcgisruntime.geometry.ImmutablePart;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.PointCollection;
+import com.esri.arcgisruntime.geometry.Polygon;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
 import com.ovit.app.adapter.QuickAdapter;
@@ -527,13 +530,27 @@ public class FeatureEditC extends FeatureEdit {
             }
             gs.add(g);
         }
+
+//        if(mgs.size()>0){
+//            Geometry union = GeometryEngine.union(mgs);
+//            f_h.setGeometry(MapHelper.geometry_trim(union));
+//            mfs.add(0,f_h);
+//        }
+
         if(mgs.size()>0){
-            Geometry union = GeometryEngine.union(mgs);
-            f_h.setGeometry(MapHelper.geometry_trim(union));
-            mfs.add(0,f_h);
+            Geometry geometry = GeometryEngine.union(mgs);
+//            Geometry geometry = MapHelper.geometry_trim(union);
+            if (geometry instanceof Polygon) {
+                for (ImmutablePart segments : ((Polygon) geometry).getParts()) {
+                    Polygon polygon = new Polygon(new PointCollection(segments.getPoints()));
+                    if (FeatureHelper.isPolygonGeometryValid(polygon)){
+                    Feature f_clone = MapHelper.cloneFeature(f_h);
+                        f_clone.setGeometry(MapHelper.geometry_trim(polygon));
+                        mfs.add(f_clone);
+                    }
+                }
+            }
         }
-
-
 
         gs.add(feature.getGeometry());
         Envelope extent = MapHelper.geometry_combineExtents(gs);
