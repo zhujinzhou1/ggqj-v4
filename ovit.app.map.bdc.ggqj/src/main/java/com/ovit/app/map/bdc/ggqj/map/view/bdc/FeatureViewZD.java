@@ -110,9 +110,10 @@ public class FeatureViewZD extends FeatureView {
 
     //region 常量
     final static String TAG = "FeatureViewZD";
+
+    final public static String TABLE_ATTR_JZDJXLX = "SOVIT4";
+    final public static String TABLE_ATTR_JFSJ = "SOVIT5";
     final public static String TABLE_ATTR_FTXS_ZD = "FTXS";
-    final public static java.lang.String TABLE_ATTR_JZDJXLX = "SOVIT4";
-    final public static java.lang.String TABLE_ATTR_JFSJ = "SOVIT5";
     ///endregion
 
     //region 字段
@@ -3012,11 +3013,14 @@ public class FeatureViewZD extends FeatureView {
                             FeatureEditBDC.Put_data_qlrxx(mapInstance, map_, fs_qlr);
                             FeatureEditBDC.Put_data_hjxx(mapInstance, map_, fs_hjxx, 3);
                             // 申请人信息
-//                            FeatureEditBDC.Put_data_sqr(mapInstance, map_,fs_qlr,fs_hjxx);
-
-                            // 界址签字
-                            FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
-                            //默认四条界址签章
+                            FeatureEditBDC.Put_data_sqr(mapInstance, map_,fs_qlr,fs_hjxx);
+                            if (DxfHelper.TYPE == DxfHelper.TYPE_LEIYANG) {
+                                //默认四条界址签章 东西南北
+                                FeatureEditBDC.Put_data_jzqz(map_, f_zd, fs_jzqz,fs_jzx, FeatureHelper.JZQZB_MODE_ADVANCED);
+                            } else {
+                                FeatureEditBDC.Put_data_jzqz(map_, fs_jzd, fs_jzqz);
+//                                FeatureEditBDC.Put_data_jzqz(map_, f_zd, fs_jzqz, fs_jzx, FeatureHelper.JZQZB_MODE_DEFULT);
+                            }
                             // 界址点
                             FeatureEditBDC.Put_data_jzdx(mapInstance, map_, zddm, fs_jzd, fs_jzx, map_jzx);
                             if (DxfHelper.AREA_DJZQDM_BASE.equals(DxfHelper.AREA_DJZQDM_WangCheng)) {

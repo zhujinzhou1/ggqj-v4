@@ -28,6 +28,7 @@ import com.esri.arcgisruntime.geometry.ImmutablePartCollection;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.PointCollection;
 import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.ovit.R;
 import com.ovit.app.adapter.BaseAdapterHelper;
@@ -1096,10 +1097,14 @@ public class FeatureEditBDC extends FeatureEdit {
         MapHelper.Query(table, "", -1, fs, new AiRunnable() {
             @Override
             public <T_> T_ ok(T_ t_, Object... objects) {
+               final int total = fs.size();
                 new AiForEach<Feature>(fs, callback) {
                     @Override
                     public void exec() {
                         Feature f = fs.get(postion);
+                        if (postion % 10 == 0) {
+                            ToastMessage.Send("批量生成资料当前进度" + (postion + 1) + "/" + total);
+                        }
                         CreateDOCXFromFeatureBdc(mapInstance, getValue(), new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
@@ -1245,9 +1250,6 @@ public class FeatureEditBDC extends FeatureEdit {
         for (int i = mfs_hjxx.size(); i < 6; i++) {
             mfs_hjxx.add(GetTable(mapInstance, FeatureHelper.TABLE_NAME_HJXX).createFeature());
         }
-
-
-
         {
 
             List<Map<String, Object>> maps_p = new ArrayList<>();
@@ -1299,7 +1301,7 @@ public class FeatureEditBDC extends FeatureEdit {
 
     }
 
-//    public static void Put_data_sqr(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_qlr, List<Feature> fs_hjxx) {
+    public static void Put_data_sqr(MapInstance mapInstance, Map<String, Object> map_, List<Feature> fs_qlr, List<Feature> fs_hjxx) {
 //        if(FeatureHelper.isExistElement(fs_qlr)){
 //            Feature f_qlr = fs_qlr.get(0);
 //            // 是否申请人
@@ -1316,8 +1318,26 @@ public class FeatureEditBDC extends FeatureEdit {
 //            }
 //
 //        }
-//
-//    }
+        // 户籍信息姓名
+        List<String> xms = new ArrayList<>() ;
+        if (FeatureHelper.isExistElement(fs_qlr)){
+            for (Feature f_qlr : fs_qlr) {
+                String xm = FeatureHelper.Get(f_qlr, "XM","");
+                if (StringUtil.IsNotEmpty(xm)){
+                    xms.add(xm);
+                }
+            }
+        }
+        for (Feature f_hjxx : fs_hjxx) {
+            String xm = FeatureHelper.Get(f_hjxx, "XM","");
+            if (StringUtil.IsNotEmpty(xm)){
+                xms.add(xm);
+            }
+        }
+        //户籍在册人口
+        map_.put("HJXX.HJZCRK",StringUtil.Join(xms));
+
+    }
     // 设置宗地的内容
     public static void Put_data_zd(MapInstance mapInstance, Map<String, Object> map_, String bdcdyh, Feature f_zd) {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -1427,6 +1447,104 @@ public class FeatureEditBDC extends FeatureEdit {
             f_jzqzs.add(f_jzqz_def);
         }
         map_.put("list.jzqz", f_jzqzs);
+
+    }
+    public static void Put_data_jzqz(Map<String, Object> map_, Feature f_zd, List<Map<String, Object>> fs_jzqz, List<Feature> fs_jzx, String mode) {
+        //JZQZB_MODE_DEFULT 按照共墙分，若没有共墙，界址签章为一条。起点至起点，即J1-J2-J3-J4...-J1。若有共墙，即J1至共墙起点，共墙起点之共墙终点，共墙终点至J1
+        //JZQZB_MODE_ADVANCED 按照四个方向分
+        if (FeatureHelper.JZQZB_MODE_ADVANCED.equals(mode)) {
+            String jxlx = FeatureHelper.Get(f_zd, "JXLX", "J");
+            List<Map<String, Object>> mfs_jzqz = new ArrayList<>();
+            Geometry g = f_zd.getGeometry();
+            List<Point> points = MapHelper.geometry_getPoints(g);
+            List<Point> fixedPoints = MapHelper.GetGeometryFixedPoints(g);
+            int size = fixedPoints.size();
+            for (Point fixedPoint : fixedPoints) {
+                Map<String, Object> map = new HashMap<>();
+                int index = fixedPoints.indexOf(fixedPoint);
+                int pointPre = points.indexOf(fixedPoint);
+                Point pontNext = index == size - 1 ? fixedPoints.get(0) : fixedPoints.get(index + 1);
+                int indexNext = points.indexOf(pontNext);
+                map.put("JZQZ.JZXQDH", jxlx + (pointPre + 1));
+                map.put("JZQZ.JZXZDH", jxlx + (indexNext + 1));
+                map.put("JZQZ.XLZDQLR", "");
+                map.put("JZQZ.LZDZJR", "");
+                map.put("JZQZ.BZDQLR", FeatureHelper.Get(f_zd,"QLRXM",""));
+
+                List<String> zjd = new ArrayList<>();
+                int n = indexNext == 0 ? points.size() : indexNext;
+                for (int i = pointPre + 1; i < n; i++) {
+                    zjd.add(jxlx + (i + 1));
+                }
+
+                for (int i = pointPre; i < n; i++) {
+                    Point p = points.get(i);
+                    Point p_next = points.get((i < (points.size() - 1) ? i : -1) + 1);
+                    Polyline polyline = new Polyline(new PointCollection(Arrays.asList(new Point[]{p, p_next})));
+                    for (Feature fsJzx : fs_jzx) {
+                        if (MapHelper.geometry_equals(fsJzx.getGeometry(), polyline)) {
+                            String xlzdqlr =FeatureHelper.Get(fsJzx,"XLZDQLR","");
+                            if (TextUtils.isEmpty(xlzdqlr)){
+                                continue;
+                            }
+                            String XLZDDM=FeatureHelper.Get(fsJzx,"ZDZHDM","");
+                            String zddm = AiUtil.GetValue(f_zd.getAttributes().get("ZDDM"), "");
+                            String zddm_other = XLZDDM.substring(0, XLZDDM.indexOf("/")).equals(zddm) ? XLZDDM.substring(XLZDDM.lastIndexOf("J"),XLZDDM.lastIndexOf("J")+7) : XLZDDM.substring(12,19);
+
+                            if (xlzdqlr.equals(FeatureHelper.Get(f_zd,"QLRXM",""))){
+                                map.put("JZQZ.XLZDQLR", FeatureHelper.Get(fsJzx,"BZDZJR","")+"\n"+ zddm_other);
+                            }else {
+                                map.put("JZQZ.XLZDQLR", FeatureHelper.Get(fsJzx,"XLZDQLR","")+"\n"+  zddm_other);
+                            }
+                            break;
+                        }
+
+                    }
+                }
+
+                map.put("JZQZ.JZXZJH", StringUtil.Join(zjd));
+                mfs_jzqz.add(map);
+            }
+            map_.put("list.jzqz", mfs_jzqz);
+
+        } else {
+            // 界址签字数，只留一条
+            List<Map<String, Object>> f_jzqzs = new ArrayList<Map<String, Object>>();
+            f_jzqzs.addAll(fs_jzqz);
+            if (f_jzqzs.size() == 1 && DxfHelper.TYPE == DxfHelper.TYPE_HUANGPI) {
+                // 黄陂没有邻宗时需要两条界址点线
+                Map<String, Object> map = f_jzqzs.get(0);
+                String qdh = (String) map.get("JZQZ.JZXQDH");
+                String zjdh = (String) map.get("JZQZ.JZXZJH");
+                int end = zjdh.lastIndexOf(",");
+                String s = StringUtil.substr(zjdh, end + 1);
+                map.put("JZQZ.JZXZJH", StringUtil.substr(zjdh, 0, end));
+                map.put("JZQZ.JZXZDH", s);
+
+                Map<String, Object> map2 = new LinkedHashMap<>();
+                map2.put("JZQZ.JZXQDH", s);
+                map2.put("JZQZ.JZXZDH", qdh);
+                map2.put("JZQZ.JZXZJH", " ");
+
+                map2.put("JZQZ.XLZDQLR", map.get("JZQZ.XLZDQLR"));
+                map2.put("JZQZ.LZDZJR", map.get("JZQZ.LZDZJR"));
+                map2.put("JZQZ.BZDQLR", map.get("JZQZ.BZDQLR"));
+                f_jzqzs.add(map2);
+
+            }
+
+            if (f_jzqzs.size() < 1) {
+                Map<String, Object> f_jzqz_def = new LinkedHashMap<>();
+                f_jzqz_def.put("JZQZ.JZXQDH", "");
+                f_jzqz_def.put("JZQZ.JZXZJDH", "");
+                f_jzqz_def.put("JZQZ.JZXZDH", "");
+                f_jzqz_def.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
+                f_jzqz_def.put("JZQZ.JZQZBRQ", map_.get("SYS.DATE"));
+                f_jzqzs.add(f_jzqz_def);
+            }
+            map_.put("list.jzqz", f_jzqzs);
+        }
+
 
     }
 
@@ -2416,7 +2534,7 @@ public class FeatureEditBDC extends FeatureEdit {
         Double ftxs = 0d;
         try {
             Double.parseDouble((String) map_.get("H.SCJZMJ"));
-            ftxs = Double.parseDouble(AiUtil.GetValue(map_.get("ZD." + FeatureViewZD.TABLE_ATTR_FTXS_ZD), "0"));
+            ftxs = Double.parseDouble(AiUtil.GetValue(map_.get("ZD.FTXS" ), "0"));
         } catch (Exception e) {
 
         }
