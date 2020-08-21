@@ -854,7 +854,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                         FeatureViewH_FSJG.InitAllFsjgFromDZJ(mapInstance, new AiRunnable() {
                             @Override
                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                if(objects!=null && objects.length>0){
+                                if (objects != null && objects.length > 0) {
                                     aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "附属。");
                                 }
                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + "查找所有宗地，并提取自然幢");
@@ -905,7 +905,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                                                                                         FeatureViewZD.LaodAllZDAndCreateBDCDY(mapInstance, new AiRunnable() {
                                                                                             @Override
                                                                                             public <T_> T_ ok(T_ t_, Object... objects) {
-                                                                                                 aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "不动产单元。");
+                                                                                                aidialog.addContentView(null, AiUtil.GetValue(new Date(), AiUtil.F_TIME) + " 已完成" + objects[0] + "不动产单元。");
                                                                                                 Log.d(TAG, "智能处理:已创建" + objects[0] + "不动产单元。");
                                                                                                 AiRunnable.Ok(callback, null);
                                                                                                 return null;
@@ -1380,22 +1380,21 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
 //                                                                    new AiForEach<Feature>(fs_bdc, new AiRunnable() {
 //
 //                                                                    });
-                                                                    Map<String, Object> map_ = new LinkedHashMap<>();
-                                                                    FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
-                                                                    FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
-                                                                    FeatureEditBDC.Put_data_ljz(mapInstance, map_, f_zd, fs_ljz);
-                                                                    FeatureEditBDC.Put_data_ljz(mapInstance, map_,f_zd,fs_ljz);
-                                                                    FeatureEditBDC.Put_data_fjcl( mapInstance, map_, f_zd, f_bdcdy,fs_qlrxx, fs_hjxx);
-                                                                    maps.add(map_);
-                                                                    AiRunnable.Ok(getNext(), t_, objects);
-                                                                    return null;
+                                                            Map<String, Object> map_ = new LinkedHashMap<>();
+                                                            FeatureEditBDC.Put_data_zd(mapInstance, map_, FeatureHelper.Get(f_zd, "BDCDYH", ""), f_zd);
+                                                            FeatureEditBDC.Put_data_zrz(mapInstance, map_, f_zd, fs_zrz);
+                                                            FeatureEditBDC.Put_data_ljz(mapInstance, map_, f_zd, fs_ljz);
+                                                            FeatureEditBDC.Put_data_ljz(mapInstance, map_, f_zd, fs_ljz);
+                                                            FeatureEditBDC.Put_data_fjcl(mapInstance, map_, f_zd, f_bdcdy, fs_qlrxx, fs_hjxx);
+                                                            maps.add(map_);
+                                                            AiRunnable.Ok(getNext(), t_, objects);
+                                                            return null;
 
 
 //
 //                                                                }
 //                                                            });
 //                                                            return null;
-
 
 
                                                         }
@@ -2849,8 +2848,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         return false;
     }
 
-    private boolean isEmptyStdm(DxfFeature
-                                        f, Map<String, String> mapStbm, List<String> stdms) {
+    private boolean isEmptyStdm(DxfFeature f, Map<String, String> mapStbm, List<String> stdms) {
         for (String s : f.getExtendeds()) {
             if (StringUtil.IsNotEmpty(s)) {
                 if (stdms.contains(s)) {
@@ -2914,90 +2912,90 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         //  300000 宗地
         String stdm = f.getExtendeds(0);
         boolean flag = isEmptyStdm(f, stdm, "300000");// 是否包含实体编码
-            if (flag) {
-                Geometry g = GdalAdapter.convert(f.getGeometry());
-                g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference(mapInstance, wkid));
-                g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
-                if (g == null || !FeatureHelper.isPolygonGeometryValid(g)) {
-                    return false;
-                }
-                Feature f_zd = table.createFeature();
-                // 实体编码为 300000
-                for (String value : f.getExtendeds()) {
-                    if (TextUtils.isEmpty(value)) {
-                        continue;
-                    }
-                    if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, "TFH", ""))
-                            && value.contains("-") && value.contains(".")
-                            && !StringUtil.isChinese(value)) {
-                        FeatureHelper.Set(f_zd, "TFH", value); // 宗地代码
-                        continue;
-                    }
-
-                    if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, "QLRXM", ""))
-                            && StringUtil.isQLRName(value)) {
-                        FeatureHelper.Set(f_zd, "QLRXM", value);
-                        continue;
-                    }
-
-                    if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, "ZL", ""))
-                            && value.contains("镇") && value.contains("村")) {
-                        FeatureHelper.Set(f_zd, "ZL", value); // 宗地代码
-                        continue;
-                    }
-                    if (value.contains("北至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
-                        FeatureHelper.Set(f_zd, "ZDSZB", value); // 宗地代码
-                        continue;
-                    }
-                    if (value.contains("东至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
-                        FeatureHelper.Set(f_zd, "ZDSZD", value); // 宗地代码
-                        continue;
-                    }
-                    if (value.contains("西至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
-                        FeatureHelper.Set(f_zd, "ZDSZX", value); // 宗地代码
-                        continue;
-                    }
-                    if (value.contains("南至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
-                        FeatureHelper.Set(f_zd, "ZDSZN", value); // 宗地代码
-                        continue;
-                    }
-                    String valueUp = value.toUpperCase();
-                    if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""))) {
-                        if (valueUp.contains("JC") && !valueUp.contains("F")) {
-                            String s0 = StringUtil.substr(valueUp, 0, valueUp.indexOf("JC") + 2);
-                            valueUp = s0 + String.format("%05d", Integer.parseInt(StringUtil.substr(valueUp, valueUp.indexOf("JC") + 2)));
-                            FeatureHelper.Set(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, valueUp);
-                            FeatureHelper.Set(f_zd, "QLLX", "6");
-                            continue;
-                        } else if (valueUp.contains("JB")&& !valueUp.contains("F")) {
-                            String s0 = StringUtil.substr(valueUp, 0, valueUp.indexOf("JB") + 2);
-                            valueUp = s0 + String.format("%05d", Integer.parseInt(StringUtil.substr(valueUp, valueUp.indexOf("JB") + 2)));
-                            FeatureHelper.Set(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, valueUp);
-                            FeatureHelper.Set(f_zd, "QLLX", "7");
-                            continue;
-
-                        } else if (valueUp.contains("GB")&& !valueUp.contains("F")) {
-                            String s0 = StringUtil.substr(valueUp, 0, valueUp.indexOf("GB") + 2);
-                            valueUp = s0 + String.format("%05d", Integer.parseInt(StringUtil.substr(valueUp, valueUp.indexOf("GB") + 2)));
-                            FeatureHelper.Set(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, valueUp);
-                            FeatureHelper.Set(f_zd, "QLLX", "4");
-                            continue;
-
-                        }
-                    }
-                }
-                f_zd.setGeometry(MapHelper.Geometry_get(g));
-                FeatureHelper.Set(f_zd, "PZYT", "0702");
-                FeatureHelper.Set(f_zd, "YT", "0702");
-                FeatureHelper.Set(f_zd, "SJYT", "0702");
-                mapInstance.fillFeature(f_zd);
-                new FeatureViewZD().fillFeature(f_zd);
-                fs.add(f_zd);
-                map_fs.put(name, AiUtil.GetValue(map_fs.get(name), 0) + 1);
-                return true;
-            } else {
+        if (flag) {
+            Geometry g = GdalAdapter.convert(f.getGeometry());
+            g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference(mapInstance, wkid));
+            g = MapHelper.geometry_new(GeometryType.POLYGON, ((Polyline) g).getParts());
+            if (g == null || !FeatureHelper.isPolygonGeometryValid(g)) {
                 return false;
             }
+            Feature f_zd = table.createFeature();
+            // 实体编码为 300000
+            for (String value : f.getExtendeds()) {
+                if (TextUtils.isEmpty(value)) {
+                    continue;
+                }
+                if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, "TFH", ""))
+                        && value.contains("-") && value.contains(".")
+                        && !StringUtil.isChinese(value)) {
+                    FeatureHelper.Set(f_zd, "TFH", value); // 宗地代码
+                    continue;
+                }
+
+                if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, "QLRXM", ""))
+                        && StringUtil.isQLRName(value)) {
+                    FeatureHelper.Set(f_zd, "QLRXM", value);
+                    continue;
+                }
+
+                if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, "ZL", ""))
+                        && value.contains("镇") && value.contains("村")) {
+                    FeatureHelper.Set(f_zd, "ZL", value); // 宗地代码
+                    continue;
+                }
+                if (value.contains("北至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
+                    FeatureHelper.Set(f_zd, "ZDSZB", value); // 宗地代码
+                    continue;
+                }
+                if (value.contains("东至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
+                    FeatureHelper.Set(f_zd, "ZDSZD", value); // 宗地代码
+                    continue;
+                }
+                if (value.contains("西至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
+                    FeatureHelper.Set(f_zd, "ZDSZX", value); // 宗地代码
+                    continue;
+                }
+                if (value.contains("南至") && value.contains(FeatureHelper.LAYER_NAME_ZD)) {
+                    FeatureHelper.Set(f_zd, "ZDSZN", value); // 宗地代码
+                    continue;
+                }
+                String valueUp = value.toUpperCase();
+                if (TextUtils.isEmpty(FeatureHelper.Get(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, ""))) {
+                    if (valueUp.contains("JC") && !valueUp.contains("F")) {
+                        String s0 = StringUtil.substr(valueUp, 0, valueUp.indexOf("JC") + 2);
+                        valueUp = s0 + String.format("%05d", Integer.parseInt(StringUtil.substr(valueUp, valueUp.indexOf("JC") + 2)));
+                        FeatureHelper.Set(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, valueUp);
+                        FeatureHelper.Set(f_zd, "QLLX", "6");
+                        continue;
+                    } else if (valueUp.contains("JB") && !valueUp.contains("F")) {
+                        String s0 = StringUtil.substr(valueUp, 0, valueUp.indexOf("JB") + 2);
+                        valueUp = s0 + String.format("%05d", Integer.parseInt(StringUtil.substr(valueUp, valueUp.indexOf("JB") + 2)));
+                        FeatureHelper.Set(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, valueUp);
+                        FeatureHelper.Set(f_zd, "QLLX", "7");
+                        continue;
+
+                    } else if (valueUp.contains("GB") && !valueUp.contains("F")) {
+                        String s0 = StringUtil.substr(valueUp, 0, valueUp.indexOf("GB") + 2);
+                        valueUp = s0 + String.format("%05d", Integer.parseInt(StringUtil.substr(valueUp, valueUp.indexOf("GB") + 2)));
+                        FeatureHelper.Set(f_zd, FeatureHelper.TABLE_ATTR_ZDDM, valueUp);
+                        FeatureHelper.Set(f_zd, "QLLX", "4");
+                        continue;
+
+                    }
+                }
+            }
+            f_zd.setGeometry(MapHelper.Geometry_get(g));
+            FeatureHelper.Set(f_zd, "PZYT", "0702");
+            FeatureHelper.Set(f_zd, "YT", "0702");
+            FeatureHelper.Set(f_zd, "SJYT", "0702");
+            mapInstance.fillFeature(f_zd);
+            new FeatureViewZD().fillFeature(f_zd);
+            fs.add(f_zd);
+            map_fs.put(name, AiUtil.GetValue(map_fs.get(name), 0) + 1);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean readZdAndReplace(FeatureTable
@@ -3230,10 +3228,10 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
         boolean flag = isEmptyStdm(f, mapStbm, stdms);// 是否包含实体编码
 
 //        if (("JMD".equals(f.Layer) || "FWFS".equals(f.Layer)) && (f.SubClasses + "").contains("Polyline") && flag) {
-        if ( flag&&(f.SubClasses + "").contains("Polyline")) {
+        if (flag && (f.SubClasses + "").contains("Polyline")) {
             String stdm = mapStbm.get(STBM);
             Geometry g = GdalAdapter.convert(f.getGeometry());
-            if (g instanceof Point){
+            if (g instanceof Point) {
                 return false;
             }
             g = MapHelper.geometry_get(g, MapHelper.GetSpatialReference(mapInstance, wkid));
