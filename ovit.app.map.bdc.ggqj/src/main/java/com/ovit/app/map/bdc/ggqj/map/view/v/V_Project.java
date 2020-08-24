@@ -2339,6 +2339,7 @@ public class V_Project extends com.ovit.app.map.view.V_Project {
                     @Override
                     public void run() {
                         aidialog.addContentView(title, mssage);
+                        //git test
                     }
                 });
             }
